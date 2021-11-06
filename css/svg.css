@@ -1,24 +1,43 @@
-.partnerLinks, .childLinks{
+.link {
   stroke: black;
-  marker-end: "url(#arrow)";
+  stroke-width: 2px;
 }
 
-.person.male {
+.männlich .weiblich {
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.männlich {
   fill: lightblue;
 }
 
-.person.female {
+.weiblich {
   fill: pink;
 }
 
 .partnerNode {
   fill: white;
   stroke: black;
-  stroke-width: 3;
+  stroke-width: 2;
 }
 
 .nameLabel {
   fill: black;
   font-size: 14px;
   text-anchor: middle;
+}
+
+#background {
+  stroke: gray;
+  stroke-width: 1px;
+  fill: white;
+}
+
+.group {
+  fill: lightgreen;
+}
+
+.invisible {
+  display: none;
 }
