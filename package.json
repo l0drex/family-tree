@@ -1,15 +1,19 @@
 {
-  "name": " ",
+  "name": "Family Tree",
   "version": "0.0.1",
-  "description": "",
-  "keywords": "",
+  "description": "A website that can show a family tree.",
+  "keywords": "familytree, family",
   "license": "",
-  "author": "",
+  "author": "Lorenz Hoffmann",
   "scripts": {
-    "build": "parcel build index.html",
-    "dev": "parcel index.html --open",
+    "build": "parcel build template.html",
+    "dev": "parcel template.html --open",
     "start": "npm run build && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "webcola": "latest",
+    "d3": "latest"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4"

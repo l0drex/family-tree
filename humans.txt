@@ -3,11 +3,11 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+    Loren Hoffmann -- Main developer -- l0drex
 
 # THANKS
 
-    <name>
+    HTML Boilerplate
 
 # TECHNOLOGY COLOPHON
 

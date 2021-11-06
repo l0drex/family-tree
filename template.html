@@ -18,17 +18,24 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/svg.css">
 
   <meta name="theme-color" content="#fafafa">
 </head>
 
 <body>
-
   <!-- Add your site or application content here -->
-  <p>Hello world! This is HTML5 Boilerplate.</p>
+  <?php print $content ?>
+
   <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
+  <?php
+  foreach ($scripts as $script) {
+    print "<script src=$script></script>";
+  }
+  ?>
 </body>
-
 </html>
