@@ -173,6 +173,15 @@ body {
   clear: both;
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    color: white;
+  }
+  body {
+    background-color: #1f1f1f;
+  }
+}
+
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.
    These examples override the primary ('mobile first') styles.

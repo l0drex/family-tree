@@ -1,6 +1,17 @@
-.link {
-  stroke: black;
+svg {
+  --foreground: black;
+  --background: white;
+  --male: lightblue;
+  --female: pink;
+}
+
+path {
+  stroke: var(--foreground);
   stroke-width: 2px;
+}
+
+marker {
+  fill: var(--foreground);
 }
 
 .link.parent {
@@ -12,26 +23,26 @@
 }
 
 .männlich .weiblich {
-  stroke: black;
+  stroke: var(--foreground);
   stroke-width: 1px;
 }
 
 .männlich {
-  fill: lightblue;
+  fill: var(--male);
 }
 
 .weiblich {
-  fill: pink;
+  fill: var(--female);
 }
 
 .partnerNode {
-  fill: white;
-  stroke: black;
+  fill: var(--background);
+  stroke: var(--foreground);
   stroke-width: 2;
 }
 
 .nameLabel {
-  fill: black;
+  fill: var(--foreground);
   font-size: 14px;
   text-anchor: middle;
 }
@@ -39,13 +50,18 @@
 #background {
   stroke: gray;
   stroke-width: 1px;
-  fill: white;
+  fill: var(--background);
 }
 
 .group {
   fill: lightgreen;
 }
 
-.invisible {
-  display: none;
+@media (prefers-color-scheme: dark) {
+  svg {
+    --foreground: #cecece;
+    --background: black;
+    --male: #2e4260;
+    --female: #6b1515;
+  }
 }

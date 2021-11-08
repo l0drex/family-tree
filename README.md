@@ -11,4 +11,4 @@ Documentation is stored in the doc directory.
 - [x] Draw arrows
 - [ ] Group partners
 - [ ] Show detailed information when clicking on the node
-- [ ] Add an automatic dark mode
+- [x] Add an automatic dark mode

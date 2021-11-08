@@ -134,14 +134,15 @@ function update() {
     .attr("orient", "auto")
     .attr("style", "overflow:visible")
     .append("path")
-    .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ");
+    .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
+    .attr("transform", "scale(.75)");
   defs.append("svg:marker")
     .attr("id", "Arrow2Lend")
     .attr("orient", "auto")
     .attr("style", "overflow:visible")
     .append("svg:path")
     .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-    .attr("transform", "rotate(180)")
+    .attr("transform", "rotate(180) scale(.75)");
 
   // family links
   let link = linkLayer.selectAll(".link")
@@ -202,7 +203,7 @@ function update() {
       });
 
     personNode
-      .attr("class", d => d.ID === 0 ? "invisible" : "");
+      .attr("class", d => d.ID === 0 ? "hidden" : "");
 
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")")
