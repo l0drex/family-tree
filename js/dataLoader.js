@@ -40,6 +40,7 @@ function parseData(graphData) {
 
 /**
  * Loads a json file, parses the data and sets up the graph
+ * @deprecated
  * @param path
  */
 function loadJson(path) {
@@ -125,9 +126,9 @@ function loadCsv(peopleTable, familyTable) {
 }
 
 function setup(graph) {
-  modelgraph = viewgraph = graph;
+  modelGraph = viewGraph = graph;
   // TODO allow to select this from the user
-  let startNode = modelgraph.nodes[158];
+  let startNode = modelGraph.nodes[158];
   //addViewNode(startNode);
   //refocus(startNode);
   update();

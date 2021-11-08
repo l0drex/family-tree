@@ -3,6 +3,14 @@
   stroke-width: 2px;
 }
 
+.link.parent {
+  marker-end:url(#Arrow2Lend);
+}
+
+.link.child {
+  marker-start:url(#Arrow2Lstart);
+}
+
 .männlich .weiblich {
   stroke: black;
   stroke-width: 1px;
