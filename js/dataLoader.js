@@ -7,6 +7,7 @@ function parseData(graphData) {
   graphData.people.forEach((v) => {
     v.width = personNodeSize[0];
     v.height = personNodeSize[1];
+    v.age = Number(v.age);
   });
 
   // create links between partners and child -> parents

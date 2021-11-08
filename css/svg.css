@@ -31,6 +31,12 @@ marker {
   fill: var(--male);
 }
 
+.männlich.dead {
+  fill: var(--background);
+  stroke: var(--male);
+  stroke-width: 4;
+}
+
 .weiblich {
   fill: var(--female);
 }

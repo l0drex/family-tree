@@ -1,7 +1,7 @@
-const viewportSize = [window.innerWidth, window.innerHeight];
+const viewportSize = [1900, 970];
 // set the size for each node
 const personNodeSize = [200, 30];
-const partnerNodeRadius = 10;
+const partnerNodeRadius = 20;
 let firstFamily;
 let d3cola = cola.d3adaptor(d3);
 // do some magic to allow zooming and moving
@@ -135,14 +135,14 @@ function update() {
     .attr("style", "overflow:visible")
     .append("path")
     .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-    .attr("transform", "scale(.75)");
+    .attr("transform", "scale(.75) translate(1,0)");
   defs.append("svg:marker")
     .attr("id", "Arrow2Lend")
     .attr("orient", "auto")
     .attr("style", "overflow:visible")
     .append("svg:path")
     .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-    .attr("transform", "rotate(180) scale(.75)");
+    .attr("transform", "rotate(180) scale(.75) translate(1,0)");
 
   // family links
   let link = linkLayer.selectAll(".link")
@@ -160,7 +160,7 @@ function update() {
     .on("touchend", click)
     .call(d3cola.drag);
   let rect = personNode.append("rect")
-    .attr("class", (d) => d.gender)
+    .attr("class", (d) => d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
     .attr("width", personNodeSize[0]).attr("height", personNodeSize[1])
     .attr("rx", personNodeSize[1]/2);
   personNode.append("title")
@@ -195,10 +195,10 @@ function update() {
           dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
           normX = deltaX / dist,
           normY = deltaY / dist,
-          sourceX = d.source.x + (17 * normX),
-          sourceY = d.source.y + (13 * normY),
-          targetX = d.target.x - (17 * normX),
-          targetY = d.target.y - (13 * normY);
+          sourceX = d.source.x + (30 * normX),
+          sourceY = d.source.y + (30 * normY),
+          targetX = d.target.x - (partnerNodeRadius * normX),
+          targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
         return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
       });
 
