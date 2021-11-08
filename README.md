@@ -9,6 +9,7 @@ Documentation is stored in the doc directory.
 - [x] Load data
 - [x] Show graph
 - [x] Draw arrows
+- [ ] Dynamic node sizing
 - [ ] Group partners
 - [ ] Show detailed information when clicking on the node
 - [x] Add an automatic dark mode

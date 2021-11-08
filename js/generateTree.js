@@ -6,12 +6,11 @@ let firstFamily;
 let d3cola = cola.d3adaptor(d3);
 // do some magic to allow zooming and moving
 // see https://github.com/tgdwyer/WebCola/blob/master/website/examples/onlinebrowse.html
-const outer = d3.select("body").append("svg")
+const outer = d3.select("svg")
   .attr("width", viewportSize[0])
   .attr("height", viewportSize[1]);
-outer.append("rect")
+outer.select("rect")
   .attr("id", "background")
-  .attr("width", "100%").attr("height", "100%")
   .call(d3.zoom().on("zoom", redraw));
 const vis = outer.append("g")
   .attr("id", "vis");
@@ -114,7 +113,7 @@ function update() {
     .links(viewGraph.links)
     //.groups(viewgraph.groups)
     //.flowLayout("y", 30)
-    .symmetricDiffLinkLengths(30)
+    .symmetricDiffLinkLengths(40)
     .size(viewportSize)
     .start();
 
@@ -196,7 +195,7 @@ function update() {
           normX = deltaX / dist,
           normY = deltaY / dist,
           sourceX = d.source.x + (30 * normX),
-          sourceY = d.source.y + (30 * normY),
+          sourceY = d.source.y + (25 * normY),
           targetX = d.target.x - (partnerNodeRadius * normX),
           targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
         return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
