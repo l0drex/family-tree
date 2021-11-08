@@ -163,9 +163,9 @@ function update() {
     .attr("width", personNodeSize[0]).attr("height", personNodeSize[1])
     .attr("rx", personNodeSize[1]/2);
   personNode.append("title")
-    .text((d) => getFullName(d));
+    .text(d => d.full_name);
   let text = personNode.append("text")
-    .text((d) => getFullName(d))
+    .text(d => d.full_name)
     .attr("class", "nameLabel");
 
   // partner node
@@ -187,7 +187,7 @@ function update() {
       .attr("y2", (d) => d.target.y);
 
     personNode
-      .attr("class", d => d.ID === "0" ? "invisible" : "");
+      .attr("class", d => d.ID === 0 ? "invisible" : "");
 
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")")
