@@ -1,6 +1,9 @@
 <?php
 
-$scripts = ["js/generateTree.js"];
+$scripts = [
+  "../js/dataLoader.js",
+  "../js/generateTree.js"
+];
 
 $content = "
 <h1>Familienstammbaum</h1>
