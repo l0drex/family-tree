@@ -125,12 +125,3 @@ function loadCsv(peopleTable, familyTable) {
     });
   });
 }
-
-function setup(graph) {
-  modelGraph = viewGraph = graph;
-  // TODO allow to select this from the user
-  let startNode = modelGraph.nodes[158];
-  //addViewNode(startNode);
-  //refocus(startNode);
-  update();
-}

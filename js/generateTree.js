@@ -24,6 +24,15 @@ let nodesLayer = vis.append("g")
 let viewGraph, modelGraph = {nodes: [], links: []};
 loadCsv("../resources/Stammbaum - Personen.csv", "../resources/Stammbaum - Familien.csv");
 
+function setup(graph) {
+  modelGraph = viewGraph = graph;
+  // TODO allow to select this from the user
+  let startNode = modelGraph.nodes[158];
+  //addViewNode(startNode);
+  //refocus(startNode);
+  update();
+}
+
 // TODO move some of this to a new file
 // --- original from https://github.com/tgdwyer/WebCola/blob/master/website/examples/onlinebrowse.html
 // modified for use case
@@ -126,7 +135,7 @@ function update() {
   // partner groups
   let group;
   if (groupPartners)
-    group = nodesLayer.selectAll(".group")
+    group = groupLayer.selectAll(".group")
     .data(viewGraph.groups).enter()
     .append("rect")
     .attr("class", "group")
