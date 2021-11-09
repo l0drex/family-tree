@@ -83,19 +83,17 @@ function loadCsv(peopleTable, familyTable) {
 
     let children = {};
     personData.every(person => {
-      if (typeof person.ID === "undefined")
+      if (!person.ID)
         return false;
-
       person.ID = Number(person.ID);
 
       // map family index -> children array
-      let familyIndex = person.child_of;
-      if (familyIndex !== "") {
-        familyIndex = Number(familyIndex);
-        if (typeof children[familyIndex] == "undefined")
-          children[familyIndex] = [person.ID];
+      if (person.child_of) {
+        person.child_of = Number(person.child_of);
+        if (typeof children[person.child_of] == "undefined")
+          children[person.child_of] = [person.ID];
         else
-          children[familyIndex].push(person.ID);
+          children[person.child_of].push(person.ID);
       }
       delete person.child_of;
 
@@ -112,9 +110,14 @@ function loadCsv(peopleTable, familyTable) {
       familyData.every(family => {
         if (!family.ID)
           return false;
+        family.ID = Number(family.ID);
 
         family.partners = [Number(family.partner1), Number(family.partner2)];
+        delete family.partner1;
+        delete family.partner2;
+
         family.married = family.married === "true";
+
         if (family.ID in children)
           family.children = children[family.ID];
         else
