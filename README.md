@@ -11,6 +11,6 @@ Documentation is stored in the doc directory.
 - [x] Draw arrows
 - [ ] Dynamic node sizing
 - [x] Group partners (_disabled due to performance_)
-- [ ] Hide most of the nodes on start up
+- [x] Hide most of the nodes on start up
 - [ ] Show detailed information when clicking on the node
 - [x] Add an automatic dark mode

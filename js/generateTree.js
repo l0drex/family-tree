@@ -5,7 +5,7 @@ const personNodeSize = [200, 30];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = false;
-const showFullGraph = true;
+const showFullGraph = false;
 
 const d3cola = cola.d3adaptor(d3)
   //.flowLayout("y", 30)
@@ -124,7 +124,7 @@ function addViewNode(v) {
  */
 function click(node) {
   if (!inView(node)) return;
-  refocus(modelGraph.nodes[node.ID]);
+  refocus(node);
 }
 
 /**
@@ -175,22 +175,24 @@ function update() {
   let group;
   if (groupPartners) {
     group = groupLayer.selectAll(".group")
-      .data(viewGraph.groups).enter()
-      .append("rect")
+      .data(viewGraph.groups).enter();
+    group.append("rect")
       .attr("class", "group")
       .call(d3cola.drag);
+    group = groupLayer.selectAll(".group");
   }
 
   // family links
   let link = linkLayer.selectAll(".link")
-    .data(viewGraph.links)
-    .enter().append("path")
+    .data(viewGraph.links);
+  link.enter().append("path")
     .attr("class", d => "link " + (d.target.partners.includes(d.source.ID) ? "parent" : "child"));
+  link = linkLayer.selectAll(".link");
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => isPerson(node)), d => d.viewgraphid)
-    .enter().append("g")
+    .data(viewGraph.nodes.filter(node => isPerson(node)), d => d.viewgraphid);
+  let personGroup = personNode.enter().append("g")
     .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
     .on("mousedown", click)
     .on("touchend", click)
@@ -198,7 +200,7 @@ function update() {
     .on("touchmove", d3.preventDefault)
     .call(d3cola.drag);
   // background rect
-  personNode.append("rect")
+  personGroup.append("rect")
     .attr("class", (d) => d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
     .attr("width", personNodeSize[0])
     .attr("height", personNodeSize[1])
@@ -206,21 +208,23 @@ function update() {
     .attr("x", -personNodeSize[0]/2)
     .attr("y", -personNodeSize[1]/2);
   // name
-  personNode.append("title")
+  personGroup.append("title")
     .text(d => d.full_name);
-  personNode.append("text")
+  personGroup.append("text")
     .text(d => d.full_name)
     .attr("class", "nameLabel")
     .attr("y", 5);
+  personNode = nodesLayer.selectAll(".person");
 
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
-    .data(viewGraph.nodes.filter(node => !isPerson(node)), d => d.viewgraphid)
-    .enter().append("path")
+    .data(viewGraph.nodes.filter(node => !isPerson(node)), d => d.viewgraphid);
+  partnerNode.enter().append("path")
     .attr("class", "partnerNode")
     .attr("d",
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
     .call(d3cola.drag);
+  partnerNode = nodesLayer.selectAll(".partnerNode");
 
   d3cola.on("tick", () => {
     if (groupPartners) {
