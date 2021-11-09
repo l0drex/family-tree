@@ -7,13 +7,14 @@ let firstFamily;
 let d3cola = cola.d3adaptor(d3);
 // do some magic to allow zooming and moving
 // see https://github.com/tgdwyer/WebCola/blob/master/website/examples/onlinebrowse.html
-const outer = d3.select("svg")
+const svg = d3.select("svg")
   .attr("width", viewportSize[0])
   .attr("height", viewportSize[1]);
-outer.select("rect")
+svg.select("rect")
   .attr("id", "background")
+  .attr("style", "fill: transparent; stroke: none;")
   .call(d3.zoom().on("zoom", redraw));
-const vis = outer.append("g")
+const vis = svg.append("g")
   .attr("id", "vis");
 let linkLayer = vis.append("g")
   .attr("id", "links");
@@ -132,7 +133,7 @@ function update() {
     .call(d3cola.drag);
 
   // arrow for ancestor lines
-  let defs = outer.append("svg:defs")
+  let defs = svg.append("svg:defs")
   defs.append("svg:marker")
     .attr("id", "Arrow2Lstart")
     .attr("orient", "auto")

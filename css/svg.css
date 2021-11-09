@@ -3,6 +3,7 @@ svg {
   --background: white;
   --male: lightblue;
   --female: pink;
+  background-color: var(--background);
 }
 
 path {
@@ -53,12 +54,6 @@ marker {
   fill: var(--foreground);
   font-size: 14px;
   text-anchor: middle;
-}
-
-#background {
-  stroke: gray;
-  stroke-width: 1px;
-  fill: var(--background);
 }
 
 .group {
