@@ -111,7 +111,7 @@ function update() {
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
-    //.groups(viewgraph.groups)
+    .groups(viewGraph.groups)
     //.flowLayout("y", 30)
     .symmetricDiffLinkLengths(40)
     .size(viewportSize)
@@ -120,11 +120,11 @@ function update() {
   // draw instructions:
 
   // partner groups
-/*  let group = linkLayer.selectAll(".group")
-    .data(viewgraph.groups).enter()
+  let group = linkLayer.selectAll(".group")
+    .data(viewGraph.groups).enter()
     .append("rect")
     .attr("class", "group")
-    .call(d3cola.drag);*/
+    .call(d3cola.drag);
 
   // arrow for ancestor lines
   let defs = outer.append("svg:defs")
@@ -158,34 +158,37 @@ function update() {
     .on("mousedown", click)
     .on("touchend", click)
     .call(d3cola.drag);
-  let rect = personNode.append("rect")
+  // background rect
+  personNode.append("rect")
     .attr("class", (d) => d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
-    .attr("width", personNodeSize[0]).attr("height", personNodeSize[1])
-    .attr("rx", personNodeSize[1]/2);
+    .attr("width", personNodeSize[0])
+    .attr("height", personNodeSize[1])
+    .attr("rx", personNodeSize[1]/2)
+    .attr("x", -personNodeSize[0]/2)
+    .attr("y", -personNodeSize[1]/2);
+  // name
   personNode.append("title")
     .text(d => d.full_name);
-  let text = personNode.append("text")
+  personNode.append("text")
     .text(d => d.full_name)
-    .attr("class", "nameLabel");
+    .attr("class", "nameLabel")
+    .attr("y", 5);
 
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(viewGraph.nodes.filter(node => !isPerson(node)), d => d.viewgraphid)
-    .enter().append("g")
-    .call(d3cola.drag);
-
-  partnerNode
-    .append("path")
+    .enter().append("path")
     .attr("class", "partnerNode")
     .attr("d",
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
+    .call(d3cola.drag)
 
   d3cola.on("tick", () => {
-/*    group
+    group
       .attr("x", d => d.x)
       .attr("y", d => d.y)
       .attr("width", d => d.width)
-      .attr("height", d => d.height);*/
+      .attr("height", d => d.height);
 
     link
       .attr("d", d => {
@@ -202,14 +205,9 @@ function update() {
       });
 
     partnerNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")")
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-    text
-      .attr("x", d => d.x)
-      .attr("y", d => d.y);
-
-    rect
-      .attr("x", d => d.x - d.width / 2)
-      .attr("y", d => d.y - d.height / 2);
+    personNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
   });
 }
