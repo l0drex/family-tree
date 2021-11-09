@@ -8,6 +8,15 @@ function parseData(graphData) {
     v.width = personNodeSize[0];
     v.height = personNodeSize[1];
     v.age = Number(v.age);
+
+    v.additionalNames = "";
+    if (v.born !== "")
+      v.additionalNames += "geb " + v.born;
+    if (v.named !== "") {
+      if (v.additionalNames !== "")
+        v.additionalNames += ", "
+      v.additionalNames += "genannt " + v.named;
+    }
   });
 
   // create links between partners and child -> parents
