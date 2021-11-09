@@ -73,22 +73,22 @@ function loadCsv(peopleTable, familyTable) {
     }
 
     let children = {};
-    personData.every((row, index) => {
-      if (typeof row.ID === "undefined")
+    personData.every(person => {
+      if (typeof person.ID === "undefined")
         return false;
 
-      row.ID = Number(row.ID);
+      person.ID = Number(person.ID);
 
       // map family index -> children array
-      let familyIndex = row.child_of;
+      let familyIndex = person.child_of;
       if (familyIndex !== "") {
         familyIndex = Number(familyIndex);
         if (typeof children[familyIndex] == "undefined")
-          children[familyIndex] = [index];
+          children[familyIndex] = [person.ID];
         else
-          children[familyIndex].push(index);
+          children[familyIndex].push(person.ID);
       }
-      delete row.child_of;
+      delete person.child_of;
 
       return true;
     });
@@ -100,16 +100,16 @@ function loadCsv(peopleTable, familyTable) {
         return;
       }
 
-      familyData.every((row, index) => {
-        if (!row.ID)
+      familyData.every(family => {
+        if (!family.ID)
           return false;
 
-        row.partners = [Number(row.partner1), Number(row.partner2)];
-        row.married = row.married === "true";
-        if (index in children)
-          row.children = children[index];
+        family.partners = [Number(family.partner1), Number(family.partner2)];
+        family.married = family.married === "true";
+        if (family.ID in children)
+          family.children = children[family.ID];
         else
-          row.children = [];
+          family.children = [];
 
         return true;
       });
