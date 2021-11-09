@@ -1,6 +1,8 @@
 <?php
 
 $scripts = [
+  "https://d3js.org/d3.v4.js",
+  "https://marvl.infotech.monash.edu/webcola/cola.min.js",
   "../js/dataLoader.js",
   "../js/generateTree.js"
 ];
