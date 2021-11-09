@@ -2,6 +2,7 @@ const viewportSize = [1900, 970];
 // set the size for each node
 const personNodeSize = [200, 30];
 const partnerNodeRadius = 20;
+const groupPartners = false;
 let firstFamily;
 let d3cola = cola.d3adaptor(d3);
 // do some magic to allow zooming and moving
@@ -108,19 +109,23 @@ function update() {
   console.assert(viewGraph.links.length > 0);
   console.assert(viewGraph.groups.length > 0);
   // graph setup:
+  if (groupPartners)
+    d3cola.groups(viewGraph.groups);
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
-    .groups(viewGraph.groups)
     //.flowLayout("y", 30)
     .symmetricDiffLinkLengths(40)
     .size(viewportSize)
+    .avoidOverlaps(groupPartners)
     .start();
 
   // draw instructions:
 
   // partner groups
-  let group = linkLayer.selectAll(".group")
+  let group;
+  if (groupPartners)
+    group = nodesLayer.selectAll(".group")
     .data(viewGraph.groups).enter()
     .append("rect")
     .attr("class", "group")
@@ -184,11 +189,12 @@ function update() {
     .call(d3cola.drag)
 
   d3cola.on("tick", () => {
-    group
-      .attr("x", d => d.x)
-      .attr("y", d => d.y)
-      .attr("width", d => d.width)
-      .attr("height", d => d.height);
+    if (groupPartners)
+      group
+        .attr("x", d => d.bounds.x)
+        .attr("y", d => d.bounds.y)
+        .attr("width", d => d.bounds.width())
+        .attr("height", d => d.bounds.height());
 
     link
       .attr("d", d => {
