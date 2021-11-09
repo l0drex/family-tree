@@ -154,7 +154,7 @@ function update() {
     .data(viewGraph.nodes.filter(node => isPerson(node)), d => d.viewgraphid)
     .enter()
     .append("g")
-    .attr("class", "person")
+    .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
     .on("mousedown", click)
     .on("touchend", click)
     .call(d3cola.drag);
@@ -200,9 +200,6 @@ function update() {
           targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
         return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
       });
-
-    personNode
-      .attr("class", d => d.ID === 0 ? "hidden" : "");
 
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")")

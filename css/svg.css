@@ -22,23 +22,25 @@ marker {
   marker-start:url(#Arrow2Lstart);
 }
 
-.männlich .weiblich {
-  stroke: var(--foreground);
-  stroke-width: 1px;
-}
-
 .männlich {
   fill: var(--male);
 }
 
-.männlich.dead {
+.weiblich {
+  fill: var(--female);
+}
+
+.dead {
   fill: var(--background);
-  stroke: var(--male);
   stroke-width: 4;
 }
 
-.weiblich {
-  fill: var(--female);
+.männlich.dead {
+  stroke: var(--male);
+}
+
+.weiblich.dead {
+  stroke: var(--female)
 }
 
 .partnerNode {
@@ -60,7 +62,8 @@ marker {
 }
 
 .group {
-  fill: lightgreen;
+  fill: white;
+  stroke: var(--foreground);
 }
 
 @media (prefers-color-scheme: dark) {
