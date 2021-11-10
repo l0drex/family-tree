@@ -6,8 +6,8 @@
   "license": "",
   "author": "Lorenz Hoffmann",
   "scripts": {
-    "build": "parcel build html/template.html",
-    "dev": "parcel html/template.html --open",
+    "build": "parcel build html/template.php",
+    "dev": "parcel html/template.php --open",
     "start": "npm run build && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -14,4 +14,4 @@ $content = "
 </svg>
 ";
 
-require_once "template.html";
+require_once "template.php";
