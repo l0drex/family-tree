@@ -6,6 +6,7 @@ const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = false;
 const showFullGraph = false;
+const startNode = 3;
 
 const d3cola = cola.d3adaptor(d3)
   .flowLayout("y", 60)
@@ -21,6 +22,7 @@ svg.select("rect")
   .attr("id", "background")
   .attr("style", "fill: transparent; stroke: none;")
   .call(d3.zoom().on("zoom", redraw));
+
 const vis = svg.append("g")
   .attr("id", "vis");
 const groupLayer = vis.append("g")
@@ -29,6 +31,9 @@ const linkLayer = vis.append("g")
   .attr("id", "links");
 const nodesLayer = vis.append("g")
   .attr("id", "nodes");
+const infoLayer = vis.append("g")
+  .attr("id", "infos")
+
 // definitions for arrows
 const defs = svg.append("svg:defs");
 defs.append("svg:marker")
@@ -40,6 +45,8 @@ defs.append("svg:marker")
   .attr("transform", "rotate(180) scale(.75) translate(1,0)");
 
 let modelGraph, viewGraph = {nodes: [], links: [], groups: []};
+let infoHtml;
+loadInfoHtml("../html/infos.html");
 loadCsv("../resources/Stammbaum - Personen.csv", "../resources/Stammbaum - Familien.csv");
 
 function setup(graph) {
@@ -75,14 +82,14 @@ function refocus(focus) {
       addViewNode(family);
 
     // add all people in the family
-    people.filter(p => p.ID !== 0).forEach(p => {
+    people.filter(p => p !== 0).forEach(p => {
       let person = modelGraph.nodes[p];
       if (!inView(person))
         addViewNode(person);
     });
 
     if (newFamily) {
-      family.partners.forEach(p => {
+      family.partners.filter(p => p !== 0).forEach(p => {
         let person = modelGraph.nodes[p];
         if (!inView(person))
           addViewNode(person);
@@ -93,7 +100,7 @@ function refocus(focus) {
         })
       });
 
-      family.children.forEach(p => {
+      family.children.filter(p => p !== 0).forEach(p => {
         let person = modelGraph.nodes[p];
         if (!inView(person))
           addViewNode(person);
@@ -152,6 +159,39 @@ function addMissingNodes(etcNode) {
   etcNode = viewGraph.nodes[etcNode.target];
   if (!inView(etcNode)) return;
   refocus(etcNode);
+}
+
+/**
+ * Show the info node of a person
+ * @param personNode
+ */
+function showInfo(personNode) {
+  personNode.infoVisible = true;
+  update();
+}
+
+function hideInfo(personNode) {
+  personNode.infoVisible = false;
+  update();
+}
+
+function insertData(data) {
+  let html = infoHtml.cloneNode(true);
+  html.querySelector(".fullName").innerHTML =
+    data.full_name;
+  html.querySelector(".addNames").innerHTML =
+    (data.born ? "geb. " + data.born : "") + (data.named ? " genannt " + data.named : "");
+  html.querySelector(".years").innerHTML =
+    (data.birthday ? " * " + data.birthday : "") + (data.day_of_death ? " † " + data.day_of_death : "");
+  html.querySelector(".age").innerHTML =
+    (data.age ? data.age : "?");
+  html.querySelector(".profession").innerHTML =
+    (data.profession ? data.profession : "?");
+  html.querySelector(".religion").innerHTML =
+    (data.religion ? data.religion : "?");
+  html.querySelector(".placeOfBirth").innerHTML =
+    (data.place_of_birth ? data.place_of_birth : "?");
+  return html;
 }
 
 /**
@@ -222,6 +262,8 @@ function update() {
   let personGroup = personNode.enter().append("g")
     .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
     .attr("id", d => d.ID)
+    .on("mousedown", showInfo)
+    .on("touchend", showInfo)
     .call(d3cola.drag);
   // background rect
   personGroup.append("rect")
@@ -237,8 +279,23 @@ function update() {
   personGroup.append("text")
     .text(d => d.full_name)
     .attr("class", "nameLabel")
-    .attr("y", 5);
+    .attr("y", ".3em");
   personNode = nodesLayer.selectAll(".person");
+
+  // info nodes
+  let infoNode = infoLayer.selectAll(".info")
+    .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewgraphid)
+    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden") + " " + d.gender);
+  infoNode.enter().append("foreignObject")
+    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden"))
+    .attr("x", -personNodeSize[0] / 2)
+    .attr("y", -personNodeSize[1] / 2)
+    .attr("width", d => d.width)
+    .attr("height", 210)
+    .on("mousedown", hideInfo)
+    .on("touchend", hideInfo)
+    .append(d => insertData(d));
+  infoNode = infoLayer.selectAll(".info");
 
   // node on which the user can click to show more people
   let etcNode = nodesLayer.selectAll(".etc")
@@ -251,8 +308,9 @@ function update() {
     .attr("r", 10);
   etcGroup.append("text")
     .text("…")
+    .attr("y", 1);
   etcNode.exit().remove();
-  etcNode = nodesLayer.selectAll(".etc")
+  etcNode = nodesLayer.selectAll(".etc");
 
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
@@ -296,5 +354,9 @@ function update() {
 
     etcNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+
+    infoNode
+      .attr("x", d => d.x - personNodeSize[0] / 2)
+      .attr("y", d => d.y - personNodeSize[1] / 2);
   });
 }

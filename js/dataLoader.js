@@ -19,6 +19,7 @@ function parseData(graphData) {
     }
 
     v.type = "person"
+    v.infoVisible = false;
   });
 
   // create links between partners and child -> parents
@@ -138,9 +139,22 @@ function loadCsv(peopleTable, familyTable) {
         families: familyData
       };
       let graph = parseData(data);
+      graph.groups.forEach(g => {
+        g.leaves.forEach(l => console.assert(typeof l === "number"), "One of the partner ids is not a number");
+      })
       console.assert(typeof graph !== "undefined",
         "Result of parsing is empty");
       setup(graph);
     });
+  });
+}
+
+function loadInfoHtml(path) {
+  d3.html(path, (error, page) => {
+    if (error !== null) {
+      console.error(error);
+      return;
+    }
+    infoHtml = page;
   });
 }

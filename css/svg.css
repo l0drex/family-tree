@@ -1,6 +1,7 @@
 svg {
   --foreground: black;
   --background: white;
+  --background-secondary: #f1f1f1;
   --male: lightblue;
   --female: pink;
   background-color: var(--background);
@@ -46,12 +47,6 @@ marker {
   stroke-width: 2;
 }
 
-.nameLabel {
-  fill: var(--foreground);
-  font-size: 14px;
-  text-anchor: middle;
-}
-
 .group {
   fill: var(--background);
   stroke: var(--foreground);
@@ -64,8 +59,14 @@ marker {
   text-anchor: middle;
 }
 
+.infoBackground {
+  fill: var(--background);
+}
+
 text {
   fill: var(--foreground);
+  font-size: 14px;
+  text-anchor: middle;
   stroke: none;
 }
 
@@ -75,5 +76,47 @@ text {
     --background: black;
     --male: #2e4260;
     --female: #6b1515;
+    --background-secondary: #1c1c1c;
   }
+}
+
+/* stuff for the inner html */
+.info h1, .info h2, .info h3, .info text {
+  font-size: 14px;
+  line-height: .75em;
+}
+
+.info h1, .info h2, .info h3 {
+  text-align: center;
+}
+
+.info h1 {
+  margin-top: 0;
+}
+
+.info h2, h3 {
+  font-weight: 300;
+}
+
+.info h3 {
+  font-style: italic;
+}
+
+.info #bg {
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.info.männlich #bg {
+  background-color: var(--male);
+}
+
+.info.weiblich #bg {
+  background-color: var(--female);
+}
+
+.info #text-bg {
+  background-color: var(--background-secondary);
+  border-radius: 10px;
+  padding: 5px;
 }
