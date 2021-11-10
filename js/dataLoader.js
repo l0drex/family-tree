@@ -26,9 +26,13 @@ function parseData(graphData) {
     family.height = family.width = partnerNodeRadius * 2;
     let familyIndex = graphData.people.length + index;
     // link each parent and each child to their family node
-    family.partners.concat(family.children).forEach((p) => links.push({
-      "source": p,
-      "target": familyIndex
+    family.partners.forEach(p => links.push({
+      source: p,
+      target: familyIndex
+    }))
+    family.children.forEach(p => links.push({
+      source: familyIndex,
+      target: p
     }));
     partners.push({"leaves": family.partners});
   });

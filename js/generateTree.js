@@ -5,13 +5,13 @@ const personNodeSize = [200, 30];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = false;
-const showFullGraph = false;
+const showFullGraph = true;
 
 const d3cola = cola.d3adaptor(d3)
-  //.flowLayout("y", 30)
+  .flowLayout("y", 60)
   .symmetricDiffLinkLengths(40)
   .size(viewportSize)
-  .avoidOverlaps(groupPartners);
+  .avoidOverlaps(groupPartners || !showFullGraph);
 let firstFamily;
 
 const svg = d3.select("svg")
@@ -31,13 +31,6 @@ const nodesLayer = vis.append("g")
   .attr("id", "nodes");
 // definitions for arrows
 const defs = svg.append("svg:defs");
-defs.append("svg:marker")
-  .attr("id", "Arrow2Lstart")
-  .attr("orient", "auto")
-  .attr("style", "overflow:visible")
-  .append("path")
-  .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-  .attr("transform", "scale(.75) translate(1,0)");
 defs.append("svg:marker")
   .attr("id", "Arrow2Lend")
   .attr("orient", "auto")
@@ -72,7 +65,7 @@ function setup(graph) {
  */
 function refocus(focus) {
   // add family nodes and nodes that link to them
-    modelGraph.nodes.filter(n => !isPerson(n)).forEach(family => {
+  modelGraph.nodes.filter(n => !isPerson(n)).forEach(family => {
     let people = family.partners.concat(family.children);
     if (!people.includes(focus.ID))
       return
@@ -82,22 +75,40 @@ function refocus(focus) {
       addViewNode(family);
 
     // add all people in the family
-    people.forEach(person => {
-      let personNode = modelGraph.nodes[person];
-      if (!inView(personNode))
-        addViewNode(personNode);
-
-      if (newFamily)
-        viewGraph.links.push({
-          source: personNode.viewgraphid,
-          target: family.viewgraphid
-        });
-
-      if (newFamily)
-        viewGraph.groups.push({
-          leaves: family.partners
-        });
+    people.filter(p => p.ID !== 0).forEach(p => {
+      let person = modelGraph.nodes[p];
+      if (!inView(person))
+        addViewNode(person);
     });
+
+    if (newFamily) {
+      family.partners.forEach(p => {
+        let person = modelGraph.nodes[p];
+        if (!inView(person))
+          addViewNode(person);
+
+        viewGraph.links.push({
+          source: person.viewgraphid,
+          target: family.viewgraphid
+        })
+      });
+
+      family.children.forEach(p => {
+        let person = modelGraph.nodes[p];
+        if (!inView(person))
+          addViewNode(person);
+
+        viewGraph.links.push({
+          source: family.viewgraphid,
+          target: person.viewgraphid
+        })
+      });
+    }
+
+    if (newFamily)
+      viewGraph.groups.push({
+        leaves: family.partners
+      });
   });
   // TODO show visible links and draw stroke around clickable nodes
   update();
@@ -186,7 +197,7 @@ function update() {
   let link = linkLayer.selectAll(".link")
     .data(viewGraph.links);
   link.enter().append("path")
-    .attr("class", d => "link " + (d.target.partners.includes(d.source.ID) ? "parent" : "child"));
+    .attr("class", "link");
   link = linkLayer.selectAll(".link");
 
   // person nodes
@@ -194,6 +205,7 @@ function update() {
     .data(viewGraph.nodes.filter(node => isPerson(node)), d => d.viewgraphid);
   let personGroup = personNode.enter().append("g")
     .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
+    .attr("id", d => d.ID)
     .on("mousedown", click)
     .on("touchend", click)
     .on("mousemove", d3.preventDefault)
@@ -204,9 +216,9 @@ function update() {
     .attr("class", (d) => d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
     .attr("width", personNodeSize[0])
     .attr("height", personNodeSize[1])
-    .attr("rx", personNodeSize[1]/2)
-    .attr("x", -personNodeSize[0]/2)
-    .attr("y", -personNodeSize[1]/2);
+    .attr("rx", personNodeSize[1] / 2)
+    .attr("x", -personNodeSize[0] / 2)
+    .attr("y", -personNodeSize[1] / 2);
   // name
   personGroup.append("title")
     .text(d => d.full_name);
@@ -221,6 +233,7 @@ function update() {
     .data(viewGraph.nodes.filter(node => !isPerson(node)), d => d.viewgraphid);
   partnerNode.enter().append("path")
     .attr("class", "partnerNode")
+    .attr("id", d => d.ID + firstFamily)
     .attr("d",
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
     .call(d3cola.drag);

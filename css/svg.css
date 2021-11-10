@@ -15,12 +15,8 @@ marker {
   fill: var(--foreground);
 }
 
-.link.parent {
+.link {
   marker-end:url(#Arrow2Lend);
-}
-
-.link.child {
-  marker-start:url(#Arrow2Lstart);
 }
 
 .männlich {
