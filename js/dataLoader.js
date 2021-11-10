@@ -17,6 +17,8 @@ function parseData(graphData) {
         v.additionalNames += ", "
       v.additionalNames += "genannt " + v.named;
     }
+
+    v.type = "person"
   });
 
   // create links between partners and child -> parents
@@ -35,6 +37,7 @@ function parseData(graphData) {
       target: p
     }));
     partners.push({"leaves": family.partners});
+    family.type = "family";
   });
 
   var graph = {

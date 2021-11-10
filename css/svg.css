@@ -53,8 +53,20 @@ marker {
 }
 
 .group {
-  fill: white;
+  fill: var(--background);
   stroke: var(--foreground);
+}
+
+.etc {
+  fill: var(--background);
+  stroke: var(--foreground);
+  stroke-width: 2;
+  text-anchor: middle;
+}
+
+text {
+  fill: var(--foreground);
+  stroke: none;
 }
 
 @media (prefers-color-scheme: dark) {

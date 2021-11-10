@@ -5,7 +5,7 @@ const personNodeSize = [200, 30];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = false;
-const showFullGraph = true;
+const showFullGraph = false;
 
 const d3cola = cola.d3adaptor(d3)
   .flowLayout("y", 60)
@@ -65,7 +65,7 @@ function setup(graph) {
  */
 function refocus(focus) {
   // add family nodes and nodes that link to them
-  modelGraph.nodes.filter(n => !isPerson(n)).forEach(family => {
+  modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
     let people = family.partners.concat(family.children);
     if (!people.includes(focus.ID))
       return
@@ -126,16 +126,32 @@ function addViewNode(v) {
   }
   v.viewgraphid = viewGraph.nodes.length;
   viewGraph.nodes.push(v);
+
+  if (v.type === "person") {
+    let etcNode = {
+      type: "etc",
+      viewgraphid: viewGraph.nodes.length,
+      target: v.viewgraphid
+    }
+    viewGraph.nodes.push(etcNode);
+    viewGraph.links.push({
+      target: etcNode.viewgraphid,
+      source: v.viewgraphid
+    })
+  }
 }
 
 /**
- * Called if the user clicked on a node.
- * Selects the clicked-on node as focus node
- * @param node the node where the user clicked on
+ * Called if the user clicked on a etc node.
+ * Adds missing families of the target and removes the etc
+ * @param etcNode the node where the user clicked on
  */
-function click(node) {
-  if (!inView(node)) return;
-  refocus(node);
+function addMissingNodes(etcNode) {
+  etcNode.type = "";
+  viewGraph.links = viewGraph.links.filter(l => !(l.source.type === "" || l.target.type === ""))
+  etcNode = viewGraph.nodes[etcNode.target];
+  if (!inView(etcNode)) return;
+  refocus(etcNode);
 }
 
 /**
@@ -154,7 +170,7 @@ function inView(v) {
  */
 function isPerson(node) {
   //return modelGraph.nodes.indexOf(node) < firstFamily;
-  return typeof node.gender !== "undefined";
+  return node.type === "person";
 }
 
 /**
@@ -202,14 +218,10 @@ function update() {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => isPerson(node)), d => d.viewgraphid);
+    .data(viewGraph.nodes.filter(node => node.type === "person"), d => d.viewgraphid);
   let personGroup = personNode.enter().append("g")
     .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
     .attr("id", d => d.ID)
-    .on("mousedown", click)
-    .on("touchend", click)
-    .on("mousemove", d3.preventDefault)
-    .on("touchmove", d3.preventDefault)
     .call(d3cola.drag);
   // background rect
   personGroup.append("rect")
@@ -228,9 +240,23 @@ function update() {
     .attr("y", 5);
   personNode = nodesLayer.selectAll(".person");
 
+  // node on which the user can click to show more people
+  let etcNode = nodesLayer.selectAll(".etc")
+    .data(viewGraph.nodes.filter(node => node.type === "etc"), d => d.viewgraphid);
+  let etcGroup = etcNode.enter().append("g")
+    .attr("class", "etc")
+    .on("mousedown", addMissingNodes)
+    .on("touchend", addMissingNodes);
+  etcGroup.append("circle")
+    .attr("r", 10);
+  etcGroup.append("text")
+    .text("…")
+  etcNode.exit().remove();
+  etcNode = nodesLayer.selectAll(".etc")
+
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
-    .data(viewGraph.nodes.filter(node => !isPerson(node)), d => d.viewgraphid);
+    .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewgraphid);
   partnerNode.enter().append("path")
     .attr("class", "partnerNode")
     .attr("id", d => d.ID + firstFamily)
@@ -266,6 +292,9 @@ function update() {
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
     personNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+
+    etcNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
   });
 }
