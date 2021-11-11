@@ -88,11 +88,14 @@ function refocus(focus) {
         addViewNode(person);
     });
 
+    // array containing the viewgraph ids of the partners
+    let partnerIds = []
     if (newFamily) {
       family.partners.filter(p => p !== 0).forEach(p => {
         let person = modelGraph.nodes[p];
         if (!inView(person))
           addViewNode(person);
+        partnerIds.push(person.viewgraphid);
 
         viewGraph.links.push({
           source: person.viewgraphid,
@@ -114,7 +117,7 @@ function refocus(focus) {
 
     if (newFamily)
       viewGraph.groups.push({
-        leaves: family.partners
+        leaves: partnerIds.concat(family.viewgraphid)
       });
   });
   // TODO show visible links and draw stroke around clickable nodes
@@ -226,14 +229,10 @@ function redraw() {
 function update() {
   console.assert(viewGraph.nodes.length > 0);
   console.assert(viewGraph.links.length > 0);
-  if (groupPartners) {
-    console.assert(viewGraph.groups.length > 0);
-    d3cola.groups(viewGraph.groups);
-  }
-
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
+    .groups(viewGraph.groups)
     .start();
 
   // draw instructions:
