@@ -19,7 +19,6 @@ svg {
 
 path {
   stroke: var(--foreground);
-  stroke-width: 2px;
 }
 
 marker {
@@ -32,8 +31,6 @@ marker {
 
 .partnerNode {
   fill: var(--background);
-  stroke: var(--foreground);
-  stroke-width: 2;
 }
 
 .group {
@@ -44,7 +41,6 @@ marker {
 .etc {
   fill: var(--background);
   stroke: var(--foreground);
-  stroke-width: 2;
   text-anchor: middle;
 }
 

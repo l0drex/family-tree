@@ -1,7 +1,8 @@
+const svg = d3.select("svg")
 // configuration variables
-const viewportSize = [1900, 970];
+const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
 // size of each person node
-const personNodeSize = [200, 28];
+const personNodeSize = [200, 30];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = true;
@@ -15,9 +16,6 @@ const d3cola = cola.d3adaptor(d3)
   .avoidOverlaps(groupPartners || !showFullGraph);
 let firstFamily;
 
-const svg = d3.select("svg")
-  .attr("width", viewportSize[0])
-  .attr("height", viewportSize[1]);
 svg.select("rect")
   .attr("id", "background")
   .attr("style", "fill: transparent; stroke: none;")
@@ -226,7 +224,7 @@ function update() {
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
     .groups(viewGraph.groups)
-    .start();
+    .start(20, 10);
 
   // draw instructions:
 
@@ -237,6 +235,7 @@ function update() {
       .data(viewGraph.groups).enter();
     group.append("rect")
       .attr("class", "group")
+      .attr("rx", 15)
       .call(d3cola.drag);
     group = groupLayer.selectAll(".group");
   }
@@ -283,7 +282,7 @@ function update() {
     .attr("x", d => - d.bounds.width() / 2)
     .attr("y", d => - d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
-    .attr("height", 30)
+    .attr("height", d => d.bounds.height())
     .on("mouseup", toggleInfo)
     .on("touchend", toggleInfo)
     .append(d => insertData(d));
@@ -297,7 +296,8 @@ function update() {
     personNode
       .attr("x", d => d.x - personNodeSize[0] / 2)
       .attr("y", d => d.y - personNodeSize[1] / 2)
-      .attr("height", d => d.infoVisible ? 190 : 30);
+      // FIXME this new height is hardcoded and needs to be updated with every new displayed value
+      .attr("height", d => d.infoVisible ? 190 : personNodeSize[1]);
 
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
