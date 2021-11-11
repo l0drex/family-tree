@@ -1,7 +1,7 @@
 // configuration variables
 const viewportSize = [1900, 970];
 // size of each person node
-const personNodeSize = [200, 30];
+const personNodeSize = [200, 28];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
 const groupPartners = false;
@@ -279,19 +279,19 @@ function update() {
   personGroup.append("text")
     .text(d => d.full_name)
     .attr("class", "nameLabel")
-    .attr("y", ".3em");
+    .attr("y", "5");
   personNode = nodesLayer.selectAll(".person");
 
   // info nodes
   let infoNode = infoLayer.selectAll(".info")
     .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewgraphid)
-    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden") + " " + d.gender);
+    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden") + " " + d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""));
   infoNode.enter().append("foreignObject")
     .attr("class", d => "info" + (d.infoVisible ? "" : " hidden"))
-    .attr("x", -personNodeSize[0] / 2)
-    .attr("y", -personNodeSize[1] / 2)
-    .attr("width", d => d.width)
-    .attr("height", 210)
+    .attr("x", d => -personNodeSize[0] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
+    .attr("y", d => -personNodeSize[1] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
+    .attr("width", d => personNodeSize[0] + (d.day_of_death !== "" || d.age > 120 ? 4 : 0))
+    .attr("height", d => 210 + (d.day_of_death !== "" || d.age > 120 ? 4 : 0))
     .on("mousedown", hideInfo)
     .on("touchend", hideInfo)
     .append(d => insertData(d));
@@ -324,13 +324,18 @@ function update() {
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
   d3cola.on("tick", () => {
-    if (groupPartners) {
-      group
-        .attr("x", d => d.bounds.x)
-        .attr("y", d => d.bounds.y)
-        .attr("width", d => d.bounds.width())
-        .attr("height", d => d.bounds.height());
-    }
+    personNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+
+    infoNode
+      .attr("x", d => d.x - personNodeSize[0] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
+      .attr("y", d => d.y - personNodeSize[1] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0));
+
+    partnerNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+
+    etcNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
     link
       .attr("d", d => {
@@ -346,17 +351,12 @@ function update() {
         return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
       });
 
-    partnerNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
-    personNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
-    etcNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
-    infoNode
-      .attr("x", d => d.x - personNodeSize[0] / 2)
-      .attr("y", d => d.y - personNodeSize[1] / 2);
+    if (groupPartners) {
+      group
+        .attr("x", d => d.bounds.x)
+        .attr("y", d => d.bounds.y)
+        .attr("width", d => d.bounds.width())
+        .attr("height", d => d.bounds.height());
+    }
   });
 }

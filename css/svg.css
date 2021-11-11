@@ -2,18 +2,18 @@ svg {
   --foreground: black;
   --background: white;
   --background-secondary: white;
-  --male: lightblue;
-  --female: pink;
+  --male: #9bcfec;
+  --female: #ff9494;
   background-color: var(--background);
 }
 
 @media (prefers-color-scheme: dark) {
   svg {
-    --foreground: #cecece;
+    --foreground: #e1e1e1;
     --background: black;
-    --male: #2e4260;
-    --female: #6b1515;
-    --background-secondary: #1c1c1c;
+    --male: #3f5a86;
+    --female: #9d2626;
+    --background-secondary: #343434;
   }
 }
 
@@ -81,9 +81,15 @@ text {
 }
 
 /* stuff for the inner html */
+
+.info {
+  color: var(--foreground);
+}
+
 .info h1, .info h2, .info h3, .info text {
   font-size: 14px;
-  line-height: .75em;
+  line-height: 1em;
+  margin: .5em;
 }
 
 .info h1, .info h2, .info h3 {
@@ -91,7 +97,7 @@ text {
 }
 
 .info h1 {
-  margin-top: 0;
+  margin-top: 1;
 }
 
 .info h2, h3 {
@@ -104,15 +110,30 @@ text {
 
 .info #bg {
   border-radius: 15px;
-  padding: 10px;
+  padding: 5px;
+}
+
+.dead #bg {
+  border-width: 4px;
+  border-style: solid;
 }
 
 .info.männlich #bg {
   background-color: var(--male);
 }
 
+.info.männlich.dead #bg {
+  background-color: var(--background);
+  border-color: var(--male);
+}
+
 .info.weiblich #bg {
   background-color: var(--female);
+}
+
+.info.weiblich.dead #bg {
+  background-color: var(--background);
+  border-color: var(--female);
 }
 
 .info #text-bg {
