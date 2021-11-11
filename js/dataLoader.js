@@ -1,6 +1,6 @@
 /**
- * Parses the graph data of the files and returns a graph object
- * @param graphData
+ * Parses the graph data extracted and returns a graph object
+ * @param graphData {{people: *[], families: *[]}}
  * @return {{nodes: *, groups: *[], links: *[]}}
  */
 function parseData(graphData) {
@@ -28,6 +28,9 @@ function parseData(graphData) {
   graphData.families.forEach((family, index) => {
     family.height = family.width = partnerNodeRadius * 2;
     let familyIndex = graphData.people.length + index;
+    // remove person unbekannt with ID 0
+    family.partners = family.partners.filter(p => p !== 0);
+    family.children = family.children.filter(c => c !== 0);
     // link each parent and each child to their family node
     family.partners.forEach(p => links.push({
       source: p,
@@ -41,17 +44,17 @@ function parseData(graphData) {
     family.type = "family";
   });
 
+  // remove person unbekannt
   var graph = {
     "nodes": graphData.people.concat(graphData.families),
     "links": links,
     "groups": partners
   };
 
-  // remove person unbekannt
   // TODO do this in the data
-  graph.links = graph.links.filter(l => ![l.source, l.target].includes(0));
-  graph.groups = graph.groups.filter(g => !g.leaves.includes(0));
-  firstFamily = graphData.people.length;
+  graph.groups.forEach(g => {
+    g.leaves.forEach(l => console.assert(typeof l === "number"), "One of the partner ids is not a number");
+  })
 
   return graph;
 }
@@ -59,7 +62,7 @@ function parseData(graphData) {
 /**
  * Loads a json file, parses the data and sets up the graph
  * @deprecated
- * @param path
+ * @param path {string}
  */
 function loadJson(path) {
   d3.json(path, (error, data) => {
@@ -78,10 +81,12 @@ function loadJson(path) {
 
 /**
  * Loads the csv file, parses the data and sets up the graph
- * @param peopleTable
- * @param familyTable
+ * @param peopleTable {string} path to a csv file containing info about each person
+ * @param familyTable {string} path to a csv file containing info about each family
+ * @param then {function } function to call when the data has been loaded. takes data as the only parameter
  */
-function loadCsv(peopleTable, familyTable) {
+function loadCsv(peopleTable, familyTable, then) {
+  // load the people file first
   d3.csv(peopleTable, (error, personData) => {
     if (error !== null) {
       console.error("Error while loading graph data!");
@@ -90,6 +95,7 @@ function loadCsv(peopleTable, familyTable) {
     }
 
     let children = {};
+    // every is similar to forEach, but expects true as return value
     personData.every(person => {
       if (!person.ID)
         return false;
@@ -108,6 +114,7 @@ function loadCsv(peopleTable, familyTable) {
       return true;
     });
 
+    // now load the family file
     d3.csv(familyTable, (error, familyData) => {
       if (error !== null) {
         console.error("Error while loading graph data!");
@@ -139,12 +146,12 @@ function loadCsv(peopleTable, familyTable) {
         families: familyData
       };
       let graph = parseData(data);
-      graph.groups.forEach(g => {
-        g.leaves.forEach(l => console.assert(typeof l === "number"), "One of the partner ids is not a number");
-      })
+
+      // check the result
       console.assert(typeof graph !== "undefined",
         "Result of parsing is empty");
-      setup(graph);
+
+      then(graph);
     });
   });
 }

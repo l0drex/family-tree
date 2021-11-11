@@ -25,6 +25,13 @@ marker {
   fill: var(--foreground);
 }
 
+text {
+  fill: var(--foreground);
+  font-size: 14px;
+  text-anchor: middle;
+  stroke: none;
+}
+
 .link {
   marker-end:url(#Arrow2Lend);
 }
@@ -48,10 +55,8 @@ marker {
   fill: var(--background);
 }
 
-text {
-  fill: var(--foreground);
-  font-size: 14px;
-  text-anchor: middle;
+#background {
+  fill: transparent;
   stroke: none;
 }
 

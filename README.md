@@ -10,7 +10,7 @@ Documentation is stored in the doc directory.
 - [x] Show graph
 - [x] Draw arrows
 - [ ] Dynamic node sizing
-- [x] Group partners (_disabled because of a really strange bug_)
+- [x] Group partners
 - [x] Hide most of the nodes on start up
 - [x] Show detailed information when clicking on the node
 - [x] Add an automatic dark mode
