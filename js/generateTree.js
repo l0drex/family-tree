@@ -31,8 +31,6 @@ const linkLayer = vis.append("g")
   .attr("id", "links");
 const nodesLayer = vis.append("g")
   .attr("id", "nodes");
-const infoLayer = vis.append("g")
-  .attr("id", "infos")
 
 // definitions for arrows
 const defs = svg.append("svg:defs");
@@ -168,13 +166,8 @@ function addMissingNodes(etcNode) {
  * Show the info node of a person
  * @param personNode
  */
-function showInfo(personNode) {
-  personNode.infoVisible = true;
-  update();
-}
-
-function hideInfo(personNode) {
-  personNode.infoVisible = false;
+function toggleInfo(personNode) {
+  personNode.infoVisible = !personNode.infoVisible;
   update();
 }
 
@@ -255,46 +248,16 @@ function update() {
     .attr("class", "link");
   link = linkLayer.selectAll(".link");
 
-  // person nodes
-  let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => node.type === "person"), d => d.viewgraphid);
-  let personGroup = personNode.enter().append("g")
-    .attr("class", d => "person" + (d.ID === 0 ? " hidden" : ""))
-    .attr("id", d => d.ID)
-    .on("mousedown", showInfo)
-    .on("touchend", showInfo)
+  // partner node
+  let partnerNode = nodesLayer.selectAll(".partnerNode")
+    .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewgraphid);
+  partnerNode.enter().append("path")
+    .attr("class", "partnerNode")
+    .attr("id", d => d.ID + firstFamily)
+    .attr("d",
+      "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
     .call(d3cola.drag);
-  // background rect
-  personGroup.append("rect")
-    .attr("class", (d) => d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
-    .attr("width", personNodeSize[0])
-    .attr("height", personNodeSize[1])
-    .attr("rx", personNodeSize[1] / 2)
-    .attr("x", -personNodeSize[0] / 2)
-    .attr("y", -personNodeSize[1] / 2);
-  // name
-  personGroup.append("title")
-    .text(d => d.full_name);
-  personGroup.append("text")
-    .text(d => d.full_name)
-    .attr("class", "nameLabel")
-    .attr("y", "5");
-  personNode = nodesLayer.selectAll(".person");
-
-  // info nodes
-  let infoNode = infoLayer.selectAll(".info")
-    .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewgraphid)
-    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden") + " " + d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""));
-  infoNode.enter().append("foreignObject")
-    .attr("class", d => "info" + (d.infoVisible ? "" : " hidden"))
-    .attr("x", d => -personNodeSize[0] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
-    .attr("y", d => -personNodeSize[1] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
-    .attr("width", d => personNodeSize[0] + (d.day_of_death !== "" || d.age > 120 ? 4 : 0))
-    .attr("height", d => 210 + (d.day_of_death !== "" || d.age > 120 ? 4 : 0))
-    .on("mousedown", hideInfo)
-    .on("touchend", hideInfo)
-    .append(d => insertData(d));
-  infoNode = infoLayer.selectAll(".info");
+  partnerNode = nodesLayer.selectAll(".partnerNode");
 
   // node on which the user can click to show more people
   let etcNode = nodesLayer.selectAll(".etc")
@@ -311,24 +274,30 @@ function update() {
   etcNode.exit().remove();
   etcNode = nodesLayer.selectAll(".etc");
 
-  // partner node
-  let partnerNode = nodesLayer.selectAll(".partnerNode")
-    .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewgraphid);
-  partnerNode.enter().append("path")
-    .attr("class", "partnerNode")
-    .attr("id", d => d.ID + firstFamily)
-    .attr("d",
-      "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
-    .call(d3cola.drag);
-  partnerNode = nodesLayer.selectAll(".partnerNode");
+  // person nodes
+  let personNode = nodesLayer.selectAll(".person")
+    .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewgraphid)
+  personNode.enter().append("foreignObject")
+    .attr("class", d => "person " + d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
+    .attr("id", d => d.ID)
+    .attr("x", d => - d.bounds.width() / 2)
+    .attr("y", d => - d.bounds.height() / 2)
+    .attr("width", d => d.bounds.width())
+    .attr("height", 30)
+    .on("mouseup", toggleInfo)
+    .on("touchend", toggleInfo)
+    .append(d => insertData(d));
+  personNode = nodesLayer.selectAll(".person");
+  personNode.select(".addInfo")
+    .data(viewGraph.nodes.filter(node => node.type === "person"))
+    .attr("class", d => "addInfo" + (d.infoVisible ? "" : " hidden"));
+  //personNode = nodesLayer.selectAll(".person");
 
   d3cola.on("tick", () => {
     personNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
-    infoNode
-      .attr("x", d => d.x - personNodeSize[0] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0))
-      .attr("y", d => d.y - personNodeSize[1] / 2 - (d.day_of_death !== "" || d.age > 120 ? 2 : 0));
+      .attr("x", d => d.x - personNodeSize[0] / 2)
+      .attr("y", d => d.y - personNodeSize[1] / 2)
+      .attr("height", d => d.infoVisible ? 190 : 30);
 
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");

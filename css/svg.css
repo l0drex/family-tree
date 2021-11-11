@@ -30,27 +30,6 @@ marker {
   marker-end:url(#Arrow2Lend);
 }
 
-.männlich {
-  fill: var(--male);
-}
-
-.weiblich {
-  fill: var(--female);
-}
-
-.dead {
-  fill: var(--background);
-  stroke-width: 4;
-}
-
-.männlich.dead {
-  stroke: var(--male);
-}
-
-.weiblich.dead {
-  stroke: var(--female)
-}
-
 .partnerNode {
   fill: var(--background);
   stroke: var(--foreground);
@@ -80,37 +59,37 @@ text {
   stroke: none;
 }
 
-/* stuff for the inner html */
+/* stuff for the html nodes */
 
-.info {
+.person {
   color: var(--foreground);
 }
 
-.info h1, .info h2, .info h3, .info text {
+.person p {
   font-size: 14px;
-  line-height: 1em;
-  margin: .5em;
-}
-
-.info h1, .info h2, .info h3 {
+  margin: auto;
   text-align: center;
 }
 
-.info h1 {
-  margin-top: 1;
-}
-
-.info h2, h3 {
+.addNames, .years {
   font-weight: 300;
 }
 
-.info h3 {
+.person .years {
   font-style: italic;
 }
 
-.info #bg {
+#bg {
   border-radius: 15px;
   padding: 5px;
+}
+
+.weiblich #bg {
+  background-color: var(--female);
+}
+
+.männlich #bg {
+  background-color: var(--male);
 }
 
 .dead #bg {
@@ -118,25 +97,18 @@ text {
   border-style: solid;
 }
 
-.info.männlich #bg {
-  background-color: var(--male);
-}
-
-.info.männlich.dead #bg {
+.männlich.dead #bg {
   background-color: var(--background);
   border-color: var(--male);
 }
 
-.info.weiblich #bg {
-  background-color: var(--female);
-}
 
-.info.weiblich.dead #bg {
+.weiblich.dead #bg {
   background-color: var(--background);
   border-color: var(--female);
 }
 
-.info #text-bg {
+#text-bg {
   background-color: var(--background-secondary);
   border-radius: 10px;
   padding: 5px;
