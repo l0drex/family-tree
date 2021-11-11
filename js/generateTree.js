@@ -4,7 +4,7 @@ const viewportSize = [1900, 970];
 const personNodeSize = [200, 28];
 const partnerNodeRadius = 20;
 // FIXME first partner of first family disappears if this is true??
-const groupPartners = false;
+const groupPartners = true;
 const showFullGraph = false;
 const startNode = 3;
 
