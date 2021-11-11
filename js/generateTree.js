@@ -224,7 +224,7 @@ function update() {
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
     .groups(viewGraph.groups)
-    .start(20, 10);
+    .start(0, 20);
 
   // draw instructions:
 
