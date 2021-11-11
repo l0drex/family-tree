@@ -120,22 +120,9 @@ function loadCsv(peopleTable, familyTable) {
           return false;
         family.ID = Number(family.ID);
 
-        if (family.ID === 0) {
-          // FIXME this is super weird
-          console.assert(family.partner1 === "2")
-          family.partners = [Number(family.partner1), Number(family.partner2)];
-          console.debug("Array:", family.partners)
-          console.debug("0th Element:", family.partners[0])
-          console.debug("Type:", typeof family.partners[0])
-          console.debug("Bits:", family.partners[0].toString(2))
-          console.debug("String of Array:", family.partners.toString())
-          console.assert(typeof family.partners[0] === "number")
-        } else {
-          family.partners = [Number(family.partner1), Number(family.partner2)];
-          delete family.partner1;
-          delete family.partner2;
-        }
-        console.assert(!family.partners.includes(undefined), "One of the partners is undefined!")
+        family.partners = [Number(family.partner1), Number(family.partner2)];
+        delete family.partner1;
+        delete family.partner2;
 
         family.married = family.married === "true";
 
