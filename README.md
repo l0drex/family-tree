@@ -4,7 +4,7 @@ This project allows displaying family tree data stored in csv tables as graphs o
 It uses Cola.js and d3.js.
 Documentation is stored in the doc directory.
 
-# Roadmap
+# 🚀 Roadmap
 
 - [x] Load data, show graph
 - [x] Dynamic expanding of the graph
@@ -15,7 +15,7 @@ Documentation is stored in the doc directory.
 - [ ] Store data in a database
 - [ ] Allow data editing
 
-# Usage
+# 🌳 Usage
 
 The family data is represented in two tables:
 - one for all the people
@@ -25,6 +25,16 @@ Each family has two partners. People can have parents, stored in the `child_of` 
 The tables are stored as csv files in _./resources_.
 Write the names of these files in the call of `load_csv()` in _/js/generateTree.js_.
 
-# Alternative design
+# 🎨 Alternative design
 
 On the branch _straight_lines_, every link is drawn straight only using 90° angles. Instead of the rings, partnerships are only indicated by to connection of nodes.
+
+
+---
+### 💡 Inspiration
+
+This project was build using d3 and web cola. During development, I took inspiration from the following examples:
+
+- https://marvl.infotech.monash.edu/webcola/examples/onlinebrowse.html
+- https://marvl.infotech.monash.edu/webcola/examples/downwardedges.html
+- https://marvl.infotech.monash.edu/webcola/examples/smallgroups.html

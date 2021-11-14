@@ -1,9 +1,3 @@
-// based on:
-// https://marvl.infotech.monash.edu/webcola/examples/onlinebrowse.html
-// https://marvl.infotech.monash.edu/webcola/examples/downwardedges.html
-// https://marvl.infotech.monash.edu/webcola/examples/smallgroups.html
-
-
 // configuration variables
 const groupPartners = false;
 const showFullGraph = false;
