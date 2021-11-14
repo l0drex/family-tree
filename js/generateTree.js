@@ -8,6 +8,8 @@
 const groupPartners = false;
 const showFullGraph = false;
 const personNodeSize = [200, 30];
+// distance between parent links and child links
+const personDiff = 10;
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
 
@@ -34,16 +36,6 @@ const linkLayer = vis.append("g")
   .attr("id", "links");
 const nodesLayer = vis.append("g")
   .attr("id", "nodes");
-
-// svg definitions for arrows
-const defs = svg.append("svg:defs");
-defs.append("svg:marker")
-  .attr("id", "Arrow2Lend")
-  .attr("orient", "auto")
-  .attr("style", "overflow:visible")
-  .append("svg:path")
-  .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-  .attr("transform", "rotate(180) scale(.75) translate(1,0)");
 
 // data structures that store the graph information
 let modelGraph, viewGraph = {nodes: [], links: [], groups: []};
@@ -286,10 +278,10 @@ function update() {
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
-  partnerNode.enter().append("path")
+  partnerNode.enter().append("polyline")
     .attr("class", "partnerNode")
-    .attr("d",
-      "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
+    .attr("points",
+      "0,-" + personDiff + " " + "0," + personDiff)
     .call(d3cola.drag);
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
@@ -342,16 +334,10 @@ function update() {
 
     link
       .attr("points", d => {
-        let deltaX = d.target.x - d.source.x,
-          deltaY = d.target.y - d.source.y,
-          dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          normX = deltaX / dist,
-          normY = deltaY / dist,
-          sourceX = d.source.x + (30 * normX),
-          sourceY = d.source.y + (25 * normY),
-          targetX = d.target.x - (partnerNodeRadius * normX),
-          targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
-        return sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY;
+        if  (d.target.type === "family")
+          return d.source.x + "," + d.source.y + " " + d.source.x + "," + (d.target.y - personDiff) + " " + d.target.x + "," + (d.target.y - personDiff);
+        else
+          return d.source.x + "," + (d.source.y + personDiff) + " " + d.target.x + "," + (d.source.y + personDiff) + " " + d.target.x + "," + d.target.y;
       });
 
     if (groupPartners) {

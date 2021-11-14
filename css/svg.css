@@ -32,10 +32,6 @@ text {
   stroke: none;
 }
 
-.link {
-  marker-end:url(#Arrow2Lend);
-}
-
 .partnerNode {
   fill: var(--background);
 }
