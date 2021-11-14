@@ -7,7 +7,7 @@
 // configuration variables
 const groupPartners = false;
 const showFullGraph = false;
-const personNodeSize = [200, 30];
+const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
 
