@@ -17,7 +17,7 @@ svg {
   }
 }
 
-path {
+path, polyline {
   stroke: var(--foreground);
 }
 

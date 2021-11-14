@@ -278,7 +278,7 @@ function update() {
   // family links
   let link = linkLayer.selectAll(".link")
     .data(viewGraph.links);
-  link.enter().append("path")
+  link.enter().append("polyline")
     .attr("class", "link");
   link.exit().remove();
   link = linkLayer.selectAll(".link");
@@ -341,7 +341,7 @@ function update() {
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
     link
-      .attr("d", d => {
+      .attr("points", d => {
         let deltaX = d.target.x - d.source.x,
           deltaY = d.target.y - d.source.y,
           dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -351,7 +351,7 @@ function update() {
           sourceY = d.source.y + (25 * normY),
           targetX = d.target.x - (partnerNodeRadius * normX),
           targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
-        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+        return sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY;
       });
 
     if (groupPartners) {
