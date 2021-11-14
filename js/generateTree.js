@@ -95,31 +95,57 @@ function refocus(node) {
         addViewNode(person);
     });
 
+    // TODO don't push etc nodes if there is nothing (optional, but appreciated)
+
     // array containing the view graph ids of the partners
     let partnerIds = []
     if (newFamily) {
       family.partners.forEach(p => {
         let person = modelGraph.nodes[p];
-        if (!inView(person))
-          addViewNode(person);
-        partnerIds.push(person.viewId);
 
+        partnerIds.push(person.viewId);
         viewGraph.links.push({
           source: person.viewId,
           target: family.viewId
-        })
+        });
+
+        if (p !== node.ID) {
+          // add a node that the user can click on to add its family to the graph
+          let etcNode = {
+            type: "etc",
+            viewId: viewGraph.nodes.length,
+            target: person.viewId
+          }
+          viewGraph.nodes.push(etcNode);
+          viewGraph.links.push({
+            source: etcNode.viewId,
+            target: person.viewId
+          });
+        }
       });
 
       family.children.forEach(p => {
         let person = modelGraph.nodes[p];
-        if (!inView(person))
-          addViewNode(person);
 
         // NOTE these are swapped compared to the partners, hence we dont iterate above people
         viewGraph.links.push({
           source: family.viewId,
           target: person.viewId
         })
+
+        if (p !== node.ID) {
+          // add a node that the user can click on to add its family to the graph
+          let etcNode = {
+            type: "etc",
+            viewId: viewGraph.nodes.length,
+            target: person.viewId
+          }
+          viewGraph.nodes.push(etcNode);
+          viewGraph.links.push({
+            source: person.viewId,
+            target: etcNode.viewId
+          });
+        }
       });
     }
 
@@ -145,20 +171,6 @@ function addViewNode(node) {
 
   node.viewId = viewGraph.nodes.length;
   viewGraph.nodes.push(node);
-
-  // add a node that the user can click on to add its family to the graph
-  if (node.type === "person") {
-    let etcNode = {
-      type: "etc",
-      viewId: viewGraph.nodes.length,
-      target: node.viewId
-    }
-    viewGraph.nodes.push(etcNode);
-    viewGraph.links.push({
-      target: etcNode.viewId,
-      source: node.viewId
-    })
-  }
 }
 
 /**
@@ -171,7 +183,7 @@ function addMissingNodes(node) {
 
   // make sure the node won't be added in next update call
   node.type = "";
-  viewGraph.links = viewGraph.links.filter(l => !(l.source.type === "" || l.target.type === ""));
+  viewGraph.links = viewGraph.links.filter(l => l.source.type !== "" && l.target.type !== "");
 
   // refocus on the node this was appended to
   node = viewGraph.nodes[node.target];
@@ -268,6 +280,7 @@ function update() {
     .data(viewGraph.links);
   link.enter().append("path")
     .attr("class", "link");
+  link.exit().remove();
   link = linkLayer.selectAll(".link");
 
   // partner node
