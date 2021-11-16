@@ -86,69 +86,62 @@ function loadJson(path) {
  * @param then {function } function to call when the data has been loaded. takes data as the only parameter
  */
 function loadCsv(peopleTable, familyTable, then) {
+  let children = {};
+
   // load the people file first
-  d3.csv(peopleTable, (error, personData) => {
+  d3.csv(peopleTable, person => {
+    const id = Number(person.ID);
+    // map family index -> children array
+    if (person.child_of !== "") {
+      let child_of = Number(person.child_of);
+      if (children[child_of] === undefined)
+        children[child_of] = [id];
+      else
+        children[child_of].push(id);
+    }
+
+    return {
+      ID: id,
+      full_name: person.full_name,
+      additional_names: getAdditionalNames(person.born, person.named),
+      gender: person.gender,
+      birthday: person.birthday,
+      place_of_birth: person.place_of_birth,
+      day_of_death: person.day_of_death,
+      age: person.age,
+      profession: person.profession,
+      religion: person.religion
+    }
+  }, (error, personData) => {
     if (error !== null) {
       console.error("Error while loading graph data!");
       console.error(error);
       return;
     }
 
-    let children = {};
-    // every is similar to forEach, but expects true as return value
-    personData.every(person => {
-      if (!person.ID)
-        return false;
-      person.ID = Number(person.ID);
-
-      // map family index -> children array
-      if (person.child_of) {
-        person.child_of = Number(person.child_of);
-        if (typeof children[person.child_of] == "undefined")
-          children[person.child_of] = [person.ID];
-        else
-          children[person.child_of].push(person.ID);
-      }
-      delete person.child_of;
-
-      return true;
-    });
-
     // now load the family file
-    d3.csv(familyTable, (error, familyData) => {
+    d3.csv(familyTable, family => {
+      return {
+        ID: Number(family.ID),
+        partners: [Number(family.partner1), Number(family.partner2)],
+        married: family.married === "true",
+        children: Number(family.ID) in children ? children[Number(family.ID)]  : []
+      }
+    }, (error, familyData) => {
       if (error !== null) {
         console.error("Error while loading graph data!");
         console.error(error);
         return;
       }
 
-      familyData.every(family => {
-        if (!family.ID)
-          return false;
-        family.ID = Number(family.ID);
-
-        family.partners = [Number(family.partner1), Number(family.partner2)];
-        delete family.partner1;
-        delete family.partner2;
-
-        family.married = family.married === "true";
-
-        if (family.ID in children)
-          family.children = children[family.ID];
-        else
-          family.children = [];
-
-        return true;
-      });
-
-      var data = {
+      let data = {
         people: personData,
         families: familyData
       };
       let graph = parseData(data);
 
       // check the result
-      console.assert(typeof graph !== "undefined",
+      console.assert(graph !== undefined,
         "Result of parsing is empty");
 
       then(graph);
@@ -164,4 +157,17 @@ function loadInfoHtml(path) {
     }
     infoHtml = page;
   });
+}
+
+function getAdditionalNames(born, named) {
+  let additionalNames = "";
+  if (born !== "")
+    additionalNames += "geb " + born;
+  if (named !== "") {
+    if (additionalNames !== "")
+      additionalNames += ", "
+    additionalNames += "genannt " + named;
+  }
+
+  return additionalNames;
 }
