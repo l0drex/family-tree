@@ -75,8 +75,10 @@ function refocus(node) {
 
   modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
     let people = family.partners.concat(family.children);
-    if (!people.includes(node.ID))
+    if (!people.includes(node.id))
       return
+    if (people.includes(0))
+      console.warn("Person unbekannt is in the family!");
 
     const newFamily = !inView(family);
     if (newFamily)
@@ -103,7 +105,7 @@ function refocus(node) {
           target: family.viewId
         });
 
-        if (p !== node.ID) {
+        if (p !== node.id) {
           // add a node that the user can click on to add its family to the graph
           let etcNode = {
             type: "etc",
@@ -127,7 +129,7 @@ function refocus(node) {
           target: person.viewId
         })
 
-        if (p !== node.ID) {
+        if (p !== node.id) {
           // add a node that the user can click on to add its family to the graph
           let etcNode = {
             type: "etc",
@@ -159,7 +161,7 @@ function refocus(node) {
  */
 function addViewNode(node) {
   if (inView(node)) {
-    console.error("Node " + node.full_name + " has already been added!");
+    console.error("Node " + node.fullName + " has already been added!");
     return;
   }
 
@@ -206,11 +208,10 @@ function insertData(node) {
 
   let html = infoHtml.cloneNode(true);
   html.querySelector(".fullName").innerHTML =
-    node.full_name;
-  html.querySelector(".addNames").innerHTML =
-    (node.born ? "geb. " + node.born : "") + (node.named ? " genannt " + node.named : "");
+    node.fullName;
+  html.querySelector(".addNames").innerHTML = node.additionalNames;
   html.querySelector(".years").innerHTML =
-    (node.birthday ? " * " + node.birthday : "") + (node.day_of_death ? " † " + node.day_of_death : "");
+    (node.birthday ? " * " + node.birthday : "") + (node.dayOfDeath ? " † " + node.dayOfDeath : "");
   html.querySelector(".age").innerHTML =
     (node.age ? node.age : "?");
   html.querySelector(".profession").innerHTML =
@@ -218,7 +219,7 @@ function insertData(node) {
   html.querySelector(".religion").innerHTML =
     (node.religion ? node.religion : "?");
   html.querySelector(".placeOfBirth").innerHTML =
-    (node.place_of_birth ? node.place_of_birth : "?");
+    (node.placeOfBirth ? node.placeOfBirth : "?");
 
   return html;
 }
@@ -311,12 +312,12 @@ function update() {
   let personNode = nodesLayer.selectAll(".person")
     .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewId)
   personNode.enter().append("foreignObject")
-    .attr("class", d => "person " + d.gender + (d.day_of_death !== "" || d.age > 120 ? " dead" : ""))
-    .attr("id", d => d.ID)
+    .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
+    .attr("id", d => d.id)
     .attr("x", d => - d.bounds.width() / 2)
     .attr("y", d => - d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
-    .attr("height", d => d.bounds.height() + (d.day_of_death !== "" || d.age > 120 ? 8 : 0))
+    .attr("height", d => d.bounds.height() + (d.dead ? 8 : 0))
     .on("mousedown", toggleInfo)
     //.on("touchstart", toggleInfo)
     .call(d3cola.drag)

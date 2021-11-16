@@ -4,59 +4,32 @@
  * @return {{nodes: *, groups: *[], links: *[]}}
  */
 function parseData(graphData) {
-  graphData.people.forEach((v) => {
-    v.width = personNodeSize[0];
-    v.height = personNodeSize[1];
-    v.age = Number(v.age);
-
-    v.additionalNames = "";
-    if (v.born !== "")
-      v.additionalNames += "geb " + v.born;
-    if (v.named !== "") {
-      if (v.additionalNames !== "")
-        v.additionalNames += ", "
-      v.additionalNames += "genannt " + v.named;
-    }
-
-    v.type = "person"
-    v.infoVisible = false;
-  });
-
   // create links between partners and child -> parents
   let links = [];
   let partners = [];
-  graphData.families.forEach((family, index) => {
-    family.height = family.width = partnerNodeRadius * 2;
-    let familyIndex = graphData.people.length + index;
-    // remove person unbekannt with ID 0
-    family.partners = family.partners.filter(p => p !== 0);
-    family.children = family.children.filter(c => c !== 0);
-    // link each parent and each child to their family node
-    family.partners.forEach(p => links.push({
-      source: p,
-      target: familyIndex
-    }))
-    family.children.forEach(p => links.push({
-      source: familyIndex,
-      target: p
-    }));
-    partners.push({"leaves": family.partners});
-    family.type = "family";
-  });
 
-  // remove person unbekannt
-  var graph = {
+  if (showFullGraph) {
+    graphData.families.forEach((family, index) => {
+      let familyIndex = graphData.people.length + index;
+
+      // link each parent and each child to their family node
+      family.partners.forEach(p => links.push({
+        source: p,
+        target: familyIndex
+      }))
+      family.children.forEach(p => links.push({
+        source: familyIndex,
+        target: p
+      }));
+      partners.push({"leaves": family.partners});
+    });
+  }
+
+  return {
     "nodes": graphData.people.concat(graphData.families),
     "links": links,
     "groups": partners
   };
-
-  // TODO do this in the data
-  graph.groups.forEach(g => {
-    g.leaves.forEach(l => console.assert(typeof l === "number"), "One of the partner ids is not a number");
-  })
-
-  return graph;
 }
 
 /**
@@ -112,7 +85,7 @@ function loadCsv(peopleTable, familyTable, then) {
     // append children to each family
     // only possible if personData has been loaded completely
     familyData.forEach(family => {
-      family.children = Number(family.ID) in children ? children[Number(family.ID)] : [];
+      family.children = Number(family.id) in children ? children[Number(family.id)] : [];
     });
 
     let graph = parseData({
@@ -130,7 +103,7 @@ function loadCsv(peopleTable, familyTable, then) {
   d3.csv(peopleTable, person => {
     const id = Number(person.ID);
     // map family index -> children array
-    if (person.child_of !== "") {
+    if (id && person.child_of !== "") {
       let child_of = Number(person.child_of);
       if (children[child_of] === undefined)
         children[child_of] = [id];
@@ -139,23 +112,32 @@ function loadCsv(peopleTable, familyTable, then) {
     }
 
     return {
-      ID: id,
-      full_name: person.full_name,
-      additional_names: getAdditionalNames(person.born, person.named),
+      id: id,
+      fullName: person.full_name,
+      additionalNames: getAdditionalNames(person.born, person.named),
       gender: person.gender,
       birthday: person.birthday,
-      place_of_birth: person.place_of_birth,
-      day_of_death: person.day_of_death,
-      age: person.age,
+      placeOfBirth: person.place_of_birth,
+      dayOfDeath: person.day_of_death,
+      dead: (person.day_of_death !== "" || Number(person.age) > 120),
+      age: Number(person.age),
       profession: person.profession,
-      religion: person.religion
+      religion: person.religion,
+      width: personNodeSize[0],
+      height: personNodeSize[1],
+      type: "person",
+      infoVisible: false
     }
   }, dataCollector);
   d3.csv(familyTable, family => {
     return {
-      ID: Number(family.ID),
-      partners: [Number(family.partner1), Number(family.partner2)],
+      id: Number(family.ID),
+      // filter out person  with id 0
+      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
       married: family.married === "true",
+      height: partnerNodeRadius * 2,
+      width: partnerNodeRadius * 2,
+      type: "family"
     }
   }, dataCollector);
 }
@@ -171,14 +153,8 @@ function loadInfoHtml(path) {
 }
 
 function getAdditionalNames(born, named) {
-  let additionalNames = "";
-  if (born !== "")
-    additionalNames += "geb " + born;
-  if (named !== "") {
-    if (additionalNames !== "")
-      additionalNames += ", "
-    additionalNames += "genannt " + named;
-  }
+  if (born) born = "geb. " + born;
+  if (named) named = "genannt" + named;
 
-  return additionalNames;
+  return [born, named].filter(s => s !== "").join(", ");
 }
