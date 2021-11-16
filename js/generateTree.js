@@ -245,8 +245,13 @@ function transform() {
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
  */
 function update() {
-  console.assert(viewGraph.nodes.length > 0);
-  console.assert(viewGraph.links.length > 0);
+  console.assert(viewGraph !== undefined,
+    "Graph is empty!");
+  console.assert(viewGraph.nodes.length > 0,
+    "Graph has no nodes!");
+  console.assert(viewGraph.links.length > 0,
+    "Graph has no links!");
+
   if (groupPartners)
     console.assert(viewGraph.groups.length > 0);
   d3cola
