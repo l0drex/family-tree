@@ -9,7 +9,7 @@ $scripts = [
 
 $content = "
 <h1>Familienstammbaum</h1>
-<svg width='100%' height='800px'>
+<svg id='family-tree'>
   <rect id='background' width='100%' height='100%'></rect>
 </svg>
 ";
