@@ -1,5 +1,4 @@
 // configuration variables
-const groupPartners = false;
 const showFullGraph = false;
 const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
@@ -12,7 +11,7 @@ const d3cola = cola.d3adaptor(d3)
   .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
   .symmetricDiffLinkLengths(40)
   .size(viewportSize)
-  .avoidOverlaps(groupPartners || !showFullGraph);
+  .avoidOverlaps(!showFullGraph);
 
 // background, needed to catch the transformation events
 svg.select("rect")
@@ -22,8 +21,6 @@ svg.select("rect")
 // define layers
 const vis = svg.append("g")
   .attr("id", "vis");
-const groupLayer = vis.append("g")
-  .attr("id", "groups");
 const linkLayer = vis.append("g")
   .attr("id", "links");
 const nodesLayer = vis.append("g")
@@ -40,7 +37,7 @@ defs.append("svg:marker")
   .attr("transform", "rotate(180) scale(.75) translate(1,0)");
 
 // data structures that store the graph information
-let modelGraph, viewGraph = {nodes: [], links: [], groups: []};
+let modelGraph, viewGraph = {nodes: [], links: []};
 // this is the content of each person node
 let infoHtml;
 loadInfoHtml("../html/infos.html");
@@ -91,64 +88,53 @@ function refocus(node) {
         addViewNode(person);
     });
 
-    // TODO don't push etc nodes if there is nothing (optional, but appreciated)
+    // TODO don't push etc nodes if there is nothing
 
     // array containing the view graph ids of the partners
-    let partnerIds = []
     if (newFamily) {
-      family.partners.forEach(p => {
+      let addNodes = (p, type) => {
         let person = modelGraph.nodes[p];
 
-        partnerIds.push(person.viewId);
-        viewGraph.links.push({
-          source: person.viewId,
-          target: family.viewId
-        });
-
-        if (p !== node.id) {
-          // add a node that the user can click on to add its family to the graph
-          let etcNode = {
-            type: "etc",
-            viewId: viewGraph.nodes.length,
-            target: person.viewId
-          }
-          viewGraph.nodes.push(etcNode);
-          viewGraph.links.push({
-            source: etcNode.viewId,
-            target: person.viewId
-          });
-        }
-      });
-
-      family.children.forEach(p => {
-        let person = modelGraph.nodes[p];
-
-        // NOTE these are swapped compared to the partners, hence we dont iterate above people
-        viewGraph.links.push({
-          source: family.viewId,
-          target: person.viewId
-        })
-
-        if (p !== node.id) {
-          // add a node that the user can click on to add its family to the graph
-          let etcNode = {
-            type: "etc",
-            viewId: viewGraph.nodes.length,
-            target: person.viewId
-          }
-          viewGraph.nodes.push(etcNode);
-          viewGraph.links.push({
+        let link;
+        if (type === "parent") {
+          link = {
             source: person.viewId,
-            target: etcNode.viewId
-          });
+            target: family.viewId
+          };
+        } else {
+          link = {
+            source: family.viewId,
+            target: person.viewId
+          };
         }
-      });
-    }
+        viewGraph.links.push(link);
 
-    if (newFamily) {
-      viewGraph.groups.push({
-        leaves: partnerIds.concat(family.viewId)
-      });
+        if (p !== node.id) {
+          // add a node that the user can click on to add its family to the graph
+          let etcNode = {
+            type: "etc",
+            viewId: viewGraph.nodes.length,
+            target: person.viewId
+          }
+          viewGraph.nodes.push(etcNode);
+
+          if (type === "parent") {
+            link = {
+              source: etcNode.viewId,
+              target: person.viewId
+            };
+          } else {
+            link = {
+              source: person.viewId,
+              target: etcNode.viewId
+            };
+          }
+          viewGraph.links.push(link);
+        }
+      }
+
+      family.partners.forEach(p => addNodes(p, "parent"));
+      family.children.forEach(p => addNodes(p, "child"));
     }
   });
 
@@ -253,27 +239,12 @@ function update() {
   console.assert(viewGraph.links.length > 0,
     "Graph has no links!");
 
-  if (groupPartners)
-    console.assert(viewGraph.groups.length > 0);
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
-    .groups(viewGraph.groups)
     .start(0, 50);
 
   // the following lines define content and style of all the svg elements in the graph
-
-  // partner groups
-  let group;
-  if (groupPartners) {
-    group = groupLayer.selectAll(".group")
-      .data(viewGraph.groups).enter();
-    group.append("rect")
-      .attr("class", "group")
-      .attr("rx", 15)
-      .call(d3cola.drag);
-    group = groupLayer.selectAll(".group");
-  }
 
   // family links
   let link = linkLayer.selectAll(".link")
@@ -353,13 +324,5 @@ function update() {
           targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
         return sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY;
       });
-
-    if (groupPartners) {
-      group
-        .attr("x", d => d.bounds.x)
-        .attr("y", d => d.bounds.y)
-        .attr("width", d => d.bounds.width())
-        .attr("height", d => d.bounds.height());
-    }
   });
 }

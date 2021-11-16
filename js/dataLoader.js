@@ -1,12 +1,12 @@
 /**
  * Parses the graph data extracted and returns a graph object
  * @param graphData {{people: *[], families: *[]}}
- * @return {{nodes: *, groups: *[], links: *[]}}
+        source: familyIndex,
+ * @return {{nodes: *, links: *[]}}
  */
 function parseData(graphData) {
   // create links between partners and child -> parents
   let links = [];
-  let partners = [];
 
   if (showFullGraph) {
     graphData.families.forEach((family, index) => {
@@ -21,14 +21,12 @@ function parseData(graphData) {
         source: familyIndex,
         target: p
       }));
-      partners.push({"leaves": family.partners});
     });
   }
 
   return {
     "nodes": graphData.people.concat(graphData.families),
-    "links": links,
-    "groups": partners
+    "links": links
   };
 }
 
