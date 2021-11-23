@@ -1,36 +1,53 @@
+<?php
+if (!isset($title))
+  $title = "Template";
+if (!isset($description))
+  $description = "Template page";
+
+if (!isset($styles))
+  $styles = [];
+$styles = array_merge([
+  "../css/normalize.css",
+  "../css/main.css",
+], $styles);
+
+if (!isset($scripts))
+  $scripts = [];
+$scripts = array_merge([
+  "../js/vendor/modernizr-3.11.2.min.js",
+  "../js/plugins.js",
+  "../js/main.js"
+], $scripts);
+
+if (!isset($content))
+  $content = "Example Page";
+?>
+
 <!doctype html>
 <html class="no-js" lang="de">
 
 <head>
   <meta charset="utf-8">
-  <title></title>
-  <meta name="description" content="">
+  <title><?php print $title ?></title>
+  <meta name="description" content=<?php print $description?>>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <meta property="og:title" content="">
-  <meta property="og:type" content="">
-  <meta property="og:url" content="">
-  <meta property="og:image" content="">
 
   <link rel="manifest" href="../site.webmanifest">
   <link rel="apple-touch-icon" href="../img/icon.png">
   <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
-  <!-- Place favicon.ico in the root directory -->
 
-  <link rel="stylesheet" href="../css/normalize.css">
-  <link rel="stylesheet" href="../css/main.css">
-  <link rel="stylesheet" href="../css/svg.css">
+  <?php
+  foreach ($styles as $style) {
+    print "<link rel=stylesheet href=$style>";
+  }
+  ?>
 
   <meta name="theme-color" content="#fafafa">
 </head>
 
 <body>
-  <!-- Add your site or application content here -->
   <?php print $content ?>
 
-  <script src="../js/vendor/modernizr-3.11.2.min.js"></script>
-  <script src="../js/plugins.js"></script>
-  <script src="../js/main.js"></script>
   <?php
   foreach ($scripts as $script) {
     print "<script src=$script></script>";

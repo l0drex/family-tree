@@ -1,4 +1,6 @@
 <?php
+$title = "Stammbaum";
+$description = "Erkunde deinen Stammbaum";
 
 $scripts = [
   "https://d3js.org/d3.v4.js",
@@ -7,8 +9,11 @@ $scripts = [
   "../js/generateTree.js"
 ];
 
+$styles = [
+  "../css/svg.css"
+];
+
 $content = "
-<h1>Familienstammbaum</h1>
 <svg id='family-tree'>
   <rect id='background' width='100%' height='100%'></rect>
 </svg>
