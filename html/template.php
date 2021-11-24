@@ -7,16 +7,16 @@ if (!isset($description))
 if (!isset($styles))
   $styles = [];
 $styles = array_merge([
-  "../css/normalize.css",
-  "../css/main.css",
+  "css/normalize.css",
+  "css/main.css",
 ], $styles);
 
 if (!isset($scripts))
   $scripts = [];
 $scripts = array_merge([
-  "../js/vendor/modernizr-3.11.2.min.js",
-  "../js/plugins.js",
-  "../js/main.js"
+  "js/vendor/modernizr-3.11.2.min.js",
+  "js/plugins.js",
+  "js/main.js"
 ], $scripts);
 
 if (!isset($content))
@@ -32,9 +32,9 @@ if (!isset($content))
   <meta name="description" content=<?php print $description?>>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="manifest" href="../site.webmanifest">
-  <link rel="apple-touch-icon" href="../img/icon.png">
-  <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="img/icon.png">
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 
   <?php
   foreach ($styles as $style) {
