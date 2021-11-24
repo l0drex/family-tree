@@ -1,8 +1,9 @@
 {
-  "name": "Family Tree",
+  "name": "family-tree",
   "version": "0.0.1",
   "description": "A website that can show a family tree.",
-  "keywords": "familytree, family",
+  "readme": "README.md",
+  "keywords": ["familytree", "family"],
   "license": "",
   "author": "Lorenz Hoffmann",
   "scripts": {
