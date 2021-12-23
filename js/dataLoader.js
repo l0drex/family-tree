@@ -140,6 +140,7 @@ function loadCsv(peopleTable, familyTable, then) {
   }, dataCollector);
 }
 
+let infoHtml;
 function loadInfoHtml(path) {
   d3.html(path, (error, page) => {
     if (error !== null) {
@@ -148,11 +149,4 @@ function loadInfoHtml(path) {
     }
     infoHtml = page;
   });
-}
-
-function getAdditionalNames(born, named) {
-  if (born) born = "geb. " + born;
-  if (named) named = "genannt" + named;
-
-  return [born, named].filter(s => s !== "").join(", ");
 }
