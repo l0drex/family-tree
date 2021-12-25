@@ -1,10 +1,76 @@
 // configuration variables
-const showFullGraph = false;
 const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
 
-// Localization
+localize(window.navigator.language);
+
+// data structures that stores the graph information
+let modelGraph, viewGraph = {nodes: [], links: []};
+
+// setup of cola
+const d3cola = cola.d3adaptor(d3)
+  .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
+  .symmetricDiffLinkLengths(40)
+  .avoidOverlaps(true);
+
+let nodesLayer, linkLayer, vis;
+const svg = d3.select("svg");
+// catch the transformation events
+svg.select("#background")
+  .call(d3.zoom().on("zoom", transform));
+
+// define layers
+vis = svg.select("#vis");
+linkLayer = vis.select("#links");
+nodesLayer = vis.select("#nodes");
+
+let form = d3.select("#upload-form");
+form.on("submit", () => {
+  d3.event.preventDefault();
+
+  // load data from the files
+  // these are blobs
+  let peopleFile = d3.select("#people-file").node().files[0];
+  let familyFile = d3.select("#family-file").node().files[0];
+  // these are raw strings of the csv files
+  let peopleTable, familiesTable;
+  let readerFamily = new FileReader();
+  readerFamily.onload = (file) => {
+    familiesTable = file.target.result;
+
+    if (peopleTable && familiesTable)
+      loadCsv(peopleTable, familiesTable, setup);
+  }
+  readerFamily.readAsText(familyFile);
+  let readerPeople = new FileReader();
+  readerPeople.onload = (file) => {
+    peopleTable = file.target.result;
+
+    if (peopleTable && familiesTable)
+      loadCsv(peopleTable, familiesTable, setup);
+  }
+  readerPeople.readAsText(peopleFile);
+
+  form.classed("hidden", true);
+  svg.classed("hidden", false);
+
+  const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
+  d3cola.size(viewportSize);
+});
+
+/**
+ * Called only once. Sets up the graph
+ * @param graph
+ */
+function setup(graph) {
+  modelGraph = graph;
+  // TODO allow to select this from the user
+  let startNode = modelGraph.nodes[158];
+  addViewNode(startNode);
+  refocus(startNode);
+}
+
 /**
  * Only show elements with the correct langauge
  * @param language the language to show, e.g. window.navigator.language
@@ -19,116 +85,6 @@ function localize(language) {
     d3.selectAll(show).style('display', 'unset');
   }
 }
-localize(window.navigator.language);
-
-// data structures that store the graph information
-let modelGraph, viewGraph = {nodes: [], links: []};
-
-let d3cola, svg, nodesLayer, linkLayer, vis, viewportSize;
-let form = d3.select("#content form");
-
-// this is the content of each person node
-form.on("submit", (event) => {
-  d3.event.preventDefault();
-
-  let peopleFile = d3.select("#people-file").node().files[0];
-  let familyFile = d3.select("#family-file").node().files[0];
-  let people, families;
-
-  let readerFamily = new FileReader();
-  readerFamily.onload = (file) => {
-    families = file.target.result;
-    if (people && families)
-      loadCsv(people, families, setup);
-  }
-  readerFamily.readAsText(familyFile);
-  let readerPeople = new FileReader();
-  readerPeople.onload = (file) => {
-    people = file.target.result;
-    if (people && families)
-      loadCsv(people, families, setup);
-  }
-  readerPeople.readAsText(peopleFile);
-
-  form.html(
-    "<svg width='100%' height='800px'>\n" +
-    "  <rect id='background' width='100%' height='100%'></rect>\n" +
-    "</svg>");
-
-  svg = d3.select("svg")
-  viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
-  // setup of cola
-  d3cola = cola.d3adaptor(d3)
-    .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
-    .symmetricDiffLinkLengths(40)
-    .size(viewportSize)
-    .avoidOverlaps(!showFullGraph);
-
-  // background, needed to catch the transformation events
-  svg.select("rect")
-    .attr("id", "background")
-    .call(d3.zoom().on("zoom", transform));
-
-  // define layers
-  vis = svg.append("g")
-    .attr("id", "vis");
-  linkLayer = vis.append("g")
-    .attr("id", "links");
-  nodesLayer = vis.append("g")
-    .attr("id", "nodes");
-
-  // svg definitions for arrows
-  const defs = svg.append("svg:defs");
-  defs.append("svg:marker")
-    .attr("id", "Arrow2Lend")
-    .attr("orient", "auto")
-    .attr("style", "overflow:visible")
-    .append("svg:path")
-    .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-    .attr("transform", "rotate(180) scale(.75) translate(1,0)");
-
-  // load family tree data
-  //loadCsv(peopleFile, familyFile, setup);
-});
-
-/**
- * Called only once. Sets up the graph
- * @param graph
- */
-function setup(graph) {
-  if (showFullGraph) {
-    modelGraph = viewGraph = graph;
-    update();
-    return;
-  }
-
-  modelGraph = graph;
-  // TODO allow to select this from the user
-  let startNode = modelGraph.nodes[158];
-  addViewNode(startNode);
-  refocus(startNode);
-}
-
-/**
- * Returns a string of additional names.
- * If one of the parameters is an empty string, it is not added to ths string.
- * @param born last name at birth
- * @param named how the person was named
- * @returns {string}
- */
-function getAdditionalNames(born, named) {
-  // TODO refactor this localization into the general method
-  let bornString = "born";
-  let namedString = "named";
-  if (window.navigator.language === "de") {
-    bornString = "geb.";
-    namedString = "gen.";
-  }
-  if (born) born = `${bornString} ${born}`;
-  if (named) named = `${namedString} ${named}`;
-
-  return [born, named].filter(s => s !== "").join(", ");
-}
 
 /**
  * Adds every node and link that are directly connected with the families of the node
@@ -142,7 +98,7 @@ function refocus(node) {
     if (!people.includes(node.id))
       return
     if (people.includes(0))
-      console.warn("Person unbekannt is in the family!");
+      console.warn("Person \"Unknown\" is in the family!");
 
     const newFamily = !inView(family);
     if (newFamily)
@@ -262,7 +218,18 @@ function insertData(node) {
   let html = d3.select("#info-template").node().cloneNode(true).content;
   html.querySelector(".fullName").innerHTML =
     node.fullName;
-  html.querySelector(".addNames").innerHTML = node.additionalNames;
+  if (node.additionalNames.born) {
+    html.querySelector(".born")
+      .classList.remove("hidden");
+    html.querySelector(".born")
+      .append(node.additionalNames.born);
+  }
+  if (node.additionalNames.named) {
+    html.querySelector(".named")
+      .classList.remove("hidden", node.additionalNames.named);
+    html.querySelector(".named")
+      .append(node.additionalNames.named);
+  }
   html.querySelector(".years").innerHTML =
     (node.birthday ? " * " + node.birthday : "") + (node.dayOfDeath ? " † " + node.dayOfDeath : "");
   html.querySelector(".age").innerHTML =
@@ -351,7 +318,7 @@ function update() {
     .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewId)
   personNode.enter().append("foreignObject")
     .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
-    .attr("id", d => d.id)
+    .attr("id", d => `p-${d.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())

@@ -29,7 +29,16 @@
   <div id="bg" xmlns="http://www.w3.org/1999/xhtml">
     <p class="fullName"></p>
     <div class="addInfo">
-      <p class="addNames"></p>
+      <p>
+        <span class="born hidden">
+          <span lang="en">born</span>
+          <span lang="de">geb.</span>
+        </span>
+        <span class="named hidden">
+          <span lang="en">named</span>
+          <span lang="de">genannt</span>
+        </span>
+      </p>
       <p class="years"></p>
 
       <div id="text-bg">
@@ -67,19 +76,33 @@
 
 <h1 lang="en">Family tree</h1>
 <h1 lang="de">Familienstammbaum</h1>
-<div id="content">
-  <form enctype="multipart/form-data">
-    <label for="people-file" lang="en">People-data:</label>
-    <label for="people-file" lang="de">Personendaten:</label>
-    <input type="file" id="people-file">
-    <br>
-    <label for="family-file" lang="en">Family-data:</label>
-    <label for="family-file" lang="de">Familiendaten:</label>
-    <input type="file" id="family-file">
-    <br>
-    <input type="submit" id="submit">
-  </form>
-</div>
+<!--Form to upload the graph data-->
+<form id="upload-form" enctype="multipart/form-data">
+  <label for="people-file" lang="en">People-data:</label>
+  <label for="people-file" lang="de">Personendaten:</label>
+  <input type="file" id="people-file">
+  <br>
+  <label for="family-file" lang="en">Family-data:</label>
+  <label for="family-file" lang="de">Familiendaten:</label>
+  <input type="file" id="family-file">
+  <br>
+  <input type="submit" id="submit">
+</form>
+<svg width='100%' height='800px' class="hidden">
+  <!--Definition for arrow ends-->
+  <defs>
+    <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
+      <path
+        d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+        transform="rotate(180) scale(.75) translate(1,0)"></path>
+    </marker>
+  </defs>
+  <rect id='background' width='100%' height='100%'></rect>
+  <g id="vis">
+    <g id="links"></g>
+    <g id="nodes"></g>
+  </g>
+</svg>
 
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>
