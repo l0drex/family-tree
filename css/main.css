@@ -89,6 +89,15 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+/* show default language */
+[lang] {
+  display: none;
+}
+
+[lang=en] {
+  display: unset;
+}
+
 body {
   font-family: sans-serif;
   height: 100%;

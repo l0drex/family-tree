@@ -64,6 +64,7 @@ function loadCsv(peopleTable, familyTable, then) {
   This function will be called whenever one of the loaders has finished loading.
   If all data is available, it will load the graph.
    */
+  // TODO clean up this mess
   let dataCollector = (error, data) => {
     if (error !== null) {
       console.error("Error while loading graph data!");

@@ -4,6 +4,23 @@ const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
 
+// Localization
+/**
+ * Only show elements with the correct langauge
+ * @param language the language to show, e.g. window.navigator.language
+ */
+function localize(language) {
+  if (['de'].includes(language)) {
+    let lang = `:lang(${language})`;
+    let hide = `[lang]:not(${lang})`;
+    d3.selectAll(hide).style('display', 'none');
+
+    let show = `[lang]${lang}`;
+    d3.selectAll(show).style('display', 'unset');
+  }
+}
+localize(window.navigator.language);
+
 // data structures that store the graph information
 let modelGraph, viewGraph = {nodes: [], links: []};
 
@@ -102,8 +119,15 @@ function setup(graph) {
  * @returns {string}
  */
 function getAdditionalNames(born, named) {
-  if (born) born = "born " + born;
-  if (named) named = "named " + named;
+  // TODO refactor this localization into the general method
+  let bornString = "born";
+  let namedString = "named";
+  if (window.navigator.language === "de") {
+    bornString = "geb.";
+    namedString = "gen.";
+  }
+  if (born) born = `${bornString} ${born}`;
+  if (named) named = `${namedString} ${named}`;
 
   return [born, named].filter(s => s !== "").join(", ");
 }
@@ -343,6 +367,8 @@ function update() {
   personNode.select(".addInfo")
     .data(viewGraph.nodes.filter(node => node.type === "person"))
     .attr("class", d => "addInfo" + (d.infoVisible ? "" : " hidden"));
+
+  localize(window.navigator.language);
 
   d3cola.on("tick", () => {
     personNode
