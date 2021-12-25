@@ -25,9 +25,17 @@
 
 <body>
 <h1>Familienstammbaum</h1>
-<svg width='100%' height='800px'>
-  <rect id='background' width='100%' height='100%'></rect>
-</svg>
+<div id="content">
+  <form enctype="multipart/form-data">
+    <label for="people-file">People:</label>
+    <input type="file" id="people-file">
+    <br>
+    <label for="family-file">Families:</label>
+    <input type="file" id="family-file">
+    <br>
+    <input type="submit" id="submit">
+  </form>
+</div>
 
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>

@@ -98,7 +98,7 @@ function loadCsv(peopleTable, familyTable, then) {
     then(graph);
   }
 
-  d3.csv(peopleTable, person => {
+  personData = d3.csvParse(peopleTable, person => {
     const id = Number(person.ID);
     // map family index -> children array
     if (id && person.child_of !== "") {
@@ -126,8 +126,8 @@ function loadCsv(peopleTable, familyTable, then) {
       type: "person",
       infoVisible: false
     }
-  }, dataCollector);
-  d3.csv(familyTable, family => {
+  });
+  familyData = d3.csvParse(familyTable, family => {
     return {
       id: Number(family.ID),
       // filter out person  with id 0
@@ -137,7 +137,9 @@ function loadCsv(peopleTable, familyTable, then) {
       width: partnerNodeRadius * 2,
       type: "family"
     }
-  }, dataCollector);
+  });
+
+  dataCollector(null, familyData);
 }
 
 let infoHtml;

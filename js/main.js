@@ -4,44 +4,77 @@ const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
 
-const svg = d3.select("svg")
-const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
-// setup of cola
-const d3cola = cola.d3adaptor(d3)
-  .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
-  .symmetricDiffLinkLengths(40)
-  .size(viewportSize)
-  .avoidOverlaps(!showFullGraph);
-
-// background, needed to catch the transformation events
-svg.select("rect")
-  .attr("id", "background")
-  .call(d3.zoom().on("zoom", transform));
-
-// define layers
-const vis = svg.append("g")
-  .attr("id", "vis");
-const linkLayer = vis.append("g")
-  .attr("id", "links");
-const nodesLayer = vis.append("g")
-  .attr("id", "nodes");
-
-// svg definitions for arrows
-const defs = svg.append("svg:defs");
-defs.append("svg:marker")
-  .attr("id", "Arrow2Lend")
-  .attr("orient", "auto")
-  .attr("style", "overflow:visible")
-  .append("svg:path")
-  .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
-  .attr("transform", "rotate(180) scale(.75) translate(1,0)");
-
 // data structures that store the graph information
 let modelGraph, viewGraph = {nodes: [], links: []};
+
+let svg, nodesLayer, linkLayer, vis, viewportSize, d3cola;
+
+let form = d3.select("#content form");
+
 // this is the content of each person node
 loadInfoHtml("infos.html");
-// load family tree data
-loadCsv("resources/Stammbaum - Personen.csv", "resources/Stammbaum - Familien.csv", setup);
+form.on("submit", (event) => {
+  d3.event.preventDefault();
+
+  let peopleFile = d3.select("#people-file").node().files[0];
+  let familyFile = d3.select("#family-file").node().files[0];
+  let people, families;
+
+  let readerFamily = new FileReader();
+  readerFamily.onload = (file) => {
+    families = file.target.result;
+    if (people && families)
+      loadCsv(people, families, setup);
+  }
+  readerFamily.readAsText(familyFile);
+  let readerPeople = new FileReader();
+  readerPeople.onload = (file) => {
+    people = file.target.result;
+    if (people && families)
+      loadCsv(people, families, setup);
+  }
+  readerPeople.readAsText(peopleFile);
+
+  form.html(
+    "<svg width='100%' height='800px'>\n" +
+    "  <rect id='background' width='100%' height='100%'></rect>\n" +
+    "</svg>");
+
+  svg = d3.select("svg")
+  viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
+  // setup of cola
+  d3cola = cola.d3adaptor(d3)
+    .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
+    .symmetricDiffLinkLengths(40)
+    .size(viewportSize)
+    .avoidOverlaps(!showFullGraph);
+
+  // background, needed to catch the transformation events
+  svg.select("rect")
+    .attr("id", "background")
+    .call(d3.zoom().on("zoom", transform));
+
+  // define layers
+  vis = svg.append("g")
+    .attr("id", "vis");
+  linkLayer = vis.append("g")
+    .attr("id", "links");
+  nodesLayer = vis.append("g")
+    .attr("id", "nodes");
+
+  // svg definitions for arrows
+  const defs = svg.append("svg:defs");
+  defs.append("svg:marker")
+    .attr("id", "Arrow2Lend")
+    .attr("orient", "auto")
+    .attr("style", "overflow:visible")
+    .append("svg:path")
+    .attr("d", "M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z ")
+    .attr("transform", "rotate(180) scale(.75) translate(1,0)");
+
+  // load family tree data
+  //loadCsv(peopleFile, familyFile, setup);
+});
 
 /**
  * Called only once. Sets up the graph
@@ -202,7 +235,7 @@ function addMissingNodes(node) {
  * @return {Node | ActiveX.IXMLDOMNode} the html content
  */
 function insertData(node) {
-  console.assert(node.type === "person", "Incorrect node type!");
+  console.assert(node.type === "person", "Incorrect node type!")
 
   let html = infoHtml.cloneNode(true);
   html.querySelector(".fullName").innerHTML =
@@ -297,8 +330,8 @@ function update() {
   personNode.enter().append("foreignObject")
     .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
     .attr("id", d => d.id)
-    .attr("x", d => - d.bounds.width() / 2)
-    .attr("y", d => - d.bounds.height() / 2)
+    .attr("x", d => -d.bounds.width() / 2)
+    .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height() + (d.dead ? 8 : 0))
     .on("mousedown", toggleInfo)
