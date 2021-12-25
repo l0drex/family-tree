@@ -142,14 +142,3 @@ function loadCsv(peopleTable, familyTable, then) {
 
   dataCollector(null, familyData);
 }
-
-let infoHtml;
-function loadInfoHtml(path) {
-  d3.html(path, (error, page) => {
-    if (error !== null) {
-      console.error(error);
-      return;
-    }
-    infoHtml = page;
-  });
-}

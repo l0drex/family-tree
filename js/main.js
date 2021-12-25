@@ -24,12 +24,10 @@ localize(window.navigator.language);
 // data structures that store the graph information
 let modelGraph, viewGraph = {nodes: [], links: []};
 
-let svg, nodesLayer, linkLayer, vis, viewportSize, d3cola;
-
+let d3cola, svg, nodesLayer, linkLayer, vis, viewportSize;
 let form = d3.select("#content form");
 
 // this is the content of each person node
-loadInfoHtml("infos.html");
 form.on("submit", (event) => {
   d3.event.preventDefault();
 
@@ -261,7 +259,7 @@ function addMissingNodes(node) {
 function insertData(node) {
   console.assert(node.type === "person", "Incorrect node type!")
 
-  let html = infoHtml.cloneNode(true);
+  let html = d3.select("#info-template").node().cloneNode(true).content;
   html.querySelector(".fullName").innerHTML =
     node.fullName;
   html.querySelector(".addNames").innerHTML = node.additionalNames;
