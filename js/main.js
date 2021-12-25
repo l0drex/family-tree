@@ -186,7 +186,11 @@ function toggleInfo(node) {
   console.assert(node.type === "person");
 
   node.infoVisible = !node.infoVisible;
-  update();
+  nodesLayer.select(`#p-${node.id}`)
+    // FIXME this new height is hardcoded and needs to be updated with every new displayed value
+    .attr("height", (node.infoVisible ? 190 : personNodeSize[1]) + (node.day_of_death !== "" || node.age > 120 ? 8 : 0))
+    .select(".addInfo")
+    .classed("hidden", !node.infoVisible);
 }
 
 /**
@@ -323,8 +327,7 @@ function update() {
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height() + (d.dead ? 8 : 0))
-    .on("mousedown", toggleInfo)
-    //.on("touchstart", toggleInfo)
+    .on("click", toggleInfo)
     .call(d3cola.drag)
     .append(d => insertData(d));
 
@@ -338,10 +341,7 @@ function update() {
   d3cola.on("tick", () => {
     personNode
       .attr("x", d => d.x - personNodeSize[0] / 2)
-      .attr("y", d => d.y - personNodeSize[1] / 2)
-      // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-      .attr("height", d => (d.infoVisible ? 190 : personNodeSize[1]) + (d.day_of_death !== "" || d.age > 120 ? 8 : 0));
-
+      .attr("y", d => d.y - personNodeSize[1] / 2);
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
