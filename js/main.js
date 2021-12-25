@@ -111,8 +111,6 @@ function refocus(node) {
         addViewNode(person);
     });
 
-    // TODO don't push etc nodes if there is nothing
-
     // array containing the view graph ids of the partners
     if (newFamily) {
       let addNodes = (p, type) => {
@@ -139,14 +137,15 @@ function refocus(node) {
             viewId: viewGraph.nodes.length,
             target: person.viewId
           }
-          viewGraph.nodes.push(etcNode);
 
-          if (type === "parent") {
+          if (type === "parent" && person.parentsKnown) {
+            viewGraph.nodes.push(etcNode);
             link = {
               source: etcNode.viewId,
               target: person.viewId
             };
-          } else {
+          } else if (type === "child" && person.married) {
+            viewGraph.nodes.push(etcNode);
             link = {
               source: person.viewId,
               target: etcNode.viewId

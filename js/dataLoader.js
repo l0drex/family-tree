@@ -67,10 +67,15 @@ function loadCsv(peopleTable, familyTable, then) {
       width: personNodeSize[0],
       height: personNodeSize[1],
       type: "person",
-      infoVisible: false
+      infoVisible: false,
+      married: false,
+      parentsKnown: person.child_of !== ""
     }
   });
   familyData = d3.csvParse(familyTable, family => {
+    personData[family.partner1].married = true;
+    personData[family.partner2].married = true;
+
     return {
       id: Number(family.ID),
       // filter out person  with id 0
