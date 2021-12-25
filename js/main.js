@@ -106,7 +106,7 @@ function setup(graph) {
 
   modelGraph = graph;
   // TODO allow to select this from the user
-  let startNode = modelGraph.nodes[3];
+  let startNode = modelGraph.nodes[158];
   addViewNode(startNode);
   refocus(startNode);
 }
