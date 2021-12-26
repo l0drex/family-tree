@@ -78,11 +78,9 @@ function setup(graph) {
 function localize(language) {
   if (['de'].includes(language)) {
     let lang = `:lang(${language})`;
-    let hide = `[lang]:not(${lang})`;
-    d3.selectAll(hide).style('display', 'none');
+    d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
 
-    let show = `[lang]${lang}`;
-    d3.selectAll(show).style('display', 'unset');
+    d3.selectAll(`[lang]${lang}`).style('display', 'unset');
   }
 }
 

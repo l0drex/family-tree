@@ -6,12 +6,8 @@ Documentation is stored in the doc directory.
 
 # 🚀 Roadmap
 
-- [x] Load data, show graph
 - [x] Dynamic expanding of the graph
-- [x] Group partners (not sure if that's a good idea, therefore disabled right now)
-- [ ] Improve support for touchscreens
 - [ ] Dynamic node sizing
-- [ ] Don't draw etc-nodes if there is nothing more to show
 - [ ] Track generation (allows marking people without any dates as dead)
 - [ ] Store data in a database
 - [ ] Allow data editing
