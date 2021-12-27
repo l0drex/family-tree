@@ -76,11 +76,17 @@ function setup(graph) {
  * @param language the language to show, e.g. window.navigator.language
  */
 function localize(language) {
-  if (['de'].includes(language)) {
+  // strip country-specific stuff
+  language = language.slice(0, 2);
+
+  if (['de', 'en'].includes(language)) {
     let lang = `:lang(${language})`;
     d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
 
     d3.selectAll(`[lang]${lang}`).style('display', 'unset');
+  } else {
+    console.warn(`Language ${language} is not supported. Falling back to english.`);
+    localize("en");
   }
 }
 
