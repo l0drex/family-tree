@@ -80,7 +80,6 @@ function loadCsv(peopleTable, familyTable, then) {
       id: Number(family.ID),
       // filter out person  with id 0
       partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
-      married: family.married === "true",
       height: partnerNodeRadius * 2,
       width: partnerNodeRadius * 2,
       type: "family"
