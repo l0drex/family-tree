@@ -2,12 +2,12 @@
 
 This project allows displaying family tree data stored in csv tables as graphs on a website.
 It uses Cola.js and d3.js.
-Documentation is stored in the doc directory.
+The documentation can be found in the wiki.
 
 # 🌳 Usage
 
-The family data is represented in two tables:
-- one for all the people
+The family data is represented in two csv-tables that the user can upload on the page:
+- one for all the people:
 
  > ⚠️ The ID `0` is reserved️ for the unknown person. It can be used in families with unknown partners️
 
