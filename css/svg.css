@@ -69,6 +69,7 @@ text {
 
 .person {
   color: var(--foreground);
+  overflow: visible;
 }
 
 .person p {
