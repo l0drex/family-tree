@@ -52,8 +52,11 @@ form.on("submit", () => {
   }
   readerPeople.readAsText(peopleFile);
 
-  d3.select("#family-tree-container").classed("hidden", true);
+  d3.selectAll("article").classed("hidden", true);
   svg.classed("hidden", false);
+  // FIXME this should be doable in css, but I cant find why.
+  //  See main.css line 147: main > :not(.hidden):last-child should also apply to the svg
+  svg.attr("style", "margin-bottom: 0;")
 
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
   d3cola.size(viewportSize);

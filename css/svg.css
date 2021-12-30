@@ -113,12 +113,9 @@ svg {
   svg {
     --male: #3f5a86;
     --female: #9d2626;
+    background: black;
   }
   #family-tree foreignObject:not(.dead) .text-bg {
     background-color: var(--background);
-  }
-
-  svg {
-    background: black;
   }
 }
