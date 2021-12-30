@@ -13,10 +13,11 @@
 
 html {
   --foreground: black;
-  --foreground-secondary: gray;
+  --foreground-secondary: #595959;
   --background: white;
   --background-secondary: white;
   --accent: #4141ff;
+  --positive-green: #5f5;
 
   color: var(--foreground);
   height: 100vh;
@@ -162,11 +163,14 @@ article {
 
 .file-upload {
   text-align: center;
-  align-content: center;
   background: var(--background-secondary);
   border-radius: 1em;
   padding: .66em 1em;
   overflow: hidden;
+}
+
+.file-upload.file-selected {
+  background: var(--positive-green);
 }
 
 label {
@@ -178,7 +182,7 @@ input[type=file] {
 }
 
 input[type=submit] {
-  background: var(--accent);
+  background: linear-gradient(45deg, var(--accent), turquoise);
   color: white;
   font-weight: bold;
   border-radius: 1em;
@@ -187,7 +191,7 @@ input[type=submit] {
 }
 
 input[type=submit]:active {
-  background: #3b3bd5;
+  background: var(--accent);
 }
 
 footer {
@@ -197,6 +201,7 @@ footer {
   width: 100%;
   background: var(--background);
   padding: 1em;
+  color: var(--foreground-secondary);
 }
 
 /* ==========================================================================
@@ -301,9 +306,10 @@ footer {
 @media (prefers-color-scheme: light) {
   html {
     --foreground: black;
-    --foreground-secondary: gray;
+    --foreground-secondary: #595959;
     --background: white;
-    --background-secondary: #eaeaea;;
+    --background-secondary: #eaeaea;
+    --positive-green: #5f5;
   }
 
   body {
@@ -317,6 +323,7 @@ footer {
     --foreground-secondary: #bbb;
     --background: #2b2b2b;
     --background-secondary: #4f4f4f;
+    --positive-green: #098209;
   }
   body {
     background: black;

@@ -1,7 +1,6 @@
 svg {
   --male: #9bcfec;
   --female: #ff9494;
-  background-color: black;
   border: solid var(--background);
 }
 
@@ -117,5 +116,9 @@ svg {
   }
   #family-tree foreignObject:not(.dead) .text-bg {
     background-color: var(--background);
+  }
+
+  svg {
+    background: black;
   }
 }
