@@ -80,10 +80,11 @@ function localize(language) {
   language = language.slice(0, 2);
 
   if (['de', 'en'].includes(language)) {
+    d3.select("html").attr("lang", language);
     let lang = `:lang(${language})`;
     d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
 
-    d3.selectAll(`[lang]${lang}`).style('display', 'unset');
+    d3.selectAll(`[lang]${lang}`).style('display', 'revert');
   } else {
     console.warn(`Language ${language} is not supported. Falling back to english.`);
     localize("en");
