@@ -52,7 +52,7 @@ form.on("submit", () => {
   }
   readerPeople.readAsText(peopleFile);
 
-  form.classed("hidden", true);
+  d3.select("#family-tree-container").classed("hidden", true);
   svg.classed("hidden", false);
 
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];

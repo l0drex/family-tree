@@ -21,13 +21,13 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/svg.css">
 
-  <meta name="theme-color" content="#fafafa">
+  <meta name="theme-color" content="#2b2b2b">
 </head>
 
 <body>
 <!--Template for person node contents-->
 <template id="info-template">
-  <div id="bg" xmlns="http://www.w3.org/1999/xhtml">
+  <div class="bg" xmlns="http://www.w3.org/1999/xhtml">
     <p class="fullName"></p>
     <div class="addInfo hidden">
       <p>
@@ -42,7 +42,7 @@
       </p>
       <p class="years"></p>
 
-      <div id="text-bg">
+      <div class="text-bg">
         <table>
           <tbody>
           <tr>
@@ -75,35 +75,72 @@
   </div>
 </template>
 
-<h1 lang="en">Family tree</h1>
-<h1 lang="de">Familienstammbaum</h1>
-<!--Form to upload the graph data-->
-<form id="upload-form" enctype="multipart/form-data">
-  <label for="people-file" lang="en">People-data:</label>
-  <label for="people-file" lang="de">Personendaten:</label>
-  <input type="file" id="people-file">
-  <br>
-  <label for="family-file" lang="en">Family-data:</label>
-  <label for="family-file" lang="de">Familiendaten:</label>
-  <input type="file" id="family-file">
-  <br>
-  <input type="submit" id="submit">
-</form>
-<svg width='100%' height='800px' class="hidden">
-  <!--Definition for arrow ends-->
-  <defs>
-    <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
-      <path
-        d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
-        transform="rotate(180) scale(.75) translate(1,0)"></path>
-    </marker>
-  </defs>
-  <rect id='background' width='100%' height='100%'></rect>
-  <g id="vis">
-    <g id="links"></g>
-    <g id="nodes"></g>
-  </g>
-</svg>
+<header>
+  <h1 lang="en">Family tree</h1>
+  <h1 lang="de">Familienstammbaum</h1>
+</header>
+
+<main>
+  <article id="family-tree-container">
+    <h2 lang="en">File-Upload</h2>
+    <p lang="en">
+      Here you can upload the two files for your family tree.
+      Simply click on the corresponding button and select the file.
+      Make sure that you didn't accidentally mix them up!
+      <br>
+      If you have selected both files, click on the button to open the tree.
+    </p>
+    <h2 lang="de">Datei-Upload</h2>
+    <p lang="de">
+      Ladet hier die beiden Dateien hoch, um euren Stammbaum anzuzeigen.
+      Klickt dazu auf den jeweiligen Knopf und wählt die passende Datei aus.
+      <i>Achtet darauf, dass die richtige Datei im richtigen Feld gelandet ist!</i>
+      <br>
+      Wenn ihr beide Dateien ausgewählt habt, klickt auf den Knopf um den Stammbaum zu öffnen.
+    </p>
+    <form id="upload-form" enctype="multipart/form-data">
+      <!--Form to upload the graph data-->
+      <div class="file-upload-container">
+        <div class="file-upload">
+          <label for="people-file" lang="en">People-data</label>
+          <label for="people-file" lang="de">Personendaten</label>
+          <br>
+          <input type="file" id="people-file">
+        </div>
+        <div class="file-upload">
+          <label for="family-file" lang="en">Family-data</label>
+          <label for="family-file" lang="de">Familiendaten</label>
+          <br>
+          <input type="file" id="family-file">
+        </div>
+      </div>
+
+      <div>
+        <input type="submit" id="submit">
+      </div>
+    </form>
+  </article>
+
+  <svg id="family-tree" class="hidden">
+    <!--Definition for arrow ends-->
+    <defs>
+      <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
+        <path
+          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+          transform="rotate(180) scale(.75) translate(1,0)"></path>
+      </marker>
+    </defs>
+    <rect id='background' width='100%' height='100%'></rect>
+    <g id="vis">
+      <g id="links"></g>
+      <g id="nodes"></g>
+    </g>
+  </svg>
+</main>
+
+<footer>
+  Made with ❤ on <a href="https://github.com/l0drex/family-tree">GitHub</a>
+</footer>
 
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>

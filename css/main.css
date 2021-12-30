@@ -12,9 +12,13 @@
    ========================================================================== */
 
 html {
-  color: #222;
-  font-size: 1em;
-  line-height: 1.4;
+  --foreground: black;
+  --foreground-secondary: gray;
+  --background: white;
+  --background-secondary: white;
+  --accent: #4141ff;
+
+  color: var(--foreground);
   height: 100vh;
   width: 100vw;
 }
@@ -89,22 +93,110 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+body {
+  font-family: sans-serif;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #d5d5d5;
+}
+
+body > * {
+  background: revert;
+}
+
 /* show default language */
 [lang] {
   display: none;
 }
 
 [lang=en] {
-  display: unset;
+  display: revert;
 }
 
-body {
-  font-family: sans-serif;
+header {
+  padding: .75em 1em;
+  box-shadow: 0 .25em .25em rgba(0, 0, 0, 0.33);
+  background: var(--background);
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  box-sizing: border-box;
   height: 100%;
+  padding: 5em 1em 4em;
 }
 
-h1 {
+main > * {
+  border-radius: 1em;
+  background: var(--background);
+}
+
+article {
+  padding: .25em 1em;
+  max-width: 50em;
+  margin: 0 auto;
+}
+
+#upload-form > * {
+  margin: .5em 0;
+}
+
+#upload-form > div {
+  text-align: right;
+}
+
+.file-upload-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75em;
+}
+
+.file-upload {
   text-align: center;
+  align-content: center;
+  background: var(--background-secondary);
+  border-radius: 1em;
+  padding: .66em 1em;
+  overflow: hidden;
+}
+
+label {
+  font-weight: bold;
+}
+
+input[type=file] {
+  color: var(--foreground-secondary);
+}
+
+input[type=submit] {
+  background: var(--accent);
+  color: white;
+  font-weight: bold;
+  border-radius: 1em;
+  padding: .66em 1em;
+  border: none;
+}
+
+input[type=submit]:active {
+  background: #3b3bd5;
+}
+
+footer {
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: var(--background);
+  padding: 1em;
 }
 
 /* ==========================================================================
@@ -206,12 +298,34 @@ h1 {
   /* Style adjustments for high resolution devices */
 }
 
+@media (prefers-color-scheme: light) {
+  html {
+    --foreground: black;
+    --foreground-secondary: gray;
+    --background: white;
+    --background-secondary: #eaeaea;;
+  }
+
+  body {
+    background: #d5d5d5;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   html {
-    color: white;
+    --foreground: #e1e1e1;
+    --foreground-secondary: #bbb;
+    --background: #2b2b2b;
+    --background-secondary: #4f4f4f;
   }
   body {
-    background-color: #1f1f1f;
+    background: black;
+  }
+  a {
+    color: #6e6eff;
+  }
+  a:visited {
+    color: violet;
   }
 }
 
