@@ -26,6 +26,23 @@ linkLayer = vis.select("#links");
 nodesLayer = vis.select("#nodes");
 
 let form = d3.select("#upload-form");
+
+// make buttons with selected file green
+let inputBtns = form.selectAll("input[type=file]");
+inputBtns.data(inputBtns.nodes());
+inputBtns.each(d => {
+  if (d.value)
+    d.parentNode.classList.add("file-selected");
+  else
+    d.parentNode.classList.remove("file-selected");
+});
+inputBtns.on("change", d => {
+  if (d.value)
+    d.parentNode.classList.add("file-selected");
+  else
+    d.parentNode.classList.remove("file-selected");
+});
+
 form.on("submit", () => {
   d3.event.preventDefault();
 

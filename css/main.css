@@ -17,7 +17,7 @@ html {
   --background: white;
   --background-secondary: #eaeaea;
   --accent: #4141ff;
-  --positive-green: #5f5;
+  --positive-green: #91ff91;
 
   color: var(--foreground);
   height: 100vh;
@@ -319,7 +319,7 @@ footer {
     --foreground-secondary: #595959;
     --background: white;
     --background-secondary: #eaeaea;
-    --positive-green: #5f5;
+    --positive-green: #91ff91;
   }
 
   body {
