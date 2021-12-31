@@ -2,8 +2,23 @@
 const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
+const browserLang = window.navigator.language.substr(0, 2);
 
-localize(window.navigator.language);
+if (typeof d3 === "undefined") {
+  showError({
+    en: "d3 could not be loaded. The family tree will not work.",
+    de: "d3 konnte nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
+  }, "d3");
+}
+
+if (typeof cola === "undefined") {
+  showError({
+    en: "WebCola could not be loaded. The family tree will not work!",
+    de: "WebCola konnten nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
+  }, "cola");
+}
+
+localize(browserLang);
 
 // data structures that stores the graph information
 let modelGraph, viewGraph = {nodes: [], links: []};
@@ -31,14 +46,18 @@ let form = d3.select("#upload-form");
 let inputBtns = form.selectAll("input[type=file]");
 inputBtns.data(inputBtns.nodes());
 inputBtns.each(d => {
-  if (d.value)
+  if (d.value) {
     d.parentNode.classList.add("file-selected");
+    checkFileName(d);
+  }
   else
     d.parentNode.classList.remove("file-selected");
 });
 inputBtns.on("change", d => {
-  if (d.value)
+  if (d.value) {
     d.parentNode.classList.add("file-selected");
+    checkFileName(d);
+  }
   else
     d.parentNode.classList.remove("file-selected");
 });
@@ -84,6 +103,13 @@ form.on("submit", () => {
  * @param graph
  */
 function setup(graph) {
+  if (!graph)
+    showError({
+      en: "The calculated graph is empty!" +
+        "Please check if your files are empty. If not, please contact the administrator!",
+      de: "Der berechnete Graph ist leer!" +
+        " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+    })
   modelGraph = graph;
   // TODO allow to select this from the user
   let startNode = modelGraph.nodes[158];
@@ -109,6 +135,85 @@ function localize(language) {
     console.warn(`Language ${language} is not supported. Falling back to english.`);
     localize("en");
   }
+}
+
+/**
+ * Shows a warning if the selected file of the input might be wrong.
+ * @param button {HTMLInputElement}
+ */
+function checkFileName(button) {
+  let id = button.id;
+  let personFile = translationToString({en: "people", de: "person"});
+  let personSelected = button.value.toLowerCase().includes(personFile);
+  let familyFile = translationToString({en: "family", de: "familie"});
+  let familySelected = button.value.toLowerCase().includes(familyFile);
+
+  if (id === "family-file" && personSelected)
+    showWarning({
+        en: "Looks like you selected the wrong file!",
+        de: "Sieht aus als wäre die falsche Datei im Familien-Knopf gelandet!"},
+      button.id);
+  else if (id === "people-file" && familySelected)
+    showWarning({
+      en: "Looks like you selected the wrong file!",
+      de: "Sieht aus als wäre die falsche Datei im Personen-Knopf gelandet!"},
+      button.id);
+  else
+    hideNotification("warning", button.id);
+}
+
+/**
+ * Show a warning to the user, visible in the html and in the console
+ * @param message {string | object} the message to send
+ * @param reason {string} the reason for the warning
+ */
+function showWarning(message, reason) {
+  if (typeof message === "object")
+    message = translationToString(message);
+
+  console.warn(message);
+
+  let html = d3.select("#warning").node().content.cloneNode(true);
+  html.querySelector("article").setAttribute("reason", reason);
+  html.querySelector("article p").innerHTML = message;
+  d3.select("main").node().prepend(html);
+}
+
+/**
+ * Hide the warning with given reason
+ * @param type {string} either warning or error
+ * @param reason {string} the reason with which the warning shall be identified
+ */
+function hideNotification(type, reason) {
+  d3.select(`.${type}[reason=${reason}]`).classed("hidden", true);
+}
+
+/**
+ * Same as showWarning, but for errors.
+ * @param message {string | object}
+ * @param reason {string} the reason for the error message
+ */
+function showError(message, reason) {
+  if (typeof message === "object")
+    message = translationToString(message);
+
+  console.error(message);
+
+  // NOTE: Don't use d3 here, as this is used to display and error when d3 is null!
+  let html = document.querySelector("#error").content.cloneNode(true);
+  html.querySelector("article").setAttribute("reason", reason);
+  html.querySelector("article p").innerHTML = message;
+  document.querySelector("main").prepend(html);
+}
+
+/**
+ * Returns the correct translation for an translationObject
+ * The translationObject maps two-letter language strings to a message string.
+ * @param translationObject {object}
+ * @returns {string}
+ */
+function translationToString(translationObject) {
+  return translationObject[browserLang];
 }
 
 /**

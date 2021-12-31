@@ -152,6 +152,16 @@ article {
   max-width: 50em;
 }
 
+.warning {
+  color: #595900;
+  background: #ffff91;
+}
+
+.error {
+  color: #c00;
+  background: #ffe1e6;;
+}
+
 article h2 {
   margin-top: 0;
 }
