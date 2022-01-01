@@ -103,13 +103,15 @@ form.on("submit", () => {
  * @param graph
  */
 function setup(graph) {
-  if (!graph)
+  if (!graph) {
     showError({
       en: "The calculated graph is empty!" +
         "Please check if your files are empty. If not, please contact the administrator!",
       de: "Der berechnete Graph ist leer!" +
         " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-    })
+    }, "graph")
+    return;
+  }
   modelGraph = graph;
   // TODO allow to select this from the user
   let startNode = modelGraph.nodes[158];

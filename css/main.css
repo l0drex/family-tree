@@ -16,6 +16,7 @@ html {
   --foreground-secondary: #595959;
   --background: white;
   --background-secondary: #eaeaea;
+  --lines: #b6b6b6;
   --accent: #4141ff;
   --positive-green: #91ff91;
   --warning-foreground: #595900;
@@ -134,7 +135,7 @@ header h1 {
 }
 
 main {
-  overflow: scroll;
+  overflow: auto;
   box-sizing: border-box;
   height: 100%;
   padding: 5em 1em 4em;
@@ -218,6 +219,22 @@ input[type=submit]:active {
   background: var(--accent);
 }
 
+table {
+  overflow-x: auto;
+  display: block;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: .33em .5em;
+  border: var(--lines) solid 1px;
+}
+
+tbody tr:nth-child(2n+1) {
+  background: var(--background-secondary);
+
+}
+
 footer {
   text-align: center;
   position: fixed;
@@ -226,6 +243,7 @@ footer {
   background: var(--background);
   padding: 1em;
   color: var(--foreground-secondary);
+  box-shadow: 0 -.25em .25em rgba(0, 0, 0, 0.33);
 }
 
 /* ==========================================================================
@@ -333,6 +351,7 @@ footer {
     --foreground-secondary: #595959;
     --background: white;
     --background-secondary: #eaeaea;
+    --lines: #b6b6b6;
     --positive-green: #91ff91;
     --warning-foreground: #595900;
     --warning-background: #ffff91;
@@ -351,6 +370,7 @@ footer {
     --foreground-secondary: #bbb;
     --background: #2b2b2b;
     --background-secondary: #4f4f4f;
+    --lines: #797979  ;
     --positive-green: #098209;
     --warning-foreground: #ffff91;
     --warning-background: #595900;
