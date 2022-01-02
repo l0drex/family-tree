@@ -161,7 +161,7 @@ function checkFileName(button) {
       de: "Sieht aus als wäre die falsche Datei im Personen-Knopf gelandet!"},
       button.id);
   else
-    hideNotification("warning", button.id);
+    hideWarning(button.id);
 }
 
 /**
@@ -176,18 +176,25 @@ function showWarning(message, reason) {
   console.warn(message);
 
   let html = d3.select("#warning").node().content.cloneNode(true);
-  html.querySelector("article").setAttribute("reason", reason);
+  html.querySelector("article").setAttribute("data-reason", reason);
   html.querySelector("article p").innerHTML = message;
   d3.select("main").node().prepend(html);
 }
 
 /**
  * Hide the warning with given reason
- * @param type {string} either warning or error
  * @param reason {string} the reason with which the warning shall be identified
  */
-function hideNotification(type, reason) {
-  d3.select(`.${type}[reason=${reason}]`).classed("hidden", true);
+function hideWarning(reason) {
+  d3.select(`.warning[data-reason=${reason}]`).classed("hidden", true);
+}
+
+/**
+ * Hide the error with given reason
+ * @param reason {string} the reason with which the warning shall be identified
+ */
+function hideError(reason) {
+  d3.select(`.error[data-reason=${reason}]`).classed("hidden", true);
 }
 
 /**
@@ -203,7 +210,7 @@ function showError(message, reason) {
 
   // NOTE: Don't use d3 here, as this is used to display and error when d3 is null!
   let html = document.querySelector("#error").content.cloneNode(true);
-  html.querySelector("article").setAttribute("reason", reason);
+  html.querySelector("article").setAttribute("data-reason", reason);
   html.querySelector("article p").innerHTML = message;
   document.querySelector("main").prepend(html);
 }
