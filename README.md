@@ -2,35 +2,33 @@
 
 This project allows displaying family tree data stored in csv tables as graphs on a website.
 It uses Cola.js and d3.js.
-Documentation is stored in the doc directory.
-
-# 🚀 Roadmap
-
-- [x] Load data, show graph
-- [x] Dynamic expanding of the graph
-- [x] Group partners (not sure if that's a good idea, therefore disabled right now)
-- [ ] Improve support for touchscreens
-- [ ] Dynamic node sizing
-- [ ] Don't draw etc-nodes if there is nothing more to show
-- [ ] Track generation (allows marking people without any dates as dead)
-- [ ] Store data in a database
-- [ ] Allow data editing
-- [ ] Provide example data (vocabulary in different languages, tv shows, royal families, ...)
+The documentation can be found in the wiki.
 
 # 🌳 Usage
 
-The family data is represented in two tables:
-- one for all the people
-- one for all the partnerships
+The family data is represented in two csv-tables that the user can upload on the page:
+- one for all the people:
 
-Each family has two partners. People can have parents, stored in the `child_of` attribute.
-The tables are stored as csv files in _./resources_.
-Write the names of these files in the call of `load_csv()` in _/js/generateTree.js_.
+ > ⚠️ The ID `0` is reserved️ for the unknown person. It can be used in families with unknown partners️
+
+| ID  | full_name  | born  | named | gender | child_of | birthday   | place_of_birth | day_of_death | age | profession             | religion                 |
+|-----|------------|-------|-------|--------|----------|------------|----------------|--------------|-----|------------------------|--------------------------|
+| 0   | unknown    |       |       |        |          |            |                |              |     |                        |                          |
+| 1   | John Doe   | Smith |       | male   |          | 01.09.1919 | Dirmingcan     | 10.10.2010   | 91  | professional describer | flying spaghetti monster |
+| 2   | Miriam Doe |       |       | female |          | 02.02.1902 | Ohoho          | 03.03.2003   | 101 | example giver          | -                        |
+| 3   | Kim Doe    |       |       | divers | 1        | 01.02.2001 |                |              | 20  |                        |                          |
+
+- one for all the families:
+
+| ID  | partner1 | partner2 |
+|-----|----------|----------|
+| 0   | 1        | 2        |
+
 
 # 🎨 Alternative design
 
 On the branch _straight_lines_, every link is drawn straight only using 90° angles. Instead of the rings, partnerships are only indicated by to connection of nodes.
-
+This branch was not updated in a while.
 
 ---
 ### 💡 Inspiration

@@ -1,10 +1,7 @@
 svg {
-  --foreground: black;
-  --background: white;
-  --background-secondary: white;
   --male: #9bcfec;
   --female: #ff9494;
-  background-color: var(--background);
+  border: solid var(--background);
 }
 
 #family-tree {
@@ -12,110 +9,113 @@ svg {
   height: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  svg {
-    --foreground: #e1e1e1;
-    --background: black;
-    --male: #3f5a86;
-    --female: #9d2626;
-    --background-secondary: #343434;
-  }
-}
-
-path, polyline {
+#family-tree path, polyline {
   stroke: var(--foreground);
 }
 
-marker {
+#family-tree marker {
   fill: var(--foreground);
 }
 
-text {
+#family-tree text {
   fill: var(--foreground);
   font-size: 14px;
   text-anchor: middle;
   stroke: none;
 }
 
-.link {
+#family-tree .link {
   marker-end:url(#Arrow2Lend);
 }
 
-.partnerNode {
+#family-tree .partnerNode {
   fill: var(--background);
 }
 
-.group {
-  fill: var(--background);
-  stroke: var(--foreground);
-}
-
-.etc {
+#family-tree .etc {
   fill: var(--background);
   stroke: var(--foreground);
   text-anchor: middle;
 }
 
-.infoBackground {
+#family-tree .infoBackground {
   fill: var(--background);
 }
 
-#background {
+#family-tree #background {
   fill: transparent;
   stroke: none;
 }
 
 /* stuff for the html nodes */
 
-.person {
+#family-tree .person {
   color: var(--foreground);
+  overflow: visible;
 }
 
-.person p {
+#family-tree .person p {
   font-size: 14px;
   margin: auto;
   text-align: center;
 }
 
-.addNames, .years {
+#family-tree .addNames, .years {
   font-weight: 300;
 }
 
-.person .years {
+#family-tree .person .years {
   font-style: italic;
 }
 
-#bg {
+#family-tree .bg {
   border-radius: 15px;
   padding: 5px;
 }
 
-.weiblich #bg {
+#family-tree .weiblich .bg {
   background-color: var(--female);
 }
 
-.männlich #bg {
+#family-tree .männlich .bg {
   background-color: var(--male);
 }
 
-.dead #bg {
+#family-tree .dead .bg {
   border-width: 4px;
   border-style: solid;
 }
 
-.männlich.dead #bg {
+#family-tree .männlich.dead .bg {
   background-color: var(--background);
   border-color: var(--male);
 }
 
-
-.weiblich.dead #bg {
+#family-tree .weiblich.dead .bg {
   background-color: var(--background);
   border-color: var(--female);
 }
 
-#text-bg {
+#family-tree .text-bg {
   background-color: var(--background-secondary);
   border-radius: 10px;
   padding: 5px;
+}
+
+@media (prefers-color-scheme: light) {
+  svg {
+    --male: #9bcfec;
+    --female: #ff9494;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  svg {
+    --male: #3f5a86;
+    --female: #9d2626;
+    background: black;
+  }
+  #family-tree foreignObject:not(.dead) .text-bg {
+    background-color: var(--background);
+  }
 }

@@ -5,28 +5,9 @@
  * @return {{nodes: *, links: *[]}}
  */
 function parseData(graphData) {
-  // create links between partners and child -> parents
-  let links = [];
-
-  if (showFullGraph) {
-    graphData.families.forEach((family, index) => {
-      let familyIndex = graphData.people.length + index;
-
-      // link each parent and each child to their family node
-      family.partners.forEach(p => links.push({
-        source: p,
-        target: familyIndex
-      }))
-      family.children.forEach(p => links.push({
-        source: familyIndex,
-        target: p
-      }));
-    });
-  }
-
   return {
     "nodes": graphData.people.concat(graphData.families),
-    "links": links
+    "links": []
   };
 }
 
@@ -60,45 +41,7 @@ function loadCsv(peopleTable, familyTable, then) {
   let children = {};
   let personData, familyData;
 
-  /*
-  This function will be called whenever one of the loaders has finished loading.
-  If all data is available, it will load the graph.
-   */
-  let dataCollector = (error, data) => {
-    if (error !== null) {
-      console.error("Error while loading graph data!");
-      console.error(error);
-    }
-
-    if ("gender" in data[0]) {
-      console.info("Received person data");
-      personData = data;
-    } else if ("partners" in data[0]) {
-      console.info("Received family data");
-      familyData = data;
-    }
-    if (!(familyData && personData))
-      return;
-
-    // append children to each family
-    // only possible if personData has been loaded completely
-    familyData.forEach(family => {
-      family.children = Number(family.id) in children ? children[Number(family.id)] : [];
-    });
-
-    let graph = parseData({
-      people: personData,
-      families: familyData
-    });
-
-    // check the result
-    console.assert(graph !== undefined,
-      "Result of parsing is empty");
-
-    then(graph);
-  }
-
-  d3.csv(peopleTable, person => {
+  personData = d3.csvParse(peopleTable, person => {
     const id = Number(person.ID);
     // map family index -> children array
     if (id && person.child_of !== "") {
@@ -112,7 +55,7 @@ function loadCsv(peopleTable, familyTable, then) {
     return {
       id: id,
       fullName: person.full_name,
-      additionalNames: getAdditionalNames(person.born, person.named),
+      additionalNames: {born: person.born, named: person.named},
       gender: person.gender,
       birthday: person.birthday,
       placeOfBirth: person.place_of_birth,
@@ -124,35 +67,38 @@ function loadCsv(peopleTable, familyTable, then) {
       width: personNodeSize[0],
       height: personNodeSize[1],
       type: "person",
-      infoVisible: false
+      infoVisible: false,
+      married: false,
+      parentsKnown: person.child_of !== ""
     }
-  }, dataCollector);
-  d3.csv(familyTable, family => {
+  });
+  familyData = d3.csvParse(familyTable, family => {
+    personData[family.partner1].married = true;
+    personData[family.partner2].married = true;
+
     return {
       id: Number(family.ID),
       // filter out person  with id 0
       partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
-      married: family.married === "true",
       height: partnerNodeRadius * 2,
       width: partnerNodeRadius * 2,
       type: "family"
     }
-  }, dataCollector);
-}
-
-function loadInfoHtml(path) {
-  d3.html(path, (error, page) => {
-    if (error !== null) {
-      console.error(error);
-      return;
-    }
-    infoHtml = page;
   });
-}
 
-function getAdditionalNames(born, named) {
-  if (born) born = "geb. " + born;
-  if (named) named = "genannt" + named;
+  // append children to each family
+  familyData.forEach(family => {
+    family.children = Number(family.id) in children ? children[Number(family.id)] : [];
+  });
 
-  return [born, named].filter(s => s !== "").join(", ");
+  let graph = parseData({
+    people: personData,
+    families: familyData
+  });
+
+  // check the result
+  console.assert(graph !== undefined,
+    "Result of parsing is empty");
+
+  then(graph);
 }
