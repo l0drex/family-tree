@@ -27,6 +27,55 @@ vis = svg.select("#vis");
 linkLayer = vis.select("#links");
 nodesLayer = vis.select("#nodes");
 
+// form functionality
+
+// center the search field
+d3.select("#p-me")
+  .attr("x", viewportSize[0]/2 - personNodeSize[0]/2).attr("y", viewportSize[1]/2 - personNodeSize[1]/2);
+
+let inputName = d3.select("#input-name");
+inputName.attr("placeholder", translationToString({
+  "en": "John Doe",
+  "de": "Max Mustermann"
+}));
+
+let form = d3.select("#name-form");
+form.on("change", (e) => {
+  let id = inputName.node().value;
+  let person = modelGraph.nodes[id];
+  if (!person)
+    return;
+
+  inputName.attr("data-id", id);
+  inputName.node().value = person.fullName;
+});
+
+form.on("submit", () => {
+  d3.event.preventDefault();
+
+  if (!modelGraph) {
+    console.error("Graph has not been loaded yet!");
+    return;
+  }
+
+  let id = inputName.attr("data-id");
+  if (!id) {
+    console.info("Person was not selected with the list, therefore the person has to be guessed.")
+    let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.includes(inputName.node().value));
+    d3.select("#p-me .bg").classed("error", !person);
+    if (!person) {
+      console.error("No person with that name found!");
+      return;
+    }
+
+    id = person.id;
+    console.log("Assuming the person is", person.fullName);
+  }
+  let url = new URL(window.location);
+  url.searchParams.set("id", id);
+  window.location.replace(url);
+});
+
 setup(JSON.parse(localStorage.getItem("graph")));
 
 /**
@@ -45,61 +94,19 @@ function setup(graph) {
   }
   modelGraph = graph;
 
-  // center the search field
-  d3.select("#p-me")
-    .attr("x", viewportSize[0]/2 - personNodeSize[0]/2).attr("y", viewportSize[1]/2 - personNodeSize[1]/2);
-
   d3.select("datalist#names").selectAll("option")
     .data(modelGraph.nodes.filter(n => n.type === "person" && n.id > 0))
     .enter().append("option")
     .attr("value", d => d.id).attr("label", d => d.fullName).html(d => d.fullName);
 
-  let inputName = d3.select("#input-name");
-  inputName.attr("placeholder", translationToString({
-    "en": "Your name",
-    "de": "Dein Name"
-  }));
+  let url = new URL(window.location);
+  let id = url.searchParams.get("id");
+  if (!id)
+    id = 1;
 
-  let form = d3.select("#name-form");
-
-  form.on("change", (e) => {
-    let id = inputName.node().value;
-    let person = modelGraph.nodes[id];
-    if (!person)
-      return;
-
-    inputName.attr("data-id", id);
-    inputName.node().value = person.fullName;
-  });
-
-  form.on("submit", () => {
-    d3.event.preventDefault();
-
-    let id = inputName.attr("data-id");
-    if (!id) {
-      console.info("Person was not selected with the list, therefore the person has to be guessed.")
-      let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.includes(inputName.node().value));
-      d3.select("#p-me .bg").classed("error", !person);
-      if (!person) {
-        console.error("No person with that name found!");
-        return;
-      }
-
-      id = person.id;
-      console.log("Assuming the person is", person.fullName);
-    }
-    let startNode = modelGraph.nodes[id];
-
-    nodesLayer.html("");
-    addViewNode(startNode);
-    refocus(startNode);
-
-    document.title += ` ${translationToString({
-      en: "by",
-      de: "von"
-    })} ${startNode.fullName}`;
-    d3.select("#title").html(document.title);
-  });
+  let startNode = modelGraph.nodes[id];
+  addViewNode(startNode);
+  refocus(startNode);
 }
 
 /**
@@ -107,9 +114,17 @@ function setup(graph) {
  * @param node focused person node
  */
 function refocus(node) {
-  console.assert(node.type === "person", "Incorrect node type!")
+  console.log("Refocusing on", node.fullName);
+  console.assert(node.type === "person", "Incorrect node type!");
+  console.assert(modelGraph.nodes, "Modelgraph has no nodes!");
+  console.assert(modelGraph.links, "Modelgraph has no links!");
 
   focusNode = node;
+
+  // place name of focus in header and title
+  inputName.node().value = "";
+  inputName.attr("placeholder", focusNode.fullName);
+
   modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
     let people = family.partners.concat(family.children);
     if (!people.includes(node.id))
@@ -178,6 +193,12 @@ function refocus(node) {
   });
 
   update();
+
+  // NOTE this has to be here since localize() is called in update
+  document.title += ` ${translationToString({
+    en: "of",
+    de: "von"
+  })} ${node.fullName}`;
 }
 
 /**
@@ -286,12 +307,10 @@ function transform() {
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
  */
 function update() {
-  console.assert(viewGraph !== undefined,
-    "Graph is empty!");
   console.assert(viewGraph.nodes.length > 0,
-    "Graph has no nodes!");
+    "Viewgraph has no nodes!");
   console.assert(viewGraph.links.length > 0,
-    "Graph has no links!");
+    "Viewgraph has no links!");
 
   d3cola
     .nodes(viewGraph.nodes)

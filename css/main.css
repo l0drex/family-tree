@@ -134,6 +134,10 @@ header h1 {
   margin: 0;
 }
 
+h1 * {
+  font-weight: bold;
+}
+
 main {
   overflow: auto;
   box-sizing: border-box;
@@ -221,14 +225,12 @@ input[type=submit]:active {
 
 .search {
   display: inline-flex;
-}
-
-.search > * {
-  padding: .25em .5em;
+  align-items: baseline;
 }
 
 .search input[type=search] {
   border: none;
+  border-bottom: solid var(--foreground);
   background: none;
   color: var(--foreground);
 }
