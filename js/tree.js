@@ -109,6 +109,15 @@ function setup(graph) {
   let startNode = modelGraph.nodes[id];
   addViewNode(startNode);
   refocus(startNode);
+
+  // place name of focus in header and title
+  // NOTE this has to be here since localize() is called in update
+  inputName.node().value = "";
+  inputName.attr("placeholder", focusNode.fullName);
+  document.title += ` ${translationToString({
+    en: "of",
+    de: "von"
+  })} ${focusNode.fullName}`;
 }
 
 /**
@@ -122,10 +131,6 @@ function refocus(node) {
   console.assert(modelGraph.links, "Modelgraph has no links!");
 
   focusNode = node;
-
-  // place name of focus in header and title
-  inputName.node().value = "";
-  inputName.attr("placeholder", focusNode.fullName);
 
   modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
     let people = family.partners.concat(family.children);
@@ -195,12 +200,6 @@ function refocus(node) {
   });
 
   update();
-
-  // NOTE this has to be here since localize() is called in update
-  document.title += ` ${translationToString({
-    en: "of",
-    de: "von"
-  })} ${node.fullName}`;
 }
 
 /**
