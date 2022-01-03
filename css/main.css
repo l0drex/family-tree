@@ -258,9 +258,12 @@ th, td {
   border: var(--lines) solid 1px;
 }
 
-tbody tr:nth-child(2n+1) {
+tr:nth-child(2n+1) {
   background: var(--background-secondary);
+}
 
+.table-layout tr {
+  background: none;
 }
 
 footer {

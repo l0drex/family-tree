@@ -49,74 +49,84 @@ svg {
 
 /* stuff for the html nodes */
 
-#family-tree .person {
+.person {
   color: var(--foreground);
   overflow: visible;
 }
 
-#family-tree .person p {
+.person p {
   font-size: 14px;
   margin: .1em;
   text-align: center;
 }
 
-#family-tree .addNames, #family-tree .years {
+.person .addNames, .person .years {
   font-weight: 300;
 }
 
-#family-tree .person .years {
+.person .years {
   font-style: italic;
 }
 
-#family-tree .bg {
+.person .bg {
   border-radius: 1em;
   padding: .25em;
 }
 
-#family-tree .weiblich .bg {
+.person.weiblich .bg {
   background-color: var(--female);
 }
 
-#family-tree .männlich .bg {
+.person.männlich .bg {
   background-color: var(--male);
 }
 
-#family-tree .unknown .bg {
+.person.unknown .bg {
   border: var(--lines) solid;
 }
 
-#family-tree .focused .bg {
+.person.focused .bg {
   box-shadow: 0 0 2em var(--accent);
 }
 
-#family-tree .dead .bg {
+.person.dead .bg {
   border-width: 4px;
   border-style: solid;
 }
 
-#family-tree .männlich.dead .bg {
+.person.männlich.dead .bg {
   background-color: var(--background);
   border-color: var(--male);
 }
 
-#family-tree .weiblich.dead .bg {
+.person.weiblich.dead .bg {
   background-color: var(--background);
   border-color: var(--female);
 }
 
-#family-tree .text-bg {
-  background-color: var(--background-secondary);
+.person .text-bg {
+  background: var(--background-secondary);
   border-radius: .75em;
   padding: .25em;
 }
 
-#family-tree td, #family-tree th {
+.person td, .person th {
   border: none;
   padding: .2em .3em;
 }
 
 #p-me .bg {
   padding: 0;
+}
+
+.person .bg.error {
+  border-color: var(--error-foreground);
+  background: var(--error-background);
+  color: var(--error-foreground);
+}
+
+.error input {
+  color: var(--error-foreground) !important;
 }
 
 @media (prefers-color-scheme: light) {
@@ -132,7 +142,7 @@ svg {
     --female: #9d2626;
     background: black;
   }
-  #family-tree foreignObject:not(.dead) .text-bg {
-    background-color: var(--background);
+  .person:not(.dead) .text-bg {
+    background: var(--background);
   }
 }

@@ -65,6 +65,9 @@ function setup(graph) {
   form.on("change", (e) => {
     let id = inputName.node().value;
     let person = modelGraph.nodes[id];
+    if (!person)
+      return;
+
     inputName.attr("data-id", id);
     inputName.node().value = person.fullName;
   });
@@ -73,11 +76,29 @@ function setup(graph) {
     d3.event.preventDefault();
 
     let id = inputName.attr("data-id");
+    if (!id) {
+      console.info("Person was not selected with the list, therefore the person has to be guessed.")
+      let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.includes(inputName.node().value));
+      d3.select("#p-me .bg").classed("error", !person);
+      if (!person) {
+        console.error("No person with that name found!");
+        return;
+      }
+
+      id = person.id;
+      console.log("Assuming the person is", person.fullName);
+    }
     let startNode = modelGraph.nodes[id];
 
     nodesLayer.html("");
     addViewNode(startNode);
     refocus(startNode);
+
+    document.title += ` ${translationToString({
+      en: "by",
+      de: "von"
+    })} ${startNode.fullName}`;
+    d3.select("#title").html(document.title);
   });
 }
 
@@ -332,6 +353,7 @@ function update() {
     .data(viewGraph.nodes.filter(node => node.type === "person"))
     .attr("class", d => "addInfo" + (d.infoVisible ? "" : " hidden"));
 
+  // needed since the elements were newly added
   localize(window.navigator.language);
 
   d3cola.on("tick", () => {

@@ -27,6 +27,13 @@ function localize(language) {
     d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
 
     d3.selectAll(`[lang]${lang}`).style('display', 'revert');
+
+    // set the page title
+    document.title = translationToString({
+      en: "Family tree",
+      de: "Stammbaum"
+    });
+    d3.select("#title").html(document.title);
   } else {
     console.warn(`Language ${language} is not supported. Falling back to english.`);
     localize("en");

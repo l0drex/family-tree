@@ -57,7 +57,6 @@ function setupUploadForm() {
       window.location.href = window.location.origin +
         window.location.pathname.replace("index.html", "") + "family-tree.html" +
         window.location.search;
-      console.debug(window.location.href);
     }
 
     let readerFamily = new FileReader();
