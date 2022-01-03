@@ -45,9 +45,29 @@ function setup(graph) {
   }
   modelGraph = graph;
 
-  let startNode = modelGraph.nodes[158];
-  addViewNode(startNode);
-  refocus(startNode);
+  d3.select("datalist#names").selectAll("option")
+    .data(modelGraph.nodes.filter(n => n.type === "person"))
+    .enter().append("option")
+    .attr("value", d => d.id).attr("label", d => d.fullName).html(d => d.fullName);
+
+  let inputName = d3.select("#input-name");
+  inputName.attr("placeholder", translationToString({
+    "en": "Your name",
+    "de": "Dein Name"
+  }));
+
+  d3.select("#name-form").on("submit", () => {
+    d3.event.preventDefault();
+
+    let id = Number(inputName.node().value);
+    let startNode = modelGraph.nodes[id];
+
+    console.log(`Refocusing on ${id}`);
+
+    nodesLayer.html("");
+    addViewNode(startNode);
+    refocus(startNode);
+  });
 }
 
 /**
