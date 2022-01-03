@@ -40,12 +40,12 @@ html {
  */
 
 ::-moz-selection {
-  background: #b3d4fc;
+  background: var(--accent);
   text-shadow: none;
 }
 
 ::selection {
-  background: #b3d4fc;
+  background: var(--accent);
   text-shadow: none;
 }
 
@@ -57,7 +57,7 @@ hr {
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--lines);
   margin: 1em 0;
   padding: 0;
 }
@@ -267,7 +267,7 @@ th, td {
   border: var(--lines) solid 1px;
 }
 
-tr:nth-child(2n+1) {
+tr:nth-child(2n) {
   background: var(--background-secondary);
 }
 
@@ -401,6 +401,10 @@ footer {
 
   body {
     background: #d5d5d5;
+  }
+
+  ::selection {
+    color: var(--background)
   }
 }
 
