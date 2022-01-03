@@ -102,6 +102,11 @@ svg {
   padding: 5px;
 }
 
+#family-tree td, #family-tree th {
+  border: none;
+  padding: .2em .3em;
+}
+
 @media (prefers-color-scheme: light) {
   svg {
     --male: #9bcfec;
