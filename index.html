@@ -3,8 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title lang="en">Family Tree</title>
-  <title lang="de">Stammbaum</title>
+  <title>Family Tree</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -26,55 +25,7 @@
 </head>
 
 <body>
-<!--Template for person node contents-->
-<template id="info-template">
-  <div class="bg" xmlns="http://www.w3.org/1999/xhtml">
-    <p class="fullName"></p>
-    <div class="addInfo hidden">
-      <p>
-        <span class="born hidden">
-          <span lang="en">born</span>
-          <span lang="de">geb.</span>
-        </span>
-        <span class="named hidden">
-          <span lang="en">named</span>
-          <span lang="de">genannt</span>
-        </span>
-      </p>
-      <p class="years"></p>
-
-      <div class="text-bg">
-        <table>
-          <tbody>
-          <tr>
-            <td lang="en">Age:</td>
-            <td lang="de">Alter:</td>
-            <td class="age"></td>
-          </tr>
-
-          <tr>
-            <td lang="en">Profession:</td>
-            <td lang="de">Beruf:</td>
-            <td class="profession"></td>
-          </tr>
-
-          <tr>
-            <td lang="en">Religion:</td>
-            <td lang="de">Religion:</td>
-            <td class="religion"></td>
-          </tr>
-
-          <tr>
-            <td lang="en">Place of birth:</td>
-            <td lang="de">Geburtsort:</td>
-            <td class="placeOfBirth"></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</template>
+<!--Templates for messages-->
 <template id="warning">
   <article class="warning">
     <h2 lang="en">⚠️ Warning!</h2>
@@ -136,24 +87,6 @@
       </div>
     </form>
   </article>
-
-  <svg id="family-tree" class="hidden">
-    <!--Definition for arrow ends-->
-    <defs>
-      <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
-        <path
-          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
-          transform="rotate(180) scale(.75) translate(1,0)"></path>
-      </marker>
-    </defs>
-    <rect id='background' width='100%' height='100%'></rect>
-    <g id="vis">
-      <g id="links"></g>
-      <g id="nodes">
-        <!-- TODO Datalist to input the name-->
-      </g>
-    </g>
-  </svg>
 
   <article>
     <h2 lang="en">🖥️ Usage</h2>
@@ -327,10 +260,10 @@
 </footer>
 
 <script src="https://d3js.org/d3.v4.js"></script>
-<script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>
 <script src="js/vendor/modernizr-3.11.2.min.js"></script>
 <script src="js/plugins.js"></script>
-<script src="js/dataLoader.js"></script>
 <script src="js/main.js"></script>
+
+<script src="js/index.js"></script>
 </body>
 </html>
