@@ -99,13 +99,17 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+html {
+  width: 100%;
+}
+
 body {
   font-family: sans-serif;
-  position: fixed;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
   background: #d5d5d5;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
 }
 
 body > * {
@@ -121,10 +125,15 @@ body > * {
   display: revert;
 }
 
-header {
+header, footer {
+  box-sizing: border-box;
   padding: .75em 1em;
-  box-shadow: 0 .25em .25em rgba(0, 0, 0, 0.33);
+  width: 100%;
   background: var(--background);
+}
+
+header {
+  box-shadow: 0 .25em .25em rgba(0, 0, 0, 0.33);
   position: fixed;
   top: 0;
   width: 100%;
@@ -134,15 +143,19 @@ header h1 {
   margin: 0;
 }
 
+footer {
+  text-align: center;
+  color: var(--foreground-secondary);
+}
+
 h1 * {
   font-weight: bold;
 }
 
 main {
-  overflow: auto;
+  padding: 5em 1em 2em;
   box-sizing: border-box;
-  height: 100%;
-  padding: 5em 1em 4em;
+  flex-grow: 1;
 }
 
 main > * {
@@ -226,6 +239,7 @@ input[type=submit]:active {
 .search {
   display: inline-flex;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .search input[type=search] {
@@ -275,15 +289,9 @@ tr:nth-child(2n) {
   background: none;
 }
 
-footer {
-  text-align: center;
-  position: fixed;
-  bottom: 0;
+.full-screen {
   width: 100%;
-  background: var(--background);
-  padding: 1em;
-  color: var(--foreground-secondary);
-  box-shadow: 0 -.25em .25em rgba(0, 0, 0, 0.33);
+  height: 100%;
 }
 
 /* ==========================================================================

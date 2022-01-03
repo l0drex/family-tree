@@ -4,11 +4,6 @@ svg {
   border: solid var(--background);
 }
 
-#family-tree {
-  width: 100%;
-  height: 100%;
-}
-
 #family-tree path, polyline {
   stroke: var(--foreground);
 }
