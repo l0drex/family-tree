@@ -81,6 +81,10 @@ svg {
   background-color: var(--male);
 }
 
+#family-tree .unknown .bg {
+  background-color: var(--background-secondary);
+}
+
 #family-tree .dead .bg {
   border-width: 4px;
   border-style: solid;

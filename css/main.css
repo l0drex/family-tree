@@ -179,6 +179,10 @@ article h2 {
   text-align: right;
 }
 
+#name-form {
+  display: inline;
+}
+
 .file-upload-container {
   display: flex;
   justify-content: space-between;
