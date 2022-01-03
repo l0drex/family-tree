@@ -119,16 +119,6 @@ svg {
   padding: 0;
 }
 
-.person .bg.error {
-  border-color: var(--error-foreground);
-  background: var(--error-background);
-  color: var(--error-foreground);
-}
-
-.error input {
-  color: var(--error-foreground) !important;
-}
-
 @media (prefers-color-scheme: light) {
   svg {
     --male: #9bcfec;

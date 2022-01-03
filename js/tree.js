@@ -59,10 +59,12 @@ form.on("submit", () => {
   }
 
   let id = inputName.attr("data-id");
-  if (!id) {
+  if (!inputName.node().value)
+    id = "";
+  else if (!id) {
     console.info("Person was not selected with the list, therefore the person has to be guessed.")
-    let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.includes(inputName.node().value));
-    d3.select("#p-me .bg").classed("error", !person);
+    let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.toLowerCase().includes(inputName.node().value.toLowerCase()));
+    d3.select(".search").classed("error", !person);
     if (!person) {
       console.error("No person with that name found!");
       return;

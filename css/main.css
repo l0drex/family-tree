@@ -161,12 +161,12 @@ article {
   max-width: 50em;
 }
 
-.warning {
+.notification.warning {
   color: var(--warning-foreground);
   background: var(--warning-background);
 }
 
-.error {
+.notification.error {
   color: var(--error-foreground);
   background: var(--error-background);
 }
@@ -235,8 +235,15 @@ input[type=submit]:active {
   color: var(--foreground);
 }
 
+.search.error input[type=search], .search input[type=search]:invalid {
+  border-bottom-color: var(--error-foreground);
+  background: var(--error-background);
+  color: var(--error-foreground);
+}
+
 .search input[type=search]:focus {
   outline: none;
+  border-bottom-color: var(--accent);
 }
 
 .search input[type=submit] {
