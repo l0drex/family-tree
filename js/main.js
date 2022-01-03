@@ -1,3 +1,8 @@
+// configuration variables
+const personNodeSize = [277, 30];
+// defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
+const partnerNodeRadius = 20;
+
 const browserLang = window.navigator.language.substr(0, 2);
 
 if (typeof d3 === "undefined") {
@@ -5,13 +10,6 @@ if (typeof d3 === "undefined") {
     en: "d3 could not be loaded. The family tree will not work.",
     de: "d3 konnte nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
   }, "d3");
-}
-
-if (typeof cola === "undefined") {
-  showError({
-    en: "WebCola could not be loaded. The family tree will not work!",
-    de: "WebCola konnten nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
-  }, "cola");
 }
 
 localize(browserLang);

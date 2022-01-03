@@ -1,19 +1,23 @@
-// configuration variables
-const personNodeSize = [277, 30];
-// defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
-const partnerNodeRadius = 20;
-
 // TODO load modelGraph from localStorage
 let modelGraph, viewGraph = {nodes: [], links: []};
 
+if (typeof cola === "undefined") {
+  showError({
+    en: "WebCola could not be loaded. The family tree will not work!",
+    de: "WebCola konnten nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
+  }, "cola");
+}
+
+const svg = d3.select("#family-tree");
 // setup of cola
+const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
 const d3cola = cola.d3adaptor(d3)
   .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
   .symmetricDiffLinkLengths(40)
-  .avoidOverlaps(true);
+  .avoidOverlaps(true)
+  .size(viewportSize);
 
 let nodesLayer, linkLayer, vis;
-const svg = d3.select("svg");
 // catch the transformation events
 svg.select("#background")
   .call(d3.zoom().on("zoom", transform));
@@ -23,6 +27,7 @@ vis = svg.select("#vis");
 linkLayer = vis.select("#links");
 nodesLayer = vis.select("#nodes");
 
+setup(JSON.parse(localStorage.getItem("graph")));
 
 /**
  * Called only once. Sets up the graph

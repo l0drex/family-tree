@@ -39,12 +39,33 @@ function setupUploadForm() {
     let familyFile = d3.select("#family-file").node().files[0];
     // these are raw strings of the csv files
     let peopleTable, familiesTable;
+
+    // store the loaded graph data and redirects to the tree-viewer
+    function showGraph(graph) {
+      if (!graph) {
+        showError({
+          en: "The calculated graph is empty!" +
+            "Please check if your files are empty. If not, please contact the administrator!",
+          de: "Der berechnete Graph ist leer!" +
+            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+        }, "graph")
+        return;
+      }
+
+      localStorage.setItem("graph", JSON.stringify(graph));
+      // redirect to the tree-viewer
+      window.location.href = window.location.origin +
+        window.location.pathname.replace("index.html", "") +
+        "family-tree.html"
+      console.debug(window.location.href)
+    }
+
     let readerFamily = new FileReader();
     readerFamily.onload = (file) => {
       familiesTable = file.target.result;
 
       if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, setup);
+        loadCsv(peopleTable, familiesTable, showGraph);
     }
     readerFamily.readAsText(familyFile);
     let readerPeople = new FileReader();
@@ -52,18 +73,13 @@ function setupUploadForm() {
       peopleTable = file.target.result;
 
       if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, setup);
+        loadCsv(peopleTable, familiesTable, showGraph);
     }
     readerPeople.readAsText(peopleFile);
 
-    d3.selectAll("article").classed("hidden", true);
-    svg.classed("hidden", false);
     // FIXME this should be doable in css, but I cant find why.
     //  See main.css line 147: main > :not(.hidden):last-child should also apply to the svg
-    svg.attr("style", "margin-bottom: 0;")
-
-    const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
-    d3cola.size(viewportSize);
+    //svg.attr("style", "margin-bottom: 0;")
   });
 }
 
