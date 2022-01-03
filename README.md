@@ -4,6 +4,15 @@ This project allows displaying family tree data stored in csv tables as graphs o
 It uses Cola.js and d3.js.
 The documentation can be found in the wiki.
 
+Supported languages: 🇺🇲/🇬🇧¹² 🇩🇪
+
+<!-- TODO add wiki page on how to add language support and then link it here -->
+
+---
+1. Default, therefore used while loading and fallback if local language is not supported
+2. No differentiation yet between country specific differences
+
+
 # 🌳 Usage
 
 The family data is represented in two csv-tables that the user can upload on the page:
@@ -28,7 +37,7 @@ The family data is represented in two csv-tables that the user can upload on the
 # 🎨 Alternative design
 
 On the branch _straight_lines_, every link is drawn straight only using 90° angles. Instead of the rings, partnerships are only indicated by to connection of nodes.
-This branch was not updated in a while.
+This branch has not been updated in a while.
 
 ---
 ### 💡 Inspiration
