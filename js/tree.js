@@ -17,7 +17,7 @@ const d3cola = cola.d3adaptor(d3)
   .avoidOverlaps(true)
   .size(viewportSize);
 
-let nodesLayer, linkLayer, vis;
+let nodesLayer, linkLayer, vis, focusNode;
 // catch the transformation events
 svg.select("#background")
   .call(d3.zoom().on("zoom", transform));
@@ -45,8 +45,12 @@ function setup(graph) {
   }
   modelGraph = graph;
 
+  // center the search field
+  d3.select("#p-me")
+    .attr("x", viewportSize[0]/2 - personNodeSize[0]/2).attr("y", viewportSize[1]/2 - personNodeSize[1]/2);
+
   d3.select("datalist#names").selectAll("option")
-    .data(modelGraph.nodes.filter(n => n.type === "person"))
+    .data(modelGraph.nodes.filter(n => n.type === "person" && n.id > 0))
     .enter().append("option")
     .attr("value", d => d.id).attr("label", d => d.fullName).html(d => d.fullName);
 
@@ -56,13 +60,20 @@ function setup(graph) {
     "de": "Dein Name"
   }));
 
-  d3.select("#name-form").on("submit", () => {
+  let form = d3.select("#name-form");
+
+  form.on("change", (e) => {
+    let id = inputName.node().value;
+    let person = modelGraph.nodes[id];
+    inputName.attr("data-id", id);
+    inputName.node().value = person.fullName;
+  });
+
+  form.on("submit", () => {
     d3.event.preventDefault();
 
-    let id = Number(inputName.node().value);
+    let id = inputName.attr("data-id");
     let startNode = modelGraph.nodes[id];
-
-    console.log(`Refocusing on ${id}`);
 
     nodesLayer.html("");
     addViewNode(startNode);
@@ -77,6 +88,7 @@ function setup(graph) {
 function refocus(node) {
   console.assert(node.type === "person", "Incorrect node type!")
 
+  focusNode = node;
   modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
     let people = family.partners.concat(family.children);
     if (!people.includes(node.id))
@@ -310,6 +322,7 @@ function update() {
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height() + (d.dead ? 8 : 0))
+    .classed("focused", d => d.id === focusNode.id)
     .on("click", toggleInfo)
     .call(d3cola.drag)
     .append(d => insertData(d));

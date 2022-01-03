@@ -56,11 +56,11 @@ svg {
 
 #family-tree .person p {
   font-size: 14px;
-  margin: auto;
+  margin: .1em;
   text-align: center;
 }
 
-#family-tree .addNames, .years {
+#family-tree .addNames, #family-tree .years {
   font-weight: 300;
 }
 
@@ -69,8 +69,8 @@ svg {
 }
 
 #family-tree .bg {
-  border-radius: 15px;
-  padding: 5px;
+  border-radius: 1em;
+  padding: .25em;
 }
 
 #family-tree .weiblich .bg {
@@ -82,7 +82,11 @@ svg {
 }
 
 #family-tree .unknown .bg {
-  background-color: var(--background-secondary);
+  border: var(--lines) solid;
+}
+
+#family-tree .focused .bg {
+  box-shadow: 0 0 2em var(--accent);
 }
 
 #family-tree .dead .bg {
@@ -102,13 +106,17 @@ svg {
 
 #family-tree .text-bg {
   background-color: var(--background-secondary);
-  border-radius: 10px;
-  padding: 5px;
+  border-radius: .75em;
+  padding: .25em;
 }
 
 #family-tree td, #family-tree th {
   border: none;
   padding: .2em .3em;
+}
+
+#p-me .bg {
+  padding: 0;
 }
 
 @media (prefers-color-scheme: light) {

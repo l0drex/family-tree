@@ -90,13 +90,13 @@
     <g id="vis">
       <g id="links"></g>
       <g id="nodes">
-        <!-- TODO Datalist to input the name-->
+        <!-- Search node search for a person -->
         <foreignObject id="p-me" class="person unknown" height="30" width="277">
           <div class="bg" xmlns="http://www.w3.org/1999/xhtml">
             <datalist id="names"></datalist>
-            <form id="name-form">
+            <form id="name-form" class="search">
               <label for="input-name" class="sr-only">Your name</label>
-              <input id="input-name" list="names" type="text" placeholder="Your name" spellcheck="false">
+              <input id="input-name" list="names" type="search" placeholder="Your name" spellcheck="false" required>
               <input type="submit" value="🔍">
             </form>
           </div>

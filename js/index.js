@@ -55,9 +55,9 @@ function setupUploadForm() {
       localStorage.setItem("graph", JSON.stringify(graph));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
-        window.location.pathname.replace("index.html", "") +
-        "family-tree.html"
-      console.debug(window.location.href)
+        window.location.pathname.replace("index.html", "") + "family-tree.html" +
+        window.location.search;
+      console.debug(window.location.href);
     }
 
     let readerFamily = new FileReader();
@@ -76,10 +76,6 @@ function setupUploadForm() {
         loadCsv(peopleTable, familiesTable, showGraph);
     }
     readerPeople.readAsText(peopleFile);
-
-    // FIXME this should be doable in css, but I cant find why.
-    //  See main.css line 147: main > :not(.hidden):last-child should also apply to the svg
-    //svg.attr("style", "margin-bottom: 0;")
   });
 }
 

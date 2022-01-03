@@ -179,10 +179,6 @@ article h2 {
   text-align: right;
 }
 
-#name-form {
-  display: inline;
-}
-
 .file-upload-container {
   display: flex;
   justify-content: space-between;
@@ -221,6 +217,34 @@ input[type=submit] {
 
 input[type=submit]:active {
   background: var(--accent);
+}
+
+.search {
+  display: inline-flex;
+}
+
+.search > * {
+  padding: .25em .5em;
+}
+
+.search input[type=search] {
+  border: none;
+  background: none;
+  color: var(--foreground);
+}
+
+.search input[type=search]:focus {
+  outline: none;
+}
+
+.search input[type=submit] {
+  background: none;
+  padding: revert;
+  border-radius: 0;
+}
+
+button:hover, input[type=submit]:hover, input[type=file] {
+  cursor: pointer;
 }
 
 table {
