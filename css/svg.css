@@ -81,7 +81,7 @@ svg {
 }
 
 .person.focused .bg {
-  box-shadow: 0 0 2em var(--accent);
+  box-shadow: 0 0 1em var(--accent);
 }
 
 .person.dead .bg {
