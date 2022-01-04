@@ -2,6 +2,8 @@
 const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
+// length of the vertical line between partners and children
+const personDiff = 15;
 const browserLang = window.navigator.language.substr(0, 2);
 
 if (typeof d3 === "undefined") {

@@ -20,7 +20,7 @@ svg {
 }
 
 #family-tree .link {
-  marker-end:url(#Arrow2Lend);
+  fill: none;
 }
 
 #family-tree .partnerNode {

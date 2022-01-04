@@ -389,7 +389,7 @@ function update() {
     link
       .attr("points", d => {
         if  (d.target.type === "family")
-          return d.source.x + "," + d.source.y + " " + d.source.x + "," + (d.target.y - personDiff) + " " + d.target.x + "," + (d.target.y - personDiff);
+          return d.source.x + "," + d.source.y + " " + d.target.x + "," + (d.target.y - personDiff);
         else
           return d.source.x + "," + (d.source.y + personDiff) + " " + d.target.x + "," + (d.source.y + personDiff) + " " + d.target.x + "," + d.target.y;
       });
