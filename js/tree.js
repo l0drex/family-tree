@@ -29,10 +29,6 @@ nodesLayer = vis.select("#nodes");
 
 // form functionality
 
-// center the search field
-d3.select("#p-me")
-  .attr("x", viewportSize[0]/2 - personNodeSize[0]/2).attr("y", viewportSize[1]/2 - personNodeSize[1]/2);
-
 let inputName = d3.select("#input-name");
 inputName.attr("placeholder", translationToString({
   "en": "John Doe",
@@ -40,8 +36,11 @@ inputName.attr("placeholder", translationToString({
 }));
 
 let form = d3.select("#name-form");
-form.on("change", (e) => {
+form.on("input", (e) => {
   let id = inputName.node().value;
+  if (!id)
+    d3.select(".search").classed("error", false);
+  console.debug("Input changed!");
   let person = modelGraph.nodes[id];
   if (!person)
     return;
@@ -50,6 +49,7 @@ form.on("change", (e) => {
   inputName.node().value = person.fullName;
 });
 
+// search for the person and reload the page with the persons' id as search-param
 form.on("submit", () => {
   d3.event.preventDefault();
 
@@ -60,6 +60,7 @@ form.on("submit", () => {
 
   let id = inputName.attr("data-id");
   if (!inputName.node().value)
+    // reload the page with no param -> uses the default: id=1
     id = "";
   else if (!id) {
     console.info("Person was not selected with the list, therefore the person has to be guessed.")
@@ -73,6 +74,7 @@ form.on("submit", () => {
     id = person.id;
     console.log("Assuming the person is", person.fullName);
   }
+
   let url = new URL(window.location);
   url.searchParams.set("id", id);
   window.location.replace(url);
