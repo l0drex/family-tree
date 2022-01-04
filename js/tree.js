@@ -1,4 +1,3 @@
-// TODO load modelGraph from localStorage
 let modelGraph, viewGraph = {nodes: [], links: []};
 
 if (typeof cola === "undefined") {
@@ -36,7 +35,7 @@ inputName.attr("placeholder", translationToString({
 }));
 
 let form = d3.select("#name-form");
-form.on("input", (e) => {
+form.on("input", () => {
   let id = inputName.node().value;
   if (!id)
     d3.select(".search").classed("error", false);
@@ -129,8 +128,8 @@ function setup(graph) {
 function refocus(node) {
   console.log("Refocusing on", node.fullName);
   console.assert(node.type === "person", "Incorrect node type!");
-  console.assert(modelGraph.nodes, "Modelgraph has no nodes!");
-  console.assert(modelGraph.links, "Modelgraph has no links!");
+  console.assert(modelGraph.nodes, "Model graph has no nodes!");
+  console.assert(modelGraph.links, "Model graph has no links!");
 
   focusNode = node;
 
@@ -205,7 +204,7 @@ function refocus(node) {
 }
 
 /**
- * Adds the node to the view. Also appends an etc node if the node refers to a person.
+ * Adds the node to the view. Also appends an etc-node if the node refers to a person.
  * @param node
  */
 function addViewNode(node) {
@@ -234,7 +233,7 @@ function toggleInfo(node) {
 }
 
 /**
- * Called if the user clicked on an etc node.
+ * Called if the user clicked on an etc-node.
  * Adds missing families of the target and removes the etc node
  * @param node etc node on which the user clicked
  */

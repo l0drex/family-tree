@@ -2,6 +2,7 @@
 const personNodeSize = [277, 30];
 // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
 const partnerNodeRadius = 20;
+const supportedLanguages = ['de', 'en'];
 const browserLang = window.navigator.language.substr(0, 2);
 
 if (typeof d3 === "undefined") {
@@ -21,7 +22,7 @@ function localize(language) {
   // strip country-specific stuff
   language = language.slice(0, 2);
 
-  if (['de', 'en'].includes(language)) {
+  if (supportedLanguages.includes(language)) {
     d3.select("html").attr("lang", language);
     let lang = `:lang(${language})`;
     d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
@@ -98,5 +99,16 @@ function hideError(reason) {
  * @returns {string}
  */
 function translationToString(translationObject) {
+  if (!("en" in translationObject))
+    console.error(`${translationObject} has no translation into english, the default language!`);
+
+  if (!(browserLang in translationObject)) {
+    showWarning(translationToString({
+      en: "The translations might be incomplete.",
+      de: "Die Übersetzungen sind möglicherweise unvollständig."
+    }), "localization");
+    console.debug(`${translationObject} has no translation for the currently used language!`)
+    return translationObject.en;
+  }
   return translationObject[browserLang];
 }
