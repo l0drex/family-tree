@@ -1,57 +1,43 @@
 svg {
-  --foreground: black;
-  --background: white;
-  --background-secondary: white;
   --male: #9bcfec;
   --female: #ff9494;
-  background-color: var(--background);
+  border: solid var(--background);
 }
 
-@media (prefers-color-scheme: dark) {
-  svg {
-    --foreground: #e1e1e1;
-    --background: black;
-    --male: #3f5a86;
-    --female: #9d2626;
-    --background-secondary: #343434;
-  }
-}
-
-path, polyline {
+#family-tree path, polyline {
   stroke: var(--foreground);
 }
 
-marker {
+#family-tree marker {
   fill: var(--foreground);
 }
 
-text {
+#family-tree text {
   fill: var(--foreground);
   font-size: 14px;
   text-anchor: middle;
   stroke: none;
 }
 
-.partnerNode {
+#family-tree .link {
+  marker-end:url(#Arrow2Lend);
+}
+
+#family-tree .partnerNode {
   fill: var(--background);
 }
 
-.group {
-  fill: var(--background);
-  stroke: var(--foreground);
-}
-
-.etc {
+#family-tree .etc {
   fill: var(--background);
   stroke: var(--foreground);
   text-anchor: middle;
 }
 
-.infoBackground {
+#family-tree .infoBackground {
   fill: var(--background);
 }
 
-#background {
+#family-tree #background {
   fill: transparent;
   stroke: none;
 }
@@ -60,15 +46,16 @@ text {
 
 .person {
   color: var(--foreground);
+  overflow: visible;
 }
 
 .person p {
   font-size: 14px;
-  margin: auto;
+  margin: .1em;
   text-align: center;
 }
 
-.addNames, .years {
+.person .addNames, .person .years {
   font-weight: 300;
 }
 
@@ -76,37 +63,71 @@ text {
   font-style: italic;
 }
 
-#bg {
-  border-radius: 15px;
-  padding: 5px;
+.person .bg {
+  border-radius: 1em;
+  padding: .25em;
 }
 
-.weiblich #bg {
+.person.weiblich .bg {
   background-color: var(--female);
 }
 
-.männlich #bg {
+.person.männlich .bg {
   background-color: var(--male);
 }
 
-.dead #bg {
+.person.unknown .bg {
+  border: var(--lines) solid;
+}
+
+.person.focused .bg {
+  box-shadow: 0 0 2em var(--accent);
+}
+
+.person.dead .bg {
   border-width: 4px;
   border-style: solid;
 }
 
-.männlich.dead #bg {
+.person.männlich.dead .bg {
   background-color: var(--background);
   border-color: var(--male);
 }
 
-
-.weiblich.dead #bg {
+.person.weiblich.dead .bg {
   background-color: var(--background);
   border-color: var(--female);
 }
 
-#text-bg {
-  background-color: var(--background-secondary);
-  border-radius: 10px;
-  padding: 5px;
+.person .text-bg {
+  background: var(--background-secondary);
+  border-radius: .75em;
+  padding: .25em;
+}
+
+.person td, .person th {
+  border: none;
+  padding: .2em .3em;
+}
+
+#p-me .bg {
+  padding: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  svg {
+    --male: #9bcfec;
+    --female: #ff9494;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  svg {
+    --male: #3f5a86;
+    --female: #9d2626;
+    background: black;
+  }
+  .person:not(.dead) .text-bg {
+    background: var(--background);
+  }
 }

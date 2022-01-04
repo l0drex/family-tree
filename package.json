@@ -1,13 +1,12 @@
 {
-  "name": "Family Tree",
+  "name": "family-tree",
   "version": "0.0.1",
   "description": "A website that can show a family tree.",
-  "keywords": "familytree, family",
+  "readme": "README.md",
+  "keywords": ["familytree", "family"],
   "license": "",
   "author": "Lorenz Hoffmann",
   "scripts": {
-    "build": "parcel build html/template.php",
-    "dev": "parcel html/template.php --open",
     "start": "npm run build && npm run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,6 +15,5 @@
     "d3": "latest"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.4"
   }
 }

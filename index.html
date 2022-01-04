@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Family Tree</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="img/icon.png">
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/svg.css">
+
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#2b2b2b">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="white">
+</head>
+
+<body>
+<!--Templates for messages-->
+<template id="warning">
+  <article class="notification warning">
+    <h2 lang="en">⚠️ Warning!</h2>
+    <h2 lang="de">⚠️ Achtung!</h2>
+    <p></p>
+  </article>
+</template>
+<template id="error">
+  <article class="notification error">
+    <h2 lang="en">💥 Error!</h2>
+    <h2 lang="de">💥 Fehler!</h2>
+    <p></p>
+  </article>
+</template>
+
+<header>
+  <h1 id="title">Family tree</h1>
+</header>
+
+<main>
+  <article id="upload-container">
+    <h2 lang="en">📁 File-Upload</h2>
+    <h2 lang="de">📁 Datei-Upload</h2>
+    <hr>
+    <p lang="en">
+      Here you can upload the two files for your family tree.
+      Simply click on the corresponding button and select the file.
+      Make sure that you didn't accidentally mix them up!
+      <br>
+      If you have selected both files, click on the button to open the tree.
+    </p>
+    <p lang="de">
+      Ladet hier die beiden Dateien hoch, um euren Stammbaum anzuzeigen.
+      Klickt dazu auf den jeweiligen Knopf und wählt die passende Datei aus.
+      <i>Achtet darauf, dass die richtige Datei im richtigen Feld gelandet ist!</i>
+      <br>
+      Wenn Ihr beide Dateien ausgewählt habt, klickt auf den Knopf um den Stammbaum zu öffnen.
+    </p>
+    <form id="upload-form" enctype="multipart/form-data">
+      <!--Form to upload the graph data-->
+      <div class="file-upload-container">
+        <div class="file-upload">
+          <label for="people-file" lang="en">People-data</label>
+          <label for="people-file" lang="de">Personendaten</label>
+          <br>
+          <input type="file" id="people-file" accept="text/csv">
+        </div>
+        <div class="file-upload">
+          <label for="family-file" lang="en">Family-data</label>
+          <label for="family-file" lang="de">Familiendaten</label>
+          <br>
+          <input type="file" id="family-file" accept="text/csv">
+        </div>
+      </div>
+
+      <div>
+        <input type="submit" id="submit">
+      </div>
+    </form>
+  </article>
+
+  <article>
+    <h2 lang="en">🖥️ Usage</h2>
+    <h2 lang="de">🖥️ Bedienung</h2>
+    <hr>
+    <p lang="en">
+      You can move the family tree with your mouse and zoom in and out with your mouse wheel.
+      If you click on people with your left mouse button some advanced information is displayed.
+      Many people have a circle with "..." inside them, clicking on those inserts more of their relatives.
+      <br>
+      Additionally, you can drag People by dragging them with the mouse.
+    </p>
+    <p lang="de">
+      Man kann den Stammbaum durch Ziehen mit der Maus verschieben und mit dem Mausrad rein- bzw. rauszoomen.
+      Klickt man auf Personen werden weitere Informationen zu dieser angezeigt.
+      An vielen Personen hängen Kreise, in denen "..." steht. Klickt man auf diese, werden weitere Verwandte
+      eingeblendet.
+      <br>
+      Außerdem kann man Personen verschieben, wenn man diese mit der Maus zieht.
+    </p>
+  </article>
+
+  <article>
+    <h2 lang="en">🗒️ Where do I get the data?</h2>
+    <h2 lang="de">🗒️ Woher bekomme ich die Daten?</h2>
+    <hr>
+    <p lang="en">
+      The data for the family tree is stored in two CSV-files:
+    </p>
+    <ul lang="en">
+      <li>one containing all people</li>
+      <li>one containing the connections between them</li>
+    </ul>
+    <p lang="en">
+      If someone shared their family tree with this link, you should have received those two files with it. Just upload
+      them in the form above.
+      <br>
+      If instead you want to create your own family tree, you need to create those files for yourself.
+    </p>
+    <p lang="en">
+      Each CSV-file is a table with different columns, depending on the type.
+      You can create those in a spreadsheet program of your choice and then export it as CSV.
+      The best way to understand the structure is to have a look at the example below:
+    </p>
+
+    <p lang="de">
+      Die Daten für den Stammbaum wird in zwei CSV-Dateien gespeichert:
+    </p>
+    <ul lang="de">
+      <li>eine für alle Personen</li>
+      <li>eine für alle Verknüpfungen</li>
+    </ul>
+    <p lang="de">
+      Wenn Dir jemand seinen Stammbaum mit diesem Link geteilt hat, dann solltest Du auch die beiden Dateien erhalten
+      haben.
+      Du kannst diese einfach in dem Formular oben laden und den Baum anschauen.
+      <br>
+      Wenn Du stattdessen Deinen eigenen Stammbaum erstellen möchtest, musst Du die beiden Dateien selbst erstellen.
+    </p>
+    <p lang="de">
+      Jede CSV-Datei ist eine Tabelle mit verschieden Spalten, je nach Typ.
+      Du kannst diese in einem Tabellenkalkulationsprogramm Deiner Wahl erstellen und anschließend als CSV exportieren.
+      Am besten lässt sich der Aufbau der Dateien an dem Beispiel unten zeigen:
+    </p>
+
+    <h3 lang="en">People-table</h3>
+    <h3 lang="de">Personentabelle</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>full_name</th>
+        <th>born</th>
+        <th>named</th>
+        <th>gender</th>
+        <th>child_of</th>
+        <th>birthday</th>
+        <th>place_of_birth</th>
+        <th>day_of_death</th>
+        <th>age</th>
+        <th>profession</th>
+        <th>religion</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>0</td>
+        <td>unknown</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>John Doe</td>
+        <td>Smith</td>
+        <td></td>
+        <td>male</td>
+        <td></td>
+        <td>01.09.1919</td>
+        <td>Dirmingcan</td>
+        <td>10.10.2010</td>
+        <td>91</td>
+        <td>professional describer</td>
+        <td>flying spaghetti monster</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Miriam Doe</td>
+        <td></td>
+        <td></td>
+        <td>female</td>
+        <td></td>
+        <td>02.02.1902</td>
+        <td>Ohoho</td>
+        <td>03.03.2003</td>
+        <td>101</td>
+        <td>example giver</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Kim Doe</td>
+        <td></td>
+        <td></td>
+        <td>divers</td>
+        <td>1</td>
+        <td>01.02.2001</td>
+        <td></td>
+        <td></td>
+        <td>20</td>
+        <td></td>
+        <td></td>
+      </tr>
+      </tbody>
+    </table>
+    <h3 lang="en">Family-table</h3>
+    <h3 lang="de">Verknüpfungstabelle</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>partner1</th>
+        <th>partner2</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+      </tr>
+      </tbody>
+    </table>
+    <p lang="en">
+      Further information is available in the <a href="https://github.com/l0drex/family-tree/wiki">wiki on GitHub</a>.
+    </p>
+    <p lang="de">
+      Genauere Informationen zu den Spalten / Attributen sind im <a href="https://github.com/l0drex/family-tree/wiki">Wiki auf GitHub</a> zu finden (nur auf Englisch).
+    </p>
+  </article>
+</main>
+
+<footer>
+  Made with ❤ on <a href="https://github.com/l0drex/family-tree">GitHub</a>
+</footer>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="js/vendor/modernizr-3.11.2.min.js"></script>
+<script src="js/plugins.js"></script>
+<script src="js/main.js"></script>
+
+<script src="js/dataLoader.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>
