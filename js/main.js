@@ -1,6 +1,3 @@
-import * as d3 from "https://cdn.skypack.dev/d3@4";
-
-
 export const config = {
   browserLang: window.navigator.language.substr(0, 2),
   // configuration variables
@@ -10,13 +7,6 @@ export const config = {
 }
 
 const supportedLanguages = ['de', 'en'];
-
-if (typeof d3 === "undefined") {
-  showError({
-    en: "d3 could not be loaded. The family tree will not work.",
-    de: "d3 konnte nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
-  }, "d3");
-}
 
 localize(config.browserLang);
 
@@ -29,18 +19,20 @@ export function localize(language) {
   language = language.slice(0, 2);
 
   if (supportedLanguages.includes(language)) {
-    d3.select("html").attr("lang", language);
+    document.querySelector("html").setAttribute("lang", language)
     let lang = `:lang(${language})`;
-    d3.selectAll(`[lang]:not(${lang})`).style('display', 'none');
+    document.querySelectorAll(`[lang]:not(${lang})`).forEach(element =>
+      element.style.setProperty('display', 'none'));
 
-    d3.selectAll(`[lang]${lang}`).style('display', 'revert');
+    document.querySelectorAll(`[lang]${lang}`).forEach(element =>
+      element.style.setProperty('display', 'revert'));
 
     // set the page title
     document.title = translationToString({
       en: "Family tree",
       de: "Stammbaum"
     });
-    d3.select("#title").html(document.title);
+    document.querySelector("#title").innerHTML = document.title;
   } else {
     console.warn(`Language ${language} is not supported. Falling back to english.`);
     localize("en");
@@ -58,10 +50,10 @@ export function showWarning(message, reason) {
 
   console.warn(message);
 
-  let html = d3.select("#warning").node().content.cloneNode(true);
+  let html = document.querySelector("#warning").content.cloneNode(true);
   html.querySelector("article").setAttribute("data-reason", reason);
   html.querySelector("article p").innerHTML = message;
-  d3.select("main").node().prepend(html);
+  document.querySelector("main").prepend(html);
 }
 
 /**
@@ -69,7 +61,9 @@ export function showWarning(message, reason) {
  * @param reason {string} the reason with which the warning shall be identified
  */
 export function hideWarning(reason) {
-  d3.select(`.warning[data-reason=${reason}]`).classed("hidden", true);
+  let warnings = document.querySelector(`.warning[data-reason=${reason}]`);
+  if (warnings)
+    warnings.remove();
 }
 
 /**
@@ -95,7 +89,9 @@ export function showError(message, reason) {
  * @param reason {string} the reason with which the warning shall be identified
  */
 export function hideError(reason) {
-  d3.select(`.error[data-reason=${reason}]`).classed("hidden", true);
+  let error = document.querySelector(`.error[data-reason=${reason}]`);
+  if(error)
+    error.remove();
 }
 
 /**

@@ -10,6 +10,13 @@ if (typeof cola === "undefined") {
   }, "cola");
 }
 
+if (typeof d3 === "undefined") {
+  showError({
+    en: "d3 could not be loaded. The family tree will not work.",
+    de: "d3 konnte nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
+  }, "d3");
+}
+
 const svg = d3.select("#family-tree");
 // setup of cola
 const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
