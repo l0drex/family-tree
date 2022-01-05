@@ -106,6 +106,7 @@ function setup(graph) {
     id = 1;
 
   let startNode = modelGraph.nodes[id];
+  startNode.infoVisible = true;
   addViewNode(startNode);
   refocus(startNode);
 
