@@ -10,6 +10,28 @@ setupUploadForm();
 function setupUploadForm() {
   let form = d3.select("#upload-form");
 
+  // support drag and drop
+  document.querySelectorAll(".file-upload").forEach(container => {
+    function allowDrop(e) {
+      if (e.dataTransfer.types.includes("text/csv")) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+        return;
+      }
+      console.log(e)
+    }
+    let input = container.querySelector("input");
+    container.ondragenter = allowDrop;
+    container.ondragover = allowDrop;
+    container.ondrop = e => {
+        e.preventDefault();
+        console.debug("dropped");
+        const data = e.dataTransfer.getData("text/plain");
+        input.value = data;
+        console.debug(data);
+      }
+  });
+
   // make buttons with selected file green
   let inputBtns = form.selectAll("input[type=file]");
   inputBtns.data(inputBtns.nodes());
