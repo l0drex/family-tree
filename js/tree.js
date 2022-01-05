@@ -77,6 +77,20 @@ form.on("submit", () => {
   window.location.replace(url);
 });
 
+// add keyboard shortcuts
+document.addEventListener("keydown", event => {
+  switch (event.key) {
+    case "f":
+      if (event.ctrlKey) {
+        event.preventDefault();
+        document.getElementById("input-name").focus()
+      }
+      break;
+    case "Escape":
+      document.querySelector(":focus").blur();
+  }
+});
+
 setup(JSON.parse(localStorage.getItem("graph")));
 
 /**
