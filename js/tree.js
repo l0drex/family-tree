@@ -98,7 +98,7 @@ function setup(graph) {
   d3.select("datalist#names").selectAll("option")
     .data(modelGraph.nodes.filter(n => n.type === "person" && n.id > 0))
     .enter().append("option")
-    .attr("value", d => d.fullname).html(d => d.fullName);
+    .attr("value", d => d.fullName).html(d => d.fullName);
 
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
@@ -225,7 +225,7 @@ function toggleInfo(node) {
   node.infoVisible = !node.infoVisible;
   nodesLayer.select(`#p-${node.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.day_of_death !== "" || node.age > 120 ? 8 : 0))
+    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0))
     .select(".addInfo")
     .classed("hidden", !node.infoVisible);
 }
@@ -354,7 +354,7 @@ function update() {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => node.type === "person" && node.ID !== 0), d => d.viewId)
+    .data(viewGraph.nodes.filter(node => node.type === "person" && node.id !== 0), d => d.viewId)
   personNode.enter().append("foreignObject")
     .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
     .attr("id", d => `p-${d.id}`)

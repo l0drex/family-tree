@@ -12,9 +12,9 @@ function setupUploadForm() {
   let form = d3.select("#upload-form");
 
   // make buttons with selected file green
-  let inputBtns = form.selectAll("input[type=file]");
-  inputBtns.data(inputBtns.nodes());
-  inputBtns.each(d => {
+  let inputButtons = form.selectAll("input[type=file]");
+  inputButtons.data(inputButtons.nodes());
+  inputButtons.each(d => {
     if (d.value) {
       d.parentNode.classList.add("file-selected");
       checkFileName(d);
@@ -22,7 +22,7 @@ function setupUploadForm() {
     else
       d.parentNode.classList.remove("file-selected");
   });
-  inputBtns.on("change", d => {
+  inputButtons.on("change", d => {
     if (d.value) {
       d.parentNode.classList.add("file-selected");
       checkFileName(d);

@@ -1,4 +1,4 @@
-# Codestyle
+# Code-style
 
 When you create a pull request, make sure to follow the following styling guidelines:
 
