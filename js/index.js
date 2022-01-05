@@ -43,16 +43,6 @@ function setupUploadForm() {
 
     // store the loaded graph data and redirects to the tree-viewer
     function showGraph(graph) {
-      if (!graph) {
-        showError({
-          en: "The calculated graph is empty!" +
-            "Please check if your files are empty. If not, please contact the administrator!",
-          de: "Der berechnete Graph ist leer!" +
-            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-        }, "graph")
-        return;
-      }
-
       localStorage.setItem("graph", JSON.stringify(graph));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
@@ -60,20 +50,30 @@ function setupUploadForm() {
         window.location.search;
     }
 
+    function loadGraph() {
+      if (peopleTable && familiesTable)
+        loadCsv(peopleTable, familiesTable)
+          .then(showGraph)
+          .catch(() =>
+            showError({
+              en: "The calculated graph is empty!" +
+                "Please check if your files are empty. If not, please contact the administrator!",
+              de: "Der berechnete Graph ist leer!" +
+                " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+            }, "graph"));
+    }
+
     let readerFamily = new FileReader();
     readerFamily.onload = (file) => {
       familiesTable = file.target.result;
-
-      if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, showGraph);
+      loadGraph();
     }
     readerFamily.readAsText(familyFile);
+
     let readerPeople = new FileReader();
     readerPeople.onload = (file) => {
       peopleTable = file.target.result;
-
-      if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, showGraph);
+      loadGraph();
     }
     readerPeople.readAsText(peopleFile);
   });

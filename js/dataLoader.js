@@ -3,25 +3,43 @@ import {config} from "./main.js";
 
 
 /**
- * Parses the graph data extracted and returns a graph object
- * @param graphData {{people: *[], families: *[]}}
-        source: familyIndex,
- * @return {{nodes: *, links: *[]}}
+ * Builds a graph out of family data
+ * @param families {Array} list of family objects
+ * @param people {Array} list of person objects
+ * @return {Promise}
  */
-function parseData(graphData) {
-  return {
-    "nodes": graphData.people.concat(graphData.families),
-    "links": []
-  };
+function buildGraph(people, families) {
+  people.forEach(person => {
+    person.width = config.personNodeSize[0];
+    person.height = config.personNodeSize[1];
+    person.infoVisible = false;
+    person.type = "person";
+  });
+
+  families.forEach(family => {
+    family.height = family.width = config.partnerNodeRadius * 2;
+    family.type = "family";
+  });
+
+  return new Promise((resolve, reject) => {
+    if (people && families &&
+      !([people.length, families.length].includes(0))) {
+      resolve({
+        "nodes": people.concat(families),
+        "links": []
+      });
+    } else
+      reject();
+  });
 }
 
 /**
  * Loads a json file, parses the data and sets up the graph
  * @deprecated
  * @param path {string}
- * @param then {function } function to call when the data has been loaded. takes data as the only parameter
+ * @return {Promise}
  */
-export function loadJson(path, then) {
+export function loadJson(path) {
   d3.json(path, (error, data) => {
     if (error !== null) {
       console.error("Error while loading graph data!");
@@ -29,10 +47,7 @@ export function loadJson(path, then) {
       return;
     }
 
-    let graph = parseData(data);
-    console.assert(typeof graph !== "undefined",
-      "Result of parsing is empty");
-    then(graph);
+    return buildGraph(data.people, data.families);
   });
 }
 
@@ -40,9 +55,9 @@ export function loadJson(path, then) {
  * Loads the csv file, parses the data and sets up the graph
  * @param peopleTable {string} path to a csv file containing info about each person
  * @param familyTable {string} path to a csv file containing info about each family
- * @param then {function } function to call when the data has been loaded. takes data as the only parameter
+ * @return {Promise}
  */
-export function loadCsv(peopleTable, familyTable, then) {
+export function loadCsv(peopleTable, familyTable) {
   let children = {};
   let personData, familyData;
 
@@ -65,18 +80,15 @@ export function loadCsv(peopleTable, familyTable, then) {
       birthday: person.birthday,
       placeOfBirth: person.place_of_birth,
       dayOfDeath: person.day_of_death,
-      dead: (person.day_of_death !== "" || Number(person.age) > 120),
       age: Number(person.age),
+      dead: (person.day_of_death !== "" || Number(person.age) > 120),
       profession: person.profession,
       religion: person.religion,
-      width: config.personNodeSize[0],
-      height: config.personNodeSize[1],
-      type: "person",
-      infoVisible: false,
       married: false,
       parentsKnown: person.child_of !== ""
     }
   });
+
   familyData = d3.csvParse(familyTable, family => {
     personData[family.partner1].married = true;
     personData[family.partner2].married = true;
@@ -84,10 +96,7 @@ export function loadCsv(peopleTable, familyTable, then) {
     return {
       id: Number(family.ID),
       // filter out person  with id 0
-      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
-      height: config.partnerNodeRadius * 2,
-      width: config.partnerNodeRadius * 2,
-      type: "family"
+      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id)
     }
   });
 
@@ -96,14 +105,5 @@ export function loadCsv(peopleTable, familyTable, then) {
     family.children = Number(family.id) in children ? children[Number(family.id)] : [];
   });
 
-  let graph = parseData({
-    people: personData,
-    families: familyData
-  });
-
-  // check the result
-  console.assert(graph !== undefined,
-    "Result of parsing is empty");
-
-  then(graph);
+  return buildGraph(personData, familyData)
 }
