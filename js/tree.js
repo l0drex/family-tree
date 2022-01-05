@@ -36,16 +36,9 @@ inputName.attr("placeholder", translationToString({
 
 let form = d3.select("#name-form");
 form.on("input", () => {
-  let id = inputName.node().value;
-  if (!id)
+  // remove error style when input is empty
+  if (!inputName.node().value)
     d3.select(".search").classed("error", false);
-  console.debug("Input changed!");
-  let person = modelGraph.nodes[id];
-  if (!person)
-    return;
-
-  inputName.attr("data-id", id);
-  inputName.node().value = person.fullName;
 });
 
 // search for the person and reload the page with the persons' id as search-param
@@ -57,13 +50,15 @@ form.on("submit", () => {
     return;
   }
 
-  let id = inputName.attr("data-id");
-  if (!inputName.node().value)
-    // reload the page with no param -> uses the default: id=1
-    id = "";
-  else if (!id) {
-    console.info("Person was not selected with the list, therefore the person has to be guessed.")
-    let person = modelGraph.nodes.filter(n => n.type === "person").find(person => person.fullName.toLowerCase().includes(inputName.node().value.toLowerCase()));
+  let name = inputName.node().value;
+  // if no name was given, reload the page with no param -> uses the default: id=1
+  let id = "";
+  if (name) {
+    // find a person that matches the given name
+    let person = modelGraph.nodes.filter(n => n.type === "person")
+      .find(person => person.fullName.toLowerCase().includes(inputName.node().value.toLowerCase()));
+
+    // if no person was found, throw error
     d3.select(".search").classed("error", !person);
     if (!person) {
       console.error("No person with that name found!");
@@ -100,7 +95,7 @@ function setup(graph) {
   d3.select("datalist#names").selectAll("option")
     .data(modelGraph.nodes.filter(n => n.type === "person" && n.id > 0))
     .enter().append("option")
-    .attr("value", d => d.id).attr("label", d => d.fullName).html(d => d.fullName);
+    .attr("value", d => d.fullname).html(d => d.fullName);
 
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
