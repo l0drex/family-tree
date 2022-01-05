@@ -1,3 +1,7 @@
+import * as d3 from "https://cdn.skypack.dev/d3@4";
+import {config} from "./main.js";
+
+
 /**
  * Parses the graph data extracted and returns a graph object
  * @param graphData {{people: *[], families: *[]}}
@@ -15,8 +19,9 @@ function parseData(graphData) {
  * Loads a json file, parses the data and sets up the graph
  * @deprecated
  * @param path {string}
+ * @param then {function } function to call when the data has been loaded. takes data as the only parameter
  */
-function loadJson(path) {
+export function loadJson(path, then) {
   d3.json(path, (error, data) => {
     if (error !== null) {
       console.error("Error while loading graph data!");
@@ -27,7 +32,7 @@ function loadJson(path) {
     let graph = parseData(data);
     console.assert(typeof graph !== "undefined",
       "Result of parsing is empty");
-    setup(graph);
+    then(graph);
   });
 }
 
@@ -37,7 +42,7 @@ function loadJson(path) {
  * @param familyTable {string} path to a csv file containing info about each family
  * @param then {function } function to call when the data has been loaded. takes data as the only parameter
  */
-function loadCsv(peopleTable, familyTable, then) {
+export function loadCsv(peopleTable, familyTable, then) {
   let children = {};
   let personData, familyData;
 
@@ -64,8 +69,8 @@ function loadCsv(peopleTable, familyTable, then) {
       age: Number(person.age),
       profession: person.profession,
       religion: person.religion,
-      width: personNodeSize[0],
-      height: personNodeSize[1],
+      width: config.personNodeSize[0],
+      height: config.personNodeSize[1],
       type: "person",
       infoVisible: false,
       married: false,
@@ -80,8 +85,8 @@ function loadCsv(peopleTable, familyTable, then) {
       id: Number(family.ID),
       // filter out person  with id 0
       partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
-      height: partnerNodeRadius * 2,
-      width: partnerNodeRadius * 2,
+      height: config.partnerNodeRadius * 2,
+      width: config.partnerNodeRadius * 2,
       type: "family"
     }
   });

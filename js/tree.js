@@ -1,3 +1,6 @@
+import {translationToString, localize, showError, config} from "./main.js";
+
+
 let modelGraph, viewGraph = {nodes: [], links: []};
 
 if (typeof cola === "undefined") {
@@ -222,7 +225,7 @@ function toggleInfo(node) {
   node.infoVisible = !node.infoVisible;
   nodesLayer.select(`#p-${node.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (node.infoVisible ? 190 : personNodeSize[1]) + (node.day_of_death !== "" || node.age > 120 ? 8 : 0))
+    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.day_of_death !== "" || node.age > 120 ? 8 : 0))
     .select(".addInfo")
     .classed("hidden", !node.infoVisible);
 }
@@ -374,8 +377,8 @@ function update() {
 
   d3cola.on("tick", () => {
     personNode
-      .attr("x", d => d.x - personNodeSize[0] / 2)
-      .attr("y", d => d.y - personNodeSize[1] / 2);
+      .attr("x", d => d.x - config.personNodeSize[0] / 2)
+      .attr("y", d => d.y - config.personNodeSize[1] / 2);
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
@@ -391,8 +394,8 @@ function update() {
           normY = deltaY / dist,
           sourceX = d.source.x + (30 * normX),
           sourceY = d.source.y + (25 * normY),
-          targetX = d.target.x - (partnerNodeRadius * normX),
-          targetY = d.target.y - ((partnerNodeRadius * .75) * normY);
+          targetX = d.target.x - (config.partnerNodeRadius * normX),
+          targetY = d.target.y - ((config.partnerNodeRadius * .75) * normY);
         return sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY;
       });
   });

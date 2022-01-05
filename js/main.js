@@ -1,9 +1,15 @@
-// configuration variables
-const personNodeSize = [277, 30];
-// defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
-const partnerNodeRadius = 20;
+import * as d3 from "https://cdn.skypack.dev/d3@4";
+
+
+export const config = {
+  browserLang: window.navigator.language.substr(0, 2),
+  // configuration variables
+  personNodeSize: [277, 30],
+  // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
+  partnerNodeRadius: 20
+}
+
 const supportedLanguages = ['de', 'en'];
-const browserLang = window.navigator.language.substr(0, 2);
 
 if (typeof d3 === "undefined") {
   showError({
@@ -12,13 +18,13 @@ if (typeof d3 === "undefined") {
   }, "d3");
 }
 
-localize(browserLang);
+localize(config.browserLang);
 
 /**
  * Only show elements with the correct langauge
  * @param language the language to show, e.g. window.navigator.language
  */
-function localize(language) {
+export function localize(language) {
   // strip country-specific stuff
   language = language.slice(0, 2);
 
@@ -46,7 +52,7 @@ function localize(language) {
  * @param message {string | object} the message to send
  * @param reason {string} the reason for the warning
  */
-function showWarning(message, reason) {
+export function showWarning(message, reason) {
   if (typeof message === "object")
     message = translationToString(message);
 
@@ -62,7 +68,7 @@ function showWarning(message, reason) {
  * Hide the warning with given reason
  * @param reason {string} the reason with which the warning shall be identified
  */
-function hideWarning(reason) {
+export function hideWarning(reason) {
   d3.select(`.warning[data-reason=${reason}]`).classed("hidden", true);
 }
 
@@ -71,7 +77,7 @@ function hideWarning(reason) {
  * @param message {string | object}
  * @param reason {string} the reason for the error message
  */
-function showError(message, reason) {
+export function showError(message, reason) {
   if (typeof message === "object")
     message = translationToString(message);
 
@@ -88,7 +94,7 @@ function showError(message, reason) {
  * Hide the error with given reason
  * @param reason {string} the reason with which the warning shall be identified
  */
-function hideError(reason) {
+export function hideError(reason) {
   d3.select(`.error[data-reason=${reason}]`).classed("hidden", true);
 }
 
@@ -98,11 +104,11 @@ function hideError(reason) {
  * @param translationObject {object}
  * @returns {string}
  */
-function translationToString(translationObject) {
+export function translationToString(translationObject) {
   if (!("en" in translationObject))
     console.error(`${translationObject} has no translation into english, the default language!`);
 
-  if (!(browserLang in translationObject)) {
+  if (!(config.browserLang in translationObject)) {
     showWarning(translationToString({
       en: "The translations might be incomplete.",
       de: "Die Übersetzungen sind möglicherweise unvollständig."
@@ -110,5 +116,5 @@ function translationToString(translationObject) {
     console.debug(`${translationObject} has no translation for the currently used language!`)
     return translationObject.en;
   }
-  return translationObject[browserLang];
+  return translationObject[config.browserLang];
 }

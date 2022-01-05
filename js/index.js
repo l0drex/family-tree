@@ -1,6 +1,7 @@
-// data structure that stores the graph information
-// TODO save graph to localStorage
-let modelGraph;
+import * as d3 from "https://cdn.skypack.dev/d3@4";
+import {translationToString, showWarning, hideWarning, showError} from "./main.js";
+import {loadCsv} from "./dataLoader.js";
+
 
 setupUploadForm();
 
