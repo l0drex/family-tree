@@ -51,7 +51,7 @@ svg {
 
 .person p {
   font-size: 14px;
-  margin: .1em;
+  margin: .1rem;
   text-align: center;
 }
 
@@ -64,8 +64,8 @@ svg {
 }
 
 .person .bg {
-  border-radius: 1em;
-  padding: .25em;
+  border-radius: 1rem;
+  padding: .25rem;
 }
 
 .person.weiblich .bg {
@@ -81,7 +81,7 @@ svg {
 }
 
 .person.focused .bg {
-  box-shadow: 0 0 1em var(--accent);
+  box-shadow: 0 0 1rem var(--accent);
 }
 
 .person.dead .bg {
@@ -101,13 +101,13 @@ svg {
 
 .person .text-bg {
   background: var(--background-secondary);
-  border-radius: .75em;
-  padding: .25em;
+  border-radius: .75rem;
+  padding: .25rem;
 }
 
 .person td, .person th {
   border: none;
-  padding: .2em .3em;
+  padding: .2rem .3rem;
 }
 
 #p-me .bg {

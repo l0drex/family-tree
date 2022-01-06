@@ -35,3 +35,8 @@ function doSomeFunctionality(param) {
   return parsedParam
 }
 ```
+
+
+# Things to be aware of
+
+Any emojis must be in a parent whose class is `emoji`. This is due to Microsoft Edge, where any font whose weight is above 500 will use monochromatic emojis rather than colorful ones.

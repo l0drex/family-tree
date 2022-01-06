@@ -74,15 +74,15 @@
 <!--Templates for messages-->
 <template id="warning">
   <article class="notification warning">
-    <h2 lang="en">⚠️ Warning!</h2>
-    <h2 lang="de">⚠️ Achtung!</h2>
+    <h2 lang="en"><span class="emoji">⚠</span>️ Warning!</h2>
+    <h2 lang="de"><span class="emoji">⚠</span>️ Achtung!</h2>
     <p></p>
   </article>
 </template>
 <template id="error">
   <article class="notification error">
-    <h2 lang="en">💥 Error!</h2>
-    <h2 lang="de">💥 Fehler!</h2>
+    <h2 lang="en"><span class="emoji">💥</span> Error!</h2>
+    <h2 lang="de"><span class="emoji">💥</span> Fehler!</h2>
     <p></p>
   </article>
 </template>
@@ -96,7 +96,7 @@
       <label for="input-name" lang="de">von</label>
       &nbsp;
       <input id="input-name" list="names" type="search" placeholder="John Doe" spellcheck="false">
-      <input type="submit" value="🔍">
+      <input class="emoji" type="submit" value="🔍">
     </form>
   </h1>
 </header>
@@ -118,7 +118,7 @@
   </svg>
 </main>
 <footer>
-  Made with ❤ on <a href="https://github.com/l0drex/family-tree">GitHub</a>
+  Made with <span class="emoji">❤</span> on <a href="https://github.com/l0drex/family-tree">GitHub</a>
 </footer>
 
 <script src="https://d3js.org/d3.v4.js"></script>
