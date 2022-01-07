@@ -1,4 +1,4 @@
-import {translationToString, localize, showError, config} from "./main.js";
+import {config, localize, showError, translationToString} from "./main.js";
 
 
 let modelGraph, viewGraph = {nodes: [], links: []};
@@ -326,6 +326,27 @@ function transform() {
   vis.attr("transform", d3.event.transform.toString());
 }
 
+function hideLeaves(family) {
+  console.log("hide!")
+  if (family.children.includes(focusNode.id)) {
+    console.warn("This family cannot be removed!")
+    return;
+  }
+  // TODO find all leaves, e.g. all nodes who are connected with etc-nodes
+  let leaves;
+  // remove them from the graph
+  leaves.forEach(leave => {
+    viewGraph.nodes.remove(leave);
+    viewGraph.nodes = viewGraph.nodes.filter(node => {
+      if (node.type === "etc")
+        return node.target !== leave;
+      // TODO remove empty families
+    });
+    viewGraph.links = viewGraph.links.filter(link => [link.source, link.target].includes(leave));
+  })
+  update();
+}
+
 /**
  * Adds svg elements for each node, link and optionally group in the view graph.
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
@@ -358,6 +379,7 @@ function update() {
     .attr("class", "partnerNode")
     .attr("d",
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
+    .on("click", hideLeaves)
     .call(d3cola.drag);
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
