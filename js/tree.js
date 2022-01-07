@@ -156,6 +156,7 @@ function refocus(node) {
   focusNode = node;
 
   modelGraph.nodes.filter(n => n.type === "family").forEach(family => {
+    // array containing the view graph ids of the partners
     let people = family.partners.concat(family.children);
     if (!people.includes(node.id))
       return
@@ -166,60 +167,61 @@ function refocus(node) {
     if (newFamily)
       addViewNode(family);
 
-    // add all people in the family
-    people.forEach(p => {
+    function addNodes(p, type) {
       let person = modelGraph.nodes[p];
+
+      // add all people in the family
       if (!inView(person))
         addViewNode(person);
-    });
 
-    // array containing the view graph ids of the partners
-    if (newFamily) {
-      function addNodes(p, type) {
-        let person = modelGraph.nodes[p];
+      if (!newFamily)
+        return;
 
-        let link;
-        if (type === "parent") {
-          link = {
-            source: person.viewId,
-            target: family.viewId
-          };
-        } else {
-          link = {
-            source: family.viewId,
-            target: person.viewId
-          };
-        }
-        viewGraph.links.push(link);
+      let familyLink;
+      if (type === "parent") {
+        familyLink = {
+          source: person.viewId,
+          target: family.viewId
+        };
+      } else {
+        familyLink = {
+          source: family.viewId,
+          target: person.viewId
+        };
+      }
+      viewGraph.links.push(familyLink);
 
-        if (p !== node.id) {
-          // add a node that the user can click on to add its family to the graph
-          let etcNode = {
-            type: "etc",
-            viewId: viewGraph.nodes.length,
-            target: person.viewId
-          }
+      // add etc-node (not needed for focus node)
 
-          if (type === "parent" && person.parentsKnown) {
-            addViewNode(etcNode);
-            link = {
-              source: etcNode.viewId,
-              target: person.viewId
-            };
-          } else if (type === "child" && person.married) {
-            addViewNode(etcNode);
-            link = {
-              source: person.viewId,
-              target: etcNode.viewId
-            };
-          }
-          viewGraph.links.push(link);
-        }
+      if (p === focusNode.id)
+        return;
+
+      let etcNode = {
+        type: "etc",
+        viewId: viewGraph.nodes.length,
+        target: person.viewId
       }
 
-      family.partners.forEach(p => addNodes(p, "parent"));
-      family.children.forEach(p => addNodes(p, "child"));
+      let etcLink;
+      if (type === "parent" && person.parentsKnown) {
+        addViewNode(etcNode);
+        etcLink = {
+          source: etcNode.viewId,
+          target: person.viewId
+        };
+      } else if (type === "child" && person.married) {
+        addViewNode(etcNode);
+        etcLink = {
+          source: person.viewId,
+          target: etcNode.viewId
+        };
+      }
+      if (etcLink)
+        viewGraph.links.push(etcLink);
     }
+
+    family.partners.forEach(p => addNodes(p, "parent"));
+    family.children.forEach(p => addNodes(p, "child"));
   });
 
   update();
