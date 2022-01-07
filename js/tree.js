@@ -116,11 +116,13 @@ function setup(graph) {
   }
   modelGraph = graph;
 
+  // add options to search field
   d3.select("datalist#names").selectAll("option")
     .data(modelGraph.nodes.filter(n => n.type === "person" && n.id > 0))
     .enter().append("option")
     .attr("value", d => d.fullName).html(d => d.fullName);
 
+  // get id from url
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
   if (!id)
@@ -173,7 +175,7 @@ function refocus(node) {
 
     // array containing the view graph ids of the partners
     if (newFamily) {
-      let addNodes = (p, type) => {
+      function addNodes(p, type) {
         let person = modelGraph.nodes[p];
 
         let link;
@@ -199,13 +201,13 @@ function refocus(node) {
           }
 
           if (type === "parent" && person.parentsKnown) {
-            viewGraph.nodes.push(etcNode);
+            addViewNode(etcNode);
             link = {
               source: etcNode.viewId,
               target: person.viewId
             };
           } else if (type === "child" && person.married) {
-            viewGraph.nodes.push(etcNode);
+            addViewNode(etcNode);
             link = {
               source: person.viewId,
               target: etcNode.viewId
@@ -314,7 +316,7 @@ function insertData(node) {
  */
 function inView(node) {
   // every visible node has a viewId, at least if it was added with addViewNode()
-  return typeof node.viewId !== "undefined";
+  return viewGraph.nodes.includes(node);
 }
 
 /**
