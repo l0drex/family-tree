@@ -130,6 +130,7 @@ function setup(graph) {
 
   let startNode = modelGraph.nodes[id];
   startNode.infoVisible = true;
+  console.info("Starting graph with", startNode.fullName);
   addViewNode(startNode);
   refocus(startNode);
 
@@ -148,7 +149,7 @@ function setup(graph) {
  * @param node focused person node
  */
 function refocus(node) {
-  console.log("Refocusing on", node.fullName);
+  console.groupCollapsed("Refocus on", node.fullName, `(${node.id} | ${node.viewId})`);
   console.assert(node.type === "person", "Incorrect node type!");
   console.assert(modelGraph.nodes, "Model graph has no nodes!");
   console.assert(modelGraph.links, "Model graph has no links!");
@@ -163,22 +164,19 @@ function refocus(node) {
     if (people.includes(0))
       console.warn("Person \"Unknown\" is in the family!");
 
-    const newFamily = !inView(family);
+    let newFamily = !inView(family);
     if (newFamily)
       addViewNode(family);
 
-    function addNodes(p, type) {
+    function addNodes(p) {
       let person = modelGraph.nodes[p];
 
       // add all people in the family
       if (!inView(person))
-        addViewNode(person);
-
-      if (!newFamily)
-        return;
+        newFamily |= addViewNode(person);
 
       let familyLink;
-      if (type === "parent") {
+      if (family.partners.includes(p)) {
         familyLink = {
           source: person.viewId,
           target: family.viewId
@@ -191,40 +189,51 @@ function refocus(node) {
       }
       viewGraph.links.push(familyLink);
 
-      // add etc-node (not needed for focus node)
-
-      if (p === focusNode.id)
+      if (!newFamily)
         return;
 
-      let etcNode = {
-        type: "etc",
-        viewId: viewGraph.nodes.length,
-        target: person.viewId
-      }
+      // add etc-node
 
-      let etcLink;
-      if (type === "parent" && person.parentsKnown) {
-        addViewNode(etcNode);
-        etcLink = {
-          source: etcNode.viewId,
-          target: person.viewId
-        };
-      } else if (type === "child" && person.married) {
-        addViewNode(etcNode);
-        etcLink = {
-          source: person.viewId,
-          target: etcNode.viewId
-        };
-      }
-      if (etcLink)
-        viewGraph.links.push(etcLink);
+      let otherFamilies = modelGraph.nodes.filter(n => n.type === "family" && n !== family && n.children.concat(n.partners).includes(person.id));
+      console.assert(otherFamilies.length <= 1, "There seems to be more than one etc-node!", otherFamilies)
+      if (p !== focusNode.id && otherFamilies.length)
+        addEtcNode(person, otherFamilies[0]);
     }
 
-    family.partners.forEach(p => addNodes(p, "parent"));
-    family.children.forEach(p => addNodes(p, "child"));
+    family.partners.forEach(addNodes);
+    family.children.forEach(addNodes);
   });
+  console.groupEnd();
 
   update();
+}
+
+function addEtcNode(person, family) {
+  let type = "parent";
+  if (family.partners.includes(person.id))
+    type = "child";
+
+  console.debug("Adding etc for", person.fullName)
+  let etcNode = family;
+  family.target = person.viewId;
+  family.type = "etc";
+
+  let etcLink;
+  if (type === "parent" && person.parentsKnown) {
+    addViewNode(etcNode);
+    etcLink = {
+      source: etcNode.viewId,
+      target: person.viewId
+    };
+  } else if (type === "child" && person.married) {
+    addViewNode(etcNode);
+    etcLink = {
+      source: person.viewId,
+      target: etcNode.viewId
+    };
+  }
+  if (etcLink)
+    viewGraph.links.push(etcLink);
 }
 
 /**
@@ -233,12 +242,13 @@ function refocus(node) {
  */
 function addViewNode(node) {
   if (inView(node)) {
-    console.error("Node " + node.fullName + " has already been added!");
-    return;
+    console.error("Node has already been added!", node);
+    return false;
   }
 
   node.viewId = viewGraph.nodes.length;
   viewGraph.nodes.push(node);
+  return true;
 }
 
 /**
@@ -259,19 +269,18 @@ function toggleInfo(node) {
 /**
  * Called if the user clicked on an etc-node.
  * Adds missing families of the target and removes the etc node
- * @param node etc node on which the user clicked
+ * @param family etc node on which the user clicked
  */
-function addMissingNodes(node) {
-  console.assert(node.type === "etc", "Incorrect node type!");
-
-  // make sure the node won't be added in next update call
-  node.type = "";
-  viewGraph.links = viewGraph.links.filter(l => l.source.type !== "" && l.target.type !== "");
+function addMissingNodes(family) {
+  console.assert(family.type === "etc", "Incorrect node type!");
 
   // refocus on the node this was appended to
-  node = viewGraph.nodes[node.target];
-  if (!inView(node)) return;
-  refocus(node);
+  let person = viewGraph.nodes[family.target];
+  delete family.target;
+  family.type = "family";
+  console.info("Adding missing nodes for", person.fullName);
+  if (!inView(person)) return;
+  refocus(person);
 }
 
 /**
@@ -329,23 +338,63 @@ function transform() {
 }
 
 function hideLeaves(family) {
-  console.log("hide!")
+  console.info("Hiding leaves of family with partners", family.partners)
   if (family.children.includes(focusNode.id)) {
     console.warn("This family cannot be removed!")
     return;
   }
-  // TODO find all leaves, e.g. all nodes who are connected with etc-nodes
-  let leaves;
+
+  // find all leaves, e.g. all nodes who are connected with etc-nodes
+  let leaves = family.children.concat(family.partners).filter(personId => {
+      let familyMember = modelGraph.nodes[personId];
+      // check if the node is connected to two families
+      let linksToFamilies = viewGraph.links.filter(link => {
+        let nodes = [link.source, link.target];
+        if (!(nodes.includes(familyMember)))
+          return false;
+        // remove family and person node
+        nodes = nodes.filter(n => n.type === "family" && !(n.target))
+        return nodes.length;
+      });
+      return linksToFamilies.length <= 1;
+    }
+  );
+  console.debug("Removing the following people:", leaves);
+
   // remove them from the graph
-  leaves.forEach(leave => {
-    viewGraph.nodes.remove(leave);
-    viewGraph.nodes = viewGraph.nodes.filter(node => {
-      if (node.type === "etc")
-        return node.target !== leave;
-      // TODO remove empty families
-    });
-    viewGraph.links = viewGraph.links.filter(link => [link.source, link.target].includes(leave));
-  })
+  viewGraph.nodes.filter(node => {
+    if (node.type === "person")
+      return leaves.includes(node.id);
+
+    if (node.type === "etc") {
+      let targetId = viewGraph.nodes[node.target].id;
+      return leaves.includes(targetId);
+    }
+
+    // replace family that should be removed with an etc-node
+    if (node.type === "family") {
+      let visibleMembers = node.children.concat(node.partners).filter(person => !(leaves.includes(person)));
+      if (visibleMembers.length <= 1) {
+        node.type = "etc";
+        node.target = modelGraph.nodes[visibleMembers[0]].viewId;
+        console.debug("Replacing family with etc for target", node.target);
+      }
+      return false;
+    }
+
+    if (node.type.includes("removed"))
+      return false;
+
+    // this happens when the node type is not caught, e.g. when the node was previously removed
+    console.warn("Unknown node type", node);
+    return false;
+  }).forEach(n => n.type += "-removed");
+
+  // FIXME to much links being deleted
+  viewGraph.links = viewGraph.links.filter(link => {
+    return !(leaves.includes(link.source.id)) && !(leaves.includes(link.target.id));
+  });
+
   update();
 }
 
@@ -383,6 +432,7 @@ function update() {
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
     .on("click", hideLeaves)
     .call(d3cola.drag);
+  partnerNode.exit().remove();
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
   // node on which the user can click to show more people
@@ -414,6 +464,7 @@ function update() {
     .on("click", toggleInfo)
     .call(d3cola.drag)
     .append(d => insertData(d));
+  personNode.exit().remove();
 
   personNode = nodesLayer.selectAll(".person");
   personNode.select(".addInfo")
