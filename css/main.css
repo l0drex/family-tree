@@ -296,7 +296,7 @@ tr:nth-child(2n) {
 
 /* Fixes emojis being monochromatic rather than colored on Microsoft Edge */
 .emoji {
-  font-weight: unset !important;
+  font-weight: normal !important;
 }
 
 /* ==========================================================================
