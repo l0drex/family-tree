@@ -22,7 +22,7 @@ const svg = d3.select("#family-tree");
 // setup of cola
 const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
 const d3cola = cola.d3adaptor(d3)
-  .flowLayout("y", (l) => l.target.type === "family" ? 0 : 60)
+  .flowLayout("y", 60)
   .symmetricDiffLinkLengths(40)
   .avoidOverlaps(true)
   .size(viewportSize);
