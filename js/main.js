@@ -51,8 +51,8 @@ export function showWarning(message, reason) {
   console.warn(message);
 
   let html = document.querySelector("#warning").content.cloneNode(true);
-  html.querySelector("article").setAttribute("data-reason", reason);
-  html.querySelector("article p").innerHTML = message;
+  html.querySelector(".warning").setAttribute("data-reason", reason);
+  html.querySelector(".warning .description").innerHTML = message;
   document.querySelector("main").prepend(html);
 }
 
