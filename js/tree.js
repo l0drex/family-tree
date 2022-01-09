@@ -487,7 +487,20 @@ function update() {
     .attr("d",
       "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
     .on("click", hideLeaves)
-    .call(d3cola.drag);
+  partnerNode.exit().remove();
+  let newPartners = partnerNode.enter().append("g")
+    .attr("class", "partnerNode");
+  newPartners.append("polyline")
+    .attr("points",
+      "0,-" + config.personDiff + " " + "0," + config.personDiff);
+  newPartners.append("circle")
+    .attr("r", config.personDiff * .75);
+  newPartners.append("text")
+    .text("-")
+    .attr("y", 4);
+  newPartners.append("text")
+    .text(d => d.begin ? `⚭ ${d.begin}` : "")
+    .attr("y", -20)
   partnerNode.exit().remove();
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
@@ -501,8 +514,8 @@ function update() {
   etcGroup.append("circle")
     .attr("r", 10);
   etcGroup.append("text")
-    .text("…")
-    .attr("y", 1);
+    .text("+")
+    .attr("y", 5);
   etcNode.exit().remove();
   etcNode = nodesLayer.selectAll(".etc");
 
@@ -542,16 +555,12 @@ function update() {
 
     link
       .attr("points", d => {
-        let deltaX = d.target.x - d.source.x,
-          deltaY = d.target.y - d.source.y,
-          dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          normX = deltaX / dist,
-          normY = deltaY / dist,
-          sourceX = d.source.x + (30 * normX),
-          sourceY = d.source.y + (25 * normY),
-          targetX = d.target.x - (config.partnerNodeRadius * normX),
-          targetY = d.target.y - ((config.partnerNodeRadius * .75) * normY);
-        return sourceX + ',' + sourceY + ' ' + targetX + ',' + targetY;
+        if (d.target.type === "family")
+          return `${d.source.x},${d.source.y} ${d.source.x},${d.target.y - config.personDiff} ${d.target.x},${d.target.y - config.personDiff}`;
+        else if ([d.source.type, d.target.type].includes("etc"))
+          return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`
+        else
+          return `${d.source.x},${d.source.y + config.personDiff} ${d.target.x},${d.source.y + config.personDiff} ${d.target.x},${d.target.y}`;
       });
   });
 }

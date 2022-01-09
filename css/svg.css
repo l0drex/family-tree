@@ -20,14 +20,10 @@ svg {
 }
 
 #family-tree .link {
-  marker-end:url(#Arrow2Lend);
+  fill: none;
 }
 
-#family-tree .partnerNode {
-  fill: var(--background);
-}
-
-#family-tree .etc {
+#family-tree .etc, #family-tree .partnerNode {
   fill: var(--background);
   stroke: var(--foreground);
   text-anchor: middle;

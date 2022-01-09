@@ -96,7 +96,8 @@ export function loadCsv(peopleTable, familyTable) {
     return {
       id: Number(family.ID),
       // filter out person  with id 0
-      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id)
+      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
+      begin: family.begin
     }
   });
 
