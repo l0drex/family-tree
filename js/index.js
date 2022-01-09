@@ -1,4 +1,4 @@
-import {translationToString, showWarning, hideWarning, showError} from "./main.js";
+import {translationToString, showWarning, hideWarning, showError, hideError} from "./main.js";
 import {loadCsv} from "./dataLoader.js";
 
 setupUploadForm();
@@ -16,6 +16,10 @@ function setupUploadForm() {
       if (button.value) {
         button.parentNode.classList.add("file-selected");
         checkFileName(button);
+        if (button.id === "people-file")
+          hideError("people-file");
+        else
+          hideError("family-file");
       }
       else
         button.parentNode.classList.remove("file-selected");
@@ -32,13 +36,21 @@ function setupUploadForm() {
     let peopleFile = document.getElementById("people-file").files[0];
     let familyFile = document.getElementById("family-file").files[0];
 
-    if (!(peopleFile && familyFile)) {
+    if (!peopleFile) {
       showError({
-        en: "No files selected!",
-        de: "Es wurden keine Dateien ausgewählt!"
-      }, "file");
-      return;
+        en: "No people-file selected!",
+        de: "Es wurde keine Personendatei ausgewählt!"
+      }, "people-file");
     }
+    if (!familyFile) {
+      showError({
+        en: "No family-file selected!",
+        de: "Es wurde keine Familiendatei ausgewählt!"
+      }, "family-file");
+    }
+
+    if(!(peopleFile && familyFile))
+      return;
 
     // these are raw strings of the csv files
     let peopleTable, familiesTable;
