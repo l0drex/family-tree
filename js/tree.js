@@ -133,6 +133,11 @@ function setup(graph) {
   addViewNode(startNode);
   refocus(startNode);
 
+  // move startNode in front of all nodes
+  let startNodeElement = document.getElementById(`p-${startNode.id}`);
+  startNodeElement.remove();
+  nodesLayer.node().append(startNodeElement);
+
   // place name of focus in header and title
   // NOTE this has to be here since localize() is called in update
   inputName.node().value = "";
@@ -247,11 +252,15 @@ function toggleInfo(node) {
   console.assert(node.type === "person");
 
   node.infoVisible = !node.infoVisible;
-  nodesLayer.select(`#p-${node.id}`)
+  let element = nodesLayer.select(`#p-${node.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0))
-    .select(".addInfo")
+    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0));
+  element.select(".addInfo")
     .classed("hidden", !node.infoVisible);
+
+  // move element to the top
+  element.remove();
+  nodesLayer.node().append(element.node());
 }
 
 /**
