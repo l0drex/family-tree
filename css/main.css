@@ -147,10 +147,6 @@ header {
   height: 4rem;
 }
 
-header h1 {
-  margin: 0;
-}
-
 header * {
   font-weight: bold;
   font-size: 2rem;
