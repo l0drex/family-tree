@@ -144,10 +144,16 @@ header {
   position: fixed;
   top: 0;
   width: 100%;
+  height: 4rem;
 }
 
 header h1 {
   margin: 0;
+}
+
+header * {
+  font-weight: bold;
+  font-size: 2rem;
 }
 
 footer {
@@ -160,7 +166,7 @@ h1 * {
 }
 
 main {
-  padding: 5rem 1rem 0;
+  padding: 5rem 1rem 1rem;
   box-sizing: border-box;
   flex-grow: 1;
 }
@@ -174,19 +180,6 @@ main > * {
 
 main > :not(.hidden):last-child {
   margin-bottom: 2rem;
-}
-
-.notification {
-}
-
-.warning {
-  color: var(--warning-foreground);
-  background: var(--warning-background);
-}
-
-.error {
-  color: var(--error-foreground);
-  background: var(--error-background);
 }
 
 article, .notification {
@@ -282,21 +275,22 @@ input[type=submit]:active, button:active {
   flex-wrap: wrap;
 }
 
-.search input[type=search] {
+input[type=search] {
   border: none;
   border-radius: 0;
   border-bottom: solid var(--foreground);
   background: none;
   color: var(--foreground);
+  padding: 0 .25rem;
 }
 
-.search.error input[type=search], .search input[type=search]:invalid {
+input[type=search].error, input[type=search]:invalid {
   border-bottom-color: var(--error-foreground);
   background: var(--error-background);
   color: var(--error-foreground);
 }
 
-.search input[type=search]:focus {
+input[type=search]:focus {
   outline: none;
   border-bottom-color: var(--primary);
 }
@@ -338,6 +332,18 @@ caption {
 .full-screen {
   width: 100%;
   height: 100%;
+}
+
+.warning {
+  color: var(--warning-foreground);
+  background: var(--warning-background);
+  border-color: var(--warning-foreground);
+}
+
+.error {
+  color: var(--error-foreground);
+  background: var(--error-background);
+  border-color: var(--error-foreground);
 }
 
 /* Fixes emojis being monochromatic rather than colored on Microsoft Edge */

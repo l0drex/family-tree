@@ -73,32 +73,30 @@
 </template>
 <!--Templates for messages-->
 <template id="warning">
-  <article class="notification warning">
-    <h2 lang="en"><span class="emoji">⚠</span>️ Warning!</h2>
-    <h2 lang="de"><span class="emoji">⚠</span>️ Achtung!</h2>
+  <div class="notification warning">
+    <b lang="en"><span class="emoji">⚠</span>️ Warning</b>
+    <b lang="de"><span class="emoji">⚠</span>️ Achtung</b>
     <p></p>
-  </article>
+  </div>
 </template>
 <template id="error">
-  <article class="notification error">
-    <h2 lang="en"><span class="emoji">💥</span> Error!</h2>
-    <h2 lang="de"><span class="emoji">💥</span> Fehler!</h2>
-    <p></p>
-  </article>
+  <div class="notification error">
+    <b lang="en"><span class="emoji">💥</span> Error</b>
+    <b lang="de"><span class="emoji">💥</span> Fehler</b>
+    <span class="description"></span>
+  </div>
 </template>
 <datalist id="names"></datalist>
 
 <header>
-  <h1>
-    <span id="title">Family tree of ...</span>
-    <form id="name-form" class="search">
-      <label for="input-name" lang="en">of</label>
-      <label for="input-name" lang="de">von</label>
-      &nbsp;
-      <input id="input-name" list="names" type="search" placeholder="John Doe" spellcheck="false">
-      <input class="emoji" type="submit" value="🔍">
-    </form>
-  </h1>
+  <span id="title">Family tree</span>
+  <form id="name-form" class="search">
+    <label for="input-name" lang="en">of</label>
+    <label for="input-name" lang="de">von</label>
+    &nbsp;
+    <input id="input-name" list="names" type="search" placeholder="John Doe" spellcheck="false">
+    <input class="emoji" type="submit" value="🔍">
+  </form>
 </header>
 <main>
   <svg id="family-tree" class="full-screen">
@@ -121,7 +119,7 @@
   Made with <span class="emoji">❤</span> on <a href="https://github.com/l0drex/family-tree">GitHub</a>
 </footer>
 
-<script src="https://d3js.org/d3.v4.js"></script>
+<!--<script src="https://d3js.org/d3.v4.js"></script>-->
 <script src="https://marvl.infotech.monash.edu/webcola/cola.min.js"></script>
 <script src="js/vendor/modernizr-3.11.2.min.js"></script>
 <script src="js/plugins.js"></script>

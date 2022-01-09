@@ -48,7 +48,7 @@ let form = d3.select("#name-form");
 form.on("input", () => {
   // remove error style when input is empty
   if (!inputName.node().value)
-    d3.select(".search").classed("error", false);
+    form.select("input[type=search]").classed("error", false);
 });
 
 // search for the person and reload the page with the persons' id as search-param
@@ -69,7 +69,7 @@ form.on("submit", () => {
       .find(person => person.fullName.toLowerCase().includes(inputName.node().value.toLowerCase()));
 
     // if no person was found, throw error
-    d3.select(".search").classed("error", !person);
+    form.select("input[type=search]").classed("error", !person);
     if (!person) {
       console.error("No person with that name found!");
       return;
