@@ -333,11 +333,19 @@ function update() {
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
-  partnerNode.enter().append("polyline")
-    .attr("class", "partnerNode")
+  let newPartners = partnerNode.enter().append("g")
+    .attr("class", "partnerNode");
+  newPartners.append("polyline")
     .attr("points",
-      "0,-" + personDiff + " " + "0," + personDiff)
-    .call(d3cola.drag);
+      "0,-" + personDiff + " " + "0," + personDiff);
+  newPartners.append("circle")
+    .attr("r", personDiff * .75);
+  newPartners.append("text")
+    .text("-")
+    .attr("y", 4);
+  newPartners.append("text")
+    .text(d => d.begin ? `⚭ ${d.begin}` : "")
+    .attr("y", -20)
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
   // node on which the user can click to show more people
@@ -350,8 +358,8 @@ function update() {
   etcGroup.append("circle")
     .attr("r", 10);
   etcGroup.append("text")
-    .text("…")
-    .attr("y", 1);
+    .text("+")
+    .attr("y", 5);
   etcNode.exit().remove();
   etcNode = nodesLayer.selectAll(".etc");
 
