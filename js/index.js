@@ -12,7 +12,6 @@ function setupUploadForm() {
   // make buttons with selected file green
   let inputButtons = form.querySelectorAll("input[type=file]");
   inputButtons.forEach(b => {
-    console.debug(b)
     function styleButton(button) {
       if (button.value) {
         button.parentNode.classList.add("file-selected");
@@ -32,6 +31,15 @@ function setupUploadForm() {
     // these are blobs
     let peopleFile = document.getElementById("people-file").files[0];
     let familyFile = document.getElementById("family-file").files[0];
+
+    if (!(peopleFile && familyFile)) {
+      showError({
+        en: "No files selected!",
+        de: "Es wurden keine Dateien ausgewählt!"
+      }, "file");
+      return;
+    }
+
     // these are raw strings of the csv files
     let peopleTable, familiesTable;
 
