@@ -3,6 +3,7 @@ import {config, localize, showError, translationToString} from "./main.js";
 
 let modelGraph, viewGraph = {nodes: [], links: []};
 
+// check if libraries loaded
 if (typeof cola === "undefined") {
   showError({
     en: "WebCola could not be loaded. The family tree will not work!",
@@ -48,7 +49,7 @@ let form = d3.select("#name-form");
 form.on("input", () => {
   // remove error style when input is empty
   if (!inputName.node().value)
-    d3.select(".search").classed("error", false);
+    form.select("input[type=search]").classed("error", false);
 });
 
 // search for the person and reload the page with the persons' id as search-param
@@ -69,7 +70,7 @@ form.on("submit", () => {
       .find(person => person.fullName.toLowerCase().includes(inputName.node().value.toLowerCase()));
 
     // if no person was found, throw error
-    d3.select(".search").classed("error", !person);
+    form.select("input[type=search]").classed("error", !person);
     if (!person) {
       console.error("No person with that name found!");
       return;
@@ -98,7 +99,48 @@ document.addEventListener("keydown", event => {
   }
 });
 
+// change layout on mobile
+adjustForMobile();
+window.onresize = adjustForMobile;
+
 setup(JSON.parse(localStorage.getItem("graph")));
+
+/**
+ * Adjusts varius elements for mobile devices
+ */
+function adjustForMobile() {
+  // check if header overflows
+  let header = document.querySelector("header");
+  let form = document.getElementById("name-form");
+  const headerOverflown = window.innerWidth <= 577;
+  const formInHeader = form.parentElement.tagName === "HEADER";
+  if (headerOverflown && formInHeader) {
+    console.log("Optimizing form for small-width displays")
+    form.remove();
+    form.querySelectorAll("label[for=input-name]").forEach(label => {
+      label.innerHTML = translationToString({
+        en: "Name:",
+        de: "Name:"
+      });
+      label.classList.add("sr-only");
+    });
+    let formArticle = document.createElement("article");
+    formArticle.append(form);
+    document.querySelector("main").prepend(formArticle);
+  } else if (!headerOverflown && !formInHeader) {
+    console.log("Optimizing form for wider-width displays")
+    form.remove();
+    form.querySelectorAll("label[for=input-name]").forEach(label => {
+      label.innerHTML = translationToString({
+        en: "by",
+        de: "von"
+      });
+      label.classList.remove("sr-only");
+    });
+    header.append(form);
+    document.querySelector("main").querySelector("article").remove();
+  }
+}
 
 /**
  * Called only once. Sets up the graph
@@ -133,6 +175,11 @@ function setup(graph) {
   console.info("Starting graph with", startNode.fullName);
   addViewNode(startNode);
   refocus(startNode);
+
+  // move startNode in front of all nodes
+  let startNodeElement = document.getElementById(`p-${startNode.id}`);
+  startNodeElement.remove();
+  nodesLayer.node().append(startNodeElement);
 
   // place name of focus in header and title
   // NOTE this has to be here since localize() is called in update
@@ -264,11 +311,15 @@ function toggleInfo(node) {
   console.assert(node.type === "person");
 
   node.infoVisible = !node.infoVisible;
-  nodesLayer.select(`#p-${node.id}`)
+  let element = nodesLayer.select(`#p-${node.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0))
-    .select(".addInfo")
+    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0));
+  element.select(".addInfo")
     .classed("hidden", !node.infoVisible);
+
+  // move element to the top
+  element.remove();
+  nodesLayer.node().append(element.node());
 }
 
 /**

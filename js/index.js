@@ -1,7 +1,5 @@
-import * as d3 from "https://cdn.skypack.dev/d3@4";
-import {translationToString, showWarning, hideWarning, showError} from "./main.js";
+import {translationToString, showWarning, hideWarning, showError, hideError} from "./main.js";
 import {loadCsv} from "./dataLoader.js";
-
 
 setupUploadForm();
 
@@ -9,35 +7,51 @@ setupUploadForm();
  * Styles the form and overrides the submit function
  */
 function setupUploadForm() {
-  let form = d3.select("#upload-form");
+  let form = document.getElementById("upload-form");
 
   // make buttons with selected file green
-  let inputButtons = form.selectAll("input[type=file]");
-  inputButtons.data(inputButtons.nodes());
-  inputButtons.each(d => {
-    if (d.value) {
-      d.parentNode.classList.add("file-selected");
-      checkFileName(d);
+  let inputButtons = form.querySelectorAll("input[type=file]");
+  inputButtons.forEach(b => {
+    function styleButton(button) {
+      if (button.value) {
+        button.parentNode.classList.add("file-selected");
+        checkFileName(button);
+        if (button.id === "people-file")
+          hideError("people-file");
+        else
+          hideError("family-file");
+      }
+      else
+        button.parentNode.classList.remove("file-selected");
     }
-    else
-      d.parentNode.classList.remove("file-selected");
-  });
-  inputButtons.on("change", d => {
-    if (d.value) {
-      d.parentNode.classList.add("file-selected");
-      checkFileName(d);
-    }
-    else
-      d.parentNode.classList.remove("file-selected");
+    styleButton(b);
+    b.onchange = () => styleButton(b);
   });
 
-  form.on("submit", () => {
-    d3.event.preventDefault();
+  form.onsubmit = (event) => {
+    event.preventDefault();
 
     // load data from the files
     // these are blobs
-    let peopleFile = d3.select("#people-file").node().files[0];
-    let familyFile = d3.select("#family-file").node().files[0];
+    let peopleFile = document.getElementById("people-file").files[0];
+    let familyFile = document.getElementById("family-file").files[0];
+
+    if (!peopleFile) {
+      showError({
+        en: "No people-file selected!",
+        de: "Es wurde keine Personendatei ausgewählt!"
+      }, "people-file");
+    }
+    if (!familyFile) {
+      showError({
+        en: "No family-file selected!",
+        de: "Es wurde keine Familiendatei ausgewählt!"
+      }, "family-file");
+    }
+
+    if(!(peopleFile && familyFile))
+      return;
+
     // these are raw strings of the csv files
     let peopleTable, familiesTable;
 
@@ -76,7 +90,7 @@ function setupUploadForm() {
       loadGraph();
     }
     readerPeople.readAsText(peopleFile);
-  });
+  };
 }
 
 /**

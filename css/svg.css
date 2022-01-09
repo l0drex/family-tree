@@ -81,7 +81,7 @@ svg {
 }
 
 .person.focused .bg {
-  box-shadow: 0 0 1rem var(--accent);
+  box-shadow: 0 0 1rem var(--primary);
 }
 
 .person.dead .bg {
@@ -100,7 +100,7 @@ svg {
 }
 
 .person .text-bg {
-  background: var(--background-secondary);
+  background: var(--background-higher);
   border-radius: .75rem;
   padding: .25rem;
 }
