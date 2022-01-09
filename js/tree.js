@@ -26,7 +26,7 @@ const d3cola = cola.d3adaptor(d3)
   .avoidOverlaps(true)
   .size(viewportSize);
 
-let nodesLayer, linkLayer, vis, focusNode;
+let nodesLayer, linkLayer, vis, focusNode, startNode;
 // catch the transformation events
 svg.select("#background")
   .call(d3.zoom().on("zoom", transform));
@@ -128,7 +128,7 @@ function setup(graph) {
   if (!id)
     id = 1;
 
-  let startNode = modelGraph.nodes[id];
+  startNode = modelGraph.nodes[id];
   startNode.infoVisible = true;
   console.info("Starting graph with", startNode.fullName);
   addViewNode(startNode);
@@ -242,7 +242,13 @@ function addEtcNode(person, family) {
  */
 function addViewNode(node) {
   if (inView(node)) {
-    console.error("Node has already been added!", node);
+    if (node.type.includes("removed")) {
+      console.log("Re-adding node", node.fullName);
+      node.type = node.type.replace("-removed", "");
+      console.debug(node.type);
+      return;
+    }
+    console.warn("Node has already been added!", node);
     return false;
   }
 
@@ -339,7 +345,7 @@ function transform() {
 
 function hideLeaves(family) {
   console.info("Hiding leaves of family with partners", family.partners)
-  if (family.children.includes(focusNode.id)) {
+  if (family.children.concat(family.partners).includes(startNode.id)) {
     console.warn("This family cannot be removed!")
     return;
   }
