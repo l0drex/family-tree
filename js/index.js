@@ -2,6 +2,12 @@ import * as d3 from "https://cdn.skypack.dev/d3@4";
 import {translationToString, showWarning, hideWarning, showError} from "./main.js";
 import {loadCsv} from "./dataLoader.js";
 
+if (typeof d3 === "undefined") {
+  showError({
+    en: "d3 could not be loaded. The family tree will not work.",
+    de: "d3 konnte nicht geladen werden. Der Stammbaum wird nicht funktionieren!"
+  }, "d3");
+}
 
 setupUploadForm();
 

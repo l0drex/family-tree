@@ -79,8 +79,9 @@ export function showError(message, reason) {
 
   // NOTE: Don't use d3 here, as this is used to display and error when d3 is null!
   let html = document.querySelector("#error").content.cloneNode(true);
-  html.querySelector("article").setAttribute("data-reason", reason);
-  html.querySelector("article p").innerHTML = message;
+  html.querySelector(".error").setAttribute("data-reason", reason);
+  html.querySelector(".error .description").innerHTML = message;
+  window.alert(message);
   document.querySelector("main").prepend(html);
 }
 
