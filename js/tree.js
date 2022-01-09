@@ -482,19 +482,14 @@ function update() {
   // partner node
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
-  partnerNode.enter().append("path")
-    .attr("class", "partnerNode")
-    .attr("d",
-      "m8.5716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0298 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858zm-6.1716 0c0 3.0298-2.4561 5.4858-5.4858 5.4858-3.0297 0-5.4858-2.4561-5.4858-5.4858s2.4561-5.4858 5.4858-5.4858c3.0298 0 5.4858 2.4561 5.4858 5.4858z")
-    .on("click", hideLeaves)
-  partnerNode.exit().remove();
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode");
   newPartners.append("polyline")
     .attr("points",
       "0,-" + config.personDiff + " " + "0," + config.personDiff);
   newPartners.append("circle")
-    .attr("r", config.personDiff * .75);
+    .attr("r", config.personDiff * .75)
+    .on("click", hideLeaves);
   newPartners.append("text")
     .text("-")
     .attr("y", 4);
