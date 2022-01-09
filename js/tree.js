@@ -172,8 +172,7 @@ function refocus(node) {
       let person = modelGraph.nodes[p];
 
       // add all people in the family
-      if (!inView(person))
-        newFamily |= addViewNode(person);
+      newFamily |= addViewNode(person);
 
       let familyLink;
       if (family.partners.includes(p)) {
@@ -396,7 +395,7 @@ function hideLeaves(family) {
     return false;
   }).forEach(n => n.type += "-removed");
 
-  // FIXME to much links being deleted
+  // FIXME to much links being deleted (probably a data error)
   viewGraph.links = viewGraph.links.filter(link => {
     return !(leaves.includes(link.source.id)) && !(leaves.includes(link.target.id));
   });
