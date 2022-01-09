@@ -1,8 +1,9 @@
-import {translationToString, localize, showError, config} from "./main.js";
+import {config, localize, showError, translationToString} from "./main.js";
 
 
 let modelGraph, viewGraph = {nodes: [], links: []};
 
+// check if libraries loaded
 if (typeof cola === "undefined") {
   showError({
     en: "WebCola could not be loaded. The family tree will not work!",
@@ -98,7 +99,48 @@ document.addEventListener("keydown", event => {
   }
 });
 
+// change layout on mobile
+adjustForMobile();
+window.onresize = adjustForMobile;
+
 setup(JSON.parse(localStorage.getItem("graph")));
+
+/**
+ * Adjusts varius elements for mobile devices
+ */
+function adjustForMobile() {
+  // check if header overflows
+  let header = document.querySelector("header");
+  let form = document.getElementById("name-form");
+  const headerOverflown = window.innerWidth <= 577;
+  const formInHeader = form.parentElement.tagName === "HEADER";
+  if (headerOverflown && formInHeader) {
+    console.log("Optimizing form for small-width displays")
+    form.remove();
+    form.querySelectorAll("label[for=input-name]").forEach(label => {
+      label.innerHTML = translationToString({
+        en: "Name:",
+        de: "Name:"
+      });
+      label.classList.add("sr-only");
+    });
+    let formArticle = document.createElement("article");
+    formArticle.append(form);
+    document.querySelector("main").prepend(formArticle);
+  } else if (!headerOverflown && !formInHeader) {
+    console.log("Optimizing form for wider-width displays")
+    form.remove();
+    form.querySelectorAll("label[for=input-name]").forEach(label => {
+      label.innerHTML = translationToString({
+        en: "by",
+        de: "von"
+      });
+      label.classList.remove("sr-only");
+    });
+    header.append(form);
+    document.querySelector("main").querySelector("article").remove();
+  }
+}
 
 /**
  * Called only once. Sets up the graph

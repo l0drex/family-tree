@@ -143,9 +143,8 @@ header {
   box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
   position: fixed;
   top: 0;
-  width: 100%;
   height: 4.5rem;
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
@@ -171,6 +170,8 @@ main {
   padding: 5.5rem 1rem 1rem;
   box-sizing: border-box;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 main > * {
@@ -187,6 +188,7 @@ main > :not(.hidden):last-child {
 article, .notification {
   padding: .75rem 1rem;
   max-width: 50rem;
+  width: 100%;
 }
 
 article h2 {
@@ -272,7 +274,7 @@ input[type=submit]:active, button:active {
 }
 
 .search {
-  display: inline-flex;
+  display: flex;
   align-items: center;
 }
 
@@ -283,6 +285,9 @@ input[type=search] {
   background: none;
   color: var(--foreground);
   padding: 0 .25rem;
+  min-width: 10rem;
+  width: 100%;
+  flex-shrink: 2;
 }
 
 input[type=search].error, input[type=search]:invalid {
@@ -333,6 +338,11 @@ caption {
 .full-screen {
   width: 100%;
   height: 100%;
+}
+
+#family-tree {
+  flex-grow: 2;
+  margin-bottom: 0;
 }
 
 .warning {
