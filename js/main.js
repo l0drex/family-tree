@@ -1,7 +1,10 @@
 // configuration variables
 export const config = {
   browserLang: window.navigator.language.substr(0, 2),
-  personNodeSize: [277, 30],
+  // configuration variables
+  personNodeSize: [250, 30],
+  // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
+  partnerNodeRadius: 20,
   // length of the vertical line between partners and children
   personDiff: 15
 }
