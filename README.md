@@ -34,11 +34,6 @@ The family data is represented in two csv-tables that the user can upload on the
 | 0   | 1        | 2        |
 
 
-# 🎨 Alternative design
-
-On the branch _straight_lines_, every link is drawn straight only using 90° angles. Instead of the rings, partnerships are only indicated by to connection of nodes.
-This branch has not been updated in a while.
-
 ---
 ### 💡 Inspiration
 
