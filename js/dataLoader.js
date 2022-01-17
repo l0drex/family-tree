@@ -8,7 +8,7 @@ import {config} from "./main.js";
  * @param people {Array} list of person objects
  * @return {Promise}
  */
-function buildGraph(people, families) {
+function buildDataObject(people, families) {
   people.forEach(person => {
     person.width = config.personNodeSize[0];
     person.height = config.personNodeSize[1];
@@ -17,16 +17,17 @@ function buildGraph(people, families) {
   });
 
   families.forEach(family => {
-    family.height = family.width = config.partnerNodeRadius * 2;
+    family.height = family.width = config.margin * 2;
     family.type = "family";
+    family.members = family.partners.concat(family.children);
   });
 
   return new Promise((resolve, reject) => {
     if (people && families &&
       !([people.length, families.length].includes(0))) {
       resolve({
-        "nodes": people.concat(families),
-        "links": []
+        "people": people,
+        "families": families
       });
     } else
       reject();
@@ -47,7 +48,7 @@ export function loadJson(path) {
       return;
     }
 
-    return buildGraph(data.people, data.families);
+    return buildDataObject(data.people, data.families);
   });
 }
 
@@ -96,7 +97,8 @@ export function loadCsv(peopleTable, familyTable) {
     return {
       id: Number(family.ID),
       // filter out person  with id 0
-      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id)
+      partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
+      begin: family.begin
     }
   });
 
@@ -105,5 +107,5 @@ export function loadCsv(peopleTable, familyTable) {
     family.children = Number(family.id) in children ? children[Number(family.id)] : [];
   });
 
-  return buildGraph(personData, familyData)
+  return buildDataObject(personData, familyData)
 }

@@ -56,8 +56,8 @@ function setupUploadForm() {
     let peopleTable, familiesTable;
 
     // store the loaded graph data and redirects to the tree-viewer
-    function showGraph(graph) {
-      localStorage.setItem("graph", JSON.stringify(graph));
+    function showGraph(data) {
+      localStorage.setItem("familyData", JSON.stringify(data));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
         window.location.pathname.replace("index.html", "") + "family-tree.html" +
