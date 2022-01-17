@@ -483,9 +483,9 @@ async function update() {
     .attr("class", "partnerNode");
   newPartners.append("polyline")
     .attr("points",
-      "0,-" + config.personDiff + " " + "0," + config.personDiff);
+      `0,0 0,${config.personDiff}`);
   newPartners.append("circle")
-    .attr("r", config.personDiff * .75)
+    .attr("r", config.personDiff * .66)
     .on("click", f => {
       graphManager.hideFamily(f);
       update();
@@ -513,7 +513,7 @@ async function update() {
       update();
     });
   etcGroup.append("circle")
-    .attr("r", 10);
+    .attr("r", config.personDiff * .75);
   etcGroup.append("text")
     .text("+")
     .attr("y", 5);
@@ -550,14 +550,13 @@ async function update() {
       .attr("y", d => d.y - config.personNodeSize[1] / 2);
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-
     etcNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
     link
       .attr("points", d => {
         if (d.target.type === "family")
-          return `${d.source.x},${d.source.y} ${d.source.x},${d.target.y - config.personDiff} ${d.target.x},${d.target.y - config.personDiff}`;
+          return `${d.source.x},${d.source.y} ${d.source.x},${d.target.y} ${d.target.x},${d.target.y}`;
         else if ([d.source.type, d.target.type].includes("etc"))
           return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`
         else
