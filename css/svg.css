@@ -4,7 +4,7 @@ svg {
   border: solid var(--background);
 }
 
-#family-tree path, polyline {
+#family-tree polyline {
   stroke: var(--foreground);
 }
 
@@ -19,14 +19,19 @@ svg {
   stroke: none;
 }
 
-#family-tree .link {
+.link {
   fill: none;
 }
 
-#family-tree .etc, #family-tree .partnerNode {
+.etc, .partnerNode {
   fill: var(--background);
   stroke: var(--foreground);
   text-anchor: middle;
+  cursor: pointer;
+}
+
+#family-tree .partnerNode.locked {
+  cursor: not-allowed;
 }
 
 #family-tree .infoBackground {
@@ -43,6 +48,11 @@ svg {
 .person {
   color: var(--foreground);
   overflow: visible;
+  cursor: pointer;
+}
+
+.person:active {
+  cursor: grabbing;
 }
 
 .person p {

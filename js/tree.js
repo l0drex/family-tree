@@ -17,7 +17,7 @@ class GraphManager {
    * @param families {array} list of family objects
    * @param startPersonId {number} id of the person with which the initial view should start
    */
-  constructor(people, families, startPersonId=1) {
+  constructor(people, families, startPersonId = 1) {
     this.#people = people;
     this.#families = families;
 
@@ -450,6 +450,12 @@ function insertData(node) {
   html.querySelector(".placeOfBirth").innerHTML =
     (node.placeOfBirth ? node.placeOfBirth : "?");
 
+  html.querySelector(".bg").setAttribute(
+    "title", translationToString({
+      en: "Click to show more information",
+      de: "Klicke für weitere Informationen"
+    }));
+
   return html;
 }
 
@@ -482,22 +488,35 @@ async function update() {
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(graphManager.viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
-    .attr("class", "partnerNode");
+    .attr("class", "partnerNode")
+    .classed("locked", f => f.members.includes(graphManager.startNode.id));
   newPartners.append("polyline")
     .attr("points",
       `0,0 0,${config.personDiff}`);
   newPartners.append("circle")
-    .attr("r", config.personNodeSize[1] / 2)
-    .on("click", f => {
-      graphManager.hideFamily(f);
-      update();
-    });
+    .attr("r", config.personNodeSize[1] / 2);
   newPartners.append("text")
     .text("-")
     .attr("y", 4);
   newPartners.append("text")
     .text(d => d.begin ? `⚭ ${d.begin}` : "")
     .attr("y", -20)
+  newPartners.on("click", f => {
+    graphManager.hideFamily(f);
+    update();
+  }).append("title")
+    .text(f => {
+      if (f.members.includes(graphManager.startNode.id))
+        return translationToString({
+          en: "This family cannot be hidden.",
+          de: "Diese Familie kann nicht ausgeblendet werden."
+        });
+      else
+        return translationToString({
+          en: "Click to hide this family.",
+          de: "Klicke, um diese Familie auszublenden."
+        })
+    });
   partnerNode.exit().remove();
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
@@ -505,20 +524,21 @@ async function update() {
   let etcNode = nodesLayer.selectAll(".etc")
     .data(graphManager.viewGraph.nodes.filter(node => node.type === "etc"), d => d.viewId);
   let etcGroup = etcNode.enter().append("g")
-    .attr("class", "etc")
-    .on("mousedown", f => {
-      graphManager.showFamily(f);
-      update();
-    })
-    .on("touchend", f => {
-      graphManager.showFamily(f);
-      update();
-    });
+    .attr("class", "etc");
   etcGroup.append("circle")
     .attr("r", config.personNodeSize[1] / 2);
   etcGroup.append("text")
     .text("+")
     .attr("y", 5);
+  etcGroup.on("click", f => {
+    graphManager.showFamily(f);
+    update();
+  })
+    .append("title")
+    .text(translationToString({
+      en: "Click to show this family.",
+      de: "Klicke, um diese Familie anzuzeigen."
+    }));
   etcNode.exit().remove();
   etcNode = nodesLayer.selectAll(".etc");
 
