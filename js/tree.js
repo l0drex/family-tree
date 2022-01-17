@@ -496,27 +496,30 @@ async function update() {
   newPartners.append("circle")
     .attr("r", config.personNodeSize[1] / 2);
   newPartners.append("text")
-    .text("-")
-    .attr("y", 4);
-  newPartners.append("text")
     .text(d => d.begin ? `⚭ ${d.begin}` : "")
     .attr("y", -20)
-  newPartners.on("click", f => {
-    graphManager.hideFamily(f);
-    update();
-  }).append("title")
+  newPartners.filter(f => f.members.includes(graphManager.startNode.id))
+    .append("title")
     .text(f => {
       if (f.members.includes(graphManager.startNode.id))
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
-      else
-        return translationToString({
-          en: "Click to hide this family.",
-          de: "Klicke, um diese Familie auszublenden."
-        })
     });
+  let notLocked = newPartners.filter(f => !(f.members.includes(graphManager.startNode.id)))
+    .on("click", f => {
+      graphManager.hideFamily(f);
+      update();
+    });
+  notLocked.append("text")
+    .text("-")
+    .attr("y", 4);
+  notLocked.append("title")
+    .text(translationToString({
+      en: "Click to hide this family.",
+      de: "Klicke, um diese Familie auszublenden."
+    }));
   partnerNode.exit().remove();
   partnerNode = nodesLayer.selectAll(".partnerNode");
 
