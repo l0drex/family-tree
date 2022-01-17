@@ -466,7 +466,7 @@ async function update() {
   d3cola
     .nodes(graphManager.viewGraph.nodes)
     .links(graphManager.viewGraph.links)
-    .start(0, 50);
+    .start(0, 5, 10);
 
   // the following lines define content and style of all the svg elements in the graph
 
