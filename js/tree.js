@@ -376,8 +376,10 @@ function setup(people, families) {
 
   if (id)
     graphManager = new GraphManager(people, families, id);
-  else
+  else {
     graphManager = new GraphManager(people, families);
+    id = 1;
+  }
   update();
 
   // move startNode in front of all nodes
