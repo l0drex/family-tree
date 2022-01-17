@@ -531,7 +531,7 @@ async function update() {
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
-    .attr("height", d => d.bounds.height() + (d.dead ? 8 : 0))
+    .attr("height", d => d.bounds.height())
     .classed("focused", d => d.id === graphManager.startNode.id)
     .on("click", toggleInfo)
     .call(d3cola.drag)
