@@ -63,7 +63,7 @@ class GraphManager {
    * @return {boolean} true if the node is now invisible
    */
   hideNode(node) {
-    if (node.includes("removed"))
+    if (node.type.includes("removed"))
       return false;
 
     node.type += "-removed";
