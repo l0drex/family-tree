@@ -17,7 +17,7 @@ function buildDataObject(people, families) {
   });
 
   families.forEach(family => {
-    family.height = family.width = config.partnerNodeRadius * 2;
+    family.height = family.width = config.margin * 2;
     family.type = "family";
     family.members = family.partners.concat(family.children);
   });

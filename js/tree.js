@@ -487,7 +487,7 @@ async function update() {
     .attr("points",
       `0,0 0,${config.personDiff}`);
   newPartners.append("circle")
-    .attr("r", config.personDiff * .66)
+    .attr("r", config.personNodeSize[1] / 2)
     .on("click", f => {
       graphManager.hideFamily(f);
       update();
@@ -515,7 +515,7 @@ async function update() {
       update();
     });
   etcGroup.append("circle")
-    .attr("r", config.personDiff * .75);
+    .attr("r", config.personNodeSize[1] / 2);
   etcGroup.append("text")
     .text("+")
     .attr("y", 5);

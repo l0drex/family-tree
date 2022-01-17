@@ -1,12 +1,13 @@
 // configuration variables
 export const config = {
+  // language to use
   browserLang: window.navigator.language.substr(0, 2),
-  // configuration variables
+  // size of the peoples nodes
   personNodeSize: [250, 30],
-  // defines a virtual circle around the partner nodes (these rings) inside which links are not drawn
-  partnerNodeRadius: 20,
-  // length of the vertical line between partners and children
-  personDiff: 15
+  // distance between nodes
+  margin: 20,
+  // length of the vertical line between families (-) and their children
+  personDiff: 25
 }
 
 const supportedLanguages = ['de', 'en'];
