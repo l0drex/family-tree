@@ -75,12 +75,12 @@ svg {
   border-width: .25rem;
 }
 
-.person.weiblich .bg {
+.person.female .bg {
   background-color: var(--female);
   border-color: var(--female);
 }
 
-.person.männlich .bg {
+.person.male .bg {
   background-color: var(--male);
   border-color: var(--male);
 }

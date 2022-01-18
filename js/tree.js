@@ -23,6 +23,11 @@ class GraphManager {
       person.height = config.personNodeSize[1];
       person.infoVisible = false;
       person.type = "person";
+      // translate old-style gender attribute
+      if (person.gender === "männlich")
+        person.gender = "male"
+      else if (person.gender  === "weiblich")
+        person.gender = "female"
     });
     this.#people = people;
 
