@@ -269,6 +269,10 @@ input[type=submit]:active, button:active {
   background: var(--positive-green);
 }
 
+.file-upload.file-dropping {
+  box-shadow: 0 0 1rem var(--primary);
+}
+
 .file-upload *:not(:last-child) {
   margin-bottom: .5rem;
 }

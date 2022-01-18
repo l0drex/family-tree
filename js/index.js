@@ -1,7 +1,25 @@
-import {translationToString, showWarning, hideWarning, showError, hideError} from "./main.js";
+import {hideError, hideWarning, showError, showWarning, translationToString} from "./main.js";
 import {loadCsv} from "./dataLoader.js";
 
 setupUploadForm();
+
+/**
+ * Apply desired style to input container
+ * @param button
+ */
+function styleButton(button) {
+  if (button.value) {
+    button.parentNode.classList.add("file-selected");
+    // check the file names
+    checkFileName(button);
+    // hide error about empty button value
+    if (button.id === "people-file")
+      hideError("people-file");
+    else
+      hideError("family-file");
+  } else
+    button.parentNode.classList.remove("file-selected");
+}
 
 /**
  * Styles the form and overrides the submit function
@@ -12,40 +30,35 @@ function setupUploadForm() {
   // support drag and drop
   document.querySelectorAll(".file-upload").forEach(container => {
     function allowDrop(e) {
-      if (e.dataTransfer.types.includes("text/csv")) {
-        e.preventDefault();
+      e.preventDefault();
+      if (e.dataTransfer.items[0].type === "text/csv") {
+        e.dataTransfer.effectAllowed = "copy";
         e.dataTransfer.dropEffect = "copy";
-        return;
+        container.classList.add("file-dropping")
+        return false;
       }
-      console.log(e)
+
+      // block any other drop
+      e.dataTransfer.effectAllowed = "none";
+      e.dataTransfer.dropEffect = "none";
     }
+
     let input = container.querySelector("input");
     container.ondragenter = allowDrop;
     container.ondragover = allowDrop;
     container.ondrop = e => {
-        e.preventDefault();
-        console.debug("dropped");
-        const data = e.dataTransfer.getData("text/plain");
-        input.value = data;
-        console.debug(data);
-      }
+      e.preventDefault();
+      input.files = e.dataTransfer.files;
+      styleButton(input);
+      container.classList.remove("file-dropping");
+    }
+    container.ondragleave = () => container.classList.remove("file-dropping");
+    container.ondragend = () => container.classList.remove("file-dropping");
   });
 
   // make buttons with selected file green
   let inputButtons = form.querySelectorAll("input[type=file]");
   inputButtons.forEach(b => {
-    function styleButton(button) {
-      if (button.value) {
-        button.parentNode.classList.add("file-selected");
-        checkFileName(button);
-        if (button.id === "people-file")
-          hideError("people-file");
-        else
-          hideError("family-file");
-      }
-      else
-        button.parentNode.classList.remove("file-selected");
-    }
     styleButton(b);
     b.onchange = () => styleButton(b);
   });
@@ -71,7 +84,7 @@ function setupUploadForm() {
       }, "family-file");
     }
 
-    if(!(peopleFile && familyFile))
+    if (!(peopleFile && familyFile))
       return;
 
     // these are raw strings of the csv files
@@ -129,12 +142,14 @@ function checkFileName(button) {
   if (id === "family-file" && personSelected)
     showWarning({
         en: "Looks like you selected the wrong file!",
-        de: "Sieht aus als wäre die falsche Datei im Familien-Knopf gelandet!"},
+        de: "Sieht aus als wäre die falsche Datei im Familien-Knopf gelandet!"
+      },
       button.id);
   else if (id === "people-file" && familySelected)
     showWarning({
         en: "Looks like you selected the wrong file!",
-        de: "Sieht aus als wäre die falsche Datei im Personen-Knopf gelandet!"},
+        de: "Sieht aus als wäre die falsche Datei im Personen-Knopf gelandet!"
+      },
       button.id);
   else
     hideWarning(button.id);
