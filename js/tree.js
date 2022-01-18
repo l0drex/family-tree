@@ -18,7 +18,19 @@ class GraphManager {
    * @param startPersonId {number} id of the person with which the initial view should start
    */
   constructor(people, families, startPersonId = 1) {
+    people.forEach(person => {
+      person.width = config.personNodeSize[0];
+      person.height = config.personNodeSize[1];
+      person.infoVisible = false;
+      person.type = "person";
+    });
     this.#people = people;
+
+    families.forEach(family => {
+      family.height = family.width = config.margin * 2;
+      family.type = "family";
+      family.members = family.partners.concat(family.children);
+    });
     this.#families = families;
 
     this.#startViewgraph(this.#people[startPersonId]);

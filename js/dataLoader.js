@@ -1,30 +1,16 @@
 import * as d3 from "https://cdn.skypack.dev/d3@4";
-import {config} from "./main.js";
 
 
 /**
- * Builds a graph out of family data
+ * Builds a promise out of people and family data
  * @param families {Array} list of family objects
  * @param people {Array} list of person objects
- * @return {Promise}
+ * @return {Promise} Fulfilled if people and families exist
  */
-function buildDataObject(people, families) {
-  people.forEach(person => {
-    person.width = config.personNodeSize[0];
-    person.height = config.personNodeSize[1];
-    person.infoVisible = false;
-    person.type = "person";
-  });
-
-  families.forEach(family => {
-    family.height = family.width = config.margin * 2;
-    family.type = "family";
-    family.members = family.partners.concat(family.children);
-  });
-
+function buildPromise(people, families) {
   return new Promise((resolve, reject) => {
     if (people && families &&
-      !([people.length, families.length].includes(0))) {
+      0 < families.length < people.length) {
       resolve({
         "people": people,
         "families": families
@@ -48,7 +34,7 @@ export function loadJson(path) {
       return;
     }
 
-    return buildDataObject(data.people, data.families);
+    return buildPromise(data.people, data.families);
   });
 }
 
@@ -107,5 +93,5 @@ export function loadCsv(peopleTable, familyTable) {
     family.children = Number(family.id) in children ? children[Number(family.id)] : [];
   });
 
-  return buildDataObject(personData, familyData)
+  return buildPromise(personData, familyData)
 }
