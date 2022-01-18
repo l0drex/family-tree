@@ -1,4 +1,4 @@
-import * as d3 from "https://cdn.skypack.dev/d3@4";
+import * as d3 from "https://unpkg.com/d3";
 
 
 /**
