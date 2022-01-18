@@ -4,6 +4,14 @@ svg {
   border: solid var(--background);
 }
 
+#family-tree:hover {
+  cursor: grab;
+}
+
+#family-tree:active {
+  cursor: grabbing;
+}
+
 #family-tree polyline {
   stroke: var(--foreground);
 }
