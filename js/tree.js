@@ -26,7 +26,7 @@ class GraphManager {
       // translate old-style gender attribute
       if (person.gender === "männlich")
         person.gender = "male"
-      else if (person.gender  === "weiblich")
+      else if (person.gender === "weiblich")
         person.gender = "female"
     });
     this.#people = people;
@@ -253,9 +253,62 @@ const d3cola = cola.d3adaptor(d3)
   .size(viewportSize);
 
 // catch the transformation events
+/*
+I have changed the default zoom behavior to the following one:
+ - Nothing on double click
+ - Zoom with Ctrl + wheel
+ - Move with wheel
+*/
+let svgZoom = d3.zoom()
+  .on("start", () => {
+    switch (event.type) {
+      case "wheel":
+        if (event.wheelDelta < 0)
+          svg.node().style.cursor = "zoom-out";
+        else
+          svg.node().style.cursor = "zoom-in";
+        break;
+    }
+  })
+  .on("zoom", () => {
+    let transform = "";
+    if (d3.event.transform.k)
+      transform += `scale(${d3.event.transform.k})`
+    if (d3.event.transform.x && d3.event.transform.y)
+      transform += `translate(${d3.event.transform.x},${d3.event.transform.y})`
+    svg.select("#vis").attr("transform", transform)
+  })
+  .on("end", () => {
+    svg.node().style.cursor = "";
+  })
+  .filter(() => {
+    switch (event.type) {
+      case "wheel":
+        return event.ctrlKey;
+      case "dblclick":
+        return false;
+      default:
+        return true;
+    }
+  });
+let touchstart;
 svg.select("#background")
-  .call(d3.zoom().on("zoom", () =>
-    svg.select("#vis").attr("transform", d3.event.transform.toString())));
+  .on("touchstart", () => {
+    touchstart = d3.event.touches;
+  })
+  .on("touchmove", () => {
+    let movementX = touchstart[0].screenX - d3.event.touches[0].screenX;
+    let movementY = touchstart[0].screenY - d3.event.touches[0].screenY;
+    touchstart = d3.event.touches;
+    svgZoom.translateBy(svg.select("#background"), -movementX, -movementY);
+  })
+  .call(svgZoom)
+svg.on("wheel", () => {
+  if (d3.event.shiftKey)
+    svgZoom.translateBy(svg.select("#background"), -d3.event.deltaY, -d3.event.deltaX);
+  else
+    svgZoom.translateBy(svg.select("#background"), -d3.event.deltaX, -d3.event.deltaY);
+});
 
 // define layers
 let nodesLayer = svg.select("#nodes");
