@@ -1,19 +1,26 @@
 {
   "name": "family-tree",
-  "version": "0.0.1",
-  "description": "A website that can show a family tree.",
-  "readme": "README.md",
-  "keywords": ["familytree", "family"],
-  "license": "",
-  "author": "Lorenz Hoffmann",
-  "scripts": {
-    "start": "npm run build && npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "1.0.0",
+  "homepage": "https://l0drex.github.io/family-tree/",
+  "bugs": {
+    "url": "https://github.com/l0drex/family-tree/issues",
+    "email": "hoffmann_lorenz@protonmail.com"
   },
+  "description": "A website to visualize your family tree.",
+  "readme": "README.md",
+  "keywords": [
+    "family tree",
+    "family"
+  ],
+  "license": "",
+  "author": {
+    "name": "Lorenz Hoffmann",
+    "email": "hoffmann_lorenz@protonmail.com",
+    "url": "https://github.com/l0drex"
+  },
+  "repository": "https://github.com/l0drex/family-tree",
   "dependencies": {
     "webcola": "latest",
-    "d3": "latest"
-  },
-  "devDependencies": {
+    "d3": "4.13.0"
   }
 }

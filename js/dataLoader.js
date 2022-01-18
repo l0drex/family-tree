@@ -1,22 +1,32 @@
+import * as d3 from "https://cdn.skypack.dev/d3@4";
+
+
 /**
- * Parses the graph data extracted and returns a graph object
- * @param graphData {{people: *[], families: *[]}}
-        source: familyIndex,
- * @return {{nodes: *, links: *[]}}
+ * Builds a promise out of people and family data
+ * @param families {Array} list of family objects
+ * @param people {Array} list of person objects
+ * @return {Promise} Fulfilled if people and families exist
  */
-function parseData(graphData) {
-  return {
-    "nodes": graphData.people.concat(graphData.families),
-    "links": []
-  };
+function buildPromise(people, families) {
+  return new Promise((resolve, reject) => {
+    if (people && families &&
+      0 < families.length < people.length) {
+      resolve({
+        "people": people,
+        "families": families
+      });
+    } else
+      reject();
+  });
 }
 
 /**
  * Loads a json file, parses the data and sets up the graph
  * @deprecated
  * @param path {string}
+ * @return {Promise}
  */
-function loadJson(path) {
+export function loadJson(path) {
   d3.json(path, (error, data) => {
     if (error !== null) {
       console.error("Error while loading graph data!");
@@ -24,10 +34,7 @@ function loadJson(path) {
       return;
     }
 
-    let graph = parseData(data);
-    console.assert(typeof graph !== "undefined",
-      "Result of parsing is empty");
-    setup(graph);
+    return buildPromise(data.people, data.families);
   });
 }
 
@@ -35,9 +42,9 @@ function loadJson(path) {
  * Loads the csv file, parses the data and sets up the graph
  * @param peopleTable {string} path to a csv file containing info about each person
  * @param familyTable {string} path to a csv file containing info about each family
- * @param then {function } function to call when the data has been loaded. takes data as the only parameter
+ * @return {Promise}
  */
-function loadCsv(peopleTable, familyTable, then) {
+export function loadCsv(peopleTable, familyTable) {
   let children = {};
   let personData, familyData;
 
@@ -60,18 +67,15 @@ function loadCsv(peopleTable, familyTable, then) {
       birthday: person.birthday,
       placeOfBirth: person.place_of_birth,
       dayOfDeath: person.day_of_death,
-      dead: (person.day_of_death !== "" || Number(person.age) > 120),
       age: Number(person.age),
+      dead: (person.day_of_death !== "" || Number(person.age) > 120),
       profession: person.profession,
       religion: person.religion,
-      width: personNodeSize[0],
-      height: personNodeSize[1],
-      type: "person",
-      infoVisible: false,
       married: false,
       parentsKnown: person.child_of !== ""
     }
   });
+
   familyData = d3.csvParse(familyTable, family => {
     personData[family.partner1].married = true;
     personData[family.partner2].married = true;
@@ -80,9 +84,7 @@ function loadCsv(peopleTable, familyTable, then) {
       id: Number(family.ID),
       // filter out person  with id 0
       partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
-      height: partnerNodeRadius * 2,
-      width: partnerNodeRadius * 2,
-      type: "family"
+      begin: family.begin
     }
   });
 
@@ -91,14 +93,5 @@ function loadCsv(peopleTable, familyTable, then) {
     family.children = Number(family.id) in children ? children[Number(family.id)] : [];
   });
 
-  let graph = parseData({
-    people: personData,
-    families: familyData
-  });
-
-  // check the result
-  console.assert(graph !== undefined,
-    "Result of parsing is empty");
-
-  then(graph);
+  return buildPromise(personData, familyData)
 }

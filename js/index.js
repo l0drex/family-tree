@@ -1,6 +1,5 @@
-// data structure that stores the graph information
-// TODO save graph to localStorage
-let modelGraph;
+import {translationToString, showWarning, hideWarning, showError, hideError} from "./main.js";
+import {loadCsv} from "./dataLoader.js";
 
 setupUploadForm();
 
@@ -8,7 +7,7 @@ setupUploadForm();
  * Styles the form and overrides the submit function
  */
 function setupUploadForm() {
-  let form = d3.select("#upload-form");
+  let form = document.getElementById("upload-form");
 
   // support drag and drop
   document.querySelectorAll(".file-upload").forEach(container => {
@@ -33,71 +32,87 @@ function setupUploadForm() {
   });
 
   // make buttons with selected file green
-  let inputBtns = form.selectAll("input[type=file]");
-  inputBtns.data(inputBtns.nodes());
-  inputBtns.each(d => {
-    if (d.value) {
-      d.parentNode.classList.add("file-selected");
-      checkFileName(d);
+  let inputButtons = form.querySelectorAll("input[type=file]");
+  inputButtons.forEach(b => {
+    function styleButton(button) {
+      if (button.value) {
+        button.parentNode.classList.add("file-selected");
+        checkFileName(button);
+        if (button.id === "people-file")
+          hideError("people-file");
+        else
+          hideError("family-file");
+      }
+      else
+        button.parentNode.classList.remove("file-selected");
     }
-    else
-      d.parentNode.classList.remove("file-selected");
-  });
-  inputBtns.on("change", d => {
-    if (d.value) {
-      d.parentNode.classList.add("file-selected");
-      checkFileName(d);
-    }
-    else
-      d.parentNode.classList.remove("file-selected");
+    styleButton(b);
+    b.onchange = () => styleButton(b);
   });
 
-  form.on("submit", () => {
-    d3.event.preventDefault();
+  form.onsubmit = (event) => {
+    event.preventDefault();
 
     // load data from the files
     // these are blobs
-    let peopleFile = d3.select("#people-file").node().files[0];
-    let familyFile = d3.select("#family-file").node().files[0];
+    let peopleFile = document.getElementById("people-file").files[0];
+    let familyFile = document.getElementById("family-file").files[0];
+
+    if (!peopleFile) {
+      showError({
+        en: "No people-file selected!",
+        de: "Es wurde keine Personendatei ausgewählt!"
+      }, "people-file");
+    }
+    if (!familyFile) {
+      showError({
+        en: "No family-file selected!",
+        de: "Es wurde keine Familiendatei ausgewählt!"
+      }, "family-file");
+    }
+
+    if(!(peopleFile && familyFile))
+      return;
+
     // these are raw strings of the csv files
     let peopleTable, familiesTable;
 
     // store the loaded graph data and redirects to the tree-viewer
-    function showGraph(graph) {
-      if (!graph) {
-        showError({
-          en: "The calculated graph is empty!" +
-            "Please check if your files are empty. If not, please contact the administrator!",
-          de: "Der berechnete Graph ist leer!" +
-            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-        }, "graph")
-        return;
-      }
-
-      localStorage.setItem("graph", JSON.stringify(graph));
+    function showGraph(data) {
+      localStorage.setItem("familyData", JSON.stringify(data));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
         window.location.pathname.replace("index.html", "") + "family-tree.html" +
         window.location.search;
     }
 
+    function loadGraph() {
+      if (peopleTable && familiesTable)
+        loadCsv(peopleTable, familiesTable)
+          .then(showGraph)
+          .catch(() =>
+            showError({
+              en: "The calculated graph is empty!" +
+                "Please check if your files are empty. If not, please contact the administrator!",
+              de: "Der berechnete Graph ist leer!" +
+                " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+            }, "graph"));
+    }
+
     let readerFamily = new FileReader();
     readerFamily.onload = (file) => {
       familiesTable = file.target.result;
-
-      if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, showGraph);
+      loadGraph();
     }
     readerFamily.readAsText(familyFile);
+
     let readerPeople = new FileReader();
     readerPeople.onload = (file) => {
       peopleTable = file.target.result;
-
-      if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable, showGraph);
+      loadGraph();
     }
     readerPeople.readAsText(peopleFile);
-  });
+  };
 }
 
 /**

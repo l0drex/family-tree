@@ -1,8 +1,16 @@
-# Codestyle
+# Translations and localization
+
+In short, use the `lang` attribute in HTML files and `localizeToString({en: "...", de: "..."})` in JavaScript.
+More details are available in the [wiki](https://github.com/l0drex/family-tree/wiki/Localization).
+
+
+# Writing code
+
+## Code-style
 
 When you create a pull request, make sure to follow the following styling guidelines:
 
-## General
+### General
 
 Follow the rules of `.editorconfig` (should be automatically applied by your editor):
 1. Encode your code in utf-8
@@ -10,7 +18,7 @@ Follow the rules of `.editorconfig` (should be automatically applied by your edi
 3. End files with a new line
 4. Don't end your lines with whitespaces
 
-## JavaScript code style
+### JavaScript code style
 
 1. Use semicolons at end of lines
 2. Package functionality in functions
@@ -35,3 +43,8 @@ function doSomeFunctionality(param) {
   return parsedParam
 }
 ```
+
+
+# Things to be aware of
+
+Any emojis must be in a parent whose class is `emoji`. This is due to Microsoft Edge, where any font whose weight is above 500 will use monochromatic emojis rather than colorful ones.

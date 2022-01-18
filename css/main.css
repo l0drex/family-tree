@@ -15,9 +15,11 @@ html {
   --foreground: black;
   --foreground-secondary: #595959;
   --background: white;
-  --background-secondary: #eaeaea;
+  --background-higher: #eaeaea;
+  --background-lower: var(--background-higher);
   --lines: #b6b6b6;
-  --accent: #4141ff;
+  --primary: #4141ff;
+  --secondary: yellow;
   --positive-green: #91ff91;
   --warning-foreground: #595900;
   --warning-background: #ffff91;
@@ -40,12 +42,12 @@ html {
  */
 
 ::-moz-selection {
-  background: var(--accent);
+  background: var(--primary);
   text-shadow: none;
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--primary);
   text-shadow: none;
 }
 
@@ -58,7 +60,7 @@ hr {
   height: 1px;
   border: 0;
   border-top: 1px solid var(--lines);
-  margin: 1em 0;
+  margin: 1rem 0;
   padding: 0;
 }
 
@@ -125,22 +127,34 @@ body > * {
   display: revert;
 }
 
+:focus-visible {
+  border: solid var(--primary);
+  border-radius: .5em;
+}
+
 header, footer {
   box-sizing: border-box;
-  padding: .75em 1em;
+  padding: .75rem 1rem;
   width: 100%;
   background: var(--background);
 }
 
 header {
-  box-shadow: 0 .25em .25em rgba(0, 0, 0, 0.33);
+  box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
   position: fixed;
   top: 0;
-  width: 100%;
+  height: 4.5rem;
+  display: flex;
+  align-items: center;
 }
 
-header h1 {
-  margin: 0;
+header * {
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+header > *:not(:last-child) {
+  margin-right: 1rem;
 }
 
 footer {
@@ -153,66 +167,53 @@ h1 * {
 }
 
 main {
-  padding: 5em 1em 2em;
+  padding: 5.5rem 1rem 1rem;
   box-sizing: border-box;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 main > * {
-  border-radius: 1em;
+  border-radius: .5rem;
   background: var(--background);
-  margin: 0 auto 1em;
+  margin: 0 auto 1rem;
   box-sizing: border-box;
 }
 
 main > :not(.hidden):last-child {
-  margin-bottom: unset;
+  margin-bottom: 2rem;
 }
 
-article {
-  padding: .75em 1em;
-  max-width: 50em;
-}
-
-.notification.warning {
-  color: var(--warning-foreground);
-  background: var(--warning-background);
-}
-
-.notification.error {
-  color: var(--error-foreground);
-  background: var(--error-background);
+article, .notification {
+  padding: .75rem 1rem;
+  max-width: 50rem;
+  width: 100%;
 }
 
 article h2 {
-  margin-top: 0;
+  margin: 0;
+  border-bottom: solid 1px var(--lines);
+  padding-bottom: .75rem;
 }
 
-#upload-form > * {
-  margin: .5em 0;
+details {
+  background: var(--background-lower);
+  border-radius: .5rem;
+  padding: .5rem 1rem;
 }
 
-#upload-form > div {
+details:focus-visible {
+  border: none;
+  border-bottom: solid var(--primary);
+}
+
+p {
+  line-height: 1.5em;
+}
+
+form {
   text-align: right;
-}
-
-.file-upload-container {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: .75em;
-}
-
-.file-upload {
-  text-align: center;
-  background: var(--background-secondary);
-  border-radius: 1em;
-  padding: .66em 1em;
-  overflow: hidden;
-}
-
-.file-upload.file-selected {
-  background: var(--positive-green);
 }
 
 label {
@@ -223,41 +224,81 @@ input[type=file] {
   color: var(--foreground-secondary);
 }
 
-input[type=submit] {
-  background: linear-gradient(45deg, var(--accent), turquoise);
+input[type=submit], button {
+  background: linear-gradient(45deg, var(--primary), #34cec0);
   color: white;
   font-weight: bold;
-  border-radius: 1em;
-  padding: .66em 1em;
+  border-radius: 2.33rem;
+  padding: .66rem 1rem;
   border: none;
 }
 
-input[type=submit]:active {
-  background: var(--accent);
+input[type=submit]:hover, button:hover {
+  box-shadow: 0 0 1rem var(--primary);
+}
+
+input[type=submit]:focus-visible, button:focus-visible {
+  border: solid var(--secondary);
+}
+
+input[type=submit]:active, button:active {
+  background: var(--primary);
+  border: none;
+}
+
+#upload-form > * {
+  margin: .5rem 0;
+}
+
+.file-upload-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.file-upload {
+  text-align: center;
+  background: var(--background-higher);
+  border-radius: 1rem;
+  padding: .66rem 1rem;
+  overflow: hidden;
+}
+
+.file-upload.file-selected {
+  background: var(--positive-green);
+}
+
+.file-upload *:not(:last-child) {
+  margin-bottom: .5rem;
 }
 
 .search {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
 }
 
-.search input[type=search] {
+input[type=search] {
   border: none;
+  border-radius: 0;
   border-bottom: solid var(--foreground);
   background: none;
   color: var(--foreground);
+  padding: 0 .25rem;
+  min-width: 10rem;
+  width: 100%;
+  flex-shrink: 2;
 }
 
-.search.error input[type=search], .search input[type=search]:invalid {
+input[type=search].error, input[type=search]:invalid {
   border-bottom-color: var(--error-foreground);
   background: var(--error-background);
   color: var(--error-foreground);
 }
 
-.search input[type=search]:focus {
+input[type=search]:focus {
   outline: none;
-  border-bottom-color: var(--accent);
+  border-bottom-color: var(--primary);
 }
 
 .search input[type=submit] {
@@ -277,12 +318,17 @@ table {
 }
 
 th, td {
-  padding: .33em .5em;
+  padding: .33rem .5rem;
   border: var(--lines) solid 1px;
 }
 
 tr:nth-child(2n) {
-  background: var(--background-secondary);
+  background: var(--background-higher);
+}
+
+caption {
+  font-weight: bold;
+  margin-bottom: .5rem;
 }
 
 .table-layout tr {
@@ -292,6 +338,28 @@ tr:nth-child(2n) {
 .full-screen {
   width: 100%;
   height: 100%;
+}
+
+#family-tree {
+  flex-grow: 2;
+  margin-bottom: 0;
+}
+
+.warning {
+  color: var(--warning-foreground);
+  background: var(--warning-background);
+  border-color: var(--warning-foreground);
+}
+
+.error {
+  color: var(--error-foreground);
+  background: var(--error-background);
+  border-color: var(--error-foreground);
+}
+
+/* Fixes emojis being monochromatic rather than colored on Microsoft Edge */
+.emoji {
+  font-weight: normal !important;
 }
 
 /* ==========================================================================
@@ -382,7 +450,7 @@ tr:nth-child(2n) {
    Modify as content requires.
    ========================================================================== */
 
-@media only screen and (min-width: 35em) {
+@media only screen and (min-width: 35rem) {
   /* Style adjustments for viewports that meet the condition */
 }
 
@@ -398,7 +466,9 @@ tr:nth-child(2n) {
     --foreground: black;
     --foreground-secondary: #595959;
     --background: white;
-    --background-secondary: #eaeaea;
+    --background-higher: #eaeaea;
+    /* TODO maybe find a better value */
+    --background-lower: var(--background-higher);
     --lines: #b6b6b6;
     --positive-green: #91ff91;
     --warning-foreground: #595900;
@@ -418,12 +488,13 @@ tr:nth-child(2n) {
 
 @media (prefers-color-scheme: dark) {
   html {
-    --foreground: #e1e1e1;
-    --foreground-secondary: #bbb;
+    --foreground: #ececec;
+    --foreground-secondary: #d0d0d0;
     --background: #2b2b2b;
-    --background-secondary: #4f4f4f;
+    --background-higher: #4f4f4f;
+    --background-lower: #1a1a1a;
     --lines: #797979  ;
-    --positive-green: #098209;
+    --positive-green: #126912;
     --warning-foreground: #ffff91;
     --warning-background: #595900;
     --error-foreground: #ffc4c4;
@@ -433,7 +504,7 @@ tr:nth-child(2n) {
     background: black;
   }
   a {
-    color: #6e6eff;
+    color: #8585ff;
   }
   a:visited {
     color: violet;

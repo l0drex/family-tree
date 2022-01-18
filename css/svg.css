@@ -4,7 +4,15 @@ svg {
   border: solid var(--background);
 }
 
-#family-tree path, polyline {
+#family-tree:hover {
+  cursor: grab;
+}
+
+#family-tree:active {
+  cursor: grabbing;
+}
+
+#family-tree polyline {
   stroke: var(--foreground);
 }
 
@@ -19,18 +27,19 @@ svg {
   stroke: none;
 }
 
-#family-tree .link {
-  marker-end:url(#Arrow2Lend);
+.link {
+  fill: none;
 }
 
-#family-tree .partnerNode {
-  fill: var(--background);
-}
-
-#family-tree .etc {
+.etc, .partnerNode {
   fill: var(--background);
   stroke: var(--foreground);
   text-anchor: middle;
+  cursor: pointer;
+}
+
+#family-tree .partnerNode.locked {
+  cursor: not-allowed;
 }
 
 #family-tree .infoBackground {
@@ -47,11 +56,16 @@ svg {
 .person {
   color: var(--foreground);
   overflow: visible;
+  cursor: pointer;
+}
+
+.person:active {
+  cursor: grabbing;
 }
 
 .person p {
   font-size: 14px;
-  margin: .1em;
+  margin: .1rem;
   text-align: center;
 }
 
@@ -64,16 +78,19 @@ svg {
 }
 
 .person .bg {
-  border-radius: 1em;
-  padding: .25em;
+  border-radius: 1rem;
+  border-style: solid;
+  border-width: .25rem;
 }
 
-.person.weiblich .bg {
+.person.female .bg {
   background-color: var(--female);
+  border-color: var(--female);
 }
 
-.person.männlich .bg {
+.person.male .bg {
   background-color: var(--male);
+  border-color: var(--male);
 }
 
 .person.unknown .bg {
@@ -81,37 +98,22 @@ svg {
 }
 
 .person.focused .bg {
-  box-shadow: 0 0 1em var(--accent);
+  box-shadow: 0 0 1rem var(--primary);
 }
 
 .person.dead .bg {
-  border-width: 4px;
-  border-style: solid;
-}
-
-.person.männlich.dead .bg {
   background-color: var(--background);
-  border-color: var(--male);
-}
-
-.person.weiblich.dead .bg {
-  background-color: var(--background);
-  border-color: var(--female);
 }
 
 .person .text-bg {
-  background: var(--background-secondary);
-  border-radius: .75em;
-  padding: .25em;
+  background: var(--background-higher);
+  border-radius: .75rem;
+  padding: .25rem;
 }
 
 .person td, .person th {
   border: none;
-  padding: .2em .3em;
-}
-
-#p-me .bg {
-  padding: 0;
+  padding: .2rem .3rem;
 }
 
 @media (prefers-color-scheme: light) {
@@ -123,8 +125,8 @@ svg {
 
 @media (prefers-color-scheme: dark) {
   svg {
-    --male: #3f5a86;
-    --female: #9d2626;
+    --male: #254579;
+    --female: #911c1c;
     background: black;
   }
   .person:not(.dead) .text-bg {
