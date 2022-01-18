@@ -380,7 +380,7 @@ function setup(people, families) {
     graphManager = new GraphManager(people, families);
     id = 1;
   }
-  update();
+  draw();
 
   // move startNode in front of all nodes
   let startNodeElement = document.getElementById(`p-${id}`);
@@ -388,7 +388,7 @@ function setup(people, families) {
   nodesLayer.node().append(startNodeElement);
 
   // place name of focus in header and title
-  // NOTE this has to be here since localize() is called in update
+  // NOTE this has to be here since localize() is called in draw
   inputName.node().value = "";
   inputName.attr("placeholder", graphManager.startNode.fullName);
   document.title += ` ${translationToString({
@@ -460,10 +460,10 @@ function insertData(node) {
 }
 
 /**
- * Adds svg elements for each node, link and optionally group in the view graph.
+ * Adds svg elements for each node and link in the view graph.
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
  */
-async function update() {
+async function draw() {
   console.assert(graphManager.viewGraph.nodes.length > 0,
     "Viewgraph has no nodes!");
   console.assert(graphManager.viewGraph.links.length > 0,
@@ -510,7 +510,7 @@ async function update() {
   let notLocked = newPartners.filter(f => !(f.members.includes(graphManager.startNode.id)))
     .on("click", f => {
       graphManager.hideFamily(f);
-      update();
+      draw();
     });
   notLocked.append("text")
     .text("-")
@@ -535,7 +535,7 @@ async function update() {
     .attr("y", 5);
   etcGroup.on("click", f => {
     graphManager.showFamily(f);
-    update();
+    draw();
   })
     .append("title")
     .text(translationToString({
