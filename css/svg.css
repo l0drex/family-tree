@@ -93,6 +93,13 @@ svg {
   border-color: var(--male);
 }
 
+.person.divers .bg {
+  background: linear-gradient(to right, red, orange, green, blue, purple);
+  border-color: #0000;
+  border-left-color: red;
+  border-right-color: purple;
+}
+
 .person.unknown .bg {
   border: var(--lines) solid;
 }
