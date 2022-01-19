@@ -1,4 +1,5 @@
 import * as d3 from "https://unpkg.com/d3";
+import {csvParse} from "https://cdn.skypack.dev/d3-dsv";
 
 
 /**
@@ -48,7 +49,7 @@ export function loadCsv(peopleTable, familyTable) {
   let children = {};
   let personData, familyData;
 
-  personData = d3.csvParse(peopleTable, person => {
+  personData = csvParse(peopleTable, person => {
     const id = Number(person.ID);
     // map family index -> children array
     if (id && person.child_of !== "") {
@@ -76,7 +77,7 @@ export function loadCsv(peopleTable, familyTable) {
     }
   });
 
-  familyData = d3.csvParse(familyTable, family => {
+  familyData = csvParse(familyTable, family => {
     personData[family.partner1].married = true;
     personData[family.partner2].married = true;
 
