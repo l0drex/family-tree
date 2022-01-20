@@ -92,13 +92,17 @@ class GraphManager {
    * Returns the children of a person
    * @param person
    * @return {[*]}
-   * @todo assumes each person can only be a parent in one family
    */
   #getChildren(person) {
-    let family = this.#families.find(f => f.partners.includes(person.id))
-    if (!family)
+    let families = this.#families.filter(f => f.partners.includes(person.id))
+    if (!families.length)
       return [];
-    return family.children.map(id => this.#people[id]);
+
+    let children = [];
+    families.forEach(family => {
+      children = children.concat(family.children.map(id => this.#people[id]));
+    });
+    return children;
   }
 
   /**
