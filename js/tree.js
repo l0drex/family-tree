@@ -44,18 +44,12 @@ class GraphManager {
     // find generations
     this.#addGenerations(startPerson, 0);
 
-    // estimate age to mark dead people dead without any birth or death dates
-    let unknownAgePeople = this.#people.filter(p => !p.age);
-    unknownAgePeople.sort((a, b) => a.generation - b.generation);
-    console.debug(unknownAgePeople.map(p => p.generation))
-    unknownAgePeople.forEach(p => {
-      // TODO what if age of children is unknown?
-      let firstChildYear = Math.max(...this.#getChildren(p).filter(c => c.birthday).map(c => c.birthday.substr(6, 4)));
-      let currentYear = (new Date()).getFullYear();
-      if (firstChildYear > 0) {
-        p.age = currentYear - firstChildYear + 25;
-        p.dead = p.dead || p.age > 120;
-      }
+    // estimate age to mark dead people dead without any birth or death dates,
+    // assuming each generation is around 25 year apart
+    let unknownAgePeople = this.#people.filter(p => !p.age)
+    unknownAgePeople.filter(p => p.generation || p.generation === 0).forEach(p => {
+      p.age = startPerson.age + p.generation * 25;
+      p.dead = p.dead || p.age > 120;
     });
 
     this.#startViewgraph(startPerson);
@@ -129,8 +123,6 @@ class GraphManager {
     families.forEach(family => {
       partners = partners.concat(family.partners.filter(p => p !== person.id).map(id => this.#people[id]));
     });
-    console.assert(partners.length > 0);
-    console.log(person.fullName, partners)
     return partners;
   }
 
