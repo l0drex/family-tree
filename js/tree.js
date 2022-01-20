@@ -43,12 +43,29 @@ class GraphManager {
 
     // find generations
     this.#addGenerations(startPerson, 0);
+    // FIXME hotfix for people with undefined generation
+    let unknownGeneration = this.#people.filter(p => !p.generation && p.generation !== 0);
+    unknownGeneration.forEach(person => {
+      let partner = this.#getPartners(person).filter(p => p.generation || p.generation === 0);
+      if (partner.length)
+        this.#addGenerations(person, partner[0].generation);
+    })
+    unknownGeneration = this.#people.filter(p => !p.generation && p.generation !== 0 && p.id);
+    console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration)
 
     // estimate age to mark dead people dead without any birth or death dates,
     // assuming each generation is around 25 year apart
     let unknownAgePeople = this.#people.filter(p => !p.age)
+    let birthYear;
+    if (startPerson.birthday)
+      birthYear = startPerson.birthday.substr(6, 4);
+    else
+      // use a person from the same generation
+      birthYear = this.#people.filter(p => p.generation === 0 && p.birthday)[0].birthday.substr(6, 4);
+    let ageToday = new Date().getFullYear() - birthYear;
+
     unknownAgePeople.filter(p => p.generation || p.generation === 0).forEach(p => {
-      p.age = startPerson.age + p.generation * 25;
+      p.age = ageToday + p.generation * 25;
       p.dead = p.dead || p.age > 120;
     });
 
@@ -82,7 +99,6 @@ class GraphManager {
     person.generation = generation;
     this.#getParents(person).forEach(p => this.#addGenerations(p, generation + 1));
     this.#getChildren(person).forEach(c => this.#addGenerations(c, generation - 1));
-    this.#getPartners(person).forEach(p => p.generation = generation);
   }
 
   /**
