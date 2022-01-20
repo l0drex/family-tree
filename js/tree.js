@@ -292,21 +292,22 @@ let svgZoom = d3.zoom()
     }
   });
 let touchstart;
-svg.select("#background")
+svg
   .on("touchstart", () => {
     touchstart = d3.event.touches;
   })
   .on("touchmove", () => {
-    let movementX = touchstart[0].screenX - d3.event.touches[0].screenX;
-    let movementY = touchstart[0].screenY - d3.event.touches[0].screenY;
+    let movementX = touchstart[0].clientX - d3.event.touches[0].clientX;
+    let movementY = touchstart[0].clientY - d3.event.touches[0].clientY;
     touchstart = d3.event.touches;
     svgZoom.translateBy(svg.select("#background"), -movementX, -movementY);
   })
   .call(svgZoom)
+// TODO fix jump between d3-native and external transform states
 svg.on("wheel", () => {
   if (d3.event.shiftKey)
     svgZoom.translateBy(svg.select("#background"), -d3.event.deltaY, -d3.event.deltaX);
-  else
+  else if (!d3.event.ctrlKey)
     svgZoom.translateBy(svg.select("#background"), -d3.event.deltaX, -d3.event.deltaY);
 });
 
