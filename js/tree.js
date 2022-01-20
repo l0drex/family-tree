@@ -18,6 +18,7 @@ class GraphManager {
    * @param startPersonId {number} id of the person with which the initial view should start
    */
   constructor(people, families, startPersonId = 1) {
+    // add some necessary data
     people.forEach(person => {
       person.width = config.personNodeSize[0];
       person.height = config.personNodeSize[1];
@@ -38,7 +39,12 @@ class GraphManager {
     });
     this.#families = families;
 
-    this.#startViewgraph(this.#people[startPersonId]);
+    let startPerson = this.#people[startPersonId];
+
+    // find generations
+    this.#addGenerations(startPerson, 0);
+
+    this.#startViewgraph(startPerson);
   }
 
   /**
@@ -52,6 +58,47 @@ class GraphManager {
     console.info("Starting graph with", startPerson.fullName);
     this.#families.filter(f => f.members.includes(startPerson.id))
       .forEach(p => this.showFamily(p));
+  }
+
+  /**
+   * Adds generation numbers to all connected people
+   * @param person the person from whom to start the search
+   * @param generation generation of the person
+   */
+  #addGenerations(person, generation) {
+    if (person.generation) {
+      console.assert(person.generation === generation, `Generations dont match for ${person.fullName}: ${person.generation} <- ${generation}`);
+      return;
+    }
+
+    person.generation = generation;
+    this.#getParents(person).forEach(p => this.#addGenerations(p, generation + 1));
+    this.#getChildren(person).forEach(c => this.#addGenerations(c, generation - 1));
+  }
+
+  /**
+   * Returns the parents of a person
+   * @param person
+   * @return {*[]}
+   */
+  #getParents(person) {
+    let family = this.#families.find(f => f.children.includes(person.id));
+    if (!family)
+      return [];
+    return family.partners.map(id => this.#people[id]);
+  }
+
+  /**
+   * Returns the children of a person
+   * @param person
+   * @return {[*]}
+   * @todo assumes each person can only be a parent in one family
+   */
+  #getChildren(person) {
+    let family = this.#families.find(f => f.partners.includes(person.id))
+    if (!family)
+      return [];
+    return family.children.map(id => this.#people[id]);
   }
 
   /**
@@ -520,6 +567,7 @@ function insertData(node) {
     (node.religion ? node.religion : "?");
   html.querySelector(".placeOfBirth").innerHTML =
     (node.placeOfBirth ? node.placeOfBirth : "?");
+  html.querySelectorAll(".generation").forEach(n => n.innerHTML = n.innerHTML.replace(/%i/, node.generation));
 
   html.querySelector(".bg").setAttribute(
     "title", translationToString({
