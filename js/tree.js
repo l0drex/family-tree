@@ -44,6 +44,20 @@ class GraphManager {
     // find generations
     this.#addGenerations(startPerson, 0);
 
+    // estimate age to mark dead people dead without any birth or death dates
+    let unknownAgePeople = this.#people.filter(p => !p.age);
+    unknownAgePeople.sort((a, b) => a.generation - b.generation);
+    console.debug(unknownAgePeople.map(p => p.generation))
+    unknownAgePeople.forEach(p => {
+      // TODO what if age of children is unknown?
+      let firstChildYear = Math.max(...this.#getChildren(p).filter(c => c.birthday).map(c => c.birthday.substr(6, 4)));
+      let currentYear = (new Date()).getFullYear();
+      if (firstChildYear > 0) {
+        p.age = currentYear - firstChildYear + 25;
+        p.dead = p.dead || p.age > 120;
+      }
+    });
+
     this.#startViewgraph(startPerson);
   }
 
@@ -74,6 +88,7 @@ class GraphManager {
     person.generation = generation;
     this.#getParents(person).forEach(p => this.#addGenerations(p, generation + 1));
     this.#getChildren(person).forEach(c => this.#addGenerations(c, generation - 1));
+    this.#getPartners(person).forEach(p => p.generation = generation);
   }
 
   /**
@@ -94,7 +109,7 @@ class GraphManager {
    * @return {[*]}
    */
   #getChildren(person) {
-    let families = this.#families.filter(f => f.partners.includes(person.id))
+    let families = this.#families.filter(f => f.partners.includes(person.id));
     if (!families.length)
       return [];
 
@@ -103,6 +118,20 @@ class GraphManager {
       children = children.concat(family.children.map(id => this.#people[id]));
     });
     return children;
+  }
+
+  #getPartners(person) {
+    let families = this.#families.filter(f => f.partners.includes(person.id));
+    if (!families.length)
+      return [];
+
+    let partners = [];
+    families.forEach(family => {
+      partners = partners.concat(family.partners.filter(p => p !== person.id).map(id => this.#people[id]));
+    });
+    console.assert(partners.length > 0);
+    console.log(person.fullName, partners)
+    return partners;
   }
 
   /**
