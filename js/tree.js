@@ -213,7 +213,7 @@ class GraphManager {
       this.viewGraph.links.push(familyLink);
 
       // add etc-node
-      let otherFamilies = this.#families.filter(f => !(this.viewGraph.nodes.includes(f)) && f.members.includes(p));
+      let otherFamilies = this.#families.filter(f => f.members.includes(p) && !(this.#isVisible(f)));
       console.assert(otherFamilies.length <= 1, "There seems to be more than one etc-node!", otherFamilies)
       // FIXME removed check for p!=focusNode
       if (otherFamilies.length) {
@@ -272,20 +272,21 @@ class GraphManager {
 
     // remove them from the graph
     this.viewGraph.nodes.filter(node => {
-      if (node.type.includes("removed"))
+      if (!(this.#isVisible(node)))
         return false;
 
       switch (node.type) {
         case "person":
           return leaves.includes(node.id);
         case "etc":
+          console.debug(node)
           return leaves.includes(node.target);
         case "family":
           // replace family that should be removed with an etc-node
           let visibleMembers = node.members.filter(person => !(leaves.includes(person)));
           if (visibleMembers.length === 1) {
             node.type = "etc";
-            node.target = this.#people[visibleMembers[0]].viewId;
+            node.target = visibleMembers[0];
             console.debug("Replacing family with etc for target", this.#people[visibleMembers[0]].fullName);
           }
           return false;
@@ -312,6 +313,15 @@ class GraphManager {
    */
   findPerson(name) {
     return this.#people.find(person => person.fullName.toLowerCase().includes(name))
+  }
+
+  /**
+   * Returns true if the node is visible
+   * @param node
+   * @returns {boolean}
+   */
+  #isVisible(node) {
+    return this.viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
   }
 }
 
