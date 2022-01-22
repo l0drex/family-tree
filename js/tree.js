@@ -49,7 +49,7 @@ class GraphManager {
       let partner = this.#getPartners(person).filter(p => p.generation || p.generation === 0);
       if (partner.length)
         this.#addGenerations(person, partner[0].generation);
-    })
+    });
     // check that now everyone has a generation
     unknownGeneration = unknownGeneration.filter(p => !p.generation && p.generation !== 0 && p.id);
     console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration)
@@ -216,7 +216,6 @@ class GraphManager {
       // add etc-node
       let otherFamilies = this.#families.filter(f => f.members.includes(p) && !(this.#isVisible(f)));
       console.assert(otherFamilies.length <= 1, "There seems to be more than one etc-node!", otherFamilies)
-      // FIXME removed check for p!=focusNode
       if (otherFamilies.length) {
         console.debug("Adding etc for", person.fullName)
         otherFamilies.forEach(family => {
@@ -568,18 +567,18 @@ function setup(people, families) {
 }
 
 /**
- * Toggle the info node of a person
- * @param node person node
+ * Toggle the info of a person
+ * @param person person node
  */
-function toggleInfo(node) {
-  console.assert(node.type === "person");
+function toggleInfo(person) {
+  console.assert(person.type === "person");
 
-  node.infoVisible = !node.infoVisible;
-  let element = nodesLayer.select(`#p-${node.id}`)
+  person.infoVisible = !person.infoVisible;
+  let element = nodesLayer.select(`#p-${person.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (node.infoVisible ? 190 : config.personNodeSize[1]) + (node.dead ? 8 : 0));
+    .attr("height", (person.infoVisible ? 190 : config.personNodeSize[1]) + (person.dead ? 8 : 0));
   element.select(".addInfo")
-    .classed("hidden", !node.infoVisible);
+    .classed("hidden", !person.infoVisible);
 
   // move element to the top
   element.remove();
@@ -588,38 +587,38 @@ function toggleInfo(node) {
 
 /**
  * Inserts data in a person node html template
- * @param node person node
+ * @param person person node
  * @return {Node | ActiveX.IXMLDOMNode} the html content
  */
-function insertData(node) {
-  console.assert(node.type === "person", "Incorrect node type!")
+function insertData(person) {
+  console.assert(person.type === "person", "Incorrect node type!")
 
   let html = d3.select("#info-template").node().cloneNode(true).content;
   html.querySelector(".fullName").innerHTML =
-    node.fullName;
-  if (node.additionalNames.born) {
+    person.fullName;
+  if (person.additionalNames.born) {
     html.querySelector(".born")
       .classList.remove("hidden");
     html.querySelector(".born")
-      .append(node.additionalNames.born);
+      .append(person.additionalNames.born);
   }
-  if (node.additionalNames.named) {
+  if (person.additionalNames.named) {
     html.querySelector(".named")
-      .classList.remove("hidden", node.additionalNames.named);
+      .classList.remove("hidden", person.additionalNames.named);
     html.querySelector(".named")
-      .append(node.additionalNames.named);
+      .append(person.additionalNames.named);
   }
   html.querySelector(".years").innerHTML =
-    (node.birthday ? " * " + node.birthday : "") + (node.dayOfDeath ? " † " + node.dayOfDeath : "");
+    (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : "");
   html.querySelector(".age").innerHTML =
-    (node.age ? node.age : "?");
+    (person.age ? person.age : "?");
   html.querySelector(".profession").innerHTML =
-    (node.profession ? node.profession : "?");
+    (person.profession ? person.profession : "?");
   html.querySelector(".religion").innerHTML =
-    (node.religion ? node.religion : "?");
+    (person.religion ? person.religion : "?");
   html.querySelector(".placeOfBirth").innerHTML =
-    (node.placeOfBirth ? node.placeOfBirth : "?");
-  html.querySelectorAll(".generation").forEach(n => n.innerHTML = n.innerHTML.replace(/%i/, node.generation));
+    (person.placeOfBirth ? person.placeOfBirth : "?");
+  html.querySelectorAll(".generation").forEach(n => n.innerHTML = n.innerHTML.replace(/%i/, person.generation));
 
   html.querySelector(".bg").setAttribute(
     "title", translationToString({
