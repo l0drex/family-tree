@@ -188,7 +188,7 @@ class GraphManager {
     if (family.members.includes(0))
       console.warn("Person \"Unknown\" is in the family!");
 
-    // replace existing etc node with a family node
+    // replace existing etc-node with a family node
     family.type = family.type.replace("etc", "family");
     this.showNode(family);
 
@@ -270,7 +270,7 @@ class GraphManager {
     );
     console.debug("Removing the following people:", leaves);
 
-    // remove them from the graph
+    // remove nodes from the graph
     this.viewGraph.nodes.filter(node => {
       if (!(this.#isVisible(node)))
         return false;
@@ -279,7 +279,6 @@ class GraphManager {
         case "person":
           return leaves.includes(node.id);
         case "etc":
-          console.debug(node)
           return leaves.includes(node.target);
         case "family":
           // replace family that should be removed with an etc-node
@@ -297,9 +296,10 @@ class GraphManager {
       }
     }).forEach(p => this.hideNode(p));
 
-    // FIXME to much links being deleted (probably a data error)
+    // remove links from the graph
+    leaves = leaves.map(id => this.#people[id].viewId);
     this.viewGraph.links = this.viewGraph.links.filter(link => {
-      return !(leaves.includes(link.source.id)) && !(leaves.includes(link.target.id));
+      return !(leaves.includes(link.source.viewId)) && !(leaves.includes(link.target.viewId));
     });
 
     console.groupEnd();
@@ -491,7 +491,7 @@ if (!data) {
 setup(data.people, data.families);
 
 /**
- * Adjusts varius elements for mobile devices
+ * Adjusts various elements for mobile devices
  */
 function adjustForMobile() {
   // check if header overflows
