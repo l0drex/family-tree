@@ -50,24 +50,11 @@ class GraphManager {
       if (partner.length)
         this.#addGenerations(person, partner[0].generation);
     })
-    unknownGeneration = this.#people.filter(p => !p.generation && p.generation !== 0 && p.id);
+    // check that now everyone has a generation
+    unknownGeneration = unknownGeneration.filter(p => !p.generation && p.generation !== 0 && p.id);
     console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration)
 
-    // estimate age to mark dead people dead without any birth or death dates,
-    // assuming each generation is around 25 year apart
-    let unknownAgePeople = this.#people.filter(p => !p.age)
-    let birthYear;
-    if (startPerson.birthday)
-      birthYear = startPerson.birthday.substr(6, 4);
-    else
-      // use a person from the same generation
-      birthYear = this.#people.filter(p => p.generation === 0 && p.birthday)[0].birthday.substr(6, 4);
-    let ageToday = new Date().getFullYear() - birthYear;
-
-    unknownAgePeople.filter(p => p.generation || p.generation === 0).forEach(p => {
-      p.age = ageToday + p.generation * 25;
-      p.dead = p.dead || p.age > 120;
-    });
+    this.#estimateAges();
 
     this.#startViewgraph(startPerson);
   }
@@ -99,6 +86,20 @@ class GraphManager {
     person.generation = generation;
     this.#getParents(person).forEach(p => this.#addGenerations(p, generation + 1));
     this.#getChildren(person).forEach(c => this.#addGenerations(c, generation - 1));
+  }
+
+  /**
+   * Estimate age to mark dead people as dead without knowing birth or death dates,
+   * assuming each generation is around 25 years apart.
+   */
+  #estimateAges() {
+    // add the age of anyone in gen 0 to the estimated age
+    let offset = new Date().getFullYear() - this.#people.filter(p => p.generation === 0 && p.birthday)[0].birthday.substr(6, 4);
+
+    this.#people.filter(p => !p.age && (p.generation || p.generation === 0)).forEach(p => {
+      p.age = offset + p.generation * 25;
+      p.dead = p.dead || p.age > 120;
+    });
   }
 
   /**
@@ -187,8 +188,8 @@ class GraphManager {
     if (family.members.includes(0))
       console.warn("Person \"Unknown\" is in the family!");
 
-    // replace existing etc nodes with a family node
-    family.type = "family";
+    // replace existing etc node with a family node
+    family.type = family.type.replace("etc", "family");
     this.showNode(family);
 
     family.members.forEach(p => {
