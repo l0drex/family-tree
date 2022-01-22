@@ -117,6 +117,13 @@ function setupUploadForm() {
       familiesTable = file.target.result;
       loadGraph();
     }
+    readerFamily.onerror = (event) => {
+      showError({
+        en: "The family file could not be loaded!",
+        de: "Die Familiendatei konnte nicht gelesen werden!"
+      }, "family-file")
+      console.error(event.target.error);
+    };
     readerFamily.readAsText(familyFile);
 
     let readerPeople = new FileReader();
@@ -124,6 +131,13 @@ function setupUploadForm() {
       peopleTable = file.target.result;
       loadGraph();
     }
+    readerPeople.onerror = (event) => {
+      showError({
+        en: "The people file could not be read!",
+        de: "Die Personendatei konnte nicht gelesen werden!"
+      }, "people-file")
+      console.error(event.target.error);
+    };
     readerPeople.readAsText(peopleFile);
   };
 }
