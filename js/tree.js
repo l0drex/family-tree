@@ -360,9 +360,9 @@ I have changed the default zoom behavior to the following one:
 */
 let svgZoom = d3.zoom()
   .on("start", () => {
-    switch (event.type) {
+    switch (d3.event.type) {
       case "wheel":
-        if (event.wheelDelta < 0)
+        if (d3.event.wheelDelta < 0)
           svg.node().style.cursor = "zoom-out";
         else
           svg.node().style.cursor = "zoom-in";
@@ -381,9 +381,9 @@ let svgZoom = d3.zoom()
     svg.node().style.cursor = "";
   })
   .filter(() => {
-    switch (event.type) {
+    switch (d3.event.type) {
       case "wheel":
-        return event.ctrlKey;
+        return d3.event.ctrlKey;
       case "dblclick":
         return false;
       default:
