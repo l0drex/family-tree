@@ -220,7 +220,6 @@ class GraphManager {
         console.debug("Adding etc for", person.fullName)
         otherFamilies.forEach(family => {
           family.type = "etc";
-          family.target = p;
 
           if (family.children.includes(p) && person.married) {
             this.showNode(family);
@@ -279,18 +278,17 @@ class GraphManager {
         case "person":
           return leaves.includes(node.id);
         case "etc":
-          return leaves.includes(node.target);
+          let visibleMembers = node.members.filter(person => !(leaves.includes(person)) && (typeof this.#people[person].viewId === "number"));
+          return visibleMembers.length === 0;
         case "family":
           // replace family that should be removed with an etc-node
-          let visibleMembers = node.members.filter(person => !(leaves.includes(person)));
-          if (visibleMembers.length === 1) {
+          if (node === family) {
             node.type = "etc";
-            node.target = visibleMembers[0];
-            console.debug("Replacing family with etc for target", this.#people[visibleMembers[0]].fullName);
+            console.debug("Replacing family with etc");
           }
           return false;
         default:
-          // this happens when the node type is not caught, e.g. when the node was previously removed
+          // this happens when the node type is not caught, e.g. when the node was previously hidden (type-removed)
           console.warn("Unknown node type", node);
           return false;
       }
