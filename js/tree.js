@@ -353,59 +353,21 @@ const d3cola = cola.d3adaptor(d3)
 I have changed the default zoom behavior to the following one:
  - Nothing on double click
  - Zoom with Ctrl + wheel
- - Move with wheel
+ - Move with wheel (shift changes the axes)
 */
 let svgZoom = d3.zoom()
-  .on("start", () => {
-    switch (d3.event.type) {
-      case "wheel":
-        if (d3.event.wheelDelta < 0)
-          svg.node().style.cursor = "zoom-out";
-        else
-          svg.node().style.cursor = "zoom-in";
-        break;
-    }
-  })
   .on("zoom", () => {
-    let transform = "";
-    if (d3.event.transform.k)
-      transform += `scale(${d3.event.transform.k})`
-    if (d3.event.transform.x && d3.event.transform.y)
-      transform += `translate(${d3.event.transform.x},${d3.event.transform.y})`
-    svg.select("#vis").attr("transform", transform)
-  })
-  .on("end", () => {
-    svg.node().style.cursor = "";
-  })
-  .filter(() => {
-    switch (d3.event.type) {
-      case "wheel":
-        return d3.event.ctrlKey;
-      case "dblclick":
-        return false;
-      default:
-        return true;
+    if (d3.event.sourceEvent.type === "wheel") {
+      if (d3.event.sourceEvent.wheelDelta < 0)
+        svg.node().style.cursor = "zoom-out";
+      else
+        svg.node().style.cursor = "zoom-in";
     }
-  });
-let touchstart;
-svg
-  .on("touchstart", () => {
-    touchstart = d3.event.touches;
+    svg.select("#vis").attr("transform", d3.event.transform.toString());
   })
-  .on("touchmove", () => {
-    let movementX = touchstart[0].clientX - d3.event.touches[0].clientX;
-    let movementY = touchstart[0].clientY - d3.event.touches[0].clientY;
-    touchstart = d3.event.touches;
-    svgZoom.translateBy(svg.select("#background"), -movementX, -movementY);
-  })
-  .call(svgZoom)
-// TODO fix jump between d3-native and external transform states
-svg.on("wheel", () => {
-  if (d3.event.shiftKey)
-    svgZoom.translateBy(svg.select("#background"), -d3.event.deltaY, -d3.event.deltaX);
-  else if (!d3.event.ctrlKey)
-    svgZoom.translateBy(svg.select("#background"), -d3.event.deltaX, -d3.event.deltaY);
-});
+  .on("end", () => { svg.node().style.cursor = ""; })
+  .filter(() => d3.event.type !== "dblclick");
+svg.call(svgZoom);
 
 // define layers
 let nodesLayer = svg.select("#nodes");
