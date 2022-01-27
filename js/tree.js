@@ -366,7 +366,10 @@ let svgZoom = d3.zoom()
     svg.select("#vis").attr("transform", d3.event.transform.toString());
   })
   .on("end", () => { svg.node().style.cursor = ""; })
-  .filter(() => d3.event.type !== "dblclick");
+  .filter(() => d3.event.type !== "dblclick")
+  .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
+
+console.log("Touchsupport:", svgZoom.touchable()());
 svg.call(svgZoom);
 
 // define layers
