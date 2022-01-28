@@ -4,7 +4,8 @@ import {config, localize, showError, translationToString} from "./main.js";
 class GraphManager {
   viewGraph = {
     nodes: [],
-    links: []
+    links: [],
+    constraints: []
   };
   #people;
   #families;
@@ -143,6 +144,31 @@ class GraphManager {
     return partners;
   }
 
+  #addToConstraints(person) {
+    let index = 50 + person.generation;
+    let constraint = this.viewGraph.constraints[index];
+    if (!constraint) {
+      console.log("Adding new constraint for gen", person.generation)
+      constraint = {
+        type: "alignment",
+        axis: "y",
+        generation: person.generation,
+        offsets: []
+      }
+    }
+
+    let offset = {
+      node: person.viewId,
+      offset: 0
+    };
+
+    if (!(constraint.offsets.includes(offset))) {
+      constraint.offsets.push(offset);
+    }
+
+    this.viewGraph.constraints[index] = constraint;
+  }
+
   /**
    * Adds the node to the view
    * @param node
@@ -160,6 +186,10 @@ class GraphManager {
 
     node.viewId = this.viewGraph.nodes.length;
     this.viewGraph.nodes.push(node);
+
+    if (node.type === "person")
+      this.#addToConstraints(node);
+
     return true;
   }
 
@@ -601,10 +631,13 @@ async function draw() {
     "Viewgraph has no nodes!");
   console.assert(graphManager.viewGraph.links.length > 0,
     "Viewgraph has no links!");
+  console.assert(graphManager.viewGraph.constraints.length > 0,
+    "Viewgraph has no constraints!");
 
   d3cola
     .nodes(graphManager.viewGraph.nodes)
     .links(graphManager.viewGraph.links)
+    .constraints(graphManager.viewGraph.constraints)
     .start(0, 5, 10);
 
   // the following lines define content and style of all the svg elements in the graph
