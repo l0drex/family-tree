@@ -94,7 +94,13 @@ class GraphManager {
    */
   #estimateAges() {
     // add the age of anyone in gen 0 to the estimated age
-    let offset = new Date().getFullYear() - this.#people.filter(p => p.generation === 0 && p.birthday)[0].birthday.substr(6, 4);
+    let sameGeneration = this.#people.filter(p => p.generation === 0 && p.birthday);
+    if (!sameGeneration.length) {
+      console.warn("Age estimation failed because no person with a given age in generation 0 could be found!")
+      return;
+    }
+
+    let offset = new Date().getFullYear() - sameGeneration[0].birthday.substr(6, 4);
 
     this.#people.filter(p => !p.age && (p.generation || p.generation === 0)).forEach(p => {
       p.age = offset + p.generation * 25;
