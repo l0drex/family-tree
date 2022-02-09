@@ -101,7 +101,7 @@ class GraphManager {
       return;
     }
 
-    let offset = new Date().getFullYear() - sameGeneration[0].birthday.substr(6, 4);
+    let offset = new Date().getFullYear() - sameGeneration[0].birthday.substring(6, 10);
 
     this.#people.filter(p => !p.age && (p.generation || p.generation === 0)).forEach(p => {
       p.age = offset + p.generation * 25;
@@ -646,7 +646,7 @@ async function draw() {
   d3cola
     .nodes(graphManager.viewGraph.nodes)
     .links(graphManager.viewGraph.links)
-    .constraints(graphManager.viewGraph.constraints)
+    //.constraints(graphManager.viewGraph.constraints)
     .start(0, 5, 10);
 
   // the following lines define content and style of all the svg elements in the graph
