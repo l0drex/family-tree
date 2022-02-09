@@ -314,7 +314,8 @@ class GraphManager {
         case "person":
           return leaves.includes(node.id);
         case "etc":
-          let visibleMembers = node.members.filter(person => !(leaves.includes(person)) && (typeof this.#people[person].viewId === "number"));
+          let visibleMembers = node.members.filter(person =>
+            !(leaves.includes(person)) && (typeof this.#people[person].viewId === "number" && this.#people[person].type === "person"));
           return visibleMembers.length === 0;
         case "family":
           // replace family that should be removed with an etc-node
@@ -401,7 +402,9 @@ let svgZoom = d3.zoom()
     }
     svg.select("#vis").attr("transform", d3.event.transform.toString());
   })
-  .on("end", () => { svg.node().style.cursor = ""; })
+  .on("end", () => {
+    svg.node().style.cursor = "";
+  })
   .filter(() => d3.event.type !== "dblclick")
   .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
 
