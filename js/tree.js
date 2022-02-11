@@ -394,7 +394,7 @@ I have changed the default zoom behavior to the following one:
 */
 let svgZoom = d3.zoom()
   .on("zoom", () => {
-    if (d3.event.sourceEvent.type === "wheel") {
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === "wheel") {
       if (d3.event.sourceEvent.wheelDelta < 0)
         svg.node().style.cursor = "zoom-out";
       else
