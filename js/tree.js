@@ -646,8 +646,18 @@ async function draw() {
   d3cola
     .nodes(graphManager.viewGraph.nodes)
     .links(graphManager.viewGraph.links)
-    //.constraints(graphManager.viewGraph.constraints)
-    .start(0, 5, 10);
+    .constraints(graphManager.viewGraph.constraints)
+    /*
+    Adding some documentation since it's kinda hard to find:
+    1. Iterations with no constraints
+    2. Only structural (user-specified) constraints
+    3. Iterations of layout with all constraints including anti-overlap constraints
+    4. Not documented, but used in gridified small groups example.
+       Seems to be the iterations while visible or something like that
+
+    src: https://marvl.infotech.monash.edu/webcola/, at the bottom of the page
+     */
+    .start(10, 10, 10);
 
   // the following lines define content and style of all the svg elements in the graph
 
