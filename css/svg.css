@@ -4,6 +4,14 @@ svg {
   border: solid var(--background);
 }
 
+#family-tree:hover {
+  cursor: grab;
+}
+
+#family-tree:active {
+  cursor: grabbing;
+}
+
 #family-tree polyline {
   stroke: var(--foreground);
 }
@@ -73,20 +81,25 @@ svg {
   border-radius: 1rem;
   border-style: solid;
   border-width: .25rem;
+  border-color: var(--background);
+  background-color: var(--background);
 }
 
-.person.weiblich .bg {
+.person.female .bg {
   background-color: var(--female);
   border-color: var(--female);
 }
 
-.person.männlich .bg {
+.person.male .bg {
   background-color: var(--male);
   border-color: var(--male);
 }
 
-.person.unknown .bg {
-  border: var(--lines) solid;
+.person.divers .bg {
+  background: linear-gradient(to right, red, orange, green, blue, purple);
+  border-color: #0000;
+  border-left-color: red;
+  border-right-color: purple;
 }
 
 .person.focused .bg {
@@ -120,6 +133,10 @@ svg {
     --male: #254579;
     --female: #911c1c;
     background: black;
+  }
+  .person .bg {
+    border-color: var(--background-lower);
+    background-color: var(--background-lower);
   }
   .person:not(.dead) .text-bg {
     background: var(--background);

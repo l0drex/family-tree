@@ -269,6 +269,10 @@ input[type=submit]:active, button:active {
   background: var(--positive-green);
 }
 
+.file-upload.file-dropping {
+  box-shadow: 0 0 1rem var(--primary);
+}
+
 .file-upload *:not(:last-child) {
   margin-bottom: .5rem;
 }
@@ -305,6 +309,11 @@ input[type=search]:focus {
   background: none;
   padding: revert;
   border-radius: 0;
+}
+
+.search input[type=submit]:hover {
+  box-shadow: none;
+  text-shadow: 0 0 1rem var(--primary);
 }
 
 button:hover, input[type=submit]:hover, input[type=file] {
