@@ -619,7 +619,7 @@ function insertData(person) {
   html.querySelector(".years").innerHTML =
     (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : "");
   html.querySelector(".age").innerHTML =
-    ((person.age && person.dayOfDeath) ? person.age : "?");
+    ((person.age && (person.dayOfDeath || person.age < 120)) ? person.age : "?");
   html.querySelector(".profession").innerHTML =
     (person.profession ? person.profession : "?");
   html.querySelector(".religion").innerHTML =
