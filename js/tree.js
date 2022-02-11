@@ -405,7 +405,7 @@ let svgZoom = d3.zoom()
   .on("end", () => {
     svg.node().style.cursor = "";
   })
-  .filter(() => d3.event.type !== "dblclick")
+  .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
   .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
 
 console.log("Touchsupport:", svgZoom.touchable()());
