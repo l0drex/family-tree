@@ -394,12 +394,6 @@ I have changed the default zoom behavior to the following one:
 */
 let svgZoom = d3.zoom()
   .on("zoom", () => {
-    // this happens on double-tap on touchscreens
-    if (!d3.event.sourceEvent) {
-      console.debug("Ignoring double tap")
-      return;
-    }
-
     if (d3.event.sourceEvent.type === "wheel") {
       if (d3.event.sourceEvent.wheelDelta < 0)
         svg.node().style.cursor = "zoom-out";
