@@ -21,6 +21,6 @@
   "repository": "https://github.com/l0drex/family-tree",
   "dependencies": {
     "webcola": "latest",
-    "d3": "4.13.0"
+    "d3": "7.4.2"
   }
 }
