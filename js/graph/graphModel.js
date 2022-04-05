@@ -2,8 +2,7 @@ import {config} from "../main.js";
 
 export let viewGraph = {
   nodes: [],
-  links: [],
-  constraints: []
+  links: []
 };
 let people;
 let families;
@@ -145,31 +144,6 @@ function getPartners(person) {
   return partners;
 }
 
-function addToConstraints(person) {
-  let index = 50 + person.generation;
-  let constraint = viewGraph.constraints[index];
-  if (!constraint) {
-    console.log("Adding new constraint for gen", person.generation);
-    constraint = {
-      type: "alignment",
-      axis: "y",
-      generation: person.generation,
-      offsets: []
-    };
-  }
-
-  let offset = {
-    node: person.viewId,
-    offset: 0
-  };
-
-  if (!(constraint.offsets.includes(offset))) {
-    constraint.offsets.push(offset);
-  }
-
-  viewGraph.constraints[index] = constraint;
-}
-
 /**
  * Adds the node to the view
  * @param node
@@ -187,12 +161,6 @@ function showNode(node) {
 
   node.viewId = viewGraph.nodes.length;
   viewGraph.nodes.push(node);
-
-  if (node.type === "person") {
-    addToConstraints(node);
-  }
-
-
 
   return true;
 }

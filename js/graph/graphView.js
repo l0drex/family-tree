@@ -27,7 +27,6 @@ let linkLayer = svg.select("#links");
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
   d3cola.flowLayout("x", config.gridSize * 1.5 + config.gridSize*2.5 + config.gridSize*.5)
     .symmetricDiffLinkLengths(config.gridSize)
-    .avoidOverlaps(true)
     .size(viewportSize);
 
   // catch the transformation events
@@ -229,15 +228,12 @@ export function draw(viewGraph, startPerson) {
     "Viewgraph has no nodes!");
   console.assert(viewGraph.links.length > 0,
     "Viewgraph has no links!");
-  console.assert(viewGraph.constraints.length > 0,
-    "Viewgraph has no constraints!");
 
   setName(startPerson.fullName);
 
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
-    //.constraints(viewGraph.constraints)
     /*
     Adding some documentation since it's kinda hard to find:
     1. Iterations with no constraints
@@ -248,7 +244,7 @@ export function draw(viewGraph, startPerson) {
 
     src: https://marvl.infotech.monash.edu/webcola/, at the bottom of the page
      */
-    .start(10, 10, 10);
+    .start(10, 0, 10);
 
   // the following lines define content and style of all the svg elements in the graph
 
