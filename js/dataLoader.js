@@ -16,8 +16,9 @@ function buildPromise(people, families) {
         "people": people,
         "families": families
       });
-    } else
+    } else {
       reject();
+    }
   });
 }
 
@@ -54,10 +55,12 @@ export function loadCsv(peopleTable, familyTable) {
     // map family index -> children array
     if (id && person.child_of !== "") {
       let child_of = Number(person.child_of);
-      if (children[child_of] === undefined)
+      if (children[child_of] === undefined) {
         children[child_of] = [id];
-      else
+      }
+      else {
         children[child_of].push(id);
+      }
     }
 
     return {
@@ -74,7 +77,7 @@ export function loadCsv(peopleTable, familyTable) {
       religion: person.religion,
       married: false,
       parentsKnown: person.child_of !== ""
-    }
+    };
   });
 
   familyData = csvParse(familyTable, family => {
@@ -86,7 +89,7 @@ export function loadCsv(peopleTable, familyTable) {
       // filter out person  with id 0
       partners: [Number(family.partner1), Number(family.partner2)].filter(id => id),
       begin: family.begin
-    }
+    };
   });
 
   // append children to each family
@@ -94,5 +97,5 @@ export function loadCsv(peopleTable, familyTable) {
     family.children = Number(family.id) in children ? children[Number(family.id)] : [];
   });
 
-  return buildPromise(personData, familyData)
+  return buildPromise(personData, familyData);
 }
