@@ -1,6 +1,6 @@
-import * as graphModel from "./graphModel";
-import * as graphView from "./graphView";
-import {showError, hideError} from "../main";
+import * as graphModel from "./graphModel.js";
+import * as graphView from "./graphView.js";
+import {showError, hideError} from "../main.js";
 
 
 (function init() {
@@ -20,7 +20,10 @@ import {showError, hideError} from "../main";
   // get id from url
   let url = new URL(window.location);
   let id = Number(url.searchParams.get("id")) || 1;
-  graphModel.init(data.people, data.families, id).then(graphView.draw);
+
+  graphModel.setData(data);
+  graphModel.setStartPerson(id);
+  graphView.draw(graphModel.viewGraph, graphModel.startPerson);
 })();
 
 /**
@@ -55,11 +58,9 @@ export function searchFamily(name) {
 }
 
 export function showFamily(family) {
-  graphModel.showFamily(family);
-  graphView.draw();
+  graphModel.showFamily(family).then(graph => graphView.draw(graph, graphModel.startPerson));
 }
 
 export function hideFamily(family) {
-  graphModel.hideFamily(family);
-  graphView.draw();
+  graphModel.hideFamily(family).then(graph => graphView.draw(graph, graphModel.startPerson));
 }

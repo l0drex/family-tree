@@ -224,7 +224,7 @@ function setName(name) {
  * Adds svg elements for each node and link in the view graph.
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
  */
-export function draw(viewGraph, startNode) {
+export function draw(viewGraph, startPerson) {
   console.assert(viewGraph.nodes.length > 0,
     "Viewgraph has no nodes!");
   console.assert(viewGraph.links.length > 0,
@@ -232,7 +232,7 @@ export function draw(viewGraph, startNode) {
   console.assert(viewGraph.constraints.length > 0,
     "Viewgraph has no constraints!");
 
-  setName(startNode.fullName);
+  setName(startPerson.fullName);
 
   d3cola
     .nodes(viewGraph.nodes)
@@ -265,7 +265,7 @@ export function draw(viewGraph, startNode) {
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
-    .classed("locked", f => f.members.includes(startNode.id));
+    .classed("locked", f => f.members.includes(startPerson.id));
   newPartners.append("polyline")
     .attr("points",
       `0,0 0,${config.personDiff}`);
@@ -274,17 +274,17 @@ export function draw(viewGraph, startNode) {
   newPartners.append("text")
     .text(d => d.begin ? `⚭ ${d.begin}` : "")
     .attr("y", -20);
-  newPartners.filter(f => f.members.includes(startNode.id))
+  newPartners.filter(f => f.members.includes(startPerson.id))
     .append("title")
     .text(f => {
-      if (f.members.includes(startNode.id)) {
+      if (f.members.includes(startPerson.id)) {
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
       }
     });
-  let notLocked = newPartners.filter(f => !(f.members.includes(startNode.id)))
+  let notLocked = newPartners.filter(f => !(f.members.includes(startPerson.id)))
     .on("click", hideFamily);
   notLocked.append("text")
     .text("-")
@@ -326,7 +326,7 @@ export function draw(viewGraph, startNode) {
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height())
-    .classed("focused", d => d.id === startNode.id)
+    .classed("focused", d => d.id === startPerson.id)
     .on("click", toggleInfo)
     .call(d3cola.drag)
     .append(d => insertData(d));

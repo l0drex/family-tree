@@ -1,19 +1,21 @@
-import {config} from "../main";
+import {config} from "../main.js";
 
-export let loaded = false;
-let viewGraph = {
+export let viewGraph = {
   nodes: [],
   links: [],
   constraints: []
 };
 let people;
 let families;
-export let startNode;
+export let startPerson;
 
 
-export function init(peopleList, familyList, startPersonId = 1) {
+export function setData(data) {
+  people = data.people;
+  families = data.families;
+
   // add some necessary data
-  peopleList.forEach(person => {
+  people.forEach(person => {
     person.width = config.personNodeSize[0];
     person.height = config.personNodeSize[1];
     person.infoVisible = false;
@@ -25,25 +27,29 @@ export function init(peopleList, familyList, startPersonId = 1) {
       person.gender = "female";
     }
   });
-  people = peopleList;
 
-  familyList.forEach(family => {
+  families.forEach(family => {
     family.height = family.width = config.margin * 2;
     family.type = "family";
     family.members = family.partners.concat(family.children);
   });
-  families = familyList;
+}
 
-  let startPerson = people[startPersonId];
+export function setStartPerson(id) {
+  if (!people.length || !families.length) {
+    throw "Start person can not be defined before data is loaded!";
+  }
+
+  startPerson = people[id];
+  console.info("Starting graph with", startPerson.fullName);
 
   // find generations
   addGenerations(startPerson, 0);
-  // FIXME hotfix for people with undefined generation
   let unknownGeneration = people.filter(p => !p.generation && p.generation !== 0);
   unknownGeneration.forEach(person => {
-    let partner = getPartners(person).filter(p => p.generation || p.generation === 0);
-    if (partner.length) {
-      addGenerations(person, partner[0].generation);
+    let partners = getPartners(person).filter(p => p.generation || p.generation === 0);
+    if (partners.length) {
+      addGenerations(person, partners[0].generation);
     }
   });
   // check that now everyone has a generation
@@ -51,30 +57,12 @@ export function init(peopleList, familyList, startPersonId = 1) {
   console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration);
 
   estimateAges();
+  startPerson.infoVisible = true;
 
-  loaded = true;
-
-  return startViewgraph(startPerson);
-}
-
-/**
- * Adds the startPerson and her / his  families to the initial view
- * @param startPerson person with who to start
- */
-function startViewgraph(startPerson) {
-  startNode = startPerson;
-  startNode.infoVisible = true;
-
-  console.info("Starting graph with", startPerson.fullName);
   families.filter(f => f.members.includes(startPerson.id))
     .forEach(p => showFamily(p));
-  return new Promise((resolve, reject) => {
-    if (viewGraph) {
-      resolve(viewGraph, startNode);
-    } else {
-      reject();
-    }
-  });
+
+  return id;
 }
 
 /**
@@ -287,6 +275,8 @@ export function showFamily(family) {
     }
   });
   console.groupEnd();
+
+  return new Promise(resolve => resolve(viewGraph));
 }
 
 /**
@@ -294,9 +284,9 @@ export function showFamily(family) {
  * @param family
  */
 export function hideFamily(family) {
-  if (family.members.includes(startNode.id)) {
+  if (family.members.includes(startPerson.id)) {
     console.warn("Initial families cannot be removed!");
-    return;
+    return new Promise(resolve => resolve(viewGraph, startPerson));
   }
 
   console.groupCollapsed(`Hiding family ${family.partners}`);
@@ -353,6 +343,7 @@ export function hideFamily(family) {
   });
 
   console.groupEnd();
+  return new Promise(resolve => resolve(viewGraph));
 }
 
 /**
