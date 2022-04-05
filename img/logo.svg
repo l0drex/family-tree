@@ -37,7 +37,7 @@
   <g
      transform="matrix(.076212 0 0 .076212 13.201 22.857)"
      id="tree"
-     style="stroke:#000000;stroke-opacity:1;stroke-width:0.99721829;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:round">
+     style="stroke:#000000;stroke-opacity:1;stroke-width:3;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:round;stroke-linejoin:round">
     <path
        d="M 102.67044,121.14977 C 79.305443,79.862769 82.255,37.101 92.8792,-1.57 l -98.384,-1.1806 c -12.505957,43.605332 -31.489474,89.15528 -49.284757,123.90037"
        fill="#8c4c20"
