@@ -1,12 +1,12 @@
 {
-  "short_name": "",
-  "name": "",
+  "short_name": "family tree",
+  "name": "family tree visualizer",
   "icons": [{
-    "src": "icon.png",
+    "src": "img/icon.png",
     "type": "image/png",
     "sizes": "192x192"
   }],
   "start_url": "/?utm_source=homescreen",
-  "background_color": "#fafafa",
-  "theme_color": "#fafafa"
+  "background_color": "#ffffff",
+  "theme_color": "#4141ff"
 }
