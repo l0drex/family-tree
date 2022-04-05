@@ -1,7 +1,9 @@
 svg {
   --male: #9bcfec;
   --female: #ff9494;
-  border: solid var(--background);
+  --grid-size: 16px;
+  margin: 0;
+  border-radius: 0;
 }
 
 #family-tree:hover {
@@ -12,34 +14,37 @@ svg {
   cursor: grabbing;
 }
 
-#family-tree polyline {
-  stroke: var(--foreground);
-}
-
 #family-tree marker {
   fill: var(--foreground);
 }
 
 #family-tree text {
   fill: var(--foreground);
-  font-size: 14px;
+  font-size: var(--grid-size);
   text-anchor: middle;
   stroke: none;
 }
 
 .link {
   fill: none;
+  stroke: var(--foreground);
+  stroke-width: .2rem;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .etc, .partnerNode {
-  fill: var(--background);
-  stroke: var(--foreground);
+  fill: var(--background-higher);
   text-anchor: middle;
   cursor: pointer;
 }
 
 #family-tree .partnerNode.locked {
   cursor: not-allowed;
+}
+
+#family-tree .partnerNode text {
+  text-anchor: end;
 }
 
 #family-tree .infoBackground {
@@ -57,6 +62,7 @@ svg {
   color: var(--foreground);
   overflow: visible;
   cursor: pointer;
+  font-size: var(--grid-size);
 }
 
 .person:active {
@@ -64,9 +70,10 @@ svg {
 }
 
 .person p {
-  font-size: 14px;
-  margin: .1rem;
+  margin: 0;
   text-align: center;
+  /*line-height: 1.25;*/
+  line-height: 1;
 }
 
 .person .addNames, .person .years {
@@ -79,8 +86,8 @@ svg {
 
 .person .bg {
   border-radius: 1rem;
-  border-style: solid;
-  border-width: .25rem;
+  border-width: .2rem;
+  padding: .5rem .75rem;
   border-color: var(--background);
   background-color: var(--background);
 }
@@ -96,7 +103,7 @@ svg {
 }
 
 .person.divers .bg {
-  background: linear-gradient(to right, red, orange, green, blue, purple);
+  background: #a3eea3;
   border-color: #0000;
   border-left-color: red;
   border-right-color: purple;
@@ -107,6 +114,7 @@ svg {
 }
 
 .person.dead .bg {
+  border-style: solid;
   background-color: var(--background);
 }
 

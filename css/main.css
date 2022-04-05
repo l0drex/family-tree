@@ -15,10 +15,10 @@ html {
   --foreground: black;
   --foreground-secondary: #595959;
   --background: white;
-  --background-higher: #eaeaea;
+  --background-higher: #d2d2d2;
   --background-lower: var(--background-higher);
   --lines: #b6b6b6;
-  --primary: #4141ff;
+  --primary: #366120;
   --secondary: yellow;
   --positive-green: #91ff91;
   --warning-foreground: #595900;
@@ -107,7 +107,7 @@ html {
 
 body {
   font-family: sans-serif;
-  background: #d5d5d5;
+  background: var(--background-lower);
   height: 100%;
   display: flex;
   flex-flow: column;
@@ -136,7 +136,6 @@ header, footer {
   box-sizing: border-box;
   padding: .75rem 1rem;
   width: 100%;
-  background: var(--background);
 }
 
 header {
@@ -146,6 +145,8 @@ header {
   height: 4.5rem;
   display: flex;
   align-items: center;
+  background: var(--primary);
+  color: white;
 }
 
 header * {
@@ -160,6 +161,7 @@ header > *:not(:last-child) {
 footer {
   text-align: center;
   color: var(--foreground-secondary);
+  background: var(--background-lower);
 }
 
 h1 * {
@@ -167,7 +169,7 @@ h1 * {
 }
 
 main {
-  padding: 5.5rem 1rem 1rem;
+  padding: 4.5rem 0 0;
   box-sizing: border-box;
   flex-grow: 1;
   display: flex;
@@ -177,7 +179,7 @@ main {
 main > * {
   border-radius: .5rem;
   background: var(--background);
-  margin: 0 auto 1rem;
+  margin: 1rem auto 0;
   box-sizing: border-box;
 }
 
@@ -285,9 +287,9 @@ input[type=submit]:active, button:active {
 input[type=search] {
   border: none;
   border-radius: 0;
-  border-bottom: solid var(--foreground);
+  border-bottom: solid white;
   background: none;
-  color: var(--foreground);
+  color: white;
   padding: 0 .25rem;
   min-width: 10rem;
   width: 100%;
@@ -475,7 +477,7 @@ caption {
     --foreground: black;
     --foreground-secondary: #595959;
     --background: white;
-    --background-higher: #eaeaea;
+    --background-higher: #d2d2d2;
     /* TODO maybe find a better value */
     --background-lower: var(--background-higher);
     --lines: #b6b6b6;
@@ -484,10 +486,6 @@ caption {
     --warning-background: #ffff91;
     --error-foreground: #c00;
     --error-background: #ffe1e6;
-  }
-
-  body {
-    background: #d5d5d5;
   }
 
   ::selection {

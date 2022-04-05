@@ -16,8 +16,8 @@ export function setData(data) {
 
   // add some necessary data
   people.forEach(person => {
-    person.width = config.personNodeSize[0];
-    person.height = config.personNodeSize[1];
+    person.width = config.gridSize * 5;
+    person.height = config.gridSize;
     person.infoVisible = false;
     person.type = "person";
     // translate old-style gender attribute

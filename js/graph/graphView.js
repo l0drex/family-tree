@@ -25,8 +25,8 @@ let linkLayer = svg.select("#links");
 
   // setup of cola
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
-  d3cola.flowLayout("y", 60)
-    .symmetricDiffLinkLengths(40)
+  d3cola.flowLayout("x", config.gridSize * 1.5 + config.gridSize*2.5 + config.gridSize*.5)
+    .symmetricDiffLinkLengths(config.gridSize)
     .avoidOverlaps(true)
     .size(viewportSize);
 
@@ -155,7 +155,7 @@ function toggleInfo(person) {
   person.infoVisible = !person.infoVisible;
   let element = nodesLayer.select(`#p-${person.id}`)
     // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (person.infoVisible ? 190 : config.personNodeSize[1]) + (person.dead ? 8 : 0));
+    .attr("height", (person.infoVisible ? 190 : config.gridSize) + (person.dead ? 8 : 0));
   element.select(".addInfo")
     .classed("hidden", !person.infoVisible);
 
@@ -237,7 +237,7 @@ export function draw(viewGraph, startPerson) {
   d3cola
     .nodes(viewGraph.nodes)
     .links(viewGraph.links)
-    .constraints(viewGraph.constraints)
+    //.constraints(viewGraph.constraints)
     /*
     Adding some documentation since it's kinda hard to find:
     1. Iterations with no constraints
@@ -266,14 +266,12 @@ export function draw(viewGraph, startPerson) {
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
     .classed("locked", f => f.members.includes(startPerson.id));
-  newPartners.append("polyline")
-    .attr("points",
-      `0,0 0,${config.personDiff}`);
   newPartners.append("circle")
-    .attr("r", config.personNodeSize[1] / 2);
+    .attr("r", config.gridSize / 2);
   newPartners.append("text")
     .text(d => d.begin ? `⚭ ${d.begin}` : "")
-    .attr("y", -20);
+    .attr("x", "-24pt")
+    .attr("y", "5pt");
   newPartners.filter(f => f.members.includes(startPerson.id))
     .append("title")
     .text(f => {
@@ -303,7 +301,7 @@ export function draw(viewGraph, startPerson) {
   let etcGroup = etcNode.enter().append("g")
     .attr("class", "etc");
   etcGroup.append("circle")
-    .attr("r", config.personNodeSize[1] / 2);
+    .attr("r", config.gridSize / 2);
   etcGroup.append("text")
     .text("+")
     .attr("y", 5);
@@ -342,8 +340,8 @@ export function draw(viewGraph, startPerson) {
 
   d3cola.on("tick", () => {
     personNode
-      .attr("x", d => d.x - config.personNodeSize[0] / 2)
-      .attr("y", d => d.y - config.personNodeSize[1] / 2);
+      .attr("x", d => d.x - config.gridSize * 2.5)
+      .attr("y", d => d.y - config.gridSize / 2);
     partnerNode
       .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
     etcNode
@@ -352,11 +350,11 @@ export function draw(viewGraph, startPerson) {
     link
       .attr("points", d => {
         if (d.target.type === "family") {
-          return `${d.source.x},${d.source.y} ${d.source.x},${d.target.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y} ${d.target.x},${d.source.y} ${d.target.x},${d.target.y}`;
         } else if ([d.source.type, d.target.type].includes("etc")) {
           return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y + config.personDiff} ${d.target.x},${d.source.y + config.personDiff} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize*1.5},${d.source.y} ${d.source.x + config.gridSize*1.5},${d.target.y} ${d.target.x},${d.target.y}`;
         }});
   });
 }

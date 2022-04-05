@@ -2,8 +2,7 @@
 export const config = {
   // language to use
   browserLang: window.navigator.language.substr(0, 2),
-  // size of the peoples nodes
-  personNodeSize: [250, 32],
+  gridSize: 32,
   // distance between nodes
   margin: 20,
   // length of the vertical line between families (-) and their children
