@@ -346,14 +346,10 @@ caption {
   background: none;
 }
 
-.full-screen {
-  width: 100%;
-  height: 100%;
-}
-
 #family-tree {
   flex-grow: 2;
   margin-bottom: 0;
+  height: 100%;
 }
 
 .warning {
