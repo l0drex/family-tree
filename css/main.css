@@ -322,6 +322,12 @@ button:hover, input[type=submit]:hover, input[type=file] {
   cursor: pointer;
 }
 
+#tree-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
 table {
   overflow-x: auto;
   display: block;
