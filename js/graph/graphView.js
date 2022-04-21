@@ -331,7 +331,6 @@ export function draw(viewGraph, startPerson) {
     .attr("height", d => d.bounds.height())
     .classed("focused", d => d.id === startPerson.id)
     .on("click", toggleInfo)
-    .call(d3cola.drag)
     .append(d => insertData(d));
   personNode.exit().remove();
 
