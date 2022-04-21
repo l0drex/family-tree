@@ -8,7 +8,7 @@ const d3cola = cola.d3adaptor(d3);
 let nodesLayer = svg.select("#nodes");
 let linkLayer = svg.select("#links");
 
-(function init(){
+(function init() {
   // check if libraries loaded
   if (typeof cola === "undefined") {
     showError({
@@ -25,7 +25,7 @@ let linkLayer = svg.select("#links");
 
   // setup of cola
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
-  d3cola.flowLayout("x", config.gridSize * 1.5 + config.gridSize*2.5 + config.gridSize*.5)
+  d3cola.flowLayout("x", config.gridSize * 1.5 + config.gridSize * 2.5 + config.gridSize * .5)
     .symmetricDiffLinkLengths(config.gridSize)
     .size(viewportSize);
 
@@ -109,10 +109,13 @@ function adjustForMobile() {
   let form = document.getElementById("name-form");
   const headerOverflown = window.innerWidth <= 577;
   const formInHeader = form.parentElement.tagName === "HEADER";
+
   if (headerOverflown && formInHeader) {
+    // switch to mobile layout
     console.log("Optimizing form for small-width displays");
     form.remove();
     form.querySelectorAll("label[for=input-name]").forEach(label => {
+      // there are multiple labels for translations
       label.innerHTML = translationToString({
         en: "Name:",
         de: "Name:"
@@ -120,9 +123,15 @@ function adjustForMobile() {
       label.classList.add("sr-only");
     });
     let formArticle = document.createElement("article");
+    formArticle.style.width = "auto";
+    formArticle.style.position = "absolute";
+    formArticle.style.border = "solid var(--background-higher)";
+    formArticle.style.right = "1rem";
     formArticle.append(form);
     document.querySelector("main").prepend(formArticle);
+
   } else if (!headerOverflown && !formInHeader) {
+    // switch to desktop layout
     console.log("Optimizing form for wider-width displays");
     form.remove();
     form.querySelectorAll("label[for=input-name]").forEach(label => {
@@ -350,7 +359,8 @@ export function draw(viewGraph, startPerson) {
         } else if ([d.source.type, d.target.type].includes("etc")) {
           return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize*1.5},${d.source.y} ${d.source.x + config.gridSize*1.5},${d.target.y} ${d.target.x},${d.target.y}`;
-        }});
+          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.target.y} ${d.target.x},${d.target.y}`;
+        }
+      });
   });
 }
