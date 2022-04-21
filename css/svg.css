@@ -72,8 +72,7 @@ svg {
 .person p {
   margin: 0;
   text-align: center;
-  /*line-height: 1.25;*/
-  line-height: 1;
+  line-height: 1.25;
 }
 
 .person .addNames, .person .years {
@@ -142,10 +141,12 @@ svg {
     --female: #911c1c;
     background: black;
   }
+
   .person .bg {
     border-color: var(--background-lower);
     background-color: var(--background-lower);
   }
+
   .person:not(.dead) .text-bg {
     background: var(--background);
   }
