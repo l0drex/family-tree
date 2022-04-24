@@ -183,10 +183,6 @@ main > * {
   box-sizing: border-box;
 }
 
-main > :not(.hidden):last-child {
-  margin-bottom: 2rem;
-}
-
 article, .notification {
   padding: .75rem 1rem;
   max-width: 50rem;
@@ -322,11 +318,6 @@ button:hover, input[type=submit]:hover, input[type=file] {
   cursor: pointer;
 }
 
-#tree-container {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-}
 
 table {
   overflow-x: auto;

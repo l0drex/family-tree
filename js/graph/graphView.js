@@ -188,32 +188,51 @@ function insertData(person) {
 
   let panel = d3.select("#info-panel")
   panel.select(".fullName").html(person.fullName);
-  if (person.additionalNames.born) {
-    panel.select(".born")
-      .classed("hidden", false);
-    panel.select(".born")
-      .append(person.additionalNames.born);
-  }
-  if (person.additionalNames.named) {
-    panel.select(".named").node()
-      .classList.remove("hidden", person.additionalNames.named);
-    panel.select(".named")
-      .append(person.additionalNames.named);
-  }
-  panel.select(".years").html(
-    (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : ""));
-  panel.select(".age").html(
-    ((person.age && (person.dayOfDeath || person.age < 120)) ? person.age : "?"));
-  panel.select(".profession").html(
-    (person.profession ? person.profession : "?"));
-  panel.select(".religion").html(
-    (person.religion ? person.religion : "?"));
-  panel.select(".placeOfBirth").html(
-    (person.placeOfBirth ? person.placeOfBirth : "?"));
-  panel.selectAll(".generation").each((_, index, array) => {
-    let element = array[index]
-    element.innerHTML = element.innerHTML.replace(/%i/, person.generation)
-  });
+  panel.select(".birth-name")
+    .classed("hidden", !person.additionalNames.born)
+    .html(translationToString({
+      en: `born ${person.additionalNames.born}`,
+      de: `geboren ${person.additionalNames.born}`
+    }));
+  panel.select(".named")
+    .classed("hidden", !person.additionalNames.named)
+    .html(translationToString({
+      en: "named" + person.additionalNames.named,
+      de: "genannt" + person.additionalNames.named
+    }));
+  panel.select(".born")
+    .html(translationToString({
+      en: `born ${person.birthday ? "on " + person.birthday : ""} ` +
+        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
+        `(${person.generation}. generation)`,
+      de: `geboren ${person.birthday ? "am " + person.birthday : ""} ` +
+        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
+        `(${person.generation}. Generation)`
+    }));
+  panel.select(".religion")
+    .classed("hidden", !person.religion)
+    .html(translationToString({
+      en: "religion: " + person.religion,
+      de: "Religion: " + person.religion
+    }));
+  panel.select(".profession")
+    .classed("hidden", !person.profession)
+    .html(translationToString({
+      en: `working as ${person.profession}`,
+      de: `berufstätig als ${person.profession}`
+    }))
+  panel.select(".age")
+    .classed("hidden", person.dead)
+    .html(translationToString({
+      en: `today ${person.age} years old`,
+      de: `heute ${person.age} Jahre alt`
+    }))
+  panel.select(".death")
+    .classed("hidden", !person.dead)
+    .html(translationToString({
+      en: `died on ${person.dayOfDeath} with ${person.age} years`,
+      de: `verstorben ${person.dayOfDeath ? "am " + person.dayOfDeath : ""} ${person.age ? "mit " + person.age + " Jahren" : ""}`
+    }))
 
   return panel;
 }

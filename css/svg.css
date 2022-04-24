@@ -1,3 +1,32 @@
+/* things surrounding the graph view  */
+#tree-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+#info-panel {
+  background: #E1F2D9;
+  padding: 1rem;
+}
+
+#info-panel h1, #info-panel h2 {
+  text-align: center;
+}
+
+#info-panel .addInfo {
+  background: var(--background);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-radius: 1rem;
+}
+
+#info-panel .addInfo li:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+/* graph view */
+
 svg {
   --male: #9bcfec;
   --female: #ff9494;
