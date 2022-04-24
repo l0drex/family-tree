@@ -29,59 +29,6 @@
   <script src="js/graph/graphController.js" type="module"></script>
 </head>
 <body>
-<!--Template for person node contents-->
-<template id="info-template">
-  <div class="bg" xmlns="http://www.w3.org/1999/xhtml">
-    <p class="fullName"></p>
-    <div class="addInfo hidden">
-      <p>
-        <span class="born hidden">
-          <span lang="en">born</span>
-          <span lang="de">geb.</span>
-        </span>
-        <span class="named hidden">
-          <span lang="en">named</span>
-          <span lang="de">genannt</span>
-        </span>
-      </p>
-      <p class="years"></p>
-
-      <div class="text-bg">
-        <table class="table-layout">
-          <tbody>
-          <tr>
-            <td lang="en">Age:</td>
-            <td lang="de">Alter:</td>
-            <td>
-              <span class="age"></span>
-              <span class="generation" lang="en">(%i. generation)</span>
-              <span class="generation" lang="de">(%i. Generation)</span>
-            </td>
-          </tr>
-
-          <tr>
-            <td lang="en">Profession:</td>
-            <td lang="de">Beruf:</td>
-            <td class="profession"></td>
-          </tr>
-
-          <tr>
-            <td lang="en">Religion:</td>
-            <td lang="de">Religion:</td>
-            <td class="religion"></td>
-          </tr>
-
-          <tr>
-            <td lang="en">Place of birth:</td>
-            <td lang="de">Geburtsort:</td>
-            <td class="placeOfBirth"></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</template>
 <!--Templates for messages-->
 <template id="warning">
   <div class="notification warning">
@@ -114,7 +61,7 @@
 </header>
 <main>
   <div id="tree-container">
-    <svg id="family-tree">
+    <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml">
       <!--Definition for arrow ends-->
       <defs>
         <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
@@ -130,6 +77,54 @@
       </g>
     </svg>
     <aside id="info-panel">
+      <p class="fullName"></p>
+      <div class="addInfo">
+        <p>
+        <span class="born hidden">
+          <span lang="en">born</span>
+          <span lang="de">geb.</span>
+        </span>
+          <span class="named hidden">
+          <span lang="en">named</span>
+          <span lang="de">genannt</span>
+        </span>
+        </p>
+        <p class="years"></p>
+
+        <div class="text-bg">
+          <table class="table-layout">
+            <tbody>
+            <tr>
+              <td lang="en">Age:</td>
+              <td lang="de">Alter:</td>
+              <td>
+                <span class="age"></span>
+                <span class="generation" lang="en">(%i. generation)</span>
+                <span class="generation" lang="de">(%i. Generation)</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td lang="en">Profession:</td>
+              <td lang="de">Beruf:</td>
+              <td class="profession"></td>
+            </tr>
+
+            <tr>
+              <td lang="en">Religion:</td>
+              <td lang="de">Religion:</td>
+              <td class="religion"></td>
+            </tr>
+
+            <tr>
+              <td lang="en">Place of birth:</td>
+              <td lang="de">Geburtsort:</td>
+              <td class="placeOfBirth"></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </aside>
   </div>
 </main>

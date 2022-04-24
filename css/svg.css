@@ -39,7 +39,7 @@ svg {
   cursor: pointer;
 }
 
-#family-tree .partnerNode.locked {
+.partnerNode.locked {
   cursor: not-allowed;
 }
 
@@ -47,11 +47,11 @@ svg {
   text-anchor: end;
 }
 
-#family-tree .infoBackground {
+.infoBackground {
   fill: var(--background);
 }
 
-#family-tree #background {
+#background {
   fill: transparent;
   stroke: none;
 }
@@ -108,7 +108,7 @@ svg {
   border-right-color: purple;
 }
 
-.person.focused .bg {
+#focusPerson .bg {
   box-shadow: 0 0 1rem var(--primary);
 }
 

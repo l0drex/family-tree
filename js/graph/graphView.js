@@ -7,6 +7,7 @@ const d3cola = cola.d3adaptor(d3);
 // define layers
 let nodesLayer = svg.select("#nodes");
 let linkLayer = svg.select("#links");
+let focusPerson;
 
 (function init() {
   // check if libraries loaded
@@ -51,7 +52,7 @@ let linkLayer = svg.select("#links");
     })
     .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
     .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
-  svg.call(svgZoom);
+  svg.select("#background").call(svgZoom);
 
   // translate form placeholder
   let inputName = form.select("#input-name");
@@ -154,78 +155,67 @@ export function addOptions(people) {
 }
 
 /**
- * Toggle the info of a person
- * @param person person node
+ * Fills the information panel, adjusts the style and shows relevant people in the tree
+ * @param person
  */
-function toggleInfo(person) {
-  console.assert(person.type === "person");
+function setFocus(person) {
+  focusPerson = person;
 
-  person.infoVisible = !person.infoVisible;
-  let element = nodesLayer.select(`#p-${person.id}`)
-    // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (person.infoVisible ? 190 : config.gridSize) + (person.dead ? 8 : 0));
-  element.select(".addInfo")
-    .classed("hidden", !person.infoVisible);
+  // set name in search field
+  let inputName = document.getElementById("input-name");
+  inputName.value = "";
+  inputName.placeholder = person.fullName;
+  document.title = `${translationToString({
+    en: "Family tree of",
+    de: "Stammbaum von"
+  })} ${person.fullName}`;
 
-  // move element to the top
-  element.remove();
-  nodesLayer.node().append(element.node());
+  // fill side panel with relevant information
+  insertData(person);
+
+  // set focused style
+  nodesLayer.selectAll(".person")
+    .attr("id", d => d.id === focusPerson.id ? "focusPerson" : "");
 }
 
 /**
- * Inserts data in a person node html template
+ * Fills out data in the side panel
  * @param person person node
  * @return {Node | ActiveX.IXMLDOMNode} the html content
  */
 function insertData(person) {
-  console.assert(person.type === "person", "Incorrect node type!");
+  console.assert(person.type === "person", `Incorrect node type: ${person}`);
 
-  let html = d3.select("#info-template").node().cloneNode(true).content;
-  html.querySelector(".fullName").innerHTML =
-    person.fullName;
+  let panel = d3.select("#info-panel")
+  panel.select(".fullName").html(person.fullName);
   if (person.additionalNames.born) {
-    html.querySelector(".born")
-      .classList.remove("hidden");
-    html.querySelector(".born")
+    panel.select(".born")
+      .classed("hidden", false);
+    panel.select(".born")
       .append(person.additionalNames.born);
   }
   if (person.additionalNames.named) {
-    html.querySelector(".named")
+    panel.select(".named").node()
       .classList.remove("hidden", person.additionalNames.named);
-    html.querySelector(".named")
+    panel.select(".named")
       .append(person.additionalNames.named);
   }
-  html.querySelector(".years").innerHTML =
-    (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : "");
-  html.querySelector(".age").innerHTML =
-    ((person.age && (person.dayOfDeath || person.age < 120)) ? person.age : "?");
-  html.querySelector(".profession").innerHTML =
-    (person.profession ? person.profession : "?");
-  html.querySelector(".religion").innerHTML =
-    (person.religion ? person.religion : "?");
-  html.querySelector(".placeOfBirth").innerHTML =
-    (person.placeOfBirth ? person.placeOfBirth : "?");
-  html.querySelectorAll(".generation").forEach(n => n.innerHTML = n.innerHTML.replace(/%i/, person.generation));
+  panel.select(".years").html(
+    (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : ""));
+  panel.select(".age").html(
+    ((person.age && (person.dayOfDeath || person.age < 120)) ? person.age : "?"));
+  panel.select(".profession").html(
+    (person.profession ? person.profession : "?"));
+  panel.select(".religion").html(
+    (person.religion ? person.religion : "?"));
+  panel.select(".placeOfBirth").html(
+    (person.placeOfBirth ? person.placeOfBirth : "?"));
+  panel.selectAll(".generation").each((_, index, array) => {
+    let element = array[index]
+    element.innerHTML = element.innerHTML.replace(/%i/, person.generation)
+  });
 
-  html.querySelector(".bg").setAttribute(
-    "title", translationToString({
-      en: "Click to show more information",
-      de: "Klicke für weitere Informationen"
-    }));
-
-  return html;
-}
-
-function setName(name) {
-  let inputName = document.getElementById("input-name");
-  // place name of focus in header and title
-  // NOTE this has to be here since localize() is called in draw
-  inputName.value = "";
-  inputName.placeholder = name;
-  document.title += ` ${translationToString({
-    en: "of",
-    de: "von"
-  })} ${name}`;
+  return panel;
 }
 
 /**
@@ -237,8 +227,6 @@ export function draw(viewGraph, startPerson) {
     "Viewgraph has no nodes!");
   console.assert(viewGraph.links.length > 0,
     "Viewgraph has no links!");
-
-  setName(startPerson.fullName);
 
   d3cola
     .nodes(viewGraph.nodes)
@@ -329,18 +317,20 @@ export function draw(viewGraph, startPerson) {
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height())
-    .classed("focused", d => d.id === startPerson.id)
-    .on("click", toggleInfo)
-    .append(d => insertData(d));
+    .on("click", setFocus)
+    .append("xhtml:div")
+    .attr("xmlns", "http://www.w3.org/1999/xhtml")
+    .classed("bg", true)
+    .attr("title", translationToString({
+      en: "Click to show more information",
+      de: "Klicke für weitere Informationen"
+    })).append("p")
+    .html(d => d.fullName)
+    .classed("fullName", true)
   personNode.exit().remove();
-
   personNode = nodesLayer.selectAll(".person");
-  personNode.select(".addInfo")
-    .data(viewGraph.nodes.filter(node => node.type === "person"))
-    .attr("class", d => "addInfo" + (d.infoVisible ? "" : " hidden"));
 
-  // needed since the elements were newly added
-  localize(window.navigator.language);
+  setFocus(startPerson);
 
   d3cola.on("tick", () => {
     personNode
