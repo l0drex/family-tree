@@ -15,6 +15,8 @@ Supported languages: 🇺🇲/🇬🇧¹² 🇩🇪
 
 # 🌳 Usage
 
+> ⚠️ I am currently working on support for gedcomx files. Once this is completed, the spreadsheets need to be converted to that format.
+
 The family data is represented in two csv-tables that the user can upload on the page:
 - one for all the people:
 
