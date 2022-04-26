@@ -1,21 +1,20 @@
 //import * as d3 from "https://unpkg.com/d3";
 import {csvParse} from "https://cdn.skypack.dev/d3-dsv";
-import {Person, Relationship} from "./vendor/gedcomx.js";
 
 
 /**
  * Builds a promise out of people and family data
- * @param families {Array} list of family objects
- * @param people {Array} list of person objects
+ * @param relationships {Array} list of family objects
+ * @param persons {Array} list of person objects
  * @return {Promise} Fulfilled if people and families exist
  */
-function buildPromise(people, families) {
+function buildPromise(persons, relationships) {
   return new Promise((resolve, reject) => {
-    if (people && families &&
-      0 < families.length < people.length) {
+    if (persons && relationships &&
+      0 < relationships.length < persons.length) {
       resolve({
-        "people": people,
-        "families": families
+        "persons": persons,
+        "relationships": relationships
       });
     } else {
       reject();
@@ -31,13 +30,7 @@ function buildPromise(people, families) {
 export function loadGedcomX(content) {
   let data = JSON.parse(content);
 
-  let persons = [], relationships = [];
-  data.persons.forEach(person =>
-    persons.push(new Person(person)));
-  data.relationships.forEach(relation =>
-    relationships.push(new Relationship({relation})))
-
-  return buildPromise(persons, relationships);
+  return buildPromise(data.persons, data.relationships);
 }
 
 /**
