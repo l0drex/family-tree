@@ -1,5 +1,6 @@
-import * as d3 from "https://unpkg.com/d3";
+//import * as d3 from "https://unpkg.com/d3";
 import {csvParse} from "https://cdn.skypack.dev/d3-dsv";
+import {Person, Relationship} from "./vendor/gedcomx.js";
 
 
 /**
@@ -23,21 +24,20 @@ function buildPromise(people, families) {
 }
 
 /**
- * Loads a json file, parses the data and sets up the graph
- * @deprecated
- * @param path {string}
+ * Loads a gedcomx json file, parses the data and sets up the graph
  * @return {Promise}
+ * @param content
  */
-export function loadJson(path) {
-  d3.json(path, (error, data) => {
-    if (error !== null) {
-      console.error("Error while loading graph data!");
-      console.error(error);
-      return;
-    }
+export function loadGedcomX(content) {
+  let data = JSON.parse(content);
 
-    return buildPromise(data.people, data.families);
-  });
+  let persons = [], relationships = [];
+  data.persons.forEach(person =>
+    persons.push(new Person(person)));
+  data.relationships.forEach(relation =>
+    relationships.push(new Relationship({relation})))
+
+  return buildPromise(persons, relationships);
 }
 
 /**
@@ -57,8 +57,7 @@ export function loadCsv(peopleTable, familyTable) {
       let child_of = Number(person.child_of);
       if (children[child_of] === undefined) {
         children[child_of] = [id];
-      }
-      else {
+      } else {
         children[child_of].push(id);
       }
     }

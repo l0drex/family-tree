@@ -23,6 +23,7 @@
   <meta name="theme-color" content="#366120">
   <script src="js/vendor/modernizr-3.11.2.min.js" defer></script>
   <script src="js/plugins.js" defer></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <script src="js/main.js" type="module"></script>
   <script src="js/index.js" type="module"></script>
@@ -74,16 +75,9 @@
       <!--Form to upload the graph data-->
       <div class="file-upload-container">
         <div class="file-upload">
-          <label for="people-file" lang="en">People-data</label>
-          <label for="people-file" lang="de">Personendaten</label>
+          <label for="gedcom-file">Gedcom Datei</label>
           <br>
-          <input type="file" id="people-file" accept="text/csv">
-        </div>
-        <div class="file-upload">
-          <label for="family-file" lang="en">Family-data</label>
-          <label for="family-file" lang="de">Familiendaten</label>
-          <br>
-          <input type="file" id="family-file" accept="text/csv">
+          <input type="file" id="gedcom-file" accept="text/json">
         </div>
       </div>
 
