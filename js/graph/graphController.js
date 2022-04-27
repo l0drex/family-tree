@@ -1,6 +1,7 @@
 import * as graphModel from "./graphModel.js";
 import * as graphView from "./graphView.js";
 import {showError, hideError} from "../main.js";
+import {Person, Relationship} from "../vendor/gedcomx.js";
 
 
 (function init() {
@@ -14,14 +15,18 @@ import {showError, hideError} from "../main.js";
     }, "graph");
   }
 
+  let persons = [], relationships = [];
+  data.persons.forEach(person => persons.push(new Person(person)));
+  data.relationships.forEach(relationship => relationships.push(new Relationship(relationship)));
+
   // add options to search field
-  graphView.addOptions(data.people);
+  graphView.addOptions(persons);
 
   // get id from url
   let url = new URL(window.location);
-  let id = Number(url.searchParams.get("id")) || 1;
+  let id = url.searchParams.get("id") || persons[0].id;
 
-  graphModel.setData(data);
+  graphModel.setData({persons, relationships});
   graphModel.setStartPerson(id);
   graphView.draw(graphModel.viewGraph, graphModel.startPerson);
 })();

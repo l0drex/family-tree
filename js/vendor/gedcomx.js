@@ -1,3 +1,5 @@
+import {config} from "../main.js";
+
 const baseUri = "http://gedcomx.org/";
 
 const genderTypes = {
@@ -33,7 +35,8 @@ const personFactTypes = {
   Residence: baseUri + "Residence",
   Religion: baseUri + "Religion",
   Occupation: baseUri + "Occupation",
-  MaritalStatus: baseUri + "MaritalStatus"
+  MaritalStatus: baseUri + "MaritalStatus",
+  Generation: baseUri + "GenerationNumber"
 }
 
 const personFactQualifiers = {
@@ -57,6 +60,8 @@ const relationshipFactTypes = {
   Marriage: baseUri + ("Marriage")
 }
 
+let ageGen0;
+const emptyFact = {date: {formal: ""}, place: {original: ""}, value: ""}
 
 export class Person {
   gender;
@@ -76,27 +81,125 @@ export class Person {
     this.isPrivate = isPrivate;
   }
 
-  get isDead() {
-    return Boolean(this.#searchFact(Fact.types.Death))
+  get fullName() {
+    return this.marriedName || this.names[0].nameForms[0].fullText;
+  }
+
+  get birthName() {
+    return this.names.find(name => name.type && name.type === nameTypes.BirthName);
+  }
+
+  get marriedName() {
+    return this.names.find(name => name.type && name.type === nameTypes.MarriedName);
+  }
+
+  get alsoKnownAs() {
+    return this.names.find(name => name.type && name.type === nameTypes.AlsoKnownAs);
+  }
+
+  get nickname() {
+    return this.names.find(name => name.type && name.type === nameTypes.Nickname);
+  }
+
+  get genderType() {
+    return this.gender.type.substring(baseUri.length).toLowerCase()
+  }
+
+  get birth() {
+    return this.#searchFact(personFactTypes.Birth) || emptyFact;
+  }
+
+  get death() {
+    let deathFact = this.#searchFact(personFactTypes.Death);
+    if (deathFact) {
+      return deathFact
+    } else if (this.age >= 120) {
+      /*
+       When there is no known death date, but the age from the birthday is over 120,
+       the person probably died. Since this is no fact, but rather an educated guess, I don't save this fact
+      */
+      return {
+        type: personFactTypes.Death,
+        date: {
+          formal: Number(this.birth.date.formal.substring(0, 5)) + 119
+        }
+      }
+    } else {
+      return emptyFact;
+    }
+  }
+
+  get generation() {
+    let generationFact = this.#searchFact(personFactTypes.Generation);
+    if (generationFact) {
+      return generationFact.value;
+    } else {
+      return undefined;
+    }
+  }
+
+  set generation(value) {
+    console.debug("adding generation to " + this.fullName)
+    if (this.generation) {
+      console.assert(this.generation === value,
+        `Generations dont match for ${this.fullName}: ${this.generation} <- ${value}`);
+      return;
+    }
+
+    if (!ageGen0 && value === 0 && this.age) {
+      ageGen0 = this.age;
+    }
+
+    this.facts.push({
+      type: personFactTypes.Generation,
+      value: value
+    });
+  }
+
+  get age() {
+    // exact calculation not possible without birthdate
+    if (!this.birth || !this.birth.date || !this.birth.date.formal) {
+      // guess the age based on the generation number
+      if (ageGen0 && this.generation) {
+        return this.generation * 25 + ageGen0;
+      }
+      return undefined
+    }
+
+    // TODO respect day
+    let birthYear = this.birth.date.formal.substring(1, 5);
+    let lastYear = new Date().getFullYear();
+    if (this.death && this.death.date && this.death.date.formal) {
+      lastYear = this.death.date.formal.substring(1, 5);
+    }
+
+    return lastYear - birthYear;
+  }
+
+  toGraphObject() {
+    return {
+      width: config.gridSize * 5,
+      height: config.gridSize,
+      type: "person",
+      data: this
+    }
   }
 
   get maritalStatus() {
-    let status = this.#searchFact(Fact.types.MaritalStatus);
-    if (!status) {
+    return this.#searchFact(personFactTypes.MaritalStatus);
+  }
+
+  get religion() {
+    let fact = this.#searchFact(personFactTypes.religion);
+    if (fact) {
+      return fact.value;
+    } else {
       return undefined;
     }
-    return status.value;
   }
 
-  set maritalStatus(status) {
-    let fact = this.#searchFact(Fact.types.MaritalStatus);
-    if (!fact) {
-      fact = new Fact(Fact.types.MaritalStatus, undefined, undefined, status);
-    }
-  }
+  get occupation() {
 
-  get name() {
-    return this.names[0].fullText;
   }
 
   /**
@@ -105,13 +208,7 @@ export class Person {
    * @returns {Fact|null} fact
    */
   #searchFact(type) {
-    this.facts.forEach(fact => {
-      if (fact.type === type) {
-        return fact;
-      }
-    });
-
-    return null;
+    this.facts.find(fact => fact.type === type);
   }
 }
 
@@ -138,5 +235,34 @@ export class Relationship {
     this.person1 = person1;
     this.person2 = person2;
     this.facts = facts;
+  }
+
+  get isParentChild() {
+    return this.type === relationshipTypes.ParentChild;
+  }
+
+  get isCouple() {
+    return this.type === relationshipTypes.Couple || this.#searchFact(relationshipFactTypes.Marriage);
+  }
+
+  get members() {
+    return [this.person1.resource, this.person2.resource]
+  }
+
+  getOther(personId) {
+    return this.members.find(p => p !== personId)
+  }
+
+  #searchFact(type) {
+    return this.facts.find(fact => fact.type === type);
+  }
+
+  toGraphObject() {
+    return {
+      height: config.margin * 2,
+      width: config.margin * 2,
+      type: "family",
+      data: this
+    }
   }
 }

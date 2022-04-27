@@ -147,11 +147,16 @@ function adjustForMobile() {
   }
 }
 
-export function addOptions(people) {
+/**
+ * Adds search options to the search field
+ * @param persons {Array<Person>}
+ */
+export function addOptions(persons) {
   d3.select("datalist#names").selectAll("option")
-    .data(people.filter(p => p.id > 0))
+    .data(persons.filter(p => p.id !== "0"))
     .enter().append("option")
-    .attr("value", d => d.fullName).html(d => d.fullName);
+    .attr("value", person => person.fullName)
+    .html(person => person.fullName);
 }
 
 /**
@@ -175,7 +180,7 @@ function setFocus(person) {
 
   // set focused style
   nodesLayer.selectAll(".person")
-    .attr("id", d => d.id === focusPerson.id ? "focusPerson" : "");
+    .classed("focused", p => p.data.id === focusPerson.data.id);
 }
 
 /**
@@ -187,52 +192,54 @@ function insertData(person) {
   console.assert(person.type === "person", `Incorrect node type: ${person}`);
 
   let panel = d3.select("#info-panel")
-  panel.select(".fullName").html(person.fullName);
+  panel.select(".fullName").html(person.data.fullName);
   panel.select(".birth-name")
-    .classed("hidden", !person.additionalNames.born)
+    .classed("hidden", !person.data.birthName)
     .html(translationToString({
-      en: `born ${person.additionalNames.born}`,
-      de: `geboren ${person.additionalNames.born}`
+      en: `born ${person.data.birthName}`,
+      de: `geboren ${person.data.birthName}`
     }));
-  panel.select(".named")
-    .classed("hidden", !person.additionalNames.named)
+  panel.select(".alsoKnownAs")
+    .classed("hidden", !person.data.named)
     .html(translationToString({
-      en: "named" + person.additionalNames.named,
-      de: "genannt" + person.additionalNames.named
+      en: "also known as " + person.data.named,
+      de: "auch bekannt als " + person.data.named
     }));
+  let birth = person.data.birth;
   panel.select(".born")
     .html(translationToString({
-      en: `born ${person.birthday ? "on " + person.birthday : ""} ` +
-        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
-        `(${person.generation}. generation)`,
-      de: `geboren ${person.birthday ? "am " + person.birthday : ""} ` +
-        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
-        `(${person.generation}. Generation)`
+      en: `born ${birth.date.formal ? "on " + birth.date.formal : ""} ` +
+        `${birth.place.original ? "in " + birth.place.original : ""} ` +
+        `(${person.data.generation}. generation)`,
+      de: `geboren ${birth.date.formal ? "am " + birth.date.formal : ""} ` +
+        `${birth.place.original ? "in " + birth.place.original : ""} ` +
+        `(${person.data.generation}. Generation)`
     }));
   panel.select(".religion")
-    .classed("hidden", !person.religion)
+    .classed("hidden", !person.data.religion)
     .html(translationToString({
-      en: "religion: " + person.religion,
-      de: "Religion: " + person.religion
+      en: "religion: " + person.data.religion,
+      de: "Religion: " + person.data.religion
     }));
-  panel.select(".profession")
-    .classed("hidden", !person.profession)
+  panel.select(".occupation")
+    .classed("hidden", !person.data.occupation)
     .html(translationToString({
-      en: `working as ${person.profession}`,
-      de: `berufstätig als ${person.profession}`
+      en: `working as ${person.data.occupation}`,
+      de: `berufstätig als ${person.data.occupation}`
     }))
   panel.select(".age")
     .classed("hidden", person.dead)
     .html(translationToString({
-      en: `today ${person.age} years old`,
-      de: `heute ${person.age} Jahre alt`
+      en: `today ${person.data.age} years old`,
+      de: `heute ${person.data.age} Jahre alt`
     }))
+  let death = person.data.death;
   panel.select(".death")
     .classed("hidden", !person.dead)
     .html(translationToString({
-      en: `died on ${person.dayOfDeath} with ${person.age} years`,
-      de: `verstorben ${person.dayOfDeath ? "am " + person.dayOfDeath : ""} ${person.age ? "mit " + person.age + " Jahren" : ""}`
-    }))
+      en: `died ${death.date.formal ? "on " + death.date.formal : ""} ${person.data.age ? "with " + person.data.age + " years old" : ""}`,
+      de: `verstorben ${death.date.formal ? "am " + death.date.formal : ""} ${person.data.age ? "mit " + person.data.age + " Jahren" : ""}`
+    }));
 
   return panel;
 }
@@ -277,7 +284,7 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
-    .classed("locked", f => f.members.includes(startPerson.id));
+    .classed("locked", f => f.data.members.includes(startPerson.id));
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
@@ -328,10 +335,11 @@ export function draw(viewGraph, startPerson) {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => node.type === "person" && node.id !== 0), d => d.viewId);
+    .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.id !== 0), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
-    .attr("id", d => `p-${d.id}`)
+    .each(console.log)
+    .attr("class", p => "person " + p.data.genderType + (p.data.death ? " dead" : ""))
+    .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
@@ -344,7 +352,7 @@ export function draw(viewGraph, startPerson) {
       en: "Click to show more information",
       de: "Klicke für weitere Informationen"
     })).append("p")
-    .html(d => d.fullName)
+    .html(p => p.data.fullName)
     .classed("fullName", true)
   personNode.exit().remove();
   personNode = nodesLayer.selectAll(".person");

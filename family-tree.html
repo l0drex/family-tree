@@ -21,8 +21,7 @@
   <meta name="theme-color" content="#366120">
 
   <script src="https://d3js.org/d3.v4.js"></script>
-  <script src="js/vendor/cola.min.js"></script>
-  <script src="js/vendor/gedcom.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/tgdwyer/WebCola/WebCola/cola.min.js"></script>
   <script src="js/vendor/modernizr-3.11.2.min.js" defer></script>
   <script src="js/plugins.js" defer></script>
 
@@ -81,13 +80,13 @@
       <h1 class="fullName"></h1>
       <h2>
         <span class="birth-name"></span>
-        <span class="named"></span>
+        <span class="alsoKnownAs"></span>
       </h2>
 
-      <ul class="addInfo">
+      <ul id="factView">
         <li class="born"></li>
         <li class="religion"></li>
-        <li class="profession"></li>
+        <li class="occupation"></li>
         <li class="age"></li>
         <li class="death"></li>
       </ul>

@@ -6,7 +6,7 @@
 }
 
 #info-panel {
-  background: #E1F2D9;
+  background: rgba(70, 155, 24, 0.26);
   padding: 1rem;
 }
 
@@ -14,14 +14,14 @@
   text-align: center;
 }
 
-#info-panel .addInfo {
+#info-panel .factView {
   background: var(--background);
   padding-top: 1rem;
   padding-bottom: 1rem;
   border-radius: 1rem;
 }
 
-#info-panel .addInfo li:not(:last-child) {
+#info-panel .factView li:not(:last-child) {
   margin-bottom: 1rem;
 }
 
@@ -137,7 +137,7 @@ svg {
   border-right-color: purple;
 }
 
-#focusPerson .bg {
+.focused .bg {
   box-shadow: 0 0 1rem var(--primary);
 }
 
