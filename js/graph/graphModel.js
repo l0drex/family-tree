@@ -67,9 +67,8 @@ function addGenerations(person, generation) {
  */
 function getParents(person) {
   return relationships
-    .filter(relationship =>
-      relationship.data.isParentChild && relationship.data.person2 === person.data.id)
-    .map(relationship => persons.find(person => person.data.id === relationship.data.person1));
+    .filter(r => r.data.isParentChild && r.data.person2.resource === "#" + person.data.id)
+    .map(r => persons.find(person => "#" + person.data.id === r.data.person1.resource));
 }
 
 /**
@@ -79,20 +78,19 @@ function getParents(person) {
  */
 function getChildren(person) {
   return relationships
-    .filter(relationship =>
-      relationship.data.isParentChild && relationship.data.person1 === person.data.id)
-    .map(relationship => persons.find(person => person.data.id === relationship.data.person2));
+    .filter(r => r.data.isParentChild && r.data.person1.resource === "#" + person.data.id)
+    .map(r => persons.find(person => "#" + person.data.id === r.data.person2.resource));
 }
 
 function getPartners(person) {
   let leftPartners = relationships
-    .filter(relationship =>
-      relationship.data.isCouple && relationship.data.person2 === person.data.id)
-    .map(relationship => persons.find(person => person.data.id === relationship.data.person1));
+    .filter(r =>
+      r.data.isCouple && r.data.person2.resource === "#" + person.data.id)
+    .map(r => persons.find(p => "#" + p.data.id === r.data.person1.resource));
   let rightPartners = relationships
-    .filter(relationship =>
-      relationship.data.isCouple && relationship.data.person1 === person.data.id)
-    .map(relationship => persons.find(person => person.data.id === relationship.data.person2));
+    .filter(r =>
+      r.data.isCouple && r.data.person1.resource === "#" + person.data.id)
+    .map(r => persons.find(p => "#" + p.data.id === r.data.person2.resource));
 
   return leftPartners.concat(rightPartners)
 }

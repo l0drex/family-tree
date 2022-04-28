@@ -132,7 +132,6 @@ export class Person {
   }
 
   set generation(value) {
-    console.debug("adding generation to " + this.fullName)
     if (this.generation) {
       console.assert(this.generation === value,
         `Generations dont match for ${this.fullName}: ${this.generation} <- ${value}`);
