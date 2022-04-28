@@ -71,7 +71,7 @@ export class Person {
   isPrivate = false;
 
   constructor({id, gender = null, names = null, facts = null, isPrivate = false}) {
-    if (!id) {
+    if (!id.toString()) {
       throw TypeError("id is required!")
     }
     this.id = id;

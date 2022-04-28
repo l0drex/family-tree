@@ -353,6 +353,7 @@ export function draw(viewGraph, startPerson) {
     })).append("p")
     .html(p => p.data.fullName)
     .classed("fullName", true)
+    .call(d3cola.drag)
   personNode.exit().remove();
   personNode = nodesLayer.selectAll(".person");
 

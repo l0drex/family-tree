@@ -51,6 +51,10 @@ export function setStartPerson(id) {
  * @param generation generation of the person
  */
 function addGenerations(person, generation) {
+  if (person.data.generation) {
+    return;
+  }
+
   person.data.generation = generation;
   getParents(person).forEach(p => addGenerations(p, generation + 1));
   getChildren(person).forEach(c => addGenerations(c, generation - 1));
@@ -131,7 +135,8 @@ function hideNode(node) {
 function showFullGraph() {
   persons.forEach(showNode);
 
-  relationships.filter(r => r.data.isCouple).forEach(r => {
+  let couples = relationships.filter(r => r.data.isCouple)
+  couples.forEach(r => {
     showNode(r);
     families.push(r);
     viewGraph.links.push({
@@ -142,6 +147,20 @@ function showFullGraph() {
       "source": persons.find(p => "#" + p.data.id === r.data.person2.resource).viewId,
       "target": r.viewId
     });
+  });
+
+  let parentChildren = relationships.filter(r => r.data.isParentChild)
+  parentChildren.forEach(r => {
+    let parentId = r.data.person1.resource, childId = r.data.person2.resource;
+    let family = couples.find(c => c.data.members.includes(parentId));
+    console.assert(family, parentId, childId)
+    let link = {
+      "source": family,
+      "target": persons.find(p => p.data.id === childId.substring(1))
+    }
+    if (!viewGraph.links.includes(link)) {
+      viewGraph.links.push(link);
+    }
   });
 }
 

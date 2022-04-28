@@ -24,7 +24,7 @@ import {Person, Relationship} from "../vendor/gedcomx.js";
 
   // get id from url
   let url = new URL(window.location);
-  let id = url.searchParams.get("id") || persons[0].id;
+  let id = url.searchParams.get("id") || persons[0].fullName !== "unknown" ? persons[0].id : persons[1].id;
 
   graphModel.setData({persons, relationships});
   graphModel.setStartPerson(id);
