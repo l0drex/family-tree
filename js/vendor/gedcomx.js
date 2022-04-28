@@ -113,20 +113,13 @@ export class Person {
     let deathFact = this.#searchFact(personFactTypes.Death);
     if (deathFact) {
       return deathFact
-    } else if (this.age >= 120) {
-      /*
-       When there is no known death date, but the age from the birthday is over 120,
-       the person probably died. Since this is no fact, but rather an educated guess, I don't save this fact
-      */
-      return {
-        type: personFactTypes.Death,
-        date: {
-          formal: Number(this.birth.date.formal.substring(0, 5)) + 119
-        }
-      }
-    } else {
-      return emptyFact;
     }
+
+    return emptyFact;
+  }
+
+  get isDead() {
+    return (this.death !== emptyFact) || (this.age >= 120);
   }
 
   get generation() {
@@ -208,7 +201,7 @@ export class Person {
    * @returns {Fact|null} fact
    */
   #searchFact(type) {
-    this.facts.find(fact => fact.type === type);
+    return this.facts.find(fact => fact.type === type);
   }
 }
 

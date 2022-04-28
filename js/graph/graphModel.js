@@ -132,7 +132,6 @@ function populateGraphData(startPerson) {
   let relatedPeople = relations.map(r => r.data.getOther("#" + startPerson.data.id));
   relatedPeople.forEach(id => showNode(persons.find(p => "#" + p.data.id === id)));*/
 
-  console.debug(relationships)
   viewGraph.links = relationships.map(r => {
     return {
       source: persons.findIndex(p => "#" + p.data.id === r.data.person1.resource),
@@ -141,8 +140,6 @@ function populateGraphData(startPerson) {
   });
 
   persons.forEach(showNode);
-
-  console.debug(viewGraph)
 
   return new Promise(resolve => resolve(viewGraph))
 }

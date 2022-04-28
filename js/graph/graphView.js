@@ -208,10 +208,10 @@ function insertData(person) {
   let birth = person.data.birth;
   panel.select(".born")
     .html(translationToString({
-      en: `born ${birth.date.formal ? "on " + birth.date.formal : ""} ` +
+      en: `born ${birth.date.original ? "on " + birth.date.original : ""} ` +
         `${birth.place.original ? "in " + birth.place.original : ""} ` +
         `(${person.data.generation}. generation)`,
-      de: `geboren ${birth.date.formal ? "am " + birth.date.formal : ""} ` +
+      de: `geboren ${birth.date.original ? "am " + birth.date.original : ""} ` +
         `${birth.place.original ? "in " + birth.place.original : ""} ` +
         `(${person.data.generation}. Generation)`
     }));
@@ -228,17 +228,17 @@ function insertData(person) {
       de: `berufstätig als ${person.data.occupation}`
     }))
   panel.select(".age")
-    .classed("hidden", person.dead)
+    .classed("hidden", person.data.isDead)
     .html(translationToString({
       en: `today ${person.data.age} years old`,
       de: `heute ${person.data.age} Jahre alt`
     }))
   let death = person.data.death;
   panel.select(".death")
-    .classed("hidden", !person.dead)
+    .classed("hidden", !(person.data.isDead))
     .html(translationToString({
-      en: `died ${death.date.formal ? "on " + death.date.formal : ""} ${person.data.age ? "with " + person.data.age + " years old" : ""}`,
-      de: `verstorben ${death.date.formal ? "am " + death.date.formal : ""} ${person.data.age ? "mit " + person.data.age + " Jahren" : ""}`
+      en: `died ${death.date.original ? "on " + death.date.original : ""} ${person.data.age ? "with " + person.data.age + " years old" : ""}`,
+      de: `verstorben ${death.date.original ? "am " + death.date.original : ""} ${person.data.age ? "mit " + person.data.age + " Jahren" : ""}`
     }));
 
   return panel;
@@ -337,7 +337,6 @@ export function draw(viewGraph, startPerson) {
   let personNode = nodesLayer.selectAll(".person")
     .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.id !== 0), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .each(console.log)
     .attr("class", p => "person " + p.data.genderType + (p.data.death ? " dead" : ""))
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
