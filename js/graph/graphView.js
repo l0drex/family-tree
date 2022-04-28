@@ -169,7 +169,7 @@ function setFocus(person) {
   // set name in search field
   let inputName = document.getElementById("input-name");
   inputName.value = "";
-  inputName.placeholder = person.fullName;
+  inputName.placeholder = person.data.fullName;
   document.title = `${translationToString({
     en: "Family tree of",
     de: "Stammbaum von"
