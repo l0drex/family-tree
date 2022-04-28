@@ -291,17 +291,17 @@ export function draw(viewGraph, startPerson) {
     .text(d => d.begin ? `⚭ ${d.begin}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
-  newPartners.filter(f => f.members.includes(startPerson.id))
+  newPartners.filter(r => r.data.members.includes(startPerson.id))
     .append("title")
-    .text(f => {
-      if (f.members.includes(startPerson.id)) {
+    .text(r => {
+      if (r.data.members.includes(startPerson.id)) {
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
       }
     });
-  let notLocked = newPartners.filter(f => !(f.members.includes(startPerson.id)))
+  let notLocked = newPartners.filter(r => !(r.data.members.includes(startPerson.id)))
     .on("click", hideFamily);
   notLocked.append("text")
     .text("-")

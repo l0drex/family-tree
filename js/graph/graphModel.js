@@ -4,6 +4,8 @@ export let viewGraph = {
 };
 let persons = [];
 let relationships = [];
+// list of couples
+let families = []
 export let startPerson;
 
 
@@ -34,7 +36,7 @@ export function setStartPerson(id) {
   unknownGeneration = unknownGeneration.filter(p => !p.data.generation && p.data.generation !== 0 && p.data.id);
   console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration);
 
-  populateGraphData(startPerson);
+  showFullGraph(startPerson);
   return id;
 
   let relatedPeople = relationships.filter(r => r.data.members.includes("#" + startPerson.data.id));
@@ -126,22 +128,21 @@ function hideNode(node) {
   return true;
 }
 
-function populateGraphData(startPerson) {
-  /*let relations = relationships.filter(r => r.data.members.includes("#" + startPerson.data.id));
-
-  let relatedPeople = relations.map(r => r.data.getOther("#" + startPerson.data.id));
-  relatedPeople.forEach(id => showNode(persons.find(p => "#" + p.data.id === id)));*/
-
-  viewGraph.links = relationships.map(r => {
-    return {
-      source: persons.findIndex(p => "#" + p.data.id === r.data.person1.resource),
-      target: persons.findIndex(p => "#" + p.data.id === r.data.person2.resource)
-    }
-  });
-
+function showFullGraph() {
   persons.forEach(showNode);
 
-  return new Promise(resolve => resolve(viewGraph))
+  relationships.filter(r => r.data.isCouple).forEach(r => {
+    showNode(r);
+    families.push(r);
+    viewGraph.links.push({
+      "source": persons.find(p => "#" + p.data.id === r.data.person1.resource).viewId,
+      "target": r.viewId
+    });
+    viewGraph.links.push({
+      "source": persons.find(p => "#" + p.data.id === r.data.person2.resource).viewId,
+      "target": r.viewId
+    });
+  });
 }
 
 /**
