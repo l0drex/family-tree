@@ -1,4 +1,4 @@
-ID,title,surname,second_name,name,full_name,born,nickname,named,gender,child_of,birthday,place_of_birth,day_of_death,place_of_death,age,profession,religion,comment
+ID,title,surname,middle_name,name,full_name,born,nickname,aka,gender,child_of,birthday,place_of_birth,day_of_death,place_of_death,age,occupation,religion,comment
 0,,unknown,,,unknown ,,,,,,,,,,,,,
 1,,poso,,,poso ,,,,male,0,,,,,,,,
 2,,padre,,,padre ,,,,male,,,,,,,,,
