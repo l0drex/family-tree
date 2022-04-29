@@ -110,17 +110,18 @@ export class Person {
     if (!birth) {
       return {
         toString: () => translationToString({
-          "en": "birth unknown",
-          "de": "Geburt unbekannt"
+          en: "birth unknown",
+          de: "Geburt unbekannt"
         })
       };
     }
     birth.toString = () => translationToString({
-      "en": `born ${this.date.original ? "on " + this.date.original : ""} ` +
-        `${this.place.original ? "in " + this.place.original : ""} `,
-      "de": `geboren ${birth.date.original ? "am " + birth.date.original : ""} ` +
+      en: `born ${birth.date.original ? "on " + birth.date.original : ""} ` +
+        `${birth.place.original ? "in " + birth.place.original : ""} `,
+      de: `geboren ${birth.date.original ? "am " + birth.date.original : ""} ` +
         `${birth.place.original ? "in " + birth.place.original : ""} `
     });
+    return birth;
   }
 
   get death() {

@@ -205,11 +205,10 @@ function insertData(person) {
       en: "also known as " + person.data.named,
       de: "auch bekannt als " + person.data.named
     }));
-  let birth = person.data.birth;
   panel.select(".born")
     .html(translationToString({
-      en: `${person.data.birth} in ${person.data.generation}. generation`,
-      de: `${person.data.birth} in ${person.data.generation}. Generation`
+      en: `${person.data.birth.toString()} in ${person.data.generation}. generation`,
+      de: `${person.data.birth.toString()} in ${person.data.generation}. Generation`
     }));
   panel.select(".religion")
     .classed("hidden", !person.data.religion)
@@ -218,11 +217,13 @@ function insertData(person) {
       de: "Religion: " + person.data.religion.value
     }) : "");
   panel.select(".occupation")
-    .classed("hidden", !person.data.occupation)
-    .html(translationToString({
-      en: `working as ${person.data.occupation}`,
-      de: `berufstätig als ${person.data.occupation}`
-    }))
+    .classed("hidden", !person.data.occupation);
+  if (person.data.occupation) {
+    panel.select(".occupation").html(translationToString({
+      en: `Occupation: ${person.data.occupation.value}`,
+      de: `Beruf: ${person.data.occupation.value}`
+    }));
+  }
   panel.select(".age")
     .classed("hidden", person.data.death || !person.data.age)
     .html(person.data.age ? translationToString({
@@ -333,7 +334,7 @@ export function draw(viewGraph, startPerson) {
   let personNode = nodesLayer.selectAll(".person")
     .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.fullName !== "unknown"), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", p => `person ${p.data.genderType}`).classed("dead", p => p.data.death)
+    .attr("class", p => `person ${p.data.genderType}`).classed("dead", p => p.data.death || p.data.age >= 120)
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)

@@ -25,7 +25,7 @@ import {Person, Relationship} from "../vendor/gedcomx.js";
   // get id from url
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
-  if (id === "") {
+  if (!id) {
     id = persons[0].fullName === "unknown" ? persons[1].id : persons[0].id;
   }
 
