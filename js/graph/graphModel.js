@@ -4,8 +4,6 @@ export let viewGraph = {
 };
 let persons = [];
 let relationships = [];
-// list of couples
-let families = []
 export let startPerson;
 
 
@@ -36,11 +34,12 @@ export function setStartPerson(id) {
   unknownGeneration = unknownGeneration.filter(p => !p.data.generation && p.data.generation !== 0 && p.data.id);
   console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration);
 
-  showFullGraph(startPerson);
-  return id;
+  if (false) {
+    showFullGraph();
+    return id;
+  }
 
-  let relatedPeople = relationships.filter(r => r.data.members.includes("#" + startPerson.data.id));
-  relatedPeople.forEach(showFamily);
+  showFamily(startPerson);
 
   return id;
 }
@@ -83,16 +82,11 @@ function getChildren(person) {
 }
 
 function getPartners(person) {
-  let leftPartners = relationships
-    .filter(r =>
-      r.data.isCouple && r.data.person2.resource === "#" + person.data.id)
-    .map(r => persons.find(p => "#" + p.data.id === r.data.person1.resource));
-  let rightPartners = relationships
-    .filter(r =>
-      r.data.isCouple && r.data.person1.resource === "#" + person.data.id)
-    .map(r => persons.find(p => "#" + p.data.id === r.data.person2.resource));
-
-  return leftPartners.concat(rightPartners)
+  return relationships
+    .filter(r => r.data.isCouple &&
+      r.data.members.includes("#" + person.data.id))
+    .map(r => persons.find(p => "#" + p.data.id ===
+      r.data.members.find(m => m !== "#" + person.data.id)));
 }
 
 /**
@@ -130,104 +124,85 @@ function hideNode(node) {
   return true;
 }
 
+
+function showCouple(couple) {
+  let members = couple.data.members.map(id => persons.find(p => id === "#" + p.data.id));
+  let visibleMembers = members.filter(isVisible);
+  if (!visibleMembers.length) {
+    return;
+  } else if (visibleMembers.length === 1) {
+    couple.type = "etc";
+  } else {
+    couple.type = "family";
+  }
+  showNode(couple);
+
+  visibleMembers.forEach(p => {
+    viewGraph.links.push({
+      "source": p.viewId,
+      "target": couple.viewId
+    });
+  })
+}
+
+
+function addChild(parentChild) {
+  let families = relationships.filter(r => r.data.isCouple);
+
+  let childId = parentChild.data.person2.resource;
+  let child = persons.find(p => "#" + p.data.id === childId);
+  let parents = getParents(persons.find(p => "#" + p.data.id === childId)).map(p => "#" + p.data.id)
+  let family = families.find(f => (f.data.members.includes(parents[0]) && f.data.members.includes(parents[1])));
+
+  if (!isVisible(child)) {
+    return;
+  }
+
+  console.assert(family, "no family found for " + childId)
+  if (!isVisible(family)) {
+    family.type = "etc";
+    showNode(family);
+  }
+  let link = {
+    "source": family.viewId,
+    "target": child.viewId
+  }
+  if (!viewGraph.links.find(l => l.source === link.source && l.target === link.target)) {
+    viewGraph.links.push(link);
+  }
+}
+
+
 function showFullGraph() {
   persons.forEach(showNode);
-
-  let couples = relationships.filter(r => r.data.isCouple)
-  couples.forEach(r => {
-    showNode(r);
-    families.push(r);
-    viewGraph.links.push({
-      "source": persons.find(p => "#" + p.data.id === r.data.person1.resource).viewId,
-      "target": r.viewId
-    });
-    viewGraph.links.push({
-      "source": persons.find(p => "#" + p.data.id === r.data.person2.resource).viewId,
-      "target": r.viewId
-    });
-  });
-
-  let parentChildren = relationships.filter(r => r.data.isParentChild)
-  parentChildren.forEach(r => {
-    let parentId = r.data.person1.resource, childId = r.data.person2.resource;
-    let family = couples.find(c => c.data.members.includes(parentId));
-    console.assert(family, parentId, childId)
-    let link = {
-      "source": family,
-      "target": persons.find(p => p.data.id === childId.substring(1))
-    }
-    if (!viewGraph.links.includes(link)) {
-      viewGraph.links.push(link);
-    }
-  });
+  relationships.filter(r => r.data.isCouple).forEach(showCouple);
+  relationships.filter(r => r.data.isParentChild).forEach(addChild);
 }
 
 /**
  * Adds a family and its direct members to the view.
  * Adds etc-nodes to members where applicable.
- * @param family
+ * @param person
+ * @param asEtc
  */
-export function showFamily(family) {
-  console.groupCollapsed(`Adding new family ${family}`);
+export function showFamily(person, asEtc = false) {
+  console.groupCollapsed(`Adding families of ${person.data.fullName}`);
 
-  // array containing the view graph ids of the partners
-  if (family.data.members.includes("#0")) {
-    console.warn("Person \"Unknown\" is in the family!");
-  }
+  showNode(person);
+  let parents = getParents(person);
+  parents.forEach(showNode);
+  let partners = getPartners(person);
+  partners.forEach(showNode);
+  let children = getChildren(person);
+  children.forEach(showNode);
 
-  // replace existing etc-node with a family node
-  family.type = family.type.replace("etc", "family");
-  showNode(family);
+  // TODO outer partners (replace exisiting etc nodes with family nodes!)
+  // TODO check if person is unknown
 
-  family.members.forEach(p => {
-    let person = persons[p];
+  relationships.filter(r => r.data.isCouple).forEach(showCouple);
+  relationships.filter(r => r.data.isParentChild).forEach(addChild);
 
-    // add all people in the family
-    if (!showNode(person)) {
-      return;
-    }
-
-    let familyLink;
-    if (family.partners.includes(p)) {
-      familyLink = {
-        source: person.viewId,
-        target: family.viewId
-      };
-    } else {
-      familyLink = {
-        source: family.viewId,
-        target: person.viewId
-      };
-    }
-    viewGraph.links.push(familyLink);
-
-    // add etc-node
-    let otherFamilies = relationships.filter(f => f.members.includes(p) && !(isVisible(f)));
-    console.assert(otherFamilies.length <= 1, "There seems to be more than one etc-node!", otherFamilies);
-    if (otherFamilies.length) {
-      console.debug("Adding etc for", person.fullName);
-      otherFamilies.forEach(family => {
-        family.type = "etc";
-
-        if (family.children.includes(p) && person.married) {
-          showNode(family);
-          viewGraph.links.push({
-            source: family.viewId,
-            target: person.viewId
-          });
-        } else if (family.partners.includes(p) && person.parentsKnown) {
-          showNode(family);
-          viewGraph.links.push({
-            source: person.viewId,
-            target: family.viewId
-          });
-        }
-      });
-    }
-  });
   console.groupEnd();
-
-  return new Promise(resolve => resolve(viewGraph));
 }
 
 /**
