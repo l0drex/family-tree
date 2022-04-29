@@ -3,6 +3,7 @@ export let viewGraph = {
   links: []
 };
 let persons = [];
+persons.findById = (id) => persons.find(p => p.data.id === id)
 let relationships = [];
 export let startPerson;
 
@@ -18,7 +19,7 @@ export function setStartPerson(id) {
     throw "Start person can not be defined before data is loaded!";
   }
 
-  startPerson = persons.find(p => p.data.id === id);
+  startPerson = persons.findById(id);
   console.info("Starting graph with", startPerson.data.fullName);
 
   // find generations
@@ -52,6 +53,9 @@ export function setStartPerson(id) {
  */
 function addGenerations(person, generation) {
   if (person.data.generation) {
+    console.assert(person.data.generation === generation,
+      `Generations dont match for ${person.data.fullName}: ${person.data.generation} <- ${generation}`);
+
     return;
   }
 
@@ -68,7 +72,8 @@ function addGenerations(person, generation) {
 function getParents(person) {
   return relationships
     .filter(r => r.data.isParentChild && r.data.person2.resource === "#" + person.data.id)
-    .map(r => persons.find(person => "#" + person.data.id === r.data.person1.resource));
+    .map(r => persons.findById(r.data.person1.resource.substring(1)))
+    .filter(p => p.data.fullName !== "unknown");
 }
 
 /**
@@ -79,15 +84,16 @@ function getParents(person) {
 function getChildren(person) {
   return relationships
     .filter(r => r.data.isParentChild && r.data.person1.resource === "#" + person.data.id)
-    .map(r => persons.find(person => "#" + person.data.id === r.data.person2.resource));
+    .map(r => persons.findById(r.data.person2.resource.substring(1)))
+    .filter(p => p.data.fullName !== "unknown");
 }
 
 function getPartners(person) {
   return relationships
     .filter(r => r.data.isCouple &&
       r.data.members.includes("#" + person.data.id))
-    .map(r => persons.find(p => "#" + p.data.id ===
-      r.data.members.find(m => m !== "#" + person.data.id)));
+    .map(r => persons.findById(r.data.members.find(m => m !== "#" + person.data.id).substring(1)))
+    .filter(p => p.data.fullName !== "unknown");
 }
 
 /**
@@ -127,7 +133,7 @@ function hideNode(node) {
 
 
 function showCouple(couple) {
-  let members = couple.data.members.map(id => persons.find(p => id === "#" + p.data.id));
+  let members = couple.data.members.map(id => persons.findById(id.substring(1)));
   let visibleMembers = members.filter(isVisible);
   if (!visibleMembers.length) {
     return;
@@ -154,8 +160,8 @@ function addChild(parentChild) {
   let families = relationships.filter(r => r.data.isCouple);
 
   let childId = parentChild.data.person2.resource;
-  let child = persons.find(p => "#" + p.data.id === childId);
-  let parents = getParents(persons.find(p => "#" + p.data.id === childId)).map(p => "#" + p.data.id)
+  let child = persons.findById(childId.substring(1));
+  let parents = getParents(persons.findById(childId.substring(1))).map(p => "#" + p.data.id)
   let family = families.find(f => (f.data.members.includes(parents[0]) && f.data.members.includes(parents[1])));
 
   if (!isVisible(child)) {
@@ -195,7 +201,7 @@ function showFullGraph() {
 export function showFamily(couple) {
   console.groupCollapsed(`Adding family ${couple.data}`);
 
-  couple.data.members.map(id => persons.find(p => "#" + p.data.id === id))
+  couple.data.members.map(id => persons.findById(id.substring(1)))
     .forEach(showNode);
 
   showCouple(couple);
@@ -224,7 +230,7 @@ export function hideFamily(family) {
   }).map(p => "#" + p.data.id);
 
   let leaves = parents.concat(children).filter(id => {
-      let person = persons.find(p => "#" + p.data.id === id);
+      let person = persons.findById(id.substring(1));
       // check if the node is connected to two families
       let linksToFamilies = viewGraph.links.filter(link => {
         let nodes = [link.source, link.target];
@@ -251,7 +257,7 @@ export function hideFamily(family) {
         return leaves.includes("#" + node.data.id);
       case "etc":
         let visibleMembers = node.data.members.filter(personId => {
-          let person = persons.find(p => "#" + p.data.id === personId)
+          let person = persons.findById(personId.substring(1))
           return !(leaves.includes("#" + personId)) && (typeof person.viewId === "number" && person.type === "person");
         });
         return visibleMembers.length === 0;
@@ -270,7 +276,7 @@ export function hideFamily(family) {
   }).forEach(p => hideNode(p));
 
   // remove links from the graph
-  leaves = leaves.map(id => persons.find(p => "#" + p.data.id === id).viewId);
+  leaves = leaves.map(id => persons.findById(id.substring(1)).viewId);
   viewGraph.links = viewGraph.links.filter(link => {
     return !(leaves.includes(link.source.viewId)) && !(leaves.includes(link.target.viewId));
   });
