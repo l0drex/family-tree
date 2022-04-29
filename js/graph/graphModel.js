@@ -39,7 +39,8 @@ export function setStartPerson(id) {
     return id;
   }
 
-  showFamily(startPerson);
+  let families = relationships.filter(r => r.data.isCouple && r.data.members.includes("#" + id))
+  families.forEach(showFamily);
 
   return id;
 }
@@ -187,26 +188,18 @@ function showFullGraph() {
  * Adds a family and its direct members to the view.
  * Adds etc-nodes to members where applicable.
  * @param person
- * @param asEtc
  */
-export function showFamily(person, asEtc = false) {
-  console.groupCollapsed(`Adding families of ${person.data.fullName}`);
+export function showFamily(couple) {
+  console.groupCollapsed(`Adding family ${couple.data}`);
 
-  showNode(person);
-  let parents = getParents(person);
-  parents.forEach(showNode);
-  let partners = getPartners(person);
-  partners.forEach(showNode);
-  let children = getChildren(person);
-  children.forEach(showNode);
+  couple.data.members.map(id => persons.find(p => "#" + p.data.id === id))
+    .forEach(showNode);
 
-  // TODO outer partners (replace exisiting etc nodes with family nodes!)
-  // TODO check if person is unknown
-
-  relationships.filter(r => r.data.isCouple).forEach(showCouple);
+  showCouple(couple);
   relationships.filter(r => r.data.isParentChild).forEach(addChild);
 
   console.groupEnd();
+  return viewGraph;
 }
 
 /**
@@ -214,16 +207,21 @@ export function showFamily(person, asEtc = false) {
  * @param family
  */
 export function hideFamily(family) {
-  if (family.members.includes(startPerson.id)) {
+  if (family.data.members.includes("#" + startPerson.data.id)) {
     console.warn("Initial families cannot be removed!");
     return new Promise(resolve => resolve(viewGraph, startPerson));
   }
 
-  console.groupCollapsed(`Hiding family ${family.partners}`);
+  console.groupCollapsed(`Hiding family ${family.data}`);
 
   // find all leaves, e.g. all nodes who are not connected to other families
-  let leaves = family.members.filter(p => {
-      let person = persons[p];
+  let parents = family.data.members;
+  let children = persons.filter(child => {
+    return relationships.find(r => r.data.person2.resource === "#" + child.data.id && parents.includes(r.data.person1.resource))
+  }).map(p => "#" + p.data.id);
+
+  let leaves = parents.concat(children).filter(id => {
+      let person = persons.find(p => "#" + p.data.id === id);
       // check if the node is connected to two families
       let linksToFamilies = viewGraph.links.filter(link => {
         let nodes = [link.source, link.target];
@@ -247,10 +245,12 @@ export function hideFamily(family) {
 
     switch (node.type) {
       case "person":
-        return leaves.includes(node.id);
+        return leaves.includes("#" + node.data.id);
       case "etc":
-        let visibleMembers = node.members.filter(person =>
-          !(leaves.includes(person)) && (typeof persons[person].viewId === "number" && persons[person].type === "person"));
+        let visibleMembers = node.data.members.filter(personId => {
+          let person = persons.find(p => "#" + p.data.id === personId)
+          return !(leaves.includes("#" + personId)) && (typeof person.viewId === "number" && person.type === "person");
+        });
         return visibleMembers.length === 0;
       case "family":
         // replace family that should be removed with an etc-node
@@ -267,13 +267,13 @@ export function hideFamily(family) {
   }).forEach(p => hideNode(p));
 
   // remove links from the graph
-  leaves = leaves.map(id => persons[id].viewId);
+  leaves = leaves.map(id => persons.find(p => "#" + p.data.id === id).viewId);
   viewGraph.links = viewGraph.links.filter(link => {
     return !(leaves.includes(link.source.viewId)) && !(leaves.includes(link.target.viewId));
   });
 
   console.groupEnd();
-  return new Promise(resolve => resolve(viewGraph));
+  return viewGraph;
 }
 
 /**
@@ -283,7 +283,7 @@ export function hideFamily(family) {
  * @returns person
  */
 export function findPerson(name) {
-  return persons.find(person => person.fullName.toLowerCase().includes(name));
+  return persons.find(person => person.data.fullName.toLowerCase().includes(name));
 }
 
 /**

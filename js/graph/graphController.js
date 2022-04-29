@@ -24,7 +24,10 @@ import {Person, Relationship} from "../vendor/gedcomx.js";
 
   // get id from url
   let url = new URL(window.location);
-  let id = url.searchParams.get("id") || persons[0].fullName !== "unknown" ? persons[0].id : persons[1].id;
+  let id = url.searchParams.get("id");
+  if (id === "") {
+    id = persons[0].fullName === "unknown" ? persons[1].id : persons[0].id;
+  }
 
   graphModel.setData({persons, relationships});
   graphModel.setStartPerson(id);
@@ -35,7 +38,7 @@ import {Person, Relationship} from "../vendor/gedcomx.js";
  * Searches for a person with given name and shows its family tree
  * @param name {String} name of the person to search for
  */
-export function searchFamily(name) {
+export function searchPerson(name) {
   // if no name was given, reload the page with no param -> uses the default: id=1
   let id = "";
   if (name) {
@@ -52,8 +55,8 @@ export function searchFamily(name) {
       return;
     }
 
-    id = person.id;
-    console.log("Assuming the person is", person.fullName);
+    id = person.data.id;
+    console.log(`Assuming the person is ${person.data.fullName} with id ${person.data.id}`);
     hideError("search");
   }
 
@@ -63,9 +66,11 @@ export function searchFamily(name) {
 }
 
 export function showFamily(family) {
-  graphModel.showFamily(family).then(graph => graphView.draw(graph, graphModel.startPerson));
+  let graph = graphModel.showFamily(family);
+  graphView.draw(graph, graphModel.startPerson);
 }
 
 export function hideFamily(family) {
-  graphModel.hideFamily(family).then(graph => graphView.draw(graph, graphModel.startPerson));
+  let graph = graphModel.hideFamily(family);
+  graphView.draw(graph, graphModel.startPerson);
 }
