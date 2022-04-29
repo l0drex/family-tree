@@ -208,19 +208,15 @@ function insertData(person) {
   let birth = person.data.birth;
   panel.select(".born")
     .html(translationToString({
-      en: `born ${birth.date.original ? "on " + birth.date.original : ""} ` +
-        `${birth.place.original ? "in " + birth.place.original : ""} ` +
-        `(${person.data.generation}. generation)`,
-      de: `geboren ${birth.date.original ? "am " + birth.date.original : ""} ` +
-        `${birth.place.original ? "in " + birth.place.original : ""} ` +
-        `(${person.data.generation}. Generation)`
+      en: `${person.data.birth} in ${person.data.generation}. generation`,
+      de: `${person.data.birth} in ${person.data.generation}. Generation`
     }));
   panel.select(".religion")
     .classed("hidden", !person.data.religion)
-    .html(translationToString({
-      en: "religion: " + person.data.religion,
-      de: "Religion: " + person.data.religion
-    }));
+    .html(person.data.religion ? translationToString({
+      en: "religion: " + person.data.religion.value,
+      de: "Religion: " + person.data.religion.value
+    }) : "");
   panel.select(".occupation")
     .classed("hidden", !person.data.occupation)
     .html(translationToString({
@@ -228,18 +224,18 @@ function insertData(person) {
       de: `berufstätig als ${person.data.occupation}`
     }))
   panel.select(".age")
-    .classed("hidden", person.data.isDead)
-    .html(translationToString({
+    .classed("hidden", person.data.death || !person.data.age)
+    .html(person.data.age ? translationToString({
       en: `today ${person.data.age} years old`,
       de: `heute ${person.data.age} Jahre alt`
-    }))
+    }) : "")
   let death = person.data.death;
   panel.select(".death")
-    .classed("hidden", !(person.data.isDead))
-    .html(translationToString({
+    .classed("hidden", !(death))
+    .html(death ? translationToString({
       en: `died ${death.date.original ? "on " + death.date.original : ""} ${person.data.age ? "with " + person.data.age + " years old" : ""}`,
       de: `verstorben ${death.date.original ? "am " + death.date.original : ""} ${person.data.age ? "mit " + person.data.age + " Jahren" : ""}`
-    }));
+    }) : "");
 
   return panel;
 }
@@ -284,24 +280,24 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
-    .classed("locked", f => f.data.members.includes(startPerson.id));
+    .classed("locked", f => f.data.members.includes("#" + startPerson.data.id));
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(d => d.begin ? `⚭ ${d.begin}` : "")
+    .text(r => r.data.married ? `⚭ ${r.data.married.date.original}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
-  newPartners.filter(r => r.data.members.includes(startPerson.id))
+  newPartners.filter(r => r.data.members.includes("#" + startPerson.data.id))
     .append("title")
     .text(r => {
-      if (r.data.members.includes(startPerson.id)) {
+      if (r.data.members.includes("#" + startPerson.data.id)) {
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
       }
     });
-  let notLocked = newPartners.filter(r => !(r.data.members.includes(startPerson.id)))
+  let notLocked = newPartners.filter(r => !(r.data.members.includes("#" + startPerson.data.id)))
     .on("click", hideFamily);
   notLocked.append("text")
     .text("-")
@@ -316,7 +312,7 @@ export function draw(viewGraph, startPerson) {
 
   // node on which the user can click to show more people
   let etcNode = nodesLayer.selectAll(".etc")
-    .data(viewGraph.nodes.filter(node => node.type === "etc"), d => d.viewId);
+    .data(viewGraph.nodes.filter(n => n.type === "etc"), e => e.viewId);
   let etcGroup = etcNode.enter().append("g")
     .attr("class", "etc");
   etcGroup.append("circle")
@@ -335,9 +331,9 @@ export function draw(viewGraph, startPerson) {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.id !== 0), p => p.viewId);
+    .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.fullName !== "unknown"), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", p => "person " + p.data.genderType + (p.data.death ? " dead" : ""))
+    .attr("class", p => `person ${p.data.genderType}`).classed("dead", p => p.data.death)
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)

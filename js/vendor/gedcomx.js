@@ -1,4 +1,4 @@
-import {config} from "../main.js";
+import {config, translationToString} from "../main.js";
 
 const baseUri = "http://gedcomx.org/";
 
@@ -102,24 +102,29 @@ export class Person {
   }
 
   get genderType() {
-    return this.gender.type.substring(baseUri.length).toLowerCase()
+    return this.gender.type.substring(baseUri.length).toLowerCase();
   }
 
   get birth() {
-    return this.#searchFact(personFactTypes.Birth) || emptyFact;
+    let birth = this.#searchFact(personFactTypes.Birth);
+    if (!birth) {
+      return {
+        toString: () => translationToString({
+          "en": "birth unknown",
+          "de": "Geburt unbekannt"
+        })
+      };
+    }
+    birth.toString = () => translationToString({
+      "en": `born ${this.date.original ? "on " + this.date.original : ""} ` +
+        `${this.place.original ? "in " + this.place.original : ""} `,
+      "de": `geboren ${birth.date.original ? "am " + birth.date.original : ""} ` +
+        `${birth.place.original ? "in " + birth.place.original : ""} `
+    });
   }
 
   get death() {
-    let deathFact = this.#searchFact(personFactTypes.Death);
-    if (deathFact) {
-      return deathFact
-    }
-
-    return emptyFact;
-  }
-
-  get isDead() {
-    return (this.death !== emptyFact) || (this.age >= 120);
+    return this.#searchFact(personFactTypes.Death);
   }
 
   get generation() {
@@ -182,16 +187,11 @@ export class Person {
   }
 
   get religion() {
-    let fact = this.#searchFact(personFactTypes.religion);
-    if (fact) {
-      return fact.value;
-    } else {
-      return undefined;
-    }
+    return this.#searchFact(personFactTypes.Religion);
   }
 
   get occupation() {
-
+    return this.#searchFact(personFactTypes.Occupation);
   }
 
   /**
@@ -241,8 +241,8 @@ export class Relationship {
     return [this.person1.resource, this.person2.resource]
   }
 
-  getOther(personId) {
-    return this.members.find(p => p !== personId)
+  get married() {
+    return this.#searchFact(relationshipFactTypes.Marriage);
   }
 
   #searchFact(type) {
