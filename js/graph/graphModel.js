@@ -139,6 +139,9 @@ function showCouple(couple) {
   showNode(couple);
 
   visibleMembers.forEach(p => {
+    if (p.data.fullName === "unknown") {
+      return
+    }
     viewGraph.links.push({
       "source": p.viewId,
       "target": couple.viewId
