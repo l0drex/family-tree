@@ -14,15 +14,16 @@
   text-align: center;
 }
 
-#info-panel .factView {
+#info-panel #factView {
   background: var(--background);
   padding-top: 1rem;
   padding-bottom: 1rem;
+  padding-right: 1rem;
   border-radius: 1rem;
 }
 
-#info-panel .factView li:not(:last-child) {
-  margin-bottom: 1rem;
+#info-panel #factView li:not(:last-child) {
+  margin-bottom: .5rem;
 }
 
 /* graph view */
