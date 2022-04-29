@@ -155,7 +155,11 @@ function addChild(parentChild) {
   let family = families.find(f => (f.data.members.includes(parents[0]) && f.data.members.includes(parents[1])));
 
   if (!isVisible(child)) {
-    return;
+    if (isVisible(family) && family.type !== "etc") {
+      showNode(child);
+    } else {
+      return;
+    }
   }
 
   console.assert(family, "no family found for " + childId)
