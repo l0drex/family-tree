@@ -300,7 +300,7 @@ input[type=search].error, input[type=search]:invalid {
 
 input[type=search]:focus {
   outline: none;
-  border-bottom-color: var(--primary);
+  border-bottom-color: #55d64e;
 }
 
 .search input[type=submit] {
