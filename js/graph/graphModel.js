@@ -159,16 +159,19 @@ function showCouple(couple) {
 function addChild(parentChild) {
   let families = relationships.filter(r => r.data.isCouple);
 
-  let childId = parentChild.data.person2.resource;
-  let child = persons.findById(childId.substring(1));
-  let parents = getParents(persons.findById(childId.substring(1))).map(p => "#" + p.data.id)
-  let family = families.find(f => (f.data.members.includes(parents[0]) && f.data.members.includes(parents[1])));
+  let childId = parentChild.data.person2.resource.substring(1);
+  let child = persons.findById(childId);
+  let parentIds = getParents(persons.findById(childId)).map(p => "#" + p.data.id)
+  let family = families.find(f => (f.data.members.includes(parentIds[0]) && f.data.members.includes(parentIds[1])));
 
   if (!isVisible(child)) {
-    if (isVisible(family) && family.type !== "etc") {
-      showNode(child);
-    } else {
+    if (!isVisible(family) || family.type === "etc") {
       return;
+    }
+    showNode(child);
+    let familiesOfChild = families.filter(f => f.data.members.includes("#" + childId));
+    if (familiesOfChild.length) {
+      familiesOfChild.forEach(showCouple);
     }
   }
 
