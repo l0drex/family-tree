@@ -61,23 +61,43 @@ const relationshipFactTypes = {
 let ageGen0;
 
 GedcomX.Person.prototype.getBirthName = function () {
-  return this.getNames().find(name => name.type && name.type === nameTypes.BirthName);
+  let name = this.getNames().find(name => name.type && name.type === nameTypes.BirthName)
+  if (name) {
+    return name.nameForms[0].fullText;
+  } else {
+    return undefined;
+  }
 }
 
 GedcomX.Person.prototype.getMarriedName = function () {
-  return this.getNames().find(name => name.type && name.type === nameTypes.MarriedName);
+  let name = this.getNames().find(name => name.type && name.type === nameTypes.MarriedName)
+  if (name) {
+    return name.nameForms[0].fullText;
+  } else {
+    return undefined;
+  }
 }
 
 GedcomX.Person.prototype.getAlsoKnownAs = function () {
-  return this.getNames().find(name => name.type && name.type === nameTypes.AlsoKnownAs);
+  let name = this.getNames().find(name => name.type && name.type === nameTypes.AlsoKnownAs)
+  if (name) {
+    return name.nameForms[0].fullText;
+  } else {
+    return undefined;
+  }
 }
 
 GedcomX.Person.prototype.getNickname = function () {
-  return this.getNames().find(name => name.type && name.type === nameTypes.Nickname);
+  let name = this.getNames().find(name => name.type && name.type === nameTypes.Nickname)
+  if (name) {
+    return name.nameForms[0].fullText;
+  } else {
+    return undefined;
+  }
 }
 
 GedcomX.Person.prototype.getFullName = function () {
-  return this.getMarriedName() || this.getNames()[0].nameForms[0].fullText;
+  return this.getNames()[0].nameForms[0].fullText;
 }
 
 GedcomX.Person.prototype.getGeneration = function () {

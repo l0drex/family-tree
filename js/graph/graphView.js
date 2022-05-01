@@ -195,7 +195,7 @@ function insertData(person) {
 
   panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
-    .classed("hidden", !person.data.getBirthName())
+    .classed("hidden", !person.data.getMarriedName())
     .html(translationToString({
       en: `born ${person.data.getBirthName()}`,
       de: `geboren ${person.data.getBirthName()}`
