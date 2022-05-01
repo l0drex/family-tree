@@ -1,11 +1,10 @@
 import * as graphModel from "./graphModel.js";
 import * as graphView from "./graphView.js";
 import {showError, hideError} from "../main.js";
-import {Person, Relationship} from "../vendor/gedcomx.js";
 
 
 (function init() {
-  let data = JSON.parse(localStorage.getItem("familyData"));
+  let data = new GedcomX(JSON.parse(localStorage.getItem("familyData")));
   if (!data) {
     showError({
       en: "The calculated graph is empty!" +
@@ -15,21 +14,17 @@ import {Person, Relationship} from "../vendor/gedcomx.js";
     }, "graph");
   }
 
-  let persons = [], relationships = [];
-  data.persons.forEach(person => persons.push(new Person(person)));
-  data.relationships.forEach(relationship => relationships.push(new Relationship(relationship)));
-
   // add options to search field
-  graphView.addOptions(persons);
+  graphView.addOptions(data.persons);
 
   // get id from url
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
   if (!id) {
-    id = persons[0].fullName === "unknown" ? persons[1].id : persons[0].id;
+    id = data.persons.find(p => p.getFullName() !== "unknown").id;
   }
 
-  graphModel.setData({persons, relationships});
+  graphModel.setData(data);
   graphModel.setStartPerson(id);
   graphView.draw(graphModel.viewGraph, graphModel.startPerson);
 })();
