@@ -471,7 +471,6 @@ caption {
     --foreground-secondary: #595959;
     --background: white;
     --background-higher: #d5d5d5;
-    /* TODO maybe find a better value */
     --background-lower: #f2f2f2;
     --lines: #b6b6b6;
     --positive-green: #91ff91;

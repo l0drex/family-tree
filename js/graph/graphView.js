@@ -51,7 +51,8 @@ let focusPerson;
       svg.node().style.cursor = "";
     })
     .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
-    .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
+    .touchable(() => ('ontouchstart' in window) || window.TouchEvent ||
+      window.DocumentTouch && document instanceof DocumentTouch);
   svg.select("#background").call(svgZoom);
 
   // translate form placeholder
@@ -208,12 +209,15 @@ function insertData(person) {
     }));
 
   let birthFact = person.data.getFactsByType(personFactTypes.Birth)[0];
-  let birth = "";
+  let birth = translationToString({
+    en: "birth unknown",
+    de: "Geburt unbekannt"
+  });
   if (birthFact) {
     birth = translationToString({
-      en: `born ${(birthFact.date && birthFact.date.original) ? "on " + birthFact.date.original : ""}` +
+      en: `born${(birthFact.date && birthFact.date.original) ? " on " + birthFact.date.original : ""}` +
         `${(birthFact.place && birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
-      de: `geboren ${(birthFact.date && birthFact.date.original) ? "am " + birthFact.date.original : ""}` +
+      de: `geboren${(birthFact.date && birthFact.date.original) ? " am " + birthFact.date.original : ""}` +
         `${(birthFact.place && birthFact.place.original) ? " in " + birthFact.place.original : ""}`
     })
   }
@@ -249,8 +253,10 @@ function insertData(person) {
   panel.select(".death")
     .classed("hidden", !(death))
     .html(death ? translationToString({
-      en: `died ${death.date.original ? "on " + death.date.original : ""} ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
-      de: `verstorben ${death.date.original ? "am " + death.date.original : ""} ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
+      en: `died ${death.date.original ? "on " + death.date.original : ""}
+      ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
+      de: `verstorben ${death.date.original ? "am " + death.date.original : ""}
+      ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
     }) : "");
 
   return panel;
@@ -347,10 +353,10 @@ export function draw(viewGraph, startPerson) {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(p => p.type === "person" && p.data.fullName !== "unknown"), p => p.viewId);
+    .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
     .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
-    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.age >= 120)
+    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
@@ -384,11 +390,17 @@ export function draw(viewGraph, startPerson) {
     link
       .attr("points", d => {
         if (d.target.type === "family") {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else if ([d.source.type, d.target.type].includes("etc")) {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.target.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.target.y}
+          ${d.target.x},${d.target.y}`;
         }
       });
   });

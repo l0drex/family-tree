@@ -9,8 +9,7 @@ persons.findById = (id) => {
   if (typeof id === "string") {
     return persons.find(p => p.data.id === id)
   }
-  // TODO use isInstance()
-  if (id._gedxClass === "GedcomX.ResourceReference") {
+  if (id instanceof GedcomX.ResourceReference) {
     return persons.find(p => id.matches(p.data.id))
   }
 }
@@ -69,8 +68,10 @@ export function setStartPerson(id) {
     }
   });
   // check that now everyone has a generation
-  unknownGeneration = unknownGeneration.filter(p => !p.data.getGeneration() && p.data.getGeneration() !== 0 && p.data.id);
-  console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration);
+  unknownGeneration = unknownGeneration.filter(p => !p.data.getGeneration() && p.data.getGeneration() !== 0);
+  console.assert(unknownGeneration.length <= 0,
+    `${unknownGeneration.length} people have no generation defined!`,
+    unknownGeneration.map(p => p.data.getFullName()));
 
   if (false) {
     showFullGraph();
@@ -109,8 +110,7 @@ function addGenerations(person, generation) {
 function getParents(person) {
   return relationships
     .filter(r => r.data.isParentChild() && r.data.person2.matches(person.data.id))
-    .map(r => persons.findById(r.data.person1))
-    .filter(p => p.data.getFullName() !== "unknown");
+    .map(r => persons.findById(r.data.person1));
 }
 
 /**
@@ -121,16 +121,14 @@ function getParents(person) {
 function getChildren(person) {
   return relationships
     .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
-    .map(r => persons.findById(r.data.person2))
-    .filter(p => p.data.getFullName() !== "unknown");
+    .map(r => persons.findById(r.data.person2));
 }
 
 function getPartners(person) {
   return relationships
     .filter(r => r.data.isCouple() &&
       r.data.involvesPerson(person.data))
-    .map(r => persons.findById(r.data.getOtherPerson(person.data)))
-    .filter(p => p.data.getFullName() !== "unknown");
+    .map(r => persons.findById(r.data.getOtherPerson(person.data)));
 }
 
 /**
@@ -182,9 +180,6 @@ function showCouple(couple) {
   showNode(couple);
 
   visibleMembers.forEach(p => {
-    if (p.data.getFullName() === "unknown") {
-      return
-    }
     viewGraph.links.push({
       "source": p.viewId,
       "target": couple.viewId
@@ -239,7 +234,8 @@ function showFullGraph() {
  * @param couple
  */
 export function showFamily(couple) {
-  console.groupCollapsed(`Adding family ${couple.data}`);
+  console.groupCollapsed(`Adding family ${couple.data.getMembers()
+    .map(p => persons.findById(p).data.getFullName())}`);
 
   couple.data.getMembers().map(id => persons.findById(id)).forEach(showNode);
 

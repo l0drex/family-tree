@@ -21,7 +21,7 @@ import {showError, hideError} from "../main.js";
   let url = new URL(window.location);
   let id = url.searchParams.get("id");
   if (!id) {
-    id = data.persons.find(p => p.getFullName() !== "unknown").id;
+    id = data.persons[0].id;
   }
 
   graphModel.setData(data);
