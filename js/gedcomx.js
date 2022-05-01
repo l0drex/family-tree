@@ -161,7 +161,7 @@ GedcomX.Relationship.prototype.getMembers = function () {
   return [this.person1, this.person2]
 }
 
-GedcomX.Relationship.prototype.isMarried = function () {
+GedcomX.Relationship.prototype.marriage = function () {
   return this.getFactsByType(relationshipFactTypes.Marriage);
 }
 
