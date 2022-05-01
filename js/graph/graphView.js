@@ -341,6 +341,7 @@ export function draw(viewGraph, startPerson) {
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height())
     .on("click", setFocus)
+    //.call(d3cola.drag)  // still useful for debugging
     .append("xhtml:div")
     .attr("xmlns", "http://www.w3.org/1999/xhtml")
     .classed("bg", true)
@@ -350,7 +351,6 @@ export function draw(viewGraph, startPerson) {
     })).append("p")
     .html(p => p.data.fullName)
     .classed("fullName", true)
-    .call(d3cola.drag)
   personNode.exit().remove();
   personNode = nodesLayer.selectAll(".person");
 
