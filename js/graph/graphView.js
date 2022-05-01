@@ -306,7 +306,7 @@ export function draw(viewGraph, startPerson) {
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(r => r.data.marriage() ? `⚭ ${r.data.marriage().date.formal}` : "")
+    .text(r => r.data.marriage().date.formal ? `⚭ ${r.data.marriage().date.formal}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
   newPartners.filter(r => r.data.involvesPerson(startPerson.data))
