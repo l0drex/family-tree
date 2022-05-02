@@ -218,7 +218,9 @@ function addChild(parentChild) {
     "source": family.viewId,
     "target": child.viewId
   }
-  if (!viewGraph.links.find(l => l.source === link.source && l.target === link.target)) {
+  if (!viewGraph.links.find(
+    l => l.source === link.source && l.target === link.target ||
+    l.source === family && l.target === child)) {
     viewGraph.links.push(link);
   }
 }
@@ -277,6 +279,8 @@ export function hideFamily(family) {
         nodes = nodes.filter(n => n.type === "family");
         return nodes.length;
       });
+      console.debug("Found", linksToFamilies.length, "connections to other families for", person.data.getFullName(),
+        linksToFamilies);
       return linksToFamilies.length <= 1;
     }
   );
