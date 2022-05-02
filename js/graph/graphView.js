@@ -194,6 +194,7 @@ function insertData(person) {
 
   let panel = d3.select("#info-panel")
 
+  panel.select(".personId").html(person.data.id);
   panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
     .classed("hidden", !person.data.getMarriedName())

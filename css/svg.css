@@ -10,6 +10,16 @@
   padding: 1rem;
 }
 
+#info-panel .personId::before {
+  content: "#";
+}
+
+#info-panel .personId {
+  color: var(--foreground-secondary);
+  text-align: right;
+  width: 100%;
+}
+
 #info-panel h1, #info-panel h2 {
   text-align: center;
 }
