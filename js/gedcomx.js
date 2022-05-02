@@ -158,7 +158,7 @@ GedcomX.Relationship.prototype.isCouple = function () {
 }
 
 GedcomX.Relationship.prototype.getMembers = function () {
-  return [this.person1, this.person2]
+  return [this.getPerson1(), this.getPerson2()]
 }
 
 GedcomX.Relationship.prototype.marriage = function () {
@@ -167,4 +167,8 @@ GedcomX.Relationship.prototype.marriage = function () {
 
 GedcomX.Relationship.prototype.getFactsByType = function (type) {
   return this.getFacts().find(fact => fact.type === type);
+}
+
+GedcomX.Relationship.prototype.toString = function () {
+  return `${this.getType().substring(baseUri.length)} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
 }

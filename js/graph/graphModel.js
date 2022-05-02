@@ -168,6 +168,7 @@ function hideNode(node) {
 
 
 function showCouple(couple) {
+  console.debug("Adding couple", couple.data.toString())
   let members = couple.data.getMembers().map(id => persons.findById(id));
   let visibleMembers = members.filter(isVisible);
   if (!visibleMembers.length) {
@@ -200,6 +201,7 @@ function addChild(parentChild) {
     if (!isVisible(family) || family.type === "etc") {
       return;
     }
+    console.debug("Adding child", child.data.getFullName());
     showNode(child);
     let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
     if (familiesOfChild.length) {
@@ -223,9 +225,11 @@ function addChild(parentChild) {
 
 
 function showFullGraph() {
+  console.groupCollapsed("Showing full graph");
   persons.forEach(showNode);
   relationships.filter(r => r.data.isCouple()).forEach(showCouple);
   relationships.filter(r => r.data.isParentChild()).forEach(addChild);
+  console.groupEnd();
 }
 
 /**
@@ -234,8 +238,7 @@ function showFullGraph() {
  * @param couple
  */
 export function showFamily(couple) {
-  console.groupCollapsed(`Adding family ${couple.data.getMembers()
-    .map(p => persons.findById(p).data.getFullName())}`);
+  console.groupCollapsed("Adding family:", couple.data.toString());
 
   couple.data.getMembers().map(id => persons.findById(id)).forEach(showNode);
 
@@ -256,7 +259,7 @@ export function hideFamily(family) {
     return new Promise(resolve => resolve(viewGraph, startPerson));
   }
 
-  console.groupCollapsed(`Hiding family ${family.data}`);
+  console.groupCollapsed("Hiding family:", family.data.toString());
 
   // find all leaves, e.g. all nodes who are not connected to other families
   let parents = family.data.getMembers().map(persons.findById);
@@ -270,7 +273,7 @@ export function hideFamily(family) {
         if (!(nodes.includes(person))) {
           return false;
         }
-        // remove family and person node
+        // remove etc and person node
         nodes = nodes.filter(n => n.type === "family");
         return nodes.length;
       });
