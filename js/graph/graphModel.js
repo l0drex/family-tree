@@ -75,13 +75,21 @@ export function setStartPerson(id) {
 
   if (false) {
     showFullGraph();
-    return id;
+    return;
   }
 
-  let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id))
+  let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
+  if (!families.length) {
+    console.debug(`${startPerson.data.getFullName()} has no partner, Searching for parents`);
+    let parents = relationships.filter(r => r.data.isParentChild() && r.data.person2.matches(id))
+      .map(r => r.data.person1.resource);
+    console.debug("Following parents were found:", parents);
+    families = [relationships.find(r =>
+      r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
+    return;
+  }
+  console.assert(families.length > 0, "No families to show, graph will be empty!", families)
   families.forEach(showFamily);
-
-  return id;
 }
 
 /**
@@ -220,7 +228,7 @@ function addChild(parentChild) {
   }
   if (!viewGraph.links.find(
     l => l.source === link.source && l.target === link.target ||
-    l.source === family && l.target === child)) {
+      l.source === family && l.target === child)) {
     viewGraph.links.push(link);
   }
 }
@@ -265,8 +273,9 @@ export function hideFamily(family) {
 
   // find all leaves, e.g. all nodes who are not connected to other families
   let parents = family.data.getMembers().map(persons.findById);
-  // TODO potentially unsafe
-  let children = getChildren(persons.findById(family.data.person1));
+  let children1 = getChildren(persons.findById(family.data.person1));
+  let children2 = getChildren(persons.findById(family.data.person2));
+  let children = children1.concat(children2).filter(c => children1.includes(c) && children2.includes(c));
 
   let leaves = parents.concat(children).filter(person => {
       // check if the node is connected to two families
@@ -296,7 +305,6 @@ export function hideFamily(family) {
       case "person":
         return leaves.find(l => l.data.id === node.data.id);
       case "etc":
-        // FIXME
         let visibleMembers = node.data.getMembers()
           .map(persons.findById);
         let children = getChildren(persons.findById(node.data.person1));

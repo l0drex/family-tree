@@ -97,6 +97,9 @@ GedcomX.Person.prototype.getNickname = function () {
 }
 
 GedcomX.Person.prototype.getFullName = function () {
+  if (!this.names) {
+    return "?";
+  }
   return this.getNames()[0].nameForms[0].fullText;
 }
 
