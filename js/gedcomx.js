@@ -129,7 +129,7 @@ GedcomX.Person.prototype.setGeneration = function (value) {
 GedcomX.Person.prototype.getAge = function () {
   let birth = this.getFactsByType(personFactTypes.Birth)[0];
   // exact calculation not possible without birthdate
-  if (!birth || !birth.date || !birth.date.formal) {
+  if (!birth || !birth.date || !birth.date.toDateObject()) {
     // guess the age based on the generation number
     if (ageGen0 && this.getGeneration()) {
       return this.getGeneration() * 25 + ageGen0;
@@ -137,15 +137,19 @@ GedcomX.Person.prototype.getAge = function () {
     return undefined
   }
 
-  // TODO respect day
-  let birthYear = birth.date.formal.substring(1, 5);
-  let lastYear = new Date().getFullYear();
+  let birthDate = birth.date.toDateObject();
+  let lastDate = new Date();
   let death = this.getFactsByType(personFactTypes.Death)[0]
-  if (death && death.date && death.date.formal) {
-    lastYear = death.date.formal.substring(1, 5);
+  if (death && death.date && death.date.toDateObject()) {
+    lastYear = death.date.toDateObject();
   }
 
-  return lastYear - birthYear;
+  // subtraction returns milliseconds, have to convert to year
+  let age = Math.floor((lastDate - birthDate) / 31536000000);
+  if (age < 120) {
+    return age;
+  }
+  return 120;
 }
 
 
@@ -171,4 +175,40 @@ GedcomX.Relationship.prototype.getFactsByType = function (type) {
 
 GedcomX.Relationship.prototype.toString = function () {
   return `${this.getType().substring(baseUri.length)} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
+}
+
+
+GedcomX.Date.prototype.toDateObject = function () {
+  if (!this.getFormal()) {
+    return undefined;
+  }
+
+  let year = this.formal.substring(1, 5);
+  if (!year) {
+    return undefined;
+  }
+  let month = this.formal.substring(6, 8);
+  let day = this.formal.substring(9, 11);
+  let hour = this.formal.substring(12, 14);
+  let minute = this.formal.substring(15, 17);
+  let second = this.formal.substring(18, 20);
+
+  return new Date(Date.UTC(year, month, day, hour, minute, second));
+}
+
+GedcomX.Date.prototype.toString = function () {
+  if (this.original) {
+    return this.original;
+  }
+
+  let dateObject = this.toDateObject();
+  if (!dateObject) {
+    return "";
+  }
+
+  if (this.formal.length <= 11) {
+    return dateObject.toLocaleDateString();
+  }
+
+  return dateObject.toLocaleString();
 }

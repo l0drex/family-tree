@@ -215,10 +215,10 @@ function insertData(person) {
   });
   if (birthFact) {
     birth = translationToString({
-      en: `born${(birthFact.date && birthFact.date.original) ? " on " + birthFact.date.original : ""}` +
-        `${(birthFact.place && birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
-      de: `geboren${(birthFact.date && birthFact.date.original) ? " am " + birthFact.date.original : ""}` +
-        `${(birthFact.place && birthFact.place.original) ? " in " + birthFact.place.original : ""}`
+      en: `born${(birthFact.date.toString()) ? " on " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
+      de: `geboren${(birthFact.date.toString()) ? " am " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`
     })
   }
   panel.select(".born")
@@ -245,19 +245,19 @@ function insertData(person) {
   }
   let death = person.data.getFactsByType(personFactTypes.Death)[0];
   panel.select(".age")
-    .classed("hidden", death || !person.data.getAge())
+    .classed("hidden", death || !person.data.getAge() || person.data.getAge() >= 120)
     .html(person.data.getAge() ? translationToString({
       en: `today ${person.data.getAge()} years old`,
       de: `heute ${person.data.getAge()} Jahre alt`
     }) : "")
   panel.select(".death")
-    .classed("hidden", !(death))
-    .html(death ? translationToString({
-      en: `died ${death.date.original ? "on " + death.date.original : ""}
+    .classed("hidden", !death && person.data.getAge() < 120)
+    .html(translationToString({
+      en: `died ${death && death.date.original ? "on " + death && death.date.original : ""}
       ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
-      de: `verstorben ${death.date.original ? "am " + death.date.original : ""}
+      de: `verstorben ${death && death.date.original ? "am " + death && death.date.original : ""}
       ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
-    }) : "");
+    }));
 
   return panel;
 }
@@ -306,7 +306,7 @@ export function draw(viewGraph, startPerson) {
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(r => r.data.marriage().date.formal ? `⚭ ${r.data.marriage().date.formal}` : "")
+    .text(r => r.data.marriage().date.toString() ? `⚭ ${r.data.marriage().date.toString()}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
   newPartners.filter(r => r.data.involvesPerson(startPerson.data))
