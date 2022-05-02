@@ -197,13 +197,13 @@ function insertData(person) {
   panel.select(".personId").html(person.data.id);
   panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
-    .classed("hidden", !person.data.getMarriedName())
+    .classed("invisible", !person.data.getMarriedName())
     .html(translationToString({
       en: `born ${person.data.getBirthName()}`,
       de: `geboren ${person.data.getBirthName()}`
     }));
   panel.select(".alsoKnownAs")
-    .classed("hidden", !person.data.getAlsoKnownAs())
+    .classed("invisible", !person.data.getAlsoKnownAs())
     .html(translationToString({
       en: "also known as " + person.data.getAlsoKnownAs(),
       de: "auch bekannt als " + person.data.getAlsoKnownAs()

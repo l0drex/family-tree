@@ -8,6 +8,7 @@
 #info-panel {
   background: rgba(70, 155, 24, 0.26);
   padding: 1rem;
+  width: 33%;
 }
 
 #info-panel .personId::before {

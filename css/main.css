@@ -149,6 +149,10 @@ header {
   color: white;
 }
 
+header ::selection {
+  background: #55d64e;
+}
+
 header * {
   font-weight: bold;
   font-size: 2rem;
@@ -177,13 +181,13 @@ main {
 }
 
 main > * {
-  border-radius: .5rem;
   background: var(--background);
   margin: 1rem auto 0;
   box-sizing: border-box;
 }
 
 article, .notification {
+  border-radius: .5rem;
   padding: .75rem 1rem;
   max-width: 50rem;
   width: 100%;
