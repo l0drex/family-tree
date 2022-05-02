@@ -155,6 +155,14 @@ GedcomX.Person.prototype.getAge = function () {
   return 120;
 }
 
+GedcomX.Person.prototype.getGender = function () {
+  if (this.gender.type) {
+    return this.gender;
+  }
+
+  return {type: genderTypes.Unknown};
+}
+
 
 GedcomX.Relationship.prototype.isParentChild = function () {
   return this.getType() === relationshipTypes.ParentChild;
@@ -177,7 +185,11 @@ GedcomX.Relationship.prototype.getFactsByType = function (type) {
 }
 
 GedcomX.Relationship.prototype.toString = function () {
-  return `${this.getType().substring(baseUri.length)} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
+  let type = "Relationship";
+  if (this.type) {
+    type = this.getType().substring(baseUri.length);
+  }
+  return `${type} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
 }
 
 

@@ -45,6 +45,8 @@ function toGraphObject(object, type) {
 }
 
 export function setData(data) {
+  console.log("Found", data.persons.length, "people", data.persons);
+  console.log("Found", data.relationships.length, "relationships", data.relationships);
   // add some necessary data
   data.persons.forEach(p => persons.push(toGraphObject(p, "person")));
   data.relationships.forEach(r => relationships.push(toGraphObject(r, "family")));
