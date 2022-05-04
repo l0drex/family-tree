@@ -281,7 +281,7 @@ function insertData(person) {
       de: `heute ${person.data.getAge()} Jahre alt`
     }) : "")
   panel.select(".death")
-    .classed("hidden", !death && person.data.getAge() < 120)
+    .classed("hidden", !death && person.data.getAge() < 120 || !person.data.getAge())
     .html(translationToString({
       en: `died ${death && death.date.original ? "on " + death && death.date.original : ""}
       ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
