@@ -18,11 +18,11 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/svg.css">
 
   <meta name="theme-color" content="#366120">
   <script src="js/vendor/modernizr-3.11.2.min.js" defer></script>
   <script src="js/plugins.js" defer></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <script src="js/main.js" type="module"></script>
   <script src="js/index.js" type="module"></script>
@@ -54,8 +54,8 @@
 
 <main>
   <article id="upload-container">
-    <h2 lang="en"><span class="emoji">📁</span> File-Upload</h2>
-    <h2 lang="de"><span class="emoji">📁</span> Datei-Upload</h2>
+    <h1 lang="en"><span class="emoji">📁</span> File-Upload</h1>
+    <h1 lang="de"><span class="emoji">📁</span> Datei-Upload</h1>
     <p lang="en">
       Here you can upload the two files for your family tree.
       Simply click on the corresponding button and select the file.
@@ -72,18 +72,11 @@
     </p>
     <form id="upload-form" enctype="multipart/form-data">
       <!--Form to upload the graph data-->
-      <div class="file-upload-container">
-        <div class="file-upload">
-          <label for="people-file" lang="en">People-data</label>
-          <label for="people-file" lang="de">Personendaten</label>
+      <div class="card-wrapper">
+        <div class="card">
+          <label for="gedcom-file">Gedcom Datei</label>
           <br>
-          <input type="file" id="people-file" accept="text/csv">
-        </div>
-        <div class="file-upload">
-          <label for="family-file" lang="en">Family-data</label>
-          <label for="family-file" lang="de">Familiendaten</label>
-          <br>
-          <input type="file" id="family-file" accept="text/csv">
+          <input type="file" id="gedcom-file" accept="text/json">
         </div>
       </div>
 
@@ -145,8 +138,8 @@
   </article>
 
   <article>
-    <h2 lang="en"><span class="emoji">🖥</span>️ Usage</h2>
-    <h2 lang="de"><span class="emoji">🖥</span>️ Bedienung</h2>
+    <h1 lang="en"><span class="emoji">🖥</span>️ Usage</h1>
+    <h1 lang="de"><span class="emoji">🖥</span>️ Bedienung</h1>
     <p lang="en">
       You can move the family tree with your mouse and zoom in and out with your mouse wheel.
       If you click on people with your left mouse button some advanced information is displayed.

@@ -1,5 +1,5 @@
-import {config, localize, showError, translationToString} from "../main.js";
-import {searchFamily, showFamily, hideFamily} from "./graphController.js";
+import {config, showError, translationToString} from "../main.js";
+import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -7,7 +7,7 @@ const d3cola = cola.d3adaptor(d3);
 // define layers
 let nodesLayer = svg.select("#nodes");
 let linkLayer = svg.select("#links");
-let focusPerson;
+let focusPerson, startP;
 
 (function init() {
   // check if libraries loaded
@@ -51,8 +51,9 @@ let focusPerson;
       svg.node().style.cursor = "";
     })
     .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
-    .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
-  svg.select("#background").call(svgZoom);
+    .touchable(() => ('ontouchstart' in window) || window.TouchEvent ||
+      window.DocumentTouch && document instanceof DocumentTouch);
+  svg.call(svgZoom);
 
   // translate form placeholder
   let inputName = form.select("#input-name");
@@ -78,7 +79,7 @@ let focusPerson;
     form.onsubmit = event => {
       event.preventDefault();
       let name = document.getElementById("input-name").value;
-      searchFamily(name);
+      searchPerson(name);
     };
     form.oninput = () => {
       let name = document.getElementById("input-name").value;
@@ -106,12 +107,11 @@ export function setFormError(error) {
  */
 function adjustForMobile() {
   // check if header overflows
-  let header = document.querySelector("header");
+  const isPortrait = window.innerWidth < window.innerHeight;
   let form = document.getElementById("name-form");
-  const headerOverflown = window.innerWidth <= 577;
   const formInHeader = form.parentElement.tagName === "HEADER";
 
-  if (headerOverflown && formInHeader) {
+  if (isPortrait && formInHeader) {
     // switch to mobile layout
     console.log("Optimizing form for small-width displays");
     form.remove();
@@ -123,59 +123,94 @@ function adjustForMobile() {
       });
       label.classList.add("sr-only");
     });
-    let formArticle = document.createElement("article");
-    formArticle.style.width = "auto";
-    formArticle.style.position = "absolute";
-    formArticle.style.border = "solid var(--background-higher)";
-    formArticle.style.right = "1rem";
-    formArticle.append(form);
-    document.querySelector("main").prepend(formArticle);
-
-  } else if (!headerOverflown && !formInHeader) {
+    let aside = document.querySelector("#info-panel");
+    aside.prepend(form);
+    aside.querySelector("h1").classList.add("hidden");
+    let id = document.querySelector("#info-panel .id");
+    id.remove();
+    aside.prepend(id);
+  } else if (!isPortrait && !formInHeader) {
     // switch to desktop layout
     console.log("Optimizing form for wider-width displays");
     form.remove();
     form.querySelectorAll("label[for=input-name]").forEach(label => {
       label.innerHTML = translationToString({
-        en: "by",
+        en: "of",
         de: "von"
       });
       label.classList.remove("sr-only");
     });
-    header.append(form);
-    document.querySelector("main").querySelector("article").remove();
+    document.querySelector("#info-panel h1").classList.remove("hidden")
+    document.querySelector("header").append(form);
   }
 }
 
-export function addOptions(people) {
+/**
+ * Adds search options to the search field
+ * @param persons {Array<Person>}
+ */
+export function addOptions(persons) {
   d3.select("datalist#names").selectAll("option")
-    .data(people.filter(p => p.id > 0))
+    .data(persons.filter(p => p.id !== "0"))
     .enter().append("option")
-    .attr("value", d => d.fullName).html(d => d.fullName);
+    .attr("value", person => person.getFullName())
+    .html(person => person.getFullName());
 }
 
 /**
  * Fills the information panel, adjusts the style and shows relevant people in the tree
  * @param person
  */
-function setFocus(person) {
+async function setFocus(person) {
+  if (focusPerson && focusPerson === person) {
+    focusPerson = undefined;
+
+    // hide info panel
+    d3.select("#info-panel").classed("hidden", true);
+
+    // unset focused style
+    nodesLayer.selectAll(".person .focused")
+      .classed("focused", false);
+    return;
+  }
   focusPerson = person;
+
+  d3.select("#info-panel").classed("hidden", false);
 
   // set name in search field
   let inputName = document.getElementById("input-name");
   inputName.value = "";
-  inputName.placeholder = person.fullName;
+  inputName.value = person.data.getFullName();
   document.title = `${translationToString({
     en: "Family tree of",
     de: "Stammbaum von"
-  })} ${person.fullName}`;
+  })} ${person.data.getFullName()}`;
 
   // fill side panel with relevant information
   insertData(person);
+  setFamilyPath(person);
 
   // set focused style
-  nodesLayer.selectAll(".person")
-    .attr("id", d => d.id === focusPerson.id ? "focusPerson" : "");
+  nodesLayer.selectAll(".person .bg")
+    .classed("focused", p => p.data.id === focusPerson.data.id);
+}
+
+/**
+ * Adds the data to the family path view in the footer
+ */
+function setFamilyPath(person) {
+  let list = document.getElementById("family-path");
+  list.innerHTML = "";
+
+  let entries = getPersonPath(person);
+  entries.forEach(e => {
+    let li = document.createElement("li");
+    if (e.data.id === person.data.id) {
+      li.classList.add("focusPerson")
+    }
+    li.innerHTML = e.data.getFullName();
+    list.append(li);
+  });
 }
 
 /**
@@ -187,52 +222,72 @@ function insertData(person) {
   console.assert(person.type === "person", `Incorrect node type: ${person}`);
 
   let panel = d3.select("#info-panel")
-  panel.select(".fullName").html(person.fullName);
+
+  panel.select(".id").html(person.data.id);
+  panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
-    .classed("hidden", !person.additionalNames.born)
+    .classed("hidden", !person.data.getMarriedName())
     .html(translationToString({
-      en: `born ${person.additionalNames.born}`,
-      de: `geboren ${person.additionalNames.born}`
+      en: `born ${person.data.getBirthName()}`,
+      de: `geboren ${person.data.getBirthName()}`
     }));
-  panel.select(".named")
-    .classed("hidden", !person.additionalNames.named)
+  panel.select(".alsoKnownAs")
+    .classed("hidden", !person.data.getAlsoKnownAs())
     .html(translationToString({
-      en: "named" + person.additionalNames.named,
-      de: "genannt" + person.additionalNames.named
+      en: "also known as " + person.data.getAlsoKnownAs(),
+      de: "auch bekannt als " + person.data.getAlsoKnownAs()
     }));
+
+  let birthFact = person.data.getFactsByType(personFactTypes.Birth)[0];
+  let birth = translationToString({
+    en: "birth unknown",
+    de: "Geburt unbekannt"
+  });
+  if (birthFact) {
+    birth = translationToString({
+      en: `born${(birthFact.date.toString()) ? " on " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
+      de: `geboren${(birthFact.date.toString()) ? " am " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`
+    })
+  }
   panel.select(".born")
     .html(translationToString({
-      en: `born ${person.birthday ? "on " + person.birthday : ""} ` +
-        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
-        `(${person.generation}. generation)`,
-      de: `geboren ${person.birthday ? "am " + person.birthday : ""} ` +
-        `${person.placeOfBirth ? "in " + person.placeOfBirth : ""} ` +
-        `(${person.generation}. Generation)`
+      en: `${birth}, ${person.data.getGeneration()}. generation`,
+      de: `${birth}, ${person.data.getGeneration()}. Generation`
     }));
+
+  let religion = person.data.getFactsByType(personFactTypes.Religion)[0];
   panel.select(".religion")
-    .classed("hidden", !person.religion)
-    .html(translationToString({
-      en: "religion: " + person.religion,
-      de: "Religion: " + person.religion
+    .classed("hidden", !person.data.religion)
+    .html(religion ? translationToString({
+      en: "religion: " + religion.value,
+      de: "Religion: " + religion.value
+    }) : "");
+  let occupation = person.data.getFactsByType(personFactTypes.Occupation)[0];
+  panel.select(".occupation")
+    .classed("hidden", !occupation);
+  if (occupation) {
+    panel.select(".occupation").html(translationToString({
+      en: `Occupation: ${occupation.value}`,
+      de: `Beruf: ${occupation.value}`
     }));
-  panel.select(".profession")
-    .classed("hidden", !person.profession)
-    .html(translationToString({
-      en: `working as ${person.profession}`,
-      de: `berufstätig als ${person.profession}`
-    }))
+  }
+  let death = person.data.getFactsByType(personFactTypes.Death)[0];
   panel.select(".age")
-    .classed("hidden", person.dead)
-    .html(translationToString({
-      en: `today ${person.age} years old`,
-      de: `heute ${person.age} Jahre alt`
-    }))
+    .classed("hidden", death || !person.data.getAge() || person.data.getAge() >= 120)
+    .html(person.data.getAge() ? translationToString({
+      en: `today ${person.data.getAge()} years old`,
+      de: `heute ${person.data.getAge()} Jahre alt`
+    }) : "")
   panel.select(".death")
-    .classed("hidden", !person.dead)
+    .classed("hidden", !death && person.data.getAge() < 120 || !person.data.getAge())
     .html(translationToString({
-      en: `died on ${person.dayOfDeath} with ${person.age} years`,
-      de: `verstorben ${person.dayOfDeath ? "am " + person.dayOfDeath : ""} ${person.age ? "mit " + person.age + " Jahren" : ""}`
-    }))
+      en: `died ${death && death.date.original ? "on " + death && death.date.original : ""}
+      ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
+      de: `verstorben ${death && death.date.original ? "am " + death && death.date.original : ""}
+      ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
+    }));
 
   return panel;
 }
@@ -277,24 +332,24 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
-    .classed("locked", f => f.members.includes(startPerson.id));
+    .classed("locked", f => f.data.involvesPerson(startPerson.data));
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(d => d.begin ? `⚭ ${d.begin}` : "")
+    .text(r => r.data.marriage().date.toString() ? `⚭ ${r.data.marriage().date.toString()}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
-  newPartners.filter(f => f.members.includes(startPerson.id))
+  newPartners.filter(r => r.data.involvesPerson(startPerson.data))
     .append("title")
-    .text(f => {
-      if (f.members.includes(startPerson.id)) {
+    .text(r => {
+      if (r.data.involvesPerson(startPerson.data)) {
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
       }
     });
-  let notLocked = newPartners.filter(f => !(f.members.includes(startPerson.id)))
+  let notLocked = newPartners.filter(r => !(r.data.involvesPerson(startPerson.data)))
     .on("click", hideFamily);
   notLocked.append("text")
     .text("-")
@@ -309,7 +364,7 @@ export function draw(viewGraph, startPerson) {
 
   // node on which the user can click to show more people
   let etcNode = nodesLayer.selectAll(".etc")
-    .data(viewGraph.nodes.filter(node => node.type === "etc"), d => d.viewId);
+    .data(viewGraph.nodes.filter(n => n.type === "etc"), e => e.viewId);
   let etcGroup = etcNode.enter().append("g")
     .attr("class", "etc");
   etcGroup.append("circle")
@@ -328,15 +383,17 @@ export function draw(viewGraph, startPerson) {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => node.type === "person" && node.id !== 0), d => d.viewId);
+    .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
-    .attr("id", d => `p-${d.id}`)
+    .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
+    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
+    .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height())
     .on("click", setFocus)
+    //.call(d3cola.drag)  // still useful for debugging
     .append("xhtml:div")
     .attr("xmlns", "http://www.w3.org/1999/xhtml")
     .classed("bg", true)
@@ -344,12 +401,15 @@ export function draw(viewGraph, startPerson) {
       en: "Click to show more information",
       de: "Klicke für weitere Informationen"
     })).append("p")
-    .html(d => d.fullName)
+    .html(p => p.data.getFullName())
     .classed("fullName", true)
   personNode.exit().remove();
   personNode = nodesLayer.selectAll(".person");
 
-  setFocus(startPerson);
+  if (!startP) {
+    startP = startPerson;
+    setFocus(startPerson);
+  }
 
   d3cola.on("tick", () => {
     personNode
@@ -363,11 +423,17 @@ export function draw(viewGraph, startPerson) {
     link
       .attr("points", d => {
         if (d.target.type === "family") {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else if ([d.source.type, d.target.type].includes("etc")) {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.target.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.target.y}
+          ${d.target.x},${d.target.y}`;
         }
       });
   });
