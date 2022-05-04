@@ -1,39 +1,34 @@
 /* things surrounding the graph view  */
-#tree-container {
-  display: grid;
-  gap: 0;
+body {
   grid-template-areas:
+    "header"
     "sidebar"
     "main"
     "footer";
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto;
   background: var(--background);
 }
 
-#tree-container > * {
-  margin: 0;
+header form > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+main #family-tree {
   width: 100%;
   height: 100%;
 }
 
-#info-panel {
-  grid-area: sidebar;
-  background: rgba(70, 155, 24, 0.26);
-  padding: 1rem;
-}
-
-#info-panel .personId::before {
+.id::before {
   content: "#";
 }
 
-#info-panel .personId {
+.id {
   color: var(--foreground-secondary);
   text-align: right;
   width: 100%;
-}
-
-#info-panel h1, #info-panel h2 {
-  text-align: center;
+  margin: 0;
+  float: right;
 }
 
 #info-panel h2 {
@@ -51,7 +46,6 @@
   font-size: 2em;
   font-weight: bold;
   text-align: center;
-  width: fit-content;
 }
 
 #info-panel input[type=search]:focus {
@@ -70,11 +64,28 @@
   margin-bottom: .5rem;
 }
 
-#tree-container footer {
+footer {
   background: inherit;
   border-top: solid var(--foreground-secondary) .1rem;
   text-align: left;
   grid-area: footer;
+}
+
+#family-path {
+  margin: 0;
+  padding-left: 0;
+}
+
+#family-path li {
+  display: inline;
+}
+
+#family-path li:not(:last-child):after {
+  content: " >";
+}
+
+#family-path li:last-child {
+  font-weight: bold;
 }
 
 /* graph view */
@@ -96,10 +107,6 @@
   cursor: grabbing;
 }
 
-#family-tree marker {
-  fill: var(--foreground);
-}
-
 #family-tree text {
   fill: var(--foreground);
   font-size: var(--grid-size);
@@ -115,13 +122,13 @@
   stroke-linejoin: round;
 }
 
-.etc, .partnerNode {
+.etc, .partnerNode circle {
   fill: var(--background-higher);
   text-anchor: middle;
   cursor: pointer;
 }
 
-.partnerNode.locked {
+.partnerNode.locked circle {
   cursor: not-allowed;
 }
 
@@ -157,14 +164,6 @@
   line-height: 1.25;
 }
 
-.person .addNames, .person .years {
-  font-weight: 300;
-}
-
-.person .years {
-  font-style: italic;
-}
-
 .person .bg {
   border-radius: 1rem;
   border-width: .2rem;
@@ -190,24 +189,9 @@
   border-right-color: purple;
 }
 
-.focused .bg {
-  box-shadow: 0 0 1rem var(--primary);
-}
-
 .person.dead .bg {
   border-style: solid;
   background-color: var(--background);
-}
-
-.person .text-bg {
-  background: var(--background-lower);
-  border-radius: .75rem;
-  padding: .25rem;
-}
-
-.person td, .person th {
-  border: none;
-  padding: .2rem .3rem;
 }
 
 @media (prefers-color-scheme: light) {
@@ -225,12 +209,13 @@
   }
 }
 
-@media (min-width: 800px) {
-  #tree-container {
-    grid-template-rows: 1fr auto;
+@media (orientation: landscape) {
+  body {
+    grid-template-rows: auto 1fr auto;
     grid-template-columns: 2fr 1fr;
     grid-template-areas:
+      "header header"
       "main sidebar"
-      "footer footer";
+      "footer sidebar";
   }
 }

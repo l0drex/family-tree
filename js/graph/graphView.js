@@ -107,11 +107,11 @@ export function setFormError(error) {
  */
 function adjustForMobile() {
   // check if header overflows
-  const headerOverflown = window.innerWidth < 800;
+  const isPortrait = window.innerWidth < window.innerHeight;
   let form = document.getElementById("name-form");
   const formInHeader = form.parentElement.tagName === "HEADER";
 
-  if (headerOverflown && formInHeader) {
+  if (isPortrait && formInHeader) {
     // switch to mobile layout
     console.log("Optimizing form for small-width displays");
     form.remove();
@@ -126,10 +126,10 @@ function adjustForMobile() {
     let aside = document.querySelector("#info-panel");
     aside.prepend(form);
     aside.querySelector("h1").classList.add("hidden");
-    let id = document.querySelector("#info-panel .personId");
+    let id = document.querySelector("#info-panel .id");
     id.remove();
     aside.prepend(id);
-  } else if (!headerOverflown && !formInHeader) {
+  } else if (!isPortrait && !formInHeader) {
     // switch to desktop layout
     console.log("Optimizing form for wider-width displays");
     form.remove();
@@ -169,7 +169,7 @@ function setFocus(person) {
     d3.select("#info-panel").classed("hidden", true);
 
     // unset focused style
-    nodesLayer.selectAll(".person")
+    nodesLayer.selectAll(".person .focused")
       .classed("focused", false);
     return;
   }
@@ -190,7 +190,7 @@ function setFocus(person) {
   insertData(person);
 
   // set focused style
-  nodesLayer.selectAll(".person")
+  nodesLayer.selectAll(".person .bg")
     .classed("focused", p => p.data.id === focusPerson.data.id);
 }
 
@@ -204,7 +204,7 @@ function insertData(person) {
 
   let panel = d3.select("#info-panel")
 
-  panel.select(".personId").html(person.data.id);
+  panel.select(".id").html(person.data.id);
   panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
     .classed("hidden", !person.data.getMarriedName())

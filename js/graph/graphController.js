@@ -1,6 +1,6 @@
 import * as graphModel from "./graphModel.js";
 import * as graphView from "./graphView.js";
-import {showError, hideError} from "../main.js";
+import {showError, hideError, translationToString} from "../main.js";
 
 
 (function init() {
@@ -43,10 +43,10 @@ export function searchPerson(name) {
     // if no person was found, throw error
     graphView.setFormError(!person);
     if (!person) {
-      showError({
+      window.alert(translationToString({
         en: "No person with that name found!",
         de: "Es konnte keine Person mit diesem Namen gefunden werden!"
-      }, "search");
+      }));
       return;
     }
 

@@ -28,13 +28,13 @@ function setupUploadForm() {
   let form = document.getElementById("upload-form");
 
   // support drag and drop
-  document.querySelectorAll(".file-upload").forEach(container => {
+  document.querySelectorAll(".card").forEach(container => {
     function allowDrop(e) {
       e.preventDefault();
-      if (e.dataTransfer.items[0].type === "text/csv") {
+      if (e.dataTransfer.items[0].type === "text/json") {
         e.dataTransfer.effectAllowed = "copy";
         e.dataTransfer.dropEffect = "copy";
-        container.classList.add("file-dropping")
+        container.classList.add("focused")
         return false;
       }
 
@@ -50,10 +50,10 @@ function setupUploadForm() {
       e.preventDefault();
       input.files = e.dataTransfer.files;
       styleButton(input);
-      container.classList.remove("file-dropping");
+      container.classList.remove("focused");
     }
-    container.ondragleave = () => container.classList.remove("file-dropping");
-    container.ondragend = () => container.classList.remove("file-dropping");
+    container.ondragleave = () => container.classList.remove("focused");
+    container.ondragend = () => container.classList.remove("focused");
   });
 
   // make buttons with selected file green
@@ -83,8 +83,8 @@ function setupUploadForm() {
       localStorage.setItem("familyData", JSON.stringify(data));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
-        window.location.pathname.replace("index.html", "") + "family-tree.html" +
-        window.location.search;
+        window.location.pathname.replace("index.html", "family-tree.html" +
+          window.location.search);
     }
 
     function loadGraph() {

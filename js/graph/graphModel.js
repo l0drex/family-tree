@@ -63,6 +63,7 @@ export function setStartPerson(id) {
   // find generations
   addGenerations(startPerson, 0);
   let unknownGeneration = persons.filter(p => p.data.getGeneration() === undefined);
+  console.debug("Following people were not reached in first iteration", unknownGeneration.map(p => p.data.getFullName()))
   unknownGeneration.forEach(p => {
     let partners = getPartners(p).filter(p => p.data.getGeneration() || p.data.getGeneration() === 0);
     if (partners.length) {
