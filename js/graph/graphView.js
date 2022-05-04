@@ -7,7 +7,7 @@ const d3cola = cola.d3adaptor(d3);
 // define layers
 let nodesLayer = svg.select("#nodes");
 let linkLayer = svg.select("#links");
-let focusPerson;
+let focusPerson, startP;
 
 (function init() {
   // check if libraries loaded
@@ -53,7 +53,7 @@ let focusPerson;
     .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
     .touchable(() => ('ontouchstart' in window) || window.TouchEvent ||
       window.DocumentTouch && document instanceof DocumentTouch);
-  svg.select("#background").call(svgZoom);
+  svg.call(svgZoom);
 
   // translate form placeholder
   let inputName = form.select("#input-name");
@@ -107,9 +107,8 @@ export function setFormError(error) {
  */
 function adjustForMobile() {
   // check if header overflows
-  let header = document.querySelector("header");
+  const headerOverflown = window.innerWidth < 800;
   let form = document.getElementById("name-form");
-  const headerOverflown = window.innerWidth <= 577;
   const formInHeader = form.parentElement.tagName === "HEADER";
 
   if (headerOverflown && formInHeader) {
@@ -124,27 +123,25 @@ function adjustForMobile() {
       });
       label.classList.add("sr-only");
     });
-    let formArticle = document.createElement("article");
-    formArticle.style.width = "auto";
-    formArticle.style.position = "absolute";
-    formArticle.style.border = "solid var(--background-higher)";
-    formArticle.style.right = "1rem";
-    formArticle.append(form);
-    document.querySelector("main").prepend(formArticle);
-
+    let aside = document.querySelector("#info-panel");
+    aside.prepend(form);
+    aside.querySelector("h1").classList.add("hidden");
+    let id = document.querySelector("#info-panel .personId");
+    id.remove();
+    aside.prepend(id);
   } else if (!headerOverflown && !formInHeader) {
     // switch to desktop layout
     console.log("Optimizing form for wider-width displays");
     form.remove();
     form.querySelectorAll("label[for=input-name]").forEach(label => {
       label.innerHTML = translationToString({
-        en: "by",
+        en: "of",
         de: "von"
       });
       label.classList.remove("sr-only");
     });
-    header.append(form);
-    document.querySelector("main").querySelector("article").remove();
+    document.querySelector("#info-panel h1").classList.remove("hidden")
+    document.querySelector("header").append(form);
   }
 }
 
@@ -165,7 +162,20 @@ export function addOptions(persons) {
  * @param person
  */
 function setFocus(person) {
+  if (focusPerson && focusPerson === person) {
+    focusPerson = undefined;
+
+    // hide info panel
+    d3.select("#info-panel").classed("hidden", true);
+
+    // unset focused style
+    nodesLayer.selectAll(".person")
+      .classed("focused", false);
+    return;
+  }
   focusPerson = person;
+
+  d3.select("#info-panel").classed("hidden", false);
 
   // set name in search field
   let inputName = document.getElementById("input-name");
@@ -197,13 +207,13 @@ function insertData(person) {
   panel.select(".personId").html(person.data.id);
   panel.select(".fullName").html(person.data.getFullName());
   panel.select(".birth-name")
-    .classed("invisible", !person.data.getMarriedName())
+    .classed("hidden", !person.data.getMarriedName())
     .html(translationToString({
       en: `born ${person.data.getBirthName()}`,
       de: `geboren ${person.data.getBirthName()}`
     }));
   panel.select(".alsoKnownAs")
-    .classed("invisible", !person.data.getAlsoKnownAs())
+    .classed("hidden", !person.data.getAlsoKnownAs())
     .html(translationToString({
       en: "also known as " + person.data.getAlsoKnownAs(),
       de: "auch bekannt als " + person.data.getAlsoKnownAs()
@@ -377,7 +387,10 @@ export function draw(viewGraph, startPerson) {
   personNode.exit().remove();
   personNode = nodesLayer.selectAll(".person");
 
-  setFocus(startPerson);
+  if (!startP) {
+    startP = startPerson;
+    setFocus(startPerson);
+  }
 
   d3cola.on("tick", () => {
     personNode

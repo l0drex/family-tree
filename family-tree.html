@@ -53,51 +53,46 @@
     <img src="img/logo.svg" width="40" height="100%" alt="A tree with a smiling face">
   </a>
   <span id="title">Family tree</span>
-  <form id="name-form" class="search">
-    <label for="input-name" lang="en">of</label>
-    <label for="input-name" lang="de">von</label>
-    &nbsp;
-    <input id="input-name" list="names" type="search" placeholder="Name" spellcheck="false">
-    <input class="emoji" type="submit" value="🔍">
-  </form>
 </header>
-<main>
-  <div id="tree-container">
-    <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-      <!--Definition for arrow ends-->
-      <defs>
-        <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
-          <path
-            d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
-            transform="rotate(180) scale(.75) translate(1,0)"></path>
-        </marker>
-      </defs>
-      <rect id='background' width='100%' height='100%'></rect>
-      <g id="vis">
-        <g id="links"></g>
-        <g id="nodes"></g>
-      </g>
-    </svg>
-    <aside id="info-panel">
-      <div class="personId"></div>
-      <h1 class="fullName"></h1>
-      <h2>
-        <span class="birth-name"></span>
-        <span class="alsoKnownAs"></span>
-      </h2>
+<main id="tree-container">
+  <aside id="info-panel">
+    <div class="personId">1</div>
+    <form id="name-form" class="search">
+      <label for="input-name" lang="en" class="sr-only">Name:</label>
+      <label for="input-name" lang="de" class="sr-only">Name:</label>
+      <input id="input-name" list="names" type="search" placeholder="Name" spellcheck="false">
+      <input class="emoji" type="submit" value="🔍">
+    </form>
+    <h1 class="fullName hidden">Max Mustermann</h1>
+    <h2 class="birth-name">Max Schmidt</h2>
+    <h2 class="alsoKnownAs"></h2>
 
-      <ul id="factView">
-        <li class="born"></li>
-        <li class="religion"></li>
-        <li class="occupation"></li>
-        <li class="age"></li>
-        <li class="death"></li>
-      </ul>
-    </aside>
-  </div>
+    <ul id="factView">
+      <li class="born"></li>
+      <li class="religion"></li>
+      <li class="occupation"></li>
+      <li class="age"></li>
+      <li class="death"></li>
+    </ul>
+  </aside>
+  <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <!--Definition for arrow ends-->
+    <defs>
+      <marker id="Arrow2Lend" orient="auto" style="overflow: visible">
+        <path
+          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+          transform="rotate(180) scale(.75) translate(1,0)"></path>
+      </marker>
+    </defs>
+    <rect id='background' width='100%' height='100%'></rect>
+    <g id="vis">
+      <g id="links"></g>
+      <g id="nodes"></g>
+    </g>
+  </svg>
+  <footer>
+    Opa > Vater > Ich
+  </footer>
 </main>
-<footer>
-  Made with <span class="emoji">❤</span> on <a href="https://github.com/l0drex/family-tree">GitHub</a>
-</footer>
 </body>
 </html>
