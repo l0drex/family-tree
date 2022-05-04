@@ -347,6 +347,18 @@ export function findPerson(name) {
   return persons.find(person => person.data.getFullName().toLowerCase().includes(name));
 }
 
+export function getPersonPath(person) {
+  let entries = [];
+  let child = getChildren(person).sort((a, b) => isVisible(b) - isVisible(a))[0];
+  let parent = getParents(person).sort((a, b) => isVisible(b) - isVisible(a))[0];
+
+  if (parent) entries.push(parent);
+  entries.push(person);
+  if (child) entries.push(child);
+
+  return entries;
+}
+
 /**
  * Returns true if the node is visible
  * @param node
@@ -355,3 +367,4 @@ export function findPerson(name) {
 function isVisible(node) {
   return viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
 }
+

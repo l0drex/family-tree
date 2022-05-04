@@ -60,6 +60,10 @@ export function searchPerson(name) {
   window.location.replace(url);
 }
 
+export function getPersonPath(person) {
+  return graphModel.getPersonPath(person);
+}
+
 export function showFamily(family) {
   let graph = graphModel.showFamily(family);
   graphView.draw(graph, graphModel.startPerson);

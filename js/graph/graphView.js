@@ -1,5 +1,5 @@
 import {config, showError, translationToString} from "../main.js";
-import {hideFamily, searchPerson, showFamily} from "./graphController.js";
+import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -161,7 +161,7 @@ export function addOptions(persons) {
  * Fills the information panel, adjusts the style and shows relevant people in the tree
  * @param person
  */
-function setFocus(person) {
+async function setFocus(person) {
   if (focusPerson && focusPerson === person) {
     focusPerson = undefined;
 
@@ -188,10 +188,29 @@ function setFocus(person) {
 
   // fill side panel with relevant information
   insertData(person);
+  setFamilyPath(person);
 
   // set focused style
   nodesLayer.selectAll(".person .bg")
     .classed("focused", p => p.data.id === focusPerson.data.id);
+}
+
+/**
+ * Adds the data to the family path view in the footer
+ */
+function setFamilyPath(person) {
+  let list = document.getElementById("family-path");
+  list.innerHTML = "";
+
+  let entries = getPersonPath(person);
+  entries.forEach(e => {
+    let li = document.createElement("li");
+    if (e.data.id === person.data.id) {
+      li.classList.add("focusPerson")
+    }
+    li.innerHTML = e.data.getFullName();
+    list.append(li);
+  });
 }
 
 /**
