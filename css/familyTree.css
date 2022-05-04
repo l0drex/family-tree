@@ -207,7 +207,7 @@ footer {
 }
 
 @media (prefers-color-scheme: light) {
-  svg {
+  #family-tree {
     --male: #9bcfec;
     --female: #ff9494;
     --divers: #d5a3ee;
@@ -224,7 +224,7 @@ footer {
 }
 
 @media (orientation: landscape) {
-  #family-tree {
+  body {
     grid-template-rows: auto 1fr auto;
     grid-template-columns: 2fr 1fr;
     grid-template-areas:
