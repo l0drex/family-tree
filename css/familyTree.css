@@ -94,6 +94,7 @@ footer {
 #family-tree {
   --male: #9bcfec;
   --female: #ff9494;
+  --divers: #d5a3ee;
   --grid-size: 16px;
   margin: 0;
   border-radius: 0;
@@ -178,16 +179,26 @@ footer {
   border-color: var(--female);
 }
 
+.person.female .bg.focused {
+  box-shadow: 0 0 1rem var(--female);
+}
+
 .person.male .bg {
   background-color: var(--male);
   border-color: var(--male);
 }
 
+.person.male .bg.focused {
+  box-shadow: 0 0 1rem var(--male);
+}
+
 .person.divers .bg {
-  background: #a3eea3;
-  border-color: #0000;
-  border-left-color: red;
-  border-right-color: purple;
+  background-color: var(--divers);
+  border-color: var(--divers);
+}
+
+.person.divers .bg.focused {
+  box-shadow: 0 0 1rem var(--divers);
 }
 
 .person.dead .bg {
@@ -199,19 +210,21 @@ footer {
   svg {
     --male: #9bcfec;
     --female: #ff9494;
+    --divers: #d5a3ee;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  svg {
+  #family-tree {
     --male: #254579;
     --female: #911c1c;
+    --divers: #8d53a4;
     background: black;
   }
 }
 
 @media (orientation: landscape) {
-  body {
+  #family-tree {
     grid-template-rows: auto 1fr auto;
     grid-template-columns: 2fr 1fr;
     grid-template-areas:
