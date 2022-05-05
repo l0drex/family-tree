@@ -1,5 +1,5 @@
 import {hideError, hideWarning, showError, showWarning, translationToString} from "./main.js";
-import {loadCsv, loadGedcomX} from "./dataLoader.js";
+import {loadGedcomX} from "./dataLoader.js";
 
 setupUploadForm();
 
@@ -83,9 +83,11 @@ function setupUploadForm() {
     function showGraph(data) {
       localStorage.setItem("familyData", JSON.stringify(data));
       // redirect to the tree-viewer
-      window.location.href = window.location.origin +
-        window.location.pathname.replace("index.html", "family-tree.html" +
-          window.location.search);
+      window.location.href =
+        window.location.origin +
+        // there is no index.html sometimes
+        window.location.pathname.replace("index.html", "") + "family-tree.html" +
+        window.location.search;
     }
 
     function loadGraph() {
