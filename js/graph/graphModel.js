@@ -109,8 +109,8 @@ function addGenerations(person, generation) {
   }
 
   person.data.setGeneration(generation);
-  getParents(person).forEach(p => addGenerations(p, generation + 1));
-  getChildren(person).forEach(c => addGenerations(c, generation - 1));
+  getParents(person).forEach(p => addGenerations(p, generation - 1));
+  getChildren(person).forEach(c => addGenerations(c, generation + 1));
 }
 
 /**

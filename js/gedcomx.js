@@ -58,7 +58,6 @@ const relationshipFactTypes = {
   Marriage: baseUri + ("Marriage")
 }
 
-let ageGen0;
 
 GedcomX.Person.prototype.getBirthName = function () {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.BirthName)
@@ -103,16 +102,19 @@ GedcomX.Person.prototype.getFullName = function () {
   return this.getNames()[0].nameForms[0].fullText;
 }
 
-GedcomX.Person.prototype.getGeneration = function () {
+let ageGen0;
+let firstGen = 0;
+GedcomX.Person.prototype.getGeneration = function (pure=false) {
   let generationFact = this.getFactsByType(personFactTypes.Generation)[0];
   if (generationFact) {
-    return generationFact.value;
+    if (pure) return generationFact.value;
+    return generationFact.value - firstGen;
   } else {
     return undefined;
   }
 }
 GedcomX.Person.prototype.setGeneration = function (value) {
-  let generation = this.getGeneration();
+  let generation = this.getGeneration(true);
   if (generation) {
     console.assert(generation === value,
       `Generations don't match for ${this.getFullName()}: ${generation} <- ${value}`);
@@ -121,6 +123,9 @@ GedcomX.Person.prototype.setGeneration = function (value) {
 
   if (!ageGen0 && value === 0 && this.getAge()) {
     ageGen0 = this.getAge();
+  }
+  if (value < firstGen) {
+    firstGen = value;
   }
 
   this.addFact(GedcomX.Fact({
