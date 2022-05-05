@@ -71,7 +71,8 @@ function setupUploadForm() {
 
     if (!gedcomFile) {
       showError({
-        en: "No gedcom file loaded"
+        en: "No gedcom file selected",
+        de: "Keine Datei ausgewählt"
       }, "gedcom-file")
     }
 
