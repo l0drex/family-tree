@@ -1,5 +1,5 @@
-import {config, localize, showError, translationToString} from "../main.js";
-import {searchFamily, showFamily, hideFamily} from "./graphController.js";
+import {config, showError, translationToString} from "../main.js";
+import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -7,6 +7,7 @@ const d3cola = cola.d3adaptor(d3);
 // define layers
 let nodesLayer = svg.select("#nodes");
 let linkLayer = svg.select("#links");
+let focusPerson, startP;
 
 (function init() {
   // check if libraries loaded
@@ -50,7 +51,8 @@ let linkLayer = svg.select("#links");
       svg.node().style.cursor = "";
     })
     .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
-    .touchable(() => ('ontouchstart' in window) || window.TouchEvent || window.DocumentTouch && document instanceof DocumentTouch);
+    .touchable(() => ('ontouchstart' in window) || window.TouchEvent ||
+      window.DocumentTouch && document instanceof DocumentTouch);
   svg.call(svgZoom);
 
   // translate form placeholder
@@ -77,7 +79,7 @@ let linkLayer = svg.select("#links");
     form.onsubmit = event => {
       event.preventDefault();
       let name = document.getElementById("input-name").value;
-      searchFamily(name);
+      searchPerson(name);
     };
     form.oninput = () => {
       let name = document.getElementById("input-name").value;
@@ -105,12 +107,11 @@ export function setFormError(error) {
  */
 function adjustForMobile() {
   // check if header overflows
-  let header = document.querySelector("header");
+  const isPortrait = window.innerWidth < window.innerHeight;
   let form = document.getElementById("name-form");
-  const headerOverflown = window.innerWidth <= 577;
   const formInHeader = form.parentElement.tagName === "HEADER";
 
-  if (headerOverflown && formInHeader) {
+  if (isPortrait && formInHeader) {
     // switch to mobile layout
     console.log("Optimizing form for small-width displays");
     form.remove();
@@ -122,110 +123,181 @@ function adjustForMobile() {
       });
       label.classList.add("sr-only");
     });
-    let formArticle = document.createElement("article");
-    formArticle.style.width = "auto";
-    formArticle.style.position = "absolute";
-    formArticle.style.border = "solid var(--background-higher)";
-    formArticle.style.right = "1rem";
-    formArticle.append(form);
-    document.querySelector("main").prepend(formArticle);
-
-  } else if (!headerOverflown && !formInHeader) {
+    let aside = document.querySelector("#info-panel");
+    aside.prepend(form);
+    aside.querySelector("h1").classList.add("hidden");
+    let id = document.querySelector("#info-panel .id");
+    id.remove();
+    aside.prepend(id);
+  } else if (!isPortrait && !formInHeader) {
     // switch to desktop layout
     console.log("Optimizing form for wider-width displays");
     form.remove();
     form.querySelectorAll("label[for=input-name]").forEach(label => {
       label.innerHTML = translationToString({
-        en: "by",
+        en: "of",
         de: "von"
       });
       label.classList.remove("sr-only");
     });
-    header.append(form);
-    document.querySelector("main").querySelector("article").remove();
+    document.querySelector("#info-panel h1").classList.remove("hidden")
+    document.querySelector("header").append(form);
   }
 }
 
-export function addOptions(people) {
-  d3.select("datalist#names").selectAll("option")
-    .data(people.filter(p => p.id > 0))
-    .enter().append("option")
-    .attr("value", d => d.fullName).html(d => d.fullName);
-}
-
 /**
- * Toggle the info of a person
- * @param person person node
+ * Adds search options to the search field
+ * @param persons {Array<Person>}
  */
-function toggleInfo(person) {
-  console.assert(person.type === "person");
-
-  person.infoVisible = !person.infoVisible;
-  let element = nodesLayer.select(`#p-${person.id}`)
-    // FIXME this new height is hardcoded and needs to be updated with every new displayed value
-    .attr("height", (person.infoVisible ? 190 : config.gridSize) + (person.dead ? 8 : 0));
-  element.select(".addInfo")
-    .classed("hidden", !person.infoVisible);
-
-  // move element to the top
-  element.remove();
-  nodesLayer.node().append(element.node());
+export function addOptions(persons) {
+  d3.select("datalist#names").selectAll("option")
+    .data(persons.filter(p => p.id !== "0"))
+    .enter().append("option")
+    .attr("value", person => person.getFullName())
+    .html(person => person.getFullName());
 }
 
 /**
- * Inserts data in a person node html template
+ * Fills the information panel, adjusts the style and shows relevant people in the tree
+ * @param person
+ */
+async function setFocus(person) {
+  if (focusPerson && focusPerson === person) {
+    focusPerson = undefined;
+
+    // hide info panel
+    d3.select("#info-panel").classed("hidden", true);
+
+    // unset focused style
+    nodesLayer.selectAll(".person .focused")
+      .classed("focused", false);
+    return;
+  }
+  focusPerson = person;
+
+  d3.select("#info-panel").classed("hidden", false);
+
+  // set name in search field
+  let inputName = document.getElementById("input-name");
+  inputName.value = "";
+  inputName.value = person.data.getFullName();
+  document.title = `${translationToString({
+    en: "Family tree of",
+    de: "Stammbaum von"
+  })} ${person.data.getFullName()}`;
+
+  // fill side panel with relevant information
+  insertData(person);
+  setFamilyPath(person);
+
+  // set focused style
+  nodesLayer.selectAll(".person .bg")
+    .classed("focused", p => p.data.id === focusPerson.data.id);
+}
+
+/**
+ * Adds the data to the family path view in the footer
+ */
+function setFamilyPath(person) {
+  let list = document.getElementById("family-path");
+  list.innerHTML = "";
+
+  let entries = getPersonPath(person);
+  entries.forEach(e => {
+    let li = document.createElement("li");
+    if (e.data.id === person.data.id) {
+      li.classList.add("focusPerson")
+    }
+    li.innerHTML = e.data.getFullName();
+    list.append(li);
+  });
+}
+
+/**
+ * Fills out data in the side panel
  * @param person person node
  * @return {Node | ActiveX.IXMLDOMNode} the html content
  */
 function insertData(person) {
-  console.assert(person.type === "person", "Incorrect node type!");
+  console.assert(person.type === "person", `Incorrect node type: ${person}`);
 
-  let html = d3.select("#info-template").node().cloneNode(true).content;
-  html.querySelector(".fullName").innerHTML =
-    person.fullName;
-  if (person.additionalNames.born) {
-    html.querySelector(".born")
-      .classList.remove("hidden");
-    html.querySelector(".born")
-      .append(person.additionalNames.born);
-  }
-  if (person.additionalNames.named) {
-    html.querySelector(".named")
-      .classList.remove("hidden", person.additionalNames.named);
-    html.querySelector(".named")
-      .append(person.additionalNames.named);
-  }
-  html.querySelector(".years").innerHTML =
-    (person.birthday ? " * " + person.birthday : "") + (person.dayOfDeath ? " † " + person.dayOfDeath : "");
-  html.querySelector(".age").innerHTML =
-    ((person.age && (person.dayOfDeath || person.age < 120)) ? person.age : "?");
-  html.querySelector(".profession").innerHTML =
-    (person.profession ? person.profession : "?");
-  html.querySelector(".religion").innerHTML =
-    (person.religion ? person.religion : "?");
-  html.querySelector(".placeOfBirth").innerHTML =
-    (person.placeOfBirth ? person.placeOfBirth : "?");
-  html.querySelectorAll(".generation").forEach(n => n.innerHTML = n.innerHTML.replace(/%i/, person.generation));
+  let panel = d3.select("#info-panel")
 
-  html.querySelector(".bg").setAttribute(
-    "title", translationToString({
-      en: "Click to show more information",
-      de: "Klicke für weitere Informationen"
+  panel.select(".id").html(person.data.id);
+  panel.select(".fullName").html(person.data.getFullName());
+  panel.select(".birth-name")
+    .classed("hidden", !person.data.getMarriedName())
+    .html(translationToString({
+      en: `born ${person.data.getBirthName()}`,
+      de: `geboren ${person.data.getBirthName()}`
+    }));
+  panel.select(".alsoKnownAs")
+    .classed("hidden", !person.data.getAlsoKnownAs())
+    .html(translationToString({
+      en: "also known as " + person.data.getAlsoKnownAs(),
+      de: "auch bekannt als " + person.data.getAlsoKnownAs()
     }));
 
-  return html;
-}
+  let birthFact = person.data.getFactsByType(personFactTypes.Birth)[0];
+  let birth = translationToString({
+    en: "birth unknown",
+    de: "Geburt unbekannt"
+  });
+  if (birthFact) {
+    birth = translationToString({
+      en: `born${(birthFact.date.toString()) ? " on " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
+      de: `geboren${(birthFact.date.toString()) ? " am " + birthFact.date.toString() : ""}` +
+        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`
+    })
+  }
+  panel.select(".born")
+    .html(translationToString({
+      en: `${birth}, ${person.data.getGeneration()}. generation`,
+      de: `${birth}, ${person.data.getGeneration()}. Generation`
+    }));
 
-function setName(name) {
-  let inputName = document.getElementById("input-name");
-  // place name of focus in header and title
-  // NOTE this has to be here since localize() is called in draw
-  inputName.value = "";
-  inputName.placeholder = name;
-  document.title += ` ${translationToString({
-    en: "of",
-    de: "von"
-  })} ${name}`;
+  let religion = person.data.getFactsByType(personFactTypes.Religion)[0];
+  panel.select(".religion")
+    .classed("hidden", !religion)
+    .html(religion ? translationToString({
+      en: "religion: " + religion.value,
+      de: "Religion: " + religion.value
+    }) : "");
+  let marriedFact = person.data.getFactsByType(personFactTypes.MaritalStatus)[0];
+  let married = marriedFact && marriedFact.value !== "single";
+  panel.select(".married")
+    .classed("hidden", !married)
+    .html(married ? translationToString({
+      en: `married${marriedFact.date.toString() ? " on " + marriedFact.date.toString() : ""}`,
+      de: `verheiratet${marriedFact.date.toString() ? " am " + marriedFact.date.toString() : ""}`
+    }) : "");
+  let occupation = person.data.getFactsByType(personFactTypes.Occupation)[0];
+  panel.select(".occupation")
+    .classed("hidden", !occupation);
+  if (occupation) {
+    panel.select(".occupation").html(translationToString({
+      en: `works as ${occupation.value}`,
+      de: `arbeitet als ${occupation.value}`
+    }));
+  }
+  let death = person.data.getFactsByType(personFactTypes.Death)[0];
+  panel.select(".age")
+    .classed("hidden", death || !person.data.getAge() || person.data.getAge() >= 120)
+    .html(person.data.getAge() ? translationToString({
+      en: `today ${person.data.getAge()} years old`,
+      de: `heute ${person.data.getAge()} Jahre alt`
+    }) : "")
+  panel.select(".death")
+    .classed("hidden", !death && person.data.getAge() < 120 || !person.data.getAge())
+    .html(translationToString({
+      en: `died ${death && death.date ? "on " + death.date.toString() : ""}
+      ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
+      de: `verstorben ${death && death.date ? "am " + death.date.toString() : ""}
+      ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
+    }));
+
+  return panel;
 }
 
 /**
@@ -237,8 +309,6 @@ export function draw(viewGraph, startPerson) {
     "Viewgraph has no nodes!");
   console.assert(viewGraph.links.length > 0,
     "Viewgraph has no links!");
-
-  setName(startPerson.fullName);
 
   d3cola
     .nodes(viewGraph.nodes)
@@ -270,24 +340,24 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(node => node.type === "family"), d => d.viewId);
   let newPartners = partnerNode.enter().append("g")
     .attr("class", "partnerNode")
-    .classed("locked", f => f.members.includes(startPerson.id));
+    .classed("locked", f => f.data.involvesPerson(startPerson.data));
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(d => d.begin ? `⚭ ${d.begin}` : "")
+    .text(r => r.data.marriage().date.toString() ? `⚭ ${r.data.marriage().date.toString()}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
-  newPartners.filter(f => f.members.includes(startPerson.id))
+  newPartners.filter(r => r.data.involvesPerson(startPerson.data))
     .append("title")
-    .text(f => {
-      if (f.members.includes(startPerson.id)) {
+    .text(r => {
+      if (r.data.involvesPerson(startPerson.data)) {
         return translationToString({
           en: "This family cannot be hidden.",
           de: "Diese Familie kann nicht ausgeblendet werden."
         });
       }
     });
-  let notLocked = newPartners.filter(f => !(f.members.includes(startPerson.id)))
+  let notLocked = newPartners.filter(r => !(r.data.involvesPerson(startPerson.data)))
     .on("click", hideFamily);
   notLocked.append("text")
     .text("-")
@@ -302,7 +372,7 @@ export function draw(viewGraph, startPerson) {
 
   // node on which the user can click to show more people
   let etcNode = nodesLayer.selectAll(".etc")
-    .data(viewGraph.nodes.filter(node => node.type === "etc"), d => d.viewId);
+    .data(viewGraph.nodes.filter(n => n.type === "etc"), e => e.viewId);
   let etcGroup = etcNode.enter().append("g")
     .attr("class", "etc");
   etcGroup.append("circle")
@@ -321,26 +391,33 @@ export function draw(viewGraph, startPerson) {
 
   // person nodes
   let personNode = nodesLayer.selectAll(".person")
-    .data(viewGraph.nodes.filter(node => node.type === "person" && node.id !== 0), d => d.viewId);
+    .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", d => "person " + d.gender + (d.dead ? " dead" : ""))
-    .attr("id", d => `p-${d.id}`)
+    .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
+    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
+    .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)
     .attr("width", d => d.bounds.width())
     .attr("height", d => d.bounds.height())
-    .classed("focused", d => d.id === startPerson.id)
-    .on("click", toggleInfo)
-    .append(d => insertData(d));
+    .on("click", setFocus)
+    //.call(d3cola.drag)  // still useful for debugging
+    .append("xhtml:div")
+    .attr("xmlns", "http://www.w3.org/1999/xhtml")
+    .classed("bg", true)
+    .attr("title", translationToString({
+      en: "Click to show more information",
+      de: "Klicke für weitere Informationen"
+    })).append("p")
+    .html(p => p.data.getFullName())
+    .classed("fullName", true)
   personNode.exit().remove();
-
   personNode = nodesLayer.selectAll(".person");
-  personNode.select(".addInfo")
-    .data(viewGraph.nodes.filter(node => node.type === "person"))
-    .attr("class", d => "addInfo" + (d.infoVisible ? "" : " hidden"));
 
-  // needed since the elements were newly added
-  localize(window.navigator.language);
+  if (!startP) {
+    startP = startPerson;
+    setFocus(startPerson);
+  }
 
   d3cola.on("tick", () => {
     personNode
@@ -354,11 +431,17 @@ export function draw(viewGraph, startPerson) {
     link
       .attr("points", d => {
         if (d.target.type === "family") {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else if ([d.source.type, d.target.type].includes("etc")) {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.target.y} ${d.target.x},${d.target.y}`;
+          return `${d.source.x},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.source.y}
+          ${d.source.x + config.gridSize * 1.5},${d.target.y}
+          ${d.target.x},${d.target.y}`;
         }
       });
   });

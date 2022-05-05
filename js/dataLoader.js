@@ -1,20 +1,20 @@
-import * as d3 from "https://unpkg.com/d3";
+//import * as d3 from "https://unpkg.com/d3";
 import {csvParse} from "https://cdn.skypack.dev/d3-dsv";
 
 
 /**
  * Builds a promise out of people and family data
- * @param families {Array} list of family objects
- * @param people {Array} list of person objects
+ * @param relationships {Array} list of family objects
+ * @param persons {Array} list of person objects
  * @return {Promise} Fulfilled if people and families exist
  */
-function buildPromise(people, families) {
+function buildPromise(persons, relationships) {
   return new Promise((resolve, reject) => {
-    if (people && families &&
-      0 < families.length < people.length) {
+    if (persons && relationships &&
+      0 < relationships.length < persons.length) {
       resolve({
-        "people": people,
-        "families": families
+        "persons": persons,
+        "relationships": relationships
       });
     } else {
       reject();
@@ -23,21 +23,14 @@ function buildPromise(people, families) {
 }
 
 /**
- * Loads a json file, parses the data and sets up the graph
- * @deprecated
- * @param path {string}
+ * Loads a gedcomx json file, parses the data and sets up the graph
  * @return {Promise}
+ * @param content
  */
-export function loadJson(path) {
-  d3.json(path, (error, data) => {
-    if (error !== null) {
-      console.error("Error while loading graph data!");
-      console.error(error);
-      return;
-    }
+export function loadGedcomX(content) {
+  let data = JSON.parse(content);
 
-    return buildPromise(data.people, data.families);
-  });
+  return buildPromise(data.persons, data.relationships);
 }
 
 /**
@@ -57,8 +50,7 @@ export function loadCsv(peopleTable, familyTable) {
       let child_of = Number(person.child_of);
       if (children[child_of] === undefined) {
         children[child_of] = [id];
-      }
-      else {
+      } else {
         children[child_of].push(id);
       }
     }

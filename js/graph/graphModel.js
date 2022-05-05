@@ -4,64 +4,95 @@ export let viewGraph = {
   nodes: [],
   links: []
 };
-let people;
-let families;
+let persons = [];
+persons.findById = (id) => {
+  if (typeof id === "string") {
+    return persons.find(p => p.data.id === id)
+  }
+  if (id instanceof GedcomX.ResourceReference) {
+    return persons.find(p => id.matches(p.data.id))
+  }
+}
+let relationships = [];
 export let startPerson;
 
+function toGraphObject(object, type) {
+  // TODO initialize graph objects only in viewGraph
+  let graphObject;
+  switch (type) {
+    case "person":
+      graphObject = {
+        width: config.gridSize * 5,
+        height: config.gridSize,
+        type: "person",
+        data: object
+      };
+      break;
+    case "family":
+      graphObject = {
+        height: config.margin * 2,
+        width: config.margin * 2,
+        type: "family",
+        data: object
+      }
+      break
+    default:
+      console.error("unknown type", type);
+      break;
+  }
+
+  return graphObject;
+}
 
 export function setData(data) {
-  people = data.people;
-  families = data.families;
-
+  console.log("Found", data.persons.length, "people", data.persons);
+  console.log("Found", data.relationships.length, "relationships", data.relationships);
   // add some necessary data
-  people.forEach(person => {
-    person.width = config.gridSize * 5;
-    person.height = config.gridSize;
-    person.infoVisible = false;
-    person.type = "person";
-    // translate old-style gender attribute
-    if (person.gender === "männlich") {
-      person.gender = "male";
-    } else if (person.gender === "weiblich") {
-      person.gender = "female";
-    }
-  });
-
-  families.forEach(family => {
-    family.height = family.width = config.margin * 2;
-    family.type = "family";
-    family.members = family.partners.concat(family.children);
-  });
+  data.persons.forEach(p => persons.push(toGraphObject(p, "person")));
+  data.relationships.forEach(r => relationships.push(toGraphObject(r, "family")));
 }
 
 export function setStartPerson(id) {
-  if (!people.length || !families.length) {
+  if (!persons.length || !relationships.length) {
     throw "Start person can not be defined before data is loaded!";
   }
 
-  startPerson = people[id];
-  console.info("Starting graph with", startPerson.fullName);
+  startPerson = persons.findById(id);
+  console.info("Starting graph with", startPerson.data.getFullName());
 
   // find generations
   addGenerations(startPerson, 0);
-  let unknownGeneration = people.filter(p => !p.generation && p.generation !== 0);
-  unknownGeneration.forEach(person => {
-    let partners = getPartners(person).filter(p => p.generation || p.generation === 0);
+  let unknownGeneration = persons.filter(p => p.data.getGeneration() === undefined);
+  console.debug("Following people were not reached in first iteration", unknownGeneration.map(p => p.data.getFullName()))
+  unknownGeneration.forEach(p => {
+    let partners = getPartners(p).filter(p => p.data.getGeneration() || p.data.getGeneration() === 0);
     if (partners.length) {
-      addGenerations(person, partners[0].generation);
+      addGenerations(p, partners[0].data.getGeneration());
     }
   });
   // check that now everyone has a generation
-  unknownGeneration = unknownGeneration.filter(p => !p.generation && p.generation !== 0 && p.id);
-  console.assert(unknownGeneration.length <= 0, "Some people have no generation defined", unknownGeneration);
+  unknownGeneration = unknownGeneration.filter(p => !p.data.getGeneration() && p.data.getGeneration() !== 0);
+  console.assert(unknownGeneration.length <= 0,
+    `${unknownGeneration.length} people have no generation defined!`,
+    unknownGeneration.map(p => p.data.getFullName()));
 
-  estimateAges();
-  startPerson.infoVisible = true;
+  if (false) {
+    showFullGraph();
+    return;
+  }
 
-  families.filter(f => f.members.includes(startPerson.id))
-    .forEach(p => showFamily(p));
-
-  return id;
+  let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
+  if (!families.length) {
+    console.debug(`${startPerson.data.getFullName()} has no partner, Searching for parents`);
+    let parents = relationships.filter(r => r.data.isParentChild() && r.data.person2.matches(id))
+      .map(r => r.data.person1.resource);
+    console.debug("Following parents were found:", parents);
+    families = [relationships.find(r =>
+      r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
+    return;
+  }
+  console.assert(families.length > 0, "No families to show, graph will be empty!", families)
+  families.forEach(showFamily);
 }
 
 /**
@@ -70,34 +101,16 @@ export function setStartPerson(id) {
  * @param generation generation of the person
  */
 function addGenerations(person, generation) {
-  if (person.generation) {
-    console.assert(person.generation === generation, `Generations dont match for ${person.fullName}: ${person.generation} <- ${generation}`);
+  if (person.data.getGeneration()) {
+    console.assert(person.data.getGeneration() === generation,
+      `Generations dont match for ${person.data.getFullName()}: ${person.data.getGeneration()} <- ${generation}`);
+
     return;
   }
 
-  person.generation = generation;
-  getParents(person).forEach(p => addGenerations(p, generation + 1));
-  getChildren(person).forEach(c => addGenerations(c, generation - 1));
-}
-
-/**
- * Estimate age to mark dead people as dead without knowing birth or death dates,
- * assuming each generation is around 25 years apart.
- */
-function estimateAges() {
-  // add the age of anyone in gen 0 to the estimated age
-  let sameGeneration = people.filter(p => p.generation === 0 && p.birthday);
-  if (!sameGeneration.length) {
-    console.warn("Age estimation failed because no person with a given age in generation 0 could be found!");
-    return;
-  }
-
-  let offset = new Date().getFullYear() - sameGeneration[0].birthday.substring(6, 10);
-
-  people.filter(p => !p.age && (p.generation || p.generation === 0)).forEach(p => {
-    p.age = offset + p.generation * 25;
-    p.dead = p.dead || p.age > 120;
-  });
+  person.data.setGeneration(generation);
+  getParents(person).forEach(p => addGenerations(p, generation - 1));
+  getChildren(person).forEach(c => addGenerations(c, generation + 1));
 }
 
 /**
@@ -106,11 +119,9 @@ function estimateAges() {
  * @return {*[]}
  */
 function getParents(person) {
-  let family = families.find(f => f.children.includes(person.id));
-  if (!family) {
-    return [];
-  }
-  return family.partners.map(id => people[id]);
+  return relationships
+    .filter(r => r.data.isParentChild() && r.data.person2.matches(person.data.id))
+    .map(r => persons.findById(r.data.person1));
 }
 
 /**
@@ -119,29 +130,16 @@ function getParents(person) {
  * @return {[*]}
  */
 function getChildren(person) {
-  let parentFamilies = families.filter(f => f.partners.includes(person.id));
-  if (!parentFamilies.length) {
-    return [];
-  }
-
-  let children = [];
-  parentFamilies.forEach(family => {
-    children = children.concat(family.children.map(id => people[id]));
-  });
-  return children;
+  return relationships
+    .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
+    .map(r => persons.findById(r.data.person2));
 }
 
 function getPartners(person) {
-  let parentFamilies = families.filter(f => f.partners.includes(person.id));
-  if (!parentFamilies.length) {
-    return [];
-  }
-
-  let partners = [];
-  parentFamilies.forEach(family => {
-    partners = partners.concat(family.partners.filter(p => p !== person.id).map(id => people[id]));
-  });
-  return partners;
+  return relationships
+    .filter(r => r.data.isCouple() &&
+      r.data.involvesPerson(person.data))
+    .map(r => persons.findById(r.data.getOtherPerson(person.data)));
 }
 
 /**
@@ -179,72 +177,89 @@ function hideNode(node) {
   return true;
 }
 
+
+function showCouple(couple) {
+  console.debug("Adding couple", couple.data.toString())
+  let members = couple.data.getMembers().map(id => persons.findById(id));
+  let visibleMembers = members.filter(isVisible);
+  if (!visibleMembers.length) {
+    return;
+  } else if (visibleMembers.length === 1) {
+    couple.type = "etc";
+  } else {
+    couple.type = "family";
+  }
+  showNode(couple);
+
+  visibleMembers.forEach(p => {
+    viewGraph.links.push({
+      "source": p.viewId,
+      "target": couple.viewId
+    });
+  })
+}
+
+
+function addChild(parentChild) {
+  let families = relationships.filter(r => r.data.isCouple());
+
+  let childId = parentChild.data.person2;
+  let child = persons.findById(childId);
+  let parentIds = getParents(persons.findById(childId)).map(p => p.data);
+  let family = families.find(f => (f.data.involvesPerson(parentIds[0]) && f.data.involvesPerson(parentIds[1])));
+
+  if (!isVisible(child)) {
+    if (!isVisible(family) || family.type === "etc") {
+      return;
+    }
+    console.debug("Adding child", child.data.getFullName());
+    showNode(child);
+    let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
+    if (familiesOfChild.length) {
+      familiesOfChild.forEach(showCouple);
+    }
+  }
+
+  console.assert(family, "no family found for " + childId)
+  if (!isVisible(family)) {
+    family.type = "etc";
+    showNode(family);
+  }
+  let link = {
+    "source": family.viewId,
+    "target": child.viewId
+  }
+  if (!viewGraph.links.find(
+    l => l.source === link.source && l.target === link.target ||
+      l.source === family && l.target === child)) {
+    viewGraph.links.push(link);
+  }
+}
+
+
+function showFullGraph() {
+  console.groupCollapsed("Showing full graph");
+  persons.forEach(showNode);
+  relationships.filter(r => r.data.isCouple()).forEach(showCouple);
+  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
+  console.groupEnd();
+}
+
 /**
  * Adds a family and its direct members to the view.
  * Adds etc-nodes to members where applicable.
- * @param family
+ * @param couple
  */
-export function showFamily(family) {
-  console.groupCollapsed(`Adding new family ${family.partners}`);
+export function showFamily(couple) {
+  console.groupCollapsed("Adding family:", couple.data.toString());
 
-  // array containing the view graph ids of the partners
-  if (family.members.includes(0)) {
-    console.warn("Person \"Unknown\" is in the family!");
-  }
+  couple.data.getMembers().map(id => persons.findById(id)).forEach(showNode);
 
-  // replace existing etc-node with a family node
-  family.type = family.type.replace("etc", "family");
-  showNode(family);
+  showCouple(couple);
+  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
 
-  family.members.forEach(p => {
-    let person = people[p];
-
-    // add all people in the family
-    if (!showNode(person)) {
-      return;
-    }
-
-    let familyLink;
-    if (family.partners.includes(p)) {
-      familyLink = {
-        source: person.viewId,
-        target: family.viewId
-      };
-    } else {
-      familyLink = {
-        source: family.viewId,
-        target: person.viewId
-      };
-    }
-    viewGraph.links.push(familyLink);
-
-    // add etc-node
-    let otherFamilies = families.filter(f => f.members.includes(p) && !(isVisible(f)));
-    console.assert(otherFamilies.length <= 1, "There seems to be more than one etc-node!", otherFamilies);
-    if (otherFamilies.length) {
-      console.debug("Adding etc for", person.fullName);
-      otherFamilies.forEach(family => {
-        family.type = "etc";
-
-        if (family.children.includes(p) && person.married) {
-          showNode(family);
-          viewGraph.links.push({
-            source: family.viewId,
-            target: person.viewId
-          });
-        } else if (family.partners.includes(p) && person.parentsKnown) {
-          showNode(family);
-          viewGraph.links.push({
-            source: person.viewId,
-            target: family.viewId
-          });
-        }
-      });
-    }
-  });
   console.groupEnd();
-
-  return new Promise(resolve => resolve(viewGraph));
+  return viewGraph;
 }
 
 /**
@@ -252,30 +267,36 @@ export function showFamily(family) {
  * @param family
  */
 export function hideFamily(family) {
-  if (family.members.includes(startPerson.id)) {
+  if (family.data.involvesPerson(startPerson.data)) {
     console.warn("Initial families cannot be removed!");
     return new Promise(resolve => resolve(viewGraph, startPerson));
   }
 
-  console.groupCollapsed(`Hiding family ${family.partners}`);
+  console.groupCollapsed("Hiding family:", family.data.toString());
 
   // find all leaves, e.g. all nodes who are not connected to other families
-  let leaves = family.members.filter(p => {
-      let person = people[p];
+  let parents = family.data.getMembers().map(persons.findById);
+  let children1 = getChildren(persons.findById(family.data.person1));
+  let children2 = getChildren(persons.findById(family.data.person2));
+  let children = children1.concat(children2).filter(c => children1.includes(c) && children2.includes(c));
+
+  let leaves = parents.concat(children).filter(person => {
       // check if the node is connected to two families
       let linksToFamilies = viewGraph.links.filter(link => {
         let nodes = [link.source, link.target];
         if (!(nodes.includes(person))) {
           return false;
         }
-        // remove family and person node
+        // remove etc and person node
         nodes = nodes.filter(n => n.type === "family");
         return nodes.length;
       });
+      console.debug("Found", linksToFamilies.length, "connections to other families for", person.data.getFullName(),
+        linksToFamilies);
       return linksToFamilies.length <= 1;
     }
   );
-  console.debug("Removing the following people:", leaves);
+  console.debug("Removing the following people:", leaves.map(l => l.data.getFullName()));
 
   // remove nodes from the graph
   viewGraph.nodes.filter(node => {
@@ -285,11 +306,13 @@ export function hideFamily(family) {
 
     switch (node.type) {
       case "person":
-        return leaves.includes(node.id);
+        return leaves.find(l => l.data.id === node.data.id);
       case "etc":
-        let visibleMembers = node.members.filter(person =>
-          !(leaves.includes(person)) && (typeof people[person].viewId === "number" && people[person].type === "person"));
-        return visibleMembers.length === 0;
+        let visibleMembers = node.data.getMembers()
+          .map(persons.findById);
+        let children = getChildren(persons.findById(node.data.person1));
+        visibleMembers = visibleMembers.concat(children);
+        return visibleMembers.filter(p => !leaves.includes(p) && isVisible(p)).length === 0;
       case "family":
         // replace family that should be removed with an etc-node
         if (node === family) {
@@ -302,16 +325,16 @@ export function hideFamily(family) {
         console.warn("Unknown node type", node);
         return false;
     }
-  }).forEach(p => hideNode(p));
+  }).forEach(hideNode);
 
   // remove links from the graph
-  leaves = leaves.map(id => people[id].viewId);
+  leaves = leaves.map(l => l.viewId);
   viewGraph.links = viewGraph.links.filter(link => {
     return !(leaves.includes(link.source.viewId)) && !(leaves.includes(link.target.viewId));
   });
 
   console.groupEnd();
-  return new Promise(resolve => resolve(viewGraph));
+  return viewGraph;
 }
 
 /**
@@ -321,7 +344,19 @@ export function hideFamily(family) {
  * @returns person
  */
 export function findPerson(name) {
-  return people.find(person => person.fullName.toLowerCase().includes(name));
+  return persons.find(person => person.data.getFullName().toLowerCase().includes(name));
+}
+
+export function getPersonPath(person) {
+  let entries = [];
+  let child = getChildren(person).sort((a, b) => isVisible(b) - isVisible(a))[0];
+  let parent = getParents(person).sort((a, b) => isVisible(b) - isVisible(a))[0];
+
+  if (parent) entries.push(parent);
+  entries.push(person);
+  if (child) entries.push(child);
+
+  return entries;
 }
 
 /**
@@ -332,3 +367,4 @@ export function findPerson(name) {
 function isVisible(node) {
   return viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
 }
+

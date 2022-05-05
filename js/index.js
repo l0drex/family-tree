@@ -1,5 +1,5 @@
 import {hideError, hideWarning, showError, showWarning, translationToString} from "./main.js";
-import {loadCsv} from "./dataLoader.js";
+import {loadCsv, loadGedcomX} from "./dataLoader.js";
 
 setupUploadForm();
 
@@ -28,13 +28,13 @@ function setupUploadForm() {
   let form = document.getElementById("upload-form");
 
   // support drag and drop
-  document.querySelectorAll(".file-upload").forEach(container => {
+  document.querySelectorAll(".card").forEach(container => {
     function allowDrop(e) {
       e.preventDefault();
-      if (e.dataTransfer.items[0].type === "text/csv") {
+      if (e.dataTransfer.items[0].type === "text/json") {
         e.dataTransfer.effectAllowed = "copy";
         e.dataTransfer.dropEffect = "copy";
-        container.classList.add("file-dropping")
+        container.classList.add("focused")
         return false;
       }
 
@@ -50,10 +50,10 @@ function setupUploadForm() {
       e.preventDefault();
       input.files = e.dataTransfer.files;
       styleButton(input);
-      container.classList.remove("file-dropping");
+      container.classList.remove("focused");
     }
-    container.ondragleave = () => container.classList.remove("file-dropping");
-    container.ondragend = () => container.classList.remove("file-dropping");
+    container.ondragleave = () => container.classList.remove("focused");
+    container.ondragend = () => container.classList.remove("focused");
   });
 
   // make buttons with selected file green
@@ -66,79 +66,53 @@ function setupUploadForm() {
   form.onsubmit = (event) => {
     event.preventDefault();
 
-    // load data from the files
-    // these are blobs
-    let peopleFile = document.getElementById("people-file").files[0];
-    let familyFile = document.getElementById("family-file").files[0];
+    // load data from the file
+    let gedcomFile = document.getElementById("gedcom-file").files[0];
 
-    if (!peopleFile) {
+    if (!gedcomFile) {
       showError({
-        en: "No people-file selected!",
-        de: "Es wurde keine Personendatei ausgewählt!"
-      }, "people-file");
-    }
-    if (!familyFile) {
-      showError({
-        en: "No family-file selected!",
-        de: "Es wurde keine Familiendatei ausgewählt!"
-      }, "family-file");
+        en: "No gedcom file selected",
+        de: "Keine Datei ausgewählt"
+      }, "gedcom-file")
     }
 
-    if (!(peopleFile && familyFile))
-      return;
+    // raw string of json file
+    let gedcomJson;
 
-    // these are raw strings of the csv files
-    let peopleTable, familiesTable;
-
-    // store the loaded graph data and redirects to the tree-viewer
+    // store the loaded graph data and redirect to the tree-viewer
     function showGraph(data) {
       localStorage.setItem("familyData", JSON.stringify(data));
       // redirect to the tree-viewer
       window.location.href = window.location.origin +
-        window.location.pathname.replace("index.html", "") + "family-tree.html" +
-        window.location.search;
+        window.location.pathname.replace("index.html", "family-tree.html" +
+          window.location.search);
     }
 
     function loadGraph() {
-      if (peopleTable && familiesTable)
-        loadCsv(peopleTable, familiesTable)
-          .then(showGraph)
-          .catch(() =>
-            showError({
-              en: "The calculated graph is empty!" +
-                "Please check if your files are empty. If not, please contact the administrator!",
-              de: "Der berechnete Graph ist leer!" +
-                " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-            }, "graph"));
+      loadGedcomX(gedcomJson)
+        .then(showGraph)
+        .catch(() =>
+          showError({
+            en: "The calculated graph is empty!" +
+              "Please check if your files are empty. If not, please contact the administrator!",
+            de: "Der berechnete Graph ist leer!" +
+              " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+          }, "graph"));
     }
 
-    let readerFamily = new FileReader();
-    readerFamily.onload = (file) => {
-      familiesTable = file.target.result;
+    let readerGedcom = new FileReader();
+    readerGedcom.onload = (file) => {
+      gedcomJson = file.target.result;
       loadGraph();
     }
-    readerFamily.onerror = (event) => {
-      showError({
-        en: "The family file could not be loaded!",
-        de: "Die Familiendatei konnte nicht gelesen werden!"
-      }, "family-file")
-      console.error(event.target.error);
-    };
-    readerFamily.readAsText(familyFile);
-
-    let readerPeople = new FileReader();
-    readerPeople.onload = (file) => {
-      peopleTable = file.target.result;
-      loadGraph();
-    }
-    readerPeople.onerror = (event) => {
+    readerGedcom.onerror = (event) => {
       showError({
         en: "The people file could not be read!",
         de: "Die Personendatei konnte nicht gelesen werden!"
       }, "people-file")
       console.error(event.target.error);
     };
-    readerPeople.readAsText(peopleFile);
+    readerGedcom.readAsText(gedcomFile);
   };
 }
 
