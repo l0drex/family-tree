@@ -1,20 +1,22 @@
-const baseUri = "http://gedcomx.org/";
+import {translationToString} from "./main.js";
 
-const genderTypes = {
+export const baseUri = "http://gedcomx.org/";
+
+export const genderTypes = {
   Male: baseUri + "Male",
   Female: baseUri + "Female",
   Intersex: baseUri + "Intersex",
   Unknown: baseUri + "Unknown"
 }
 
-const namePartTypes = {
+export const namePartTypes = {
   Prefix: baseUri + ("Prefix"),
   Suffix: baseUri + ("Suffix"),
   Given: baseUri + ("Given"),
   Surname: baseUri + ("Surname")
 }
 
-const nameTypes = {
+export const nameTypes = {
   BirthName: baseUri + ("BirthName"),
   MarriedName: baseUri + ("MarriedName"),
   AlsoKnownAs: baseUri + ("AlsoKnownAs"),
@@ -24,7 +26,7 @@ const nameTypes = {
   ReligiousName: baseUri + ("ReligiousName")
 }
 
-const personFactTypes = {
+export const personFactTypes = {
   Adoption: baseUri + "Adoption",
   Birth: baseUri + "Birth",
   Burial: baseUri + "Burial",
@@ -37,7 +39,7 @@ const personFactTypes = {
   Generation: baseUri + "GenerationNumber"
 }
 
-const personFactQualifiers = {
+export const personFactQualifiers = {
   Age: baseUri + "Age",
   Cause: baseUri + "Cause",
   Religion: baseUri + "Religion",
@@ -45,7 +47,7 @@ const personFactQualifiers = {
   NonConsensual: baseUri + "NonConsensual"
 }
 
-const relationshipTypes = {
+export const relationshipTypes = {
   Couple: baseUri + ("Couple"),
   ParentChild: baseUri + ("ParentChild"),
   AncestorDescendant: baseUri + ("AncestorDescendant"),
@@ -53,11 +55,13 @@ const relationshipTypes = {
   EnslavedBy: baseUri + "EnslavedBy"
 }
 
-const relationshipFactTypes = {
+export const relationshipFactTypes = {
   Divorce: baseUri + ("Divorce"),
   Marriage: baseUri + ("Marriage")
 }
 
+
+// Person
 
 GedcomX.Person.prototype.getBirthName = function () {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.BirthName)
@@ -104,14 +108,8 @@ GedcomX.Person.prototype.getFullName = function () {
 
 let ageGen0;
 let firstGen = 0;
-GedcomX.Person.prototype.getGeneration = function (pure=false) {
-  let generationFact = this.getFactsByType(personFactTypes.Generation)[0];
-  if (generationFact) {
-    if (pure) return generationFact.value;
-    return generationFact.value - firstGen;
-  } else {
-    return undefined;
-  }
+GedcomX.Person.prototype.getGeneration = function () {
+    return this.generation;
 }
 GedcomX.Person.prototype.setGeneration = function (value) {
   let generation = this.getGeneration(true);
@@ -127,10 +125,12 @@ GedcomX.Person.prototype.setGeneration = function (value) {
   if (value < firstGen) {
     firstGen = value;
   }
-
+  this.generation = value;
+}
+GedcomX.Person.prototype.addGenerationFact = function () {
   this.addFact(GedcomX.Fact({
     type: personFactTypes.Generation,
-    value: value
+    value: this.generation - firstGen
   }));
 }
 
@@ -169,6 +169,8 @@ GedcomX.Person.prototype.getGender = function () {
 }
 
 
+// Relationship
+
 GedcomX.Relationship.prototype.isParentChild = function () {
   return this.getType() === relationshipTypes.ParentChild;
 }
@@ -197,6 +199,8 @@ GedcomX.Relationship.prototype.toString = function () {
   return `${type} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
 }
 
+
+// Date
 
 GedcomX.Date.prototype.toDateObject = function () {
   if (!this.getFormal()) {
@@ -231,4 +235,118 @@ GedcomX.Date.prototype.toString = function () {
   }
 
   return dateObject.toLocaleString();
+}
+
+
+// Fact
+
+GedcomX.Fact.prototype.toString = function () {
+  let string;
+  switch (this.type) {
+    case personFactTypes.Birth:
+      string = translationToString({
+        en: "born",
+        de: "geboren"
+      });
+      break;
+    case personFactTypes.Generation:
+      string = translationToString({
+        en: "Generation",
+        de: "Generation"
+      });
+      break;
+    case personFactTypes.MaritalStatus:
+      string = translationToString({
+        en: "",
+        de: ""
+      });
+      break;
+    case personFactTypes.Religion:
+      string = translationToString({
+        en: "Religion:",
+        de: "Religion:"
+      })
+      break;
+    case personFactTypes.Occupation:
+      string = translationToString({
+        en: "works as",
+        de: "arbeitet als"
+      })
+      break;
+    case personFactTypes.Death:
+      string = translationToString({
+        en: "died",
+        de: "verstorben"
+      });
+      break;
+    default:
+      string = this.type;
+      break;
+  }
+
+  let value = this.value;
+  if (this.type === personFactTypes.MaritalStatus) {
+    switch (value) {
+      case "single":
+        value = translationToString({
+          en: "single",
+          de: "ledig"
+        });
+        break;
+      case "married":
+        value = translationToString({
+          en: "married",
+          de: "verheiratet"
+        });
+        break;
+    }
+  }
+  string += translationToString({
+    en: `${value || value === 0 ? " " + value : ""}` +
+      `${this.date && this.date.toString() ? " on " + this.date.toString() : ""}` +
+      `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`,
+
+    de: `${value || value === 0 ? " " + value : ""}` +
+      `${this.date && this.date.toString() ? " am " + this.date.toString() : ""}` +
+      `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`
+  });
+
+  if (this.qualifiers) {
+    string += " " + this.qualifiers.map(q => q.toString()).join(" ");
+  }
+
+  return string;
+}
+
+
+// Qualifier
+
+GedcomX.Qualifier.prototype.toString = function () {
+  let string;
+  switch (this.name) {
+    case personFactQualifiers.Age:
+      string = translationToString({
+        en: `with ${this.value} years old`,
+        de: `im Alter von ${this.value} Jahren`
+      });
+      break;
+    default:
+      string = this.name;
+      if (this.value) {
+        string += ": " + this.value;
+      }
+  }
+
+  return string;
+}
+
+
+// PlaceRef
+
+GedcomX.PlaceReference.prototype.toString = function () {
+  if (!this.original) {
+    return "";
+  }
+
+  return this.original;
 }

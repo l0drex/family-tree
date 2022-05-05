@@ -70,6 +70,8 @@ export function setStartPerson(id) {
       addGenerations(p, partners[0].data.getGeneration());
     }
   });
+  persons.forEach(p => p.data.addGenerationFact());
+
   // check that now everyone has a generation
   unknownGeneration = unknownGeneration.filter(p => !p.data.getGeneration() && p.data.getGeneration() !== 0);
   console.assert(unknownGeneration.length <= 0,
@@ -89,7 +91,6 @@ export function setStartPerson(id) {
     console.debug("Following parents were found:", parents);
     families = [relationships.find(r =>
       r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
-    return;
   }
   console.assert(families.length > 0, "No families to show, graph will be empty!", families)
   families.forEach(showFamily);

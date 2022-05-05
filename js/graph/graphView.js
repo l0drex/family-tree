@@ -1,5 +1,6 @@
 import {config, showError, translationToString} from "../main.js";
 import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
+import {baseUri, personFactTypes} from "../gedcomx.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -238,65 +239,38 @@ function insertData(person) {
       de: "auch bekannt als " + person.data.getAlsoKnownAs()
     }));
 
-  let birthFact = person.data.getFactsByType(personFactTypes.Birth)[0];
-  let birth = translationToString({
-    en: "birth unknown",
-    de: "Geburt unbekannt"
+  // facts start
+  let factView = panel.select("#factView");
+  factView.html("");
+  person.data.getFacts().sort((a, b) => {
+    // place birth at top, generation right below
+    if (a.type === personFactTypes.Birth) {
+      return -1;
+    } else if (b.type === personFactTypes.Birth) {
+      return 1;
+    } else if (a.type === personFactTypes.Generation) {
+      return -1;
+    } else if (b.type === personFactTypes.Generation) {
+      return 1;
+    }
+
+    if (a.date && !b.date) {
+      return 1;
+    } else if (!a.date && b.date) {
+      return -1;
+    }
+    if (a.date && b.date) {
+      let aDate = a.date.toDateObject();
+      let bDate = b.date.toDateObject();
+      if (aDate && bDate) {
+        return aDate - bDate;
+      }
+    }
+
+    return 0;
+  }).forEach(fact => {
+    factView.append("li").html(fact.toString());
   });
-  if (birthFact) {
-    birth = translationToString({
-      en: `born${(birthFact.date.toString()) ? " on " + birthFact.date.toString() : ""}` +
-        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`,
-      de: `geboren${(birthFact.date.toString()) ? " am " + birthFact.date.toString() : ""}` +
-        `${(birthFact.place.original) ? " in " + birthFact.place.original : ""}`
-    })
-  }
-  panel.select(".born")
-    .html(translationToString({
-      en: `${birth}, ${person.data.getGeneration()}. generation`,
-      de: `${birth}, ${person.data.getGeneration()}. Generation`
-    }));
-
-  let religion = person.data.getFactsByType(personFactTypes.Religion)[0];
-  panel.select(".religion")
-    .classed("hidden", !religion)
-    .html(religion ? translationToString({
-      en: "religion: " + religion.value,
-      de: "Religion: " + religion.value
-    }) : "");
-  let marriedFact = person.data.getFactsByType(personFactTypes.MaritalStatus)[0];
-  let married = marriedFact && marriedFact.value !== "single";
-  panel.select(".married")
-    .classed("hidden", !married)
-    .html(married ? translationToString({
-      en: `married${marriedFact.date.toString() ? " on " + marriedFact.date.toString() : ""}`,
-      de: `verheiratet${marriedFact.date.toString() ? " am " + marriedFact.date.toString() : ""}`
-    }) : "");
-  let occupation = person.data.getFactsByType(personFactTypes.Occupation)[0];
-  panel.select(".occupation")
-    .classed("hidden", !occupation);
-  if (occupation) {
-    panel.select(".occupation").html(translationToString({
-      en: `works as ${occupation.value}`,
-      de: `arbeitet als ${occupation.value}`
-    }));
-  }
-  let death = person.data.getFactsByType(personFactTypes.Death)[0];
-  panel.select(".age")
-    .classed("hidden", death || !person.data.getAge() || person.data.getAge() >= 120)
-    .html(person.data.getAge() ? translationToString({
-      en: `today ${person.data.getAge()} years old`,
-      de: `heute ${person.data.getAge()} Jahre alt`
-    }) : "")
-  panel.select(".death")
-    .classed("hidden", !death && person.data.getAge() < 120 || !person.data.getAge())
-    .html(translationToString({
-      en: `died ${death && death.date ? "on " + death.date.toString() : ""}
-      ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
-      de: `verstorben ${death && death.date ? "am " + death.date.toString() : ""}
-      ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
-    }));
-
   return panel;
 }
 
