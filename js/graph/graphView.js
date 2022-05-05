@@ -259,7 +259,7 @@ function insertData(person) {
 
   let religion = person.data.getFactsByType(personFactTypes.Religion)[0];
   panel.select(".religion")
-    .classed("hidden", !person.data.religion)
+    .classed("hidden", !religion)
     .html(religion ? translationToString({
       en: "religion: " + religion.value,
       de: "Religion: " + religion.value
@@ -283,9 +283,9 @@ function insertData(person) {
   panel.select(".death")
     .classed("hidden", !death && person.data.getAge() < 120 || !person.data.getAge())
     .html(translationToString({
-      en: `died ${death && death.date.original ? "on " + death && death.date.original : ""}
+      en: `died ${death && death.date ? "on " + death.date.toString() : ""}
       ${person.data.getAge() ? "with " + person.data.getAge() + " years old" : ""}`,
-      de: `verstorben ${death && death.date.original ? "am " + death && death.date.original : ""}
+      de: `verstorben ${death && death.date ? "am " + death.date.toString() : ""}
       ${person.data.getAge() ? "mit " + person.data.getAge() + " Jahren" : ""}`
     }));
 
