@@ -264,6 +264,14 @@ function insertData(person) {
       en: "religion: " + religion.value,
       de: "Religion: " + religion.value
     }) : "");
+  let marriedFact = person.data.getFactsByType(personFactTypes.MaritalStatus)[0];
+  let married = marriedFact && marriedFact.value !== "single";
+  panel.select(".married")
+    .classed("hidden", !married)
+    .html(married ? translationToString({
+      en: `married${marriedFact.date ? " on " + marriedFact.date.toString() : ""}`,
+      de: `verheiratet${marriedFact.date ? " am " + marriedFact.date.toString() : ""}`
+    }) : "");
   let occupation = person.data.getFactsByType(personFactTypes.Occupation)[0];
   panel.select(".occupation")
     .classed("hidden", !occupation);
