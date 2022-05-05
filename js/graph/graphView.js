@@ -277,8 +277,8 @@ function insertData(person) {
     .classed("hidden", !occupation);
   if (occupation) {
     panel.select(".occupation").html(translationToString({
-      en: `Occupation: ${occupation.value}`,
-      de: `Beruf: ${occupation.value}`
+      en: `works as ${occupation.value}`,
+      de: `arbeitet als ${occupation.value}`
     }));
   }
   let death = person.data.getFactsByType(personFactTypes.Death)[0];
