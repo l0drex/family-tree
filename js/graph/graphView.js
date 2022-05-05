@@ -269,8 +269,8 @@ function insertData(person) {
   panel.select(".married")
     .classed("hidden", !married)
     .html(married ? translationToString({
-      en: `married${marriedFact.date ? " on " + marriedFact.date.toString() : ""}`,
-      de: `verheiratet${marriedFact.date ? " am " + marriedFact.date.toString() : ""}`
+      en: `married${marriedFact.date.toString() ? " on " + marriedFact.date.toString() : ""}`,
+      de: `verheiratet${marriedFact.date.toString() ? " am " + marriedFact.date.toString() : ""}`
     }) : "");
   let occupation = person.data.getFactsByType(personFactTypes.Occupation)[0];
   panel.select(".occupation")
