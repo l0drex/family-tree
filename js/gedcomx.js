@@ -144,7 +144,7 @@ GedcomX.Person.prototype.getAge = function () {
   let lastDate = new Date();
   let death = this.getFactsByType(personFactTypes.Death)[0]
   if (death && death.date && death.date.toDateObject()) {
-    lastYear = death.date.toDateObject();
+    lastDate = death.date.toDateObject();
   }
 
   // subtraction returns milliseconds, have to convert to year
