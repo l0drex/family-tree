@@ -5,57 +5,46 @@
   <meta charset="utf-8">
   <title>Page Not Found</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * {
-      line-height: 1.2;
-      margin: 0;
-    }
 
-    html {
-      color: #888;
-      display: table;
-      font-family: sans-serif;
-      height: 100%;
-      text-align: center;
-      width: 100%;
-    }
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="img/icon.png">
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 
-    body {
-      display: table-cell;
-      vertical-align: middle;
-      margin: 2em auto;
-    }
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
 
-    h1 {
-      color: #555;
-      font-size: 2em;
-      font-weight: 400;
-    }
-
-    p {
-      margin: 0 auto;
-      width: 280px;
-    }
-
-    @media only screen and (max-width: 280px) {
-
-      body,
-      p {
-        width: 95%;
-      }
-
-      h1 {
-        font-size: 1.5em;
-        margin: 0 0 0.3em;
-      }
-
-    }
-  </style>
+  <meta name="theme-color" content="#366120">
+  <script src="js/vendor/modernizr-3.11.2.min.js" defer></script>
+  <script src="js/plugins.js" defer></script>
+  <script src="js/main.js" type="module"></script>
 </head>
 
 <body>
-  <h1>Page Not Found</h1>
-  <p>Sorry, but the page you were trying to view does not exist.</p>
+<header>
+  <a href="index.html">
+    <img src="img/logo.svg" width="40" height="100%" alt="A tree with a smiling face">
+  </a>
+  <span id="title">Family tree</span>
+</header>
+<main>
+  <article>
+    <h1 lang="en">💥 Page Not Found</h1>
+    <h1 lang="de">💥 Seite nicht gefunden</h1>
+    <p lang="en">Sorry, but the page you were trying to view does not exist.</p>
+    <p lang="de">Tut mir leid, die Seite, die du versucht hast aufzurufen, existiert nicht.</p>
+  </article>
+</main>
+<footer>
+  <span lang="en">
+  Made with <span class="emoji">❤</span> on
+    <a href="https://github.com/l0drex/family-tree" title="Link to the source code on GitHub">GitHub</a>
+  </span>
+
+  <span lang="de">
+  Entwickelt mit <span class="emoji">❤</span> auf
+    <a href="https://github.com/l0drex/family-tree" title="Link zum Quellcode auf GitHub">GitHub</a>
+  </span>
+</footer>
 </body>
 
 </html>
