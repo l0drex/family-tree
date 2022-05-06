@@ -219,6 +219,13 @@ p {
   line-height: 1.5em;
 }
 
+kbd {
+  border-bottom: solid var(--foreground-secondary) .15rem;
+  border-radius: .5rem;
+  padding: .1rem .3rem;
+  background: var(--background-lower);
+}
+
 form {
   text-align: right;
 }

@@ -57,18 +57,12 @@
     <h1 lang="en"><span class="emoji">📁</span> File-Upload</h1>
     <h1 lang="de"><span class="emoji">📁</span> Datei-Upload</h1>
     <p lang="en">
-      Here you can upload the two files for your family tree.
-      Simply click on the corresponding button and select the file.
-      Make sure that you didn't accidentally mix them up!
-      <br>
-      If you have selected both files, click on the button to open the tree.
+      Select the file with the button below.
+      Then click the green button to view the family tree.
     </p>
     <p lang="de">
-      Ladet hier die beiden Dateien hoch, um euren Stammbaum anzuzeigen.
-      Klickt dazu auf den jeweiligen Knopf und wählt die passende Datei aus.
-      <i>Achtet darauf, dass die richtige Datei im richtigen Feld gelandet ist!</i>
-      <br>
-      Wenn Ihr beide Dateien ausgewählt habt, klickt auf den Knopf um den Stammbaum zu öffnen.
+      Wähle die Datei über den unteren Knopf aus.
+      Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.
     </p>
     <form id="upload-form" enctype="multipart/form-data">
       <!--Form to upload the graph data-->
@@ -87,52 +81,16 @@
     <details lang="en">
       <summary><span class="emoji">🗒️</span> From where do I get the data?</summary>
       <p>
-        The data for the family tree is stored in two CSV-files:
-      </p>
-      <ul>
-        <li>one containing all people</li>
-        <li>one containing the connections between them</li>
-      </ul>
-      <p>
-        If someone shared their family tree with this link, you should have received those two files with it. Just
-        upload
-        them in the form above.
-        <br>
-        If instead you want to create your own family tree, you need to create those files for yourself.
-      </p>
-      <p>
-        Each CSV-file is a table with different columns, depending on the type.
-        You can create those in a spreadsheet program of your choice and then export it as CSV.
-      </p>
-      <p>
-        Information on how to create those files is available in the <a
-        href="https://github.com/l0drex/family-tree/wiki">wiki on GitHub</a>.
+        The file must be a valid GedcomX file in json format, as described
+        <a href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">here</a>
       </p>
     </details>
     <details lang="de">
       <summary><span class="emoji">🗒️</span>️ Woher bekomme ich die Daten?</summary>
-
       <p>
-        Die Daten für den Stammbaum werden in zwei CSV-Dateien gespeichert:
-      </p>
-      <ul>
-        <li>eine für alle Personen</li>
-        <li>eine für alle Familien</li>
-      </ul>
-      <p>
-        Wenn Dir jemand seinen Stammbaum mit diesem Link geteilt hat, dann solltest Du auch die beiden Dateien erhalten
-        haben.
-        Du kannst diese einfach in dem Formular oben laden und den Baum anschauen.
-      </p>
-      <p>
-        Wenn Du stattdessen Deinen eigenen Stammbaum erstellen möchtest, musst Du die beiden Dateien selbst erstellen.
-        <br>
-        Jede CSV-Datei ist eine Tabelle mit verschieden Spalten, je nach Typ.
-        Du kannst diese in einem Tabellenkalkulationsprogramm Deiner Wahl erstellen und anschließend als CSV
-        exportieren.
-        <br>
-        Der Aufbau dieser Dateien ist im <a href="https://github.com/l0drex/family-tree/wiki">Wiki auf GitHub</a>
-        beschrieben (nur auf Englisch).
+        Die Datei muss eine gültige GedcomX Datei im json Format sein, wie
+        <a href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">hier</a>
+        beschrieben.
       </p>
     </details>
   </article>
@@ -141,15 +99,16 @@
     <h1 lang="en"><span class="emoji">🖥</span>️ Usage</h1>
     <h1 lang="de"><span class="emoji">🖥</span>️ Bedienung</h1>
     <p lang="en">
-      You can move the family tree with your mouse and zoom in and out with your mouse wheel.
-      If you click on people with your left mouse button some advanced information is displayed.
-      Many people have a circle with "..." inside them, clicking on those inserts more of their relatives.
+      You can move the family tree with your mouse. While pressing <kbd>Ctrl</kbd>, you can zoom in and out with your mouse wheel.
+      Select a person with your left mouse button to show their information.
+      Many people have a circle with "+" or "-" inside them, clicking on those displays their relatives.
     </p>
     <p lang="de">
-      Man kann den Stammbaum durch Ziehen mit der Maus verschieben und mit dem Mausrad rein- bzw. rauszoomen.
-      Klickt man auf Personen werden weitere Informationen zu dieser angezeigt.
-      An vielen Personen hängen Kreise, in denen "..." steht. Klickt man auf diese, werden weitere Verwandte
-      eingeblendet.
+      Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man <kbd>Strg</kbd> gedrückt, kann man mit dem
+      Mausrad rein- bzw. rauszoomen.
+      Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt.
+      An vielen Personen hängen Kreise, in denen "+" oder "-" steht. Klickt man auf diese, werden weitere Verwandte
+      ein- oder ausgeblendet.
     </p>
   </article>
 </main>
