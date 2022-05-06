@@ -177,6 +177,7 @@ main {
 main > * {
   background: var(--background);
   margin: 1rem auto 0;
+  box-sizing: border-box;
 }
 
 aside {
@@ -242,27 +243,6 @@ input[type=file] {
   color: var(--foreground-secondary);
 }
 
-input[type=submit], button {
-  background: linear-gradient(45deg, var(--primary), #34cec0);
-  color: white;
-  font-weight: bold;
-  border-radius: 2.33rem;
-  padding: .66rem 1rem;
-  border: none;
-}
-
-input[type=submit]:hover, button:hover, .focused {
-  box-shadow: 0 0 1rem var(--primary);
-}
-
-input[type=submit]:focus-visible, button:focus-visible {
-  border: solid var(--secondary);
-}
-
-input[type=submit]:active, button:active {
-  background: var(--primary);
-}
-
 .card-wrapper {
   display: flex;
   justify-content: space-between;
@@ -285,6 +265,31 @@ input[type=submit]:active, button:active {
 
 .file-upload *:not(:last-child) {
   margin-bottom: .5rem;
+}
+
+input[type=submit], button, .button {
+  background: linear-gradient(45deg, var(--primary), #34cec0);
+  color: white;
+  font-weight: bold;
+  border-radius: 2.33rem;
+  padding: .66rem 1rem;
+  border: none;
+}
+
+.button {
+  text-decoration: none;
+}
+
+input[type=submit]:hover, button:hover, .focused {
+  box-shadow: 0 0 1rem var(--primary);
+}
+
+input[type=submit]:focus-visible, button:focus-visible {
+  border: solid var(--secondary);
+}
+
+input[type=submit]:active, button:active {
+  background: var(--primary);
 }
 
 .search {
@@ -435,10 +440,6 @@ button:hover, input[type=submit]:hover, input[type=file] {
    These examples override the primary ('mobile first') styles.
    Modify as content requires.
    ========================================================================== */
-
-@media only screen and (min-width: 35rem) {
-  /* Style adjustments for viewports that meet the condition */
-}
 
 @media print,
 (-webkit-min-device-pixel-ratio: 1.25),
