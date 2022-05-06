@@ -322,6 +322,7 @@ GedcomX.Fact.prototype.toString = function () {
 // Qualifier
 
 GedcomX.Qualifier.prototype.toString = function () {
+  console.log(this)
   let string;
   switch (this.name) {
     case personFactQualifiers.Age:
@@ -329,6 +330,9 @@ GedcomX.Qualifier.prototype.toString = function () {
         en: `with ${this.value} years old`,
         de: `im Alter von ${this.value} Jahren`
       });
+      break;
+    case personFactQualifiers.Cause:
+      string = `(${this.value})`;
       break;
     default:
       string = this.name;
