@@ -328,7 +328,7 @@ GedcomX.Qualifier.prototype.toString = function () {
     case personFactQualifiers.Age:
       string = translationToString({
         en: `with ${this.value} years old`,
-        de: `im Alter von ${this.value} Jahren`
+        de: `mit ${this.value} Jahren`
       });
       break;
     case personFactQualifiers.Cause:
