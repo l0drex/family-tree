@@ -348,6 +348,51 @@ button:hover, input[type=submit]:hover, input[type=file] {
   border-color: var(--error-foreground);
 }
 
+.filter-form {
+  display: flex;
+  align-items: baseline;
+  position: absolute;
+  background: none;
+}
+
+.filter-form > *, .filter-selected .filter:not(:first-child) {
+  margin-left: 1rem;
+}
+
+.filter-selected {
+  display: flex;
+  color: var(--foreground-secondary);
+}
+
+.filter, .add-filter {
+  background: var(--background-lower);
+  border-radius: 1em;
+  padding: 0;
+  border: none;
+}
+
+.filter select {
+  background: none;
+  border: none;
+  color: var(--foreground);
+}
+
+.filter {
+  padding: .5rem 1rem;
+}
+
+button.inline {
+  padding: 0;
+  background: none;
+  color: var(--foreground);
+}
+
+button.inline:hover {
+  box-shadow: none;
+  background: var(--background-higher);
+  border-radius: .1rem;
+}
+
 /* Fixes emojis being monochromatic rather than colored on Microsoft Edge */
 .emoji {
   font-weight: normal !important;

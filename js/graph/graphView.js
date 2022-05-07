@@ -1,6 +1,7 @@
 import {config, showError, translationToString} from "../main.js";
 import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 import {baseUri, personFactTypes} from "../gedcomx.js";
+import * as graphModel from "./graphModel.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -212,6 +213,25 @@ function setFamilyPath(person) {
     li.innerHTML = e.data.getFullName();
     list.append(li);
   });
+}
+
+export function showFilter() {
+  console.debug("Active filter:", graphModel.filter.active);
+
+  if(graphModel.filter.active.length) {
+    graphModel.filter.active.forEach(filter => {
+      let filterElement = document.getElementById("filter").cloneNode(true).content;
+      filterElement.querySelector(".filter-text").innerHTML = filter;
+      document.querySelector(".filter-selected")
+        .append(filterElement.cloneNode(true));
+    });
+  } else {
+    document.querySelector(".filter-selected")
+      .append(translationToString({
+        en: "None",
+        de: "Keine"
+      }));
+  }
 }
 
 /**

@@ -24,6 +24,11 @@ import {showError, hideError, translationToString} from "../main.js";
     id = data.persons[0].id;
   }
 
+  let filter = [...new Set(url.searchParams.getAll("filter"))];
+  //filter = filter ? filter.split(",") : [];
+  graphModel.filter.active = filter;
+  graphView.showFilter();
+
   graphModel.setData(data);
   graphModel.setStartPerson(id);
   graphView.draw(graphModel.viewGraph, graphModel.startPerson);
