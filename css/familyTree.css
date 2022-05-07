@@ -233,3 +233,13 @@ footer {
       "footer sidebar";
   }
 }
+
+@media print {
+  .person .bg {
+    border: solid;
+  }
+
+  .person .focused {
+    font-weight: bold;
+  }
+}

@@ -569,5 +569,9 @@ button:hover, input[type=submit]:hover, input[type=file] {
   h3 {
     page-break-after: avoid;
   }
+
+  header {
+    display: none;
+  }
 }
 
