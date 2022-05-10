@@ -1,6 +1,6 @@
 import {config, showError, translationToString} from "../main.js";
 import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
-import {baseUri, personFactTypes} from "../gedcomx.js";
+import {personFactTypes} from "../gedcomx.js";
 import * as graphModel from "./graphModel.js";
 
 let form = d3.select("#name-form");
@@ -91,10 +91,54 @@ let focusPerson, startP;
     };
   });
 
+  // setup filter form
+  document.querySelector(".filter-form").addEventListener("submit", event => {
+    event.preventDefault();
+    if (event.submitter.classList.contains("remove-filter")) {
+      // remove filter
+      let filter = event.submitter.parentElement.querySelector(".filter-text").dataset.value;
+      graphModel.filter.active = graphModel.filter.active.filter(f => f !== filter);
+    } else {
+      // add filter
+      let newFilter = document.querySelector("#add-filter").value;
+      graphModel.filter.active.push(newFilter);
+    }
+
+    // put active filter in url search params
+    let url = new URL(window.location);
+    url.searchParams.set("filter", graphModel.filter.active.join());
+    window.location = url;
+
+    return false;
+  });
+
   // change layout on mobile
   adjustForMobile();
   window.onresize = adjustForMobile;
 })();
+
+export function showFilter() {
+  console.debug("Active filter:", graphModel.filter.active);
+  document.querySelectorAll("#add-filter option").forEach(option => {
+    option.innerText = graphModel.filter.localize(option.value)
+  });
+
+  if (graphModel.filter.active.length) {
+    graphModel.filter.active.forEach(filter => {
+      let filterElement = document.getElementById("filter").cloneNode(true).content;
+      filterElement.querySelector(".filter-text").innerText = graphModel.filter.localize(filter);
+      filterElement.querySelector(".filter-text").dataset.value = filter;
+      document.querySelector(".filter-selected")
+        .append(filterElement.cloneNode(true));
+    });
+  } else {
+    document.querySelector(".filter-selected")
+      .append(translationToString({
+        en: "None",
+        de: "Keine"
+      }));
+  }
+}
 
 /**
  *
@@ -215,25 +259,6 @@ function setFamilyPath(person) {
   });
 }
 
-export function showFilter() {
-  console.debug("Active filter:", graphModel.filter.active);
-
-  if(graphModel.filter.active.length) {
-    graphModel.filter.active.forEach(filter => {
-      let filterElement = document.getElementById("filter").cloneNode(true).content;
-      filterElement.querySelector(".filter-text").innerHTML = filter;
-      document.querySelector(".filter-selected")
-        .append(filterElement.cloneNode(true));
-    });
-  } else {
-    document.querySelector(".filter-selected")
-      .append(translationToString({
-        en: "None",
-        de: "Keine"
-      }));
-  }
-}
-
 /**
  * Fills out data in the side panel
  * @param person person node
@@ -338,7 +363,7 @@ export function draw(viewGraph, startPerson) {
   newPartners.append("circle")
     .attr("r", config.gridSize / 2);
   newPartners.append("text")
-    .text(r => r.data.marriage() && r.data.marriage().date && r.data.marriage().date.toString() ? `⚭ ${r.data.marriage().date.toString()}` : "")
+    .text(r => r.data.marriage() && r.data.marriage().date ? `⚭ ${r.data.marriage().date.toString()}` : "")
     .attr("x", "-24pt")
     .attr("y", "5pt");
   newPartners.filter(r => r.data.involvesPerson(startPerson.data))
@@ -387,7 +412,7 @@ export function draw(viewGraph, startPerson) {
   let personNode = nodesLayer.selectAll(".person")
     .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
-    .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
+    .attr("class", p => `person ${p.data.getGender()}`)
     .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)

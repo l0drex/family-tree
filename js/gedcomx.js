@@ -162,10 +162,10 @@ GedcomX.Person.prototype.getAge = function () {
 
 GedcomX.Person.prototype.getGender = function () {
   if (this.gender.type) {
-    return this.gender;
+    return this.gender.type.substring(baseUri.length).toLowerCase();
   }
 
-  return {type: genderTypes.Unknown};
+  return genderTypes.Unknown.substring(baseUri.length).toLowerCase();
 }
 
 
@@ -322,7 +322,6 @@ GedcomX.Fact.prototype.toString = function () {
 // Qualifier
 
 GedcomX.Qualifier.prototype.toString = function () {
-  console.log(this)
   let string;
   switch (this.name) {
     case personFactQualifiers.Age:

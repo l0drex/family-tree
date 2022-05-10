@@ -19,10 +19,10 @@ localize(config.browserLang);
  */
 export function localize(language) {
   // strip country-specific stuff
-  language = language.slice(0, 2);
+  language = language.substring(0, 2);
 
   if (supportedLanguages.includes(language)) {
-    document.querySelector("html").setAttribute("lang", language)
+    document.querySelector("html").setAttribute("lang", language);
     let lang = `:lang(${language})`;
     document.querySelectorAll(`[lang]:not(${lang})`).forEach(element =>
       element.style.setProperty('display', 'none'));

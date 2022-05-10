@@ -24,8 +24,9 @@ import {showError, hideError, translationToString} from "../main.js";
     id = data.persons[0].id;
   }
 
-  let filter = [...new Set(url.searchParams.getAll("filter"))];
-  //filter = filter ? filter.split(",") : [];
+  // apply filter
+  let filter = url.searchParams.get("filter");
+  filter = filter ? filter.split(",") : [];
   graphModel.filter.active = filter;
   graphView.showFilter();
 

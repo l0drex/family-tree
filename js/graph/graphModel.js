@@ -1,4 +1,5 @@
-import {config} from "../main.js";
+import {config, translationToString} from "../main.js";
+import {personFactTypes} from "../gedcomx.js";
 
 export let viewGraph = {
   nodes: [],
@@ -15,6 +16,49 @@ persons.findById = (id) => {
 }
 let relationships = [];
 export let startPerson;
+
+export const filter = {
+  NO_DEAD: "no dead people",
+  NO_ANCESTORS: "no ancestors",
+  ONLY_DIRECT: "only direct relatives",
+  NO_SIBLINGS: "no siblings",
+  active: [],
+  // use this function to translate the values above
+  localize: function (value) {
+    switch (value) {
+      case filter.NO_DEAD:
+        return translationToString({
+          en: "no dead people",
+          de: "keine Verstorbenen"
+        });
+      case filter.NO_ANCESTORS:
+        return translationToString({
+          en: "no ancestors",
+          de: "keine Vorfahren"
+        });
+      case filter.ONLY_DIRECT:
+        return translationToString({
+          en: "only direct relatives",
+          de: "nur direkte Verwandte"
+        });
+      case filter.NO_SIBLINGS:
+        return translationToString({
+          en: "no siblings",
+          de: "keine Geschwister"
+        });
+    }
+  }
+}
+
+function filterPeople(person) {
+  let filtered = false;
+  if (filter.active.includes(filter.NO_DEAD)) {
+    filtered = filtered || person.data.getFactsByType(personFactTypes.Death)[0];
+    filtered = filtered || person.data.getAge() >= 120;
+  }
+
+  return !filtered;
+}
 
 function toGraphObject(object, type) {
   // TODO initialize graph objects only in viewGraph
@@ -182,7 +226,8 @@ function hideNode(node) {
 function showCouple(couple) {
   console.debug("Adding couple", couple.data.toString())
   let members = couple.data.getMembers().map(id => persons.findById(id));
-  let visibleMembers = members.filter(isVisible);
+  let visibleMembers = members.filter(isVisible).filter(filterPeople);
+  console.debug(visibleMembers)
   if (!visibleMembers.length) {
     return;
   } else if (visibleMembers.length === 1) {
@@ -214,7 +259,7 @@ function addChild(parentChild) {
       return;
     }
     console.debug("Adding child", child.data.getFullName());
-    showNode(child);
+    [child].filter(filterPeople).forEach(showNode);
     let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
     if (familiesOfChild.length) {
       familiesOfChild.forEach(showCouple);
@@ -254,7 +299,8 @@ function showFullGraph() {
 export function showFamily(couple) {
   console.groupCollapsed("Adding family:", couple.data.toString());
 
-  couple.data.getMembers().map(id => persons.findById(id)).forEach(showNode);
+  couple.data.getMembers().map(id => persons.findById(id)).filter(filterPeople)
+    .forEach(showNode);
 
   showCouple(couple);
   relationships.filter(r => r.data.isParentChild()).forEach(addChild);
@@ -368,4 +414,3 @@ export function getPersonPath(person) {
 function isVisible(node) {
   return viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
 }
-
