@@ -119,8 +119,19 @@ let focusPerson, startP;
 
 export function showFilter() {
   console.debug("Active filter:", graphModel.filter.active);
-  document.querySelectorAll("#add-filter option").forEach(option => {
-    option.innerText = graphModel.filter.localize(option.value)
+  let noSelection = false;
+  document.querySelectorAll("#add-filter option").forEach((option, key) => {
+    option.innerText = graphModel.filter.localize(option.value);
+    if (graphModel.filter.active.includes(option.value)) {
+      option.classList.add("hidden");
+      if (option.selected) {
+        option.selected = false;
+        noSelection = true
+      }
+    } else if (noSelection) {
+      option.selected = true;
+      noSelection = false;
+    }
   });
 
   if (graphModel.filter.active.length) {
