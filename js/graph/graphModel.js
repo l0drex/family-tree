@@ -47,17 +47,16 @@ export const filter = {
           de: "keine Geschwister"
         });
     }
-  }
-}
+  },
+  apply: function (person) {
+    let filtered = false;
+    if (filter.active.includes(filter.NO_DEAD)) {
+      filtered = filtered || person.data.getFactsByType(personFactTypes.Death)[0];
+      filtered = filtered || person.data.getAge() >= 120;
+    }
 
-function filterPeople(person) {
-  let filtered = false;
-  if (filter.active.includes(filter.NO_DEAD)) {
-    filtered = filtered || person.data.getFactsByType(personFactTypes.Death)[0];
-    filtered = filtered || person.data.getAge() >= 120;
+    return !filtered;
   }
-
-  return !filtered;
 }
 
 function toGraphObject(object, type) {
@@ -202,6 +201,10 @@ function showNode(node) {
     return false;
   }
 
+  if (node.type === "person" && !filter.apply(node)) {
+    return false;
+  }
+
   node.viewId = viewGraph.nodes.length;
   viewGraph.nodes.push(node);
 
@@ -226,7 +229,7 @@ function hideNode(node) {
 function showCouple(couple) {
   console.debug("Adding couple", couple.data.toString())
   let members = couple.data.getMembers().map(id => persons.findById(id));
-  let visibleMembers = members.filter(isVisible).filter(filterPeople);
+  let visibleMembers = members.filter(isVisible).filter(filter.apply);
   console.debug(visibleMembers)
   if (!visibleMembers.length) {
     return;
@@ -252,6 +255,7 @@ function addChild(parentChild) {
   let childId = parentChild.data.person2;
   let child = persons.findById(childId);
   let parentIds = getParents(persons.findById(childId)).map(p => p.data);
+  // couple of parents
   let family = families.find(f => (f.data.involvesPerson(parentIds[0]) && f.data.involvesPerson(parentIds[1])));
 
   if (!isVisible(child)) {
@@ -259,10 +263,11 @@ function addChild(parentChild) {
       return;
     }
     console.debug("Adding child", child.data.getFullName());
-    [child].filter(filterPeople).forEach(showNode);
+    showNode(child);
     let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
     if (familiesOfChild.length) {
       familiesOfChild.forEach(showCouple);
+      family = true;
     }
   }
 
@@ -299,7 +304,7 @@ function showFullGraph() {
 export function showFamily(couple) {
   console.groupCollapsed("Adding family:", couple.data.toString());
 
-  couple.data.getMembers().map(id => persons.findById(id)).filter(filterPeople)
+  couple.data.getMembers().map(id => persons.findById(id))
     .forEach(showNode);
 
   showCouple(couple);
