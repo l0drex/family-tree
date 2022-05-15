@@ -212,6 +212,10 @@ GedcomX.Date.prototype.toDateObject = function () {
     return undefined;
   }
   let month = this.formal.substring(6, 8);
+  if (month) {
+    // some javascript weirdness
+    month = parseInt(month) - 1;
+  }
   let day = this.formal.substring(9, 11);
   let hour = this.formal.substring(12, 14);
   let minute = this.formal.substring(15, 17);
