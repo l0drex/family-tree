@@ -52,6 +52,7 @@ export function setData(data) {
   data.relationships.forEach(r => relationships.push(toGraphObject(r, "family")));
 }
 
+export let ageGen0;
 export function setStartPerson(id) {
   if (!persons.length || !relationships.length) {
     throw "Start person can not be defined before data is loaded!";
@@ -60,23 +61,13 @@ export function setStartPerson(id) {
   startPerson = persons.findById(id);
   console.info("Starting graph with", startPerson.data.getFullName());
 
-  // find generations
-  addGenerations(startPerson, 0);
-  let unknownGeneration = persons.filter(p => p.data.getGeneration() === undefined);
-  console.debug("Following people were not reached in first iteration", unknownGeneration.map(p => p.data.getFullName()))
-  unknownGeneration.forEach(p => {
-    let partners = getPartners(p).filter(p => p.data.getGeneration() || p.data.getGeneration() === 0);
-    if (partners.length) {
-      addGenerations(p, partners[0].data.getGeneration());
+  persons.forEach(p => {
+    if (p.data.getGeneration() === startPerson.data.getGeneration()) {
+      if (!ageGen0 && p.data.getGeneration() === startPerson.data.getGeneration() && p.data.getAge()) {
+        ageGen0 = p.data.getAge();
+      }
     }
-  });
-  persons.forEach(p => p.data.addGenerationFact());
-
-  // check that now everyone has a generation
-  unknownGeneration = unknownGeneration.filter(p => !p.data.getGeneration() && p.data.getGeneration() !== 0);
-  console.assert(unknownGeneration.length <= 0,
-    `${unknownGeneration.length} people have no generation defined!`,
-    unknownGeneration.map(p => p.data.getFullName()));
+  })
 
   if (false) {
     showFullGraph();
@@ -94,24 +85,6 @@ export function setStartPerson(id) {
   }
   console.assert(families.length > 0, "No families to show, graph will be empty!", families)
   families.forEach(showFamily);
-}
-
-/**
- * Adds generation numbers to all connected people
- * @param person the person from whom to start the search
- * @param generation generation of the person
- */
-function addGenerations(person, generation) {
-  if (person.data.getGeneration()) {
-    console.assert(person.data.getGeneration() === generation,
-      `Generations dont match for ${person.data.getFullName()}: ${person.data.getGeneration()} <- ${generation}`);
-
-    return;
-  }
-
-  person.data.setGeneration(generation);
-  getParents(person).forEach(p => addGenerations(p, generation - 1));
-  getChildren(person).forEach(c => addGenerations(c, generation + 1));
 }
 
 /**
@@ -134,13 +107,6 @@ function getChildren(person) {
   return relationships
     .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
     .map(r => persons.findById(r.data.person2));
-}
-
-function getPartners(person) {
-  return relationships
-    .filter(r => r.data.isCouple() &&
-      r.data.involvesPerson(person.data))
-    .map(r => persons.findById(r.data.getOtherPerson(person.data)));
 }
 
 /**
