@@ -5,15 +5,8 @@ export let viewGraph = {
   nodes: [],
   links: []
 };
-let persons = [];
-persons.findById = (id) => {
-  if (typeof id === "string") {
-    return persons.find(p => p.data.id === id)
-  }
-  if (id instanceof GedcomX.ResourceReference) {
-    return persons.find(p => id.matches(p.data.id))
-  }
-}
+let personsUnfiltered;
+let persons;
 let relationships = [];
 export let startPerson;
 
@@ -48,14 +41,25 @@ export const filter = {
         });
     }
   },
-  apply: function (person) {
-    let filtered = false;
-    if (filter.active.includes(filter.NO_DEAD)) {
-      filtered = filtered || person.data.getFactsByType(personFactTypes.Death)[0];
-      filtered = filtered || person.data.getAge() >= 120;
+  apply: function (object) {
+    if (object.type === "person") {
+      return filter.applyOnPerson(object);
     }
 
-    return !filtered;
+    let contained = true;
+    object.data.getMembers().forEach(personId => {
+        contained = contained && !filter.applyOnPerson(personsUnfiltered.findById(personId))
+    });
+
+    return contained;
+  },
+  applyOnPerson(person) {
+    if (filter.active.includes(filter.NO_DEAD) &&
+      // remove if there is a known death or the age is higher than plausible
+      ((person.data.getFactsByType(personFactTypes.Death)[0]) || person.data.getAge() >= 120)) {
+      return false;
+    }
+    return true;
   }
 }
 
@@ -90,9 +94,28 @@ function toGraphObject(object, type) {
 export function setData(data) {
   console.log("Found", data.persons.length, "people", data.persons);
   console.log("Found", data.relationships.length, "relationships", data.relationships);
+
   // add some necessary data
-  data.persons.forEach(p => persons.push(toGraphObject(p, "person")));
-  data.relationships.forEach(r => relationships.push(toGraphObject(r, "family")));
+  personsUnfiltered = data.persons.map(p => toGraphObject(p, "person"));
+  persons = personsUnfiltered.filter(filter.applyOnPerson);
+  persons.findById = (id) => {
+    if (typeof id === "string") {
+      return persons.find(p => p.data.id === id)
+    }
+    if (id instanceof GedcomX.ResourceReference) {
+      return persons.find(p => id.matches(p.data.id))
+    }
+  }
+  personsUnfiltered.findById = (id) => {
+    if (typeof id === "string") {
+      return persons.find(p => p.data.id === id)
+    }
+    if (id instanceof GedcomX.ResourceReference) {
+      return persons.find(p => id.matches(p.data.id))
+    }
+  };
+
+  relationships = data.relationships.map(r => toGraphObject(r, "family")).filter(filter.apply);
 }
 
 export function setStartPerson(id) {
@@ -201,7 +224,7 @@ function showNode(node) {
     return false;
   }
 
-  if (node.type === "person" && !filter.apply(node)) {
+  if (node.type === "person") {
     return false;
   }
 
@@ -229,7 +252,7 @@ function hideNode(node) {
 function showCouple(couple) {
   console.debug("Adding couple", couple.data.toString())
   let members = couple.data.getMembers().map(id => persons.findById(id));
-  let visibleMembers = members.filter(isVisible).filter(filter.apply);
+  let visibleMembers = members.filter(isVisible);
   console.debug(visibleMembers)
   if (!visibleMembers.length) {
     return;
