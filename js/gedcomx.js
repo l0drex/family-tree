@@ -161,7 +161,7 @@ GedcomX.Person.prototype.getAge = function () {
 }
 
 GedcomX.Person.prototype.getGender = function () {
-  if (this.gender.type) {
+  if (this.gender && this.gender.type) {
     return this.gender.type.substring(baseUri.length).toLowerCase();
   }
 

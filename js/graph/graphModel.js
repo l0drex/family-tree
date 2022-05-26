@@ -5,7 +5,6 @@ export let viewGraph = {
   nodes: [],
   links: []
 };
-let personsUnfiltered;
 let persons;
 let relationships = [];
 export let startPerson;
@@ -46,10 +45,30 @@ export const filter = {
       return filter.applyOnPerson(object);
     }
 
+    // it's a relationship
+
     let contained = true;
-    object.data.getMembers().forEach(personId => {
-        contained = contained && !filter.applyOnPerson(personsUnfiltered.findById(personId))
-    });
+    if (object.data.isParentChild()) {
+      object.data.getMembers().forEach(personId => {
+        let person = persons.findById(personId);
+        if (person === undefined) {
+          contained = false;
+          return;
+        }
+        contained = contained && filter.applyOnPerson(person)
+      });
+    } else if (object.data.isCouple()) {
+      let contained = 2;
+      object.data.getMembers().forEach(personId => {
+        let person = persons.findById(personId);
+        if (person === undefined) {
+          contained--;
+          persons.push(toGraphObject(
+            new GedcomX.Person({id: personId.resource.substring(1)}),
+            "person"));
+        }
+      });
+    }
 
     return contained;
   },
@@ -96,8 +115,7 @@ export function setData(data) {
   console.log("Found", data.relationships.length, "relationships", data.relationships);
 
   // add some necessary data
-  personsUnfiltered = data.persons.map(p => toGraphObject(p, "person"));
-  persons = personsUnfiltered.filter(filter.applyOnPerson);
+  persons = data.persons.map(p => toGraphObject(p, "person")).filter(filter.applyOnPerson);
   persons.findById = (id) => {
     if (typeof id === "string") {
       return persons.find(p => p.data.id === id)
@@ -106,16 +124,10 @@ export function setData(data) {
       return persons.find(p => id.matches(p.data.id))
     }
   }
-  personsUnfiltered.findById = (id) => {
-    if (typeof id === "string") {
-      return persons.find(p => p.data.id === id)
-    }
-    if (id instanceof GedcomX.ResourceReference) {
-      return persons.find(p => id.matches(p.data.id))
-    }
-  };
 
   relationships = data.relationships.map(r => toGraphObject(r, "family")).filter(filter.apply);
+  console.assert(persons.length > 0, "no persons")
+  console.assert(relationships.length > 0, "no relationships")
 }
 
 export function setStartPerson(id) {
@@ -224,10 +236,6 @@ function showNode(node) {
     return false;
   }
 
-  if (node.type === "person") {
-    return false;
-  }
-
   node.viewId = viewGraph.nodes.length;
   viewGraph.nodes.push(node);
 
@@ -253,7 +261,6 @@ function showCouple(couple) {
   console.debug("Adding couple", couple.data.toString())
   let members = couple.data.getMembers().map(id => persons.findById(id));
   let visibleMembers = members.filter(isVisible);
-  console.debug(visibleMembers)
   if (!visibleMembers.length) {
     return;
   } else if (visibleMembers.length === 1) {
@@ -290,7 +297,7 @@ function addChild(parentChild) {
     let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
     if (familiesOfChild.length) {
       familiesOfChild.forEach(showCouple);
-      family = true;
+      //family = true;
     }
   }
 
