@@ -168,6 +168,9 @@ async function setFocus(person) {
 
     // hide info panel
     d3.select("#info-panel").classed("hidden", true);
+    d3.select("body").node().style.gridTemplateAreas = '"header" "main" "footer"';
+    d3.select("body").node().style.gridTemplateColumns = '1fr';
+    d3.select("body").node().style.gridTemplateRows = 'auto 1fr auto';
 
     // unset focused style
     nodesLayer.selectAll(".person .focused")
@@ -177,6 +180,9 @@ async function setFocus(person) {
   focusPerson = person;
 
   d3.select("#info-panel").classed("hidden", false);
+  d3.select("body").node().style.gridTemplateAreas = '';
+  d3.select("body").node().style.gridTemplateColumns = '';
+  d3.select("body").node().style.gridTemplateRows = '';
 
   // set name in search field
   let inputName = document.getElementById("input-name");
