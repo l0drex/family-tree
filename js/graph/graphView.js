@@ -382,7 +382,7 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
     .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
-    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
+    .classed("dead", p => p.data.isDead())
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)

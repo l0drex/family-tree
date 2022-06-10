@@ -149,6 +149,10 @@ GedcomX.Person.prototype.getGender = function () {
   return {type: genderTypes.Unknown};
 }
 
+GedcomX.Person.prototype.isDead = function () {
+  return this.getFactsByType(personFactTypes.Death).length > 0 || this.getAge() >= 120
+}
+
 
 // Relationship
 
