@@ -106,11 +106,12 @@ export function setStartPerson(id, activeView) {
       console.groupEnd();
       break;
     default: {
-      console.log("Showing explorable graph");
+      console.groupCollapsed("Showing explorable graph");
       let familyMembers = getParents(startPerson)
         .concat(getChildren(startPerson))
         .concat(getPartners(startPerson));
       show(familyMembers);
+      console.groupEnd();
     }
   }
 }
