@@ -21,6 +21,7 @@ import {showError, hideError, translationToString} from "../main.js";
 
   // set active view button
   let view = url.searchParams.get("view-all");
+  console.debug(`View: ${view}`);
   graphView.setActiveView(view);
 
   // get id from url
@@ -30,7 +31,7 @@ import {showError, hideError, translationToString} from "../main.js";
   }
 
   graphModel.setData(data);
-  graphModel.setStartPerson(id);
+  graphModel.setStartPerson(id, view);
   graphView.draw(graphModel.viewGraph, graphModel.startPerson);
 })();
 

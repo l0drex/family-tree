@@ -282,7 +282,7 @@ input[type=submit], button, .button {
 }
 
 .button.inactive, button.inactive {
-  background: none;
+  background: white;
   color: var(--primary);
   font-weight: normal;
   border: solid var(--primary) 2pt;

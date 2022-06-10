@@ -1,4 +1,4 @@
-import {config} from "../main.js";
+import {config, showWarning} from "../main.js";
 
 export const view = {ALL: "all", LIVING: "living", ANCESTORS: "ancestors", DESCENDANTS: "descendants"}
 
@@ -55,7 +55,7 @@ export function setData(data) {
 }
 
 export let ageGen0;
-export function setStartPerson(id) {
+export function setStartPerson(id, activeView) {
   if (!persons.length || !relationships.length) {
     throw "Start person can not be defined before data is loaded!";
   }
@@ -69,24 +69,59 @@ export function setStartPerson(id) {
         ageGen0 = p.data.getAge();
       }
     }
-  })
+  });
 
-  if (false) {
-    showFullGraph();
-    return;
+  if (activeView === null) {
+    activeView = "";
   }
+  switch (activeView) {
+    case view.ALL:
+      console.groupCollapsed("Showing full graph");
+      if (persons.length >= 100) {
+        showWarning({
+          en: "The graph is very big, the site mite get slow",
+          de: "Der Graph ist sehr groß, die Seite wird möglicherweise langsam"
+        }, "big graph");
+      }
+      show(persons);
+      console.groupEnd();
+      break;
+    case view.LIVING:
+      break;
+    case view.ANCESTORS:
+      console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
+      // stack to collect ancestors of ancestors
+      let ancestors = [startPerson];
+      let index = 0;
+      while (index < ancestors.length) {
+        getParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
+        index++;
+      }
+      show(ancestors);
+      console.groupEnd();
+      break;
+    case view.DESCENDANTS:
+      break;
+    default:
+      console.log("Showing explorable graph");
+      let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
+      if (!families.length) {
+        console.debug(`${startPerson.data.getFullName()} has no partner, Searching for parents`);
+        let parents = relationships.filter(r => r.data.isParentChild() && r.data.person2.matches(id))
+          .map(r => r.data.person1.resource);
+        console.debug("Following parents were found:", parents);
+        families = [relationships.find(r =>
+          r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
+      }
+      console.assert(families.length > 0, "No families to show, graph will be empty!", families)
+      families.forEach(showFamily);
+  }
+}
 
-  let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
-  if (!families.length) {
-    console.debug(`${startPerson.data.getFullName()} has no partner, Searching for parents`);
-    let parents = relationships.filter(r => r.data.isParentChild() && r.data.person2.matches(id))
-      .map(r => r.data.person1.resource);
-    console.debug("Following parents were found:", parents);
-    families = [relationships.find(r =>
-      r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
-  }
-  console.assert(families.length > 0, "No families to show, graph will be empty!", families)
-  families.forEach(showFamily);
+function show(persons) {
+  persons.forEach(showNode);
+  relationships.filter(r => r.data.isCouple()).forEach(showCouple);
+  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
 }
 
 /**
@@ -203,15 +238,6 @@ function addChild(parentChild) {
       l.source === family && l.target === child)) {
     viewGraph.links.push(link);
   }
-}
-
-
-function showFullGraph() {
-  console.groupCollapsed("Showing full graph");
-  persons.forEach(showNode);
-  relationships.filter(r => r.data.isCouple()).forEach(showCouple);
-  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
-  console.groupEnd();
 }
 
 /**
