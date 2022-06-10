@@ -1,4 +1,6 @@
-import {config} from "../main.js";
+import {config, showWarning} from "../main.js";
+
+export const view = {ALL: "all", LIVING: "living", ANCESTORS: "ancestors", DESCENDANTS: "descendants"}
 
 export let viewGraph = {
   nodes: [],
@@ -53,7 +55,7 @@ export function setData(data) {
 }
 
 export let ageGen0;
-export function setStartPerson(id) {
+export function setStartPerson(id, activeView) {
   if (!persons.length || !relationships.length) {
     throw "Start person can not be defined before data is loaded!";
   }
@@ -67,24 +69,56 @@ export function setStartPerson(id) {
         ageGen0 = p.data.getAge();
       }
     }
-  })
+  });
 
-  if (false) {
-    showFullGraph();
-    return;
+  if (activeView === null) {
+    activeView = "";
   }
+  switch (activeView) {
+    case view.ALL:
+      console.groupCollapsed("Showing full graph");
+      if (persons.length >= 100) {
+        showWarning({
+          en: "The graph is very big, the site mite get slow",
+          de: "Der Graph ist sehr groß, die Seite wird möglicherweise langsam"
+        }, "big graph");
+      }
+      show(persons);
+      console.groupEnd();
+      break;
+    case view.LIVING: {
+      console.groupCollapsed(`Showing all living relatives`);
+      let livingRelatives = getAncestors(startPerson)
+        .concat(getDescendants(startPerson))
+        .filter(p => !p.data.isDead());
+      show(livingRelatives);
+      console.groupEnd();
+      break;
+    }
+    case view.ANCESTORS:
+      console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
+      show(getAncestors(startPerson));
+      console.groupEnd();
+      break;
+    case view.DESCENDANTS:
+      console.groupCollapsed(`Showing all descendants of ${startPerson.data.getFullName()}`);
+      show(getDescendants(startPerson));
+      console.groupEnd();
+      break;
+    default: {
+      console.log("Showing explorable graph");
+      let familyMembers = getParents(startPerson)
+        .concat(getChildren(startPerson))
+        .concat(getPartners(startPerson));
+      show(familyMembers);
+    }
+  }
+}
 
-  let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
-  if (!families.length) {
-    console.debug(`${startPerson.data.getFullName()} has no partner, Searching for parents`);
-    let parents = relationships.filter(r => r.data.isParentChild() && r.data.person2.matches(id))
-      .map(r => r.data.person1.resource);
-    console.debug("Following parents were found:", parents);
-    families = [relationships.find(r =>
-      r.data.isCouple() && parents.includes(r.data.person1.resource) && parents.includes(r.data.person2.resource))];
-  }
-  console.assert(families.length > 0, "No families to show, graph will be empty!", families)
-  families.forEach(showFamily);
+function show(persons) {
+  persons.forEach(showNode);
+  relationships.filter(r => r.data.isCouple()).forEach(showCouple);
+  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
 }
 
 /**
@@ -107,6 +141,41 @@ function getChildren(person) {
   return relationships
     .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
     .map(r => persons.findById(r.data.person2));
+}
+
+/**
+ * Returns the partners of a person
+ * @param person
+ * @returns {*[]}
+ */
+function getPartners(person) {
+  return relationships
+    .filter(r => r.data.isCouple() &&
+      r.data.involvesPerson(person.data))
+    .map(r => persons.findById(r.data.getOtherPerson(person.data)));
+}
+
+function getAncestors(person) {
+  // stack to collect ancestors of ancestors
+  let ancestors = [person];
+  let index = 0;
+  while (index < ancestors.length) {
+    getParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
+    index++;
+  }
+  return ancestors;
+}
+
+function getDescendants(person) {
+  // stack to collect descendants of descendants
+  let descendants = [person];
+  let index = 0;
+  while (index < descendants.length) {
+    getChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
+    index++;
+  }
+  descendants.forEach(d => getPartners(d).forEach(p => descendants.push(p)));
+  return descendants;
 }
 
 /**
@@ -201,15 +270,6 @@ function addChild(parentChild) {
       l.source === family && l.target === child)) {
     viewGraph.links.push(link);
   }
-}
-
-
-function showFullGraph() {
-  console.groupCollapsed("Showing full graph");
-  persons.forEach(showNode);
-  relationships.filter(r => r.data.isCouple()).forEach(showCouple);
-  relationships.filter(r => r.data.isParentChild()).forEach(addChild);
-  console.groupEnd();
 }
 
 /**
@@ -334,4 +394,3 @@ export function getPersonPath(person) {
 function isVisible(node) {
   return viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
 }
-

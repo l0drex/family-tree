@@ -71,6 +71,24 @@
 </aside>
 
 <main>
+  <div id="view-all">
+    <span lang="en">Show:</span>
+    <span lang="de">Zeige:</span>
+
+    <a class="button inactive inline all" lang="en" href="?view-all=all">All</a>
+    <a class="button inactive inline all" lang="de" href="?view-all=all">Alle</a>
+
+    <!--TODO find a good solution for this, then remove "hidden"-->
+    <a class="button inactive inline living hidden" lang="en" href="?view-all=living">Living</a>
+    <a class="button inactive inline living hidden" lang="de" href="?view-all=living">Lebende</a>
+
+    <a class="button inactive inline descendants" lang="en" href="?view-all=descendants">Descendants</a>
+    <a class="button inactive inline descendants" lang="de" href="?view-all=descendants">Nachkommen</a>
+
+    <a class="button inactive inline ancestors" lang="en" href="?view-all=ancestors">Ancestors</a>
+    <a class="button inactive inline ancestors" lang="de" href="?view-all=ancestors">Vorfahren</a>
+  </div>
+  <!--suppress XmlUnusedNamespaceDeclaration -->
   <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <rect id='background' width='100%' height='100%'></rect>
     <g id="vis">

@@ -1,6 +1,7 @@
 import {config, showError, translationToString} from "../main.js";
 import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 import {baseUri, personFactTypes} from "../gedcomx.js";
+import {view} from "./graphModel.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -280,6 +281,13 @@ function insertData(person) {
   return panel;
 }
 
+export function setActiveView(activeView) {
+  document.querySelectorAll(`#view-all .${activeView}`).forEach(b => {
+    b.href = "?";
+    b.classList.remove("inactive");
+  });
+}
+
 /**
  * Adds svg elements for each node and link in the view graph.
  * Also defines the cola.on("tick", ...) function to update the position of all nodes and height of the person nodes.
@@ -374,7 +382,7 @@ export function draw(viewGraph, startPerson) {
     .data(viewGraph.nodes.filter(p => p.type === "person"), p => p.viewId);
   personNode.enter().append("foreignObject")
     .attr("class", p => `person ${p.data.getGender().type.substring(baseUri.length).toLowerCase()}`)
-    .classed("dead", p => p.data.getFactsByType(personFactTypes.Death)[0] || p.data.getAge() >= 120)
+    .classed("dead", p => p.data.isDead())
     .attr("id", d => `p-${d.data.id}`)
     .attr("x", d => -d.bounds.width() / 2)
     .attr("y", d => -d.bounds.height() / 2)

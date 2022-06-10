@@ -274,21 +274,33 @@ input[type=submit], button, .button {
   border-radius: 2.33rem;
   padding: .66rem 1rem;
   border: none;
-}
-
-.button {
   text-decoration: none;
 }
 
-input[type=submit]:hover, button:hover, .focused {
+.button.inline, button.inline {
+  padding: .33rem 1rem;
+}
+
+.button.inactive, button.inactive {
+  background: white;
+  color: var(--primary);
+  font-weight: normal;
+  border: solid var(--primary) 2pt;
+}
+
+.button.inactive:active, button.inactive:active {
+  color: white;
+}
+
+input[type=submit]:hover, .button:hover, button:hover, .focused {
   box-shadow: 0 0 1rem var(--primary);
 }
 
-input[type=submit]:focus-visible, button:focus-visible {
+input[type=submit]:focus-visible, .button:focus-visible, button:focus-visible {
   border: solid var(--secondary);
 }
 
-input[type=submit]:active, button:active {
+input[type=submit]:active, button:active, .button:active {
   background: var(--primary);
 }
 
@@ -346,6 +358,17 @@ button:hover, input[type=submit]:hover, input[type=file] {
   color: var(--error-foreground);
   background: var(--error-background);
   border-color: var(--error-foreground);
+}
+
+#view-all {
+  display: flex;
+  position: absolute;
+  background: none;
+  align-items: baseline;
+}
+
+#view-all > * {
+  margin-left: 1rem;
 }
 
 /* Fixes emojis being monochromatic rather than colored on Microsoft Edge */

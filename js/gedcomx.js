@@ -121,9 +121,7 @@ GedcomX.Person.prototype.getAge = function () {
   if (!birth || !birth.date || !birth.date.toDateObject()) {
     // guess the age based on the generation number
     if (ageGen0 && this.getGeneration()) {
-      let guessedAge = (startPerson.data.getGeneration() - this.getGeneration()) * 25 + ageGen0;
-      console.log(this.getFullName(), guessedAge)
-      return guessedAge
+      return (startPerson.data.getGeneration() - this.getGeneration()) * 25 + ageGen0
     }
     return undefined
   }
@@ -149,6 +147,10 @@ GedcomX.Person.prototype.getGender = function () {
   }
 
   return {type: genderTypes.Unknown};
+}
+
+GedcomX.Person.prototype.isDead = function () {
+  return this.getFactsByType(personFactTypes.Death).length > 0 || this.getAge() >= 120
 }
 
 
