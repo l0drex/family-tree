@@ -1,6 +1,7 @@
 import {config, showError, translationToString} from "../main.js";
 import {getPersonPath, hideFamily, searchPerson, showFamily} from "./graphController.js";
 import {baseUri, personFactTypes} from "../gedcomx.js";
+import {view} from "./graphModel.js";
 
 let form = d3.select("#name-form");
 const svg = d3.select("#family-tree");
@@ -278,6 +279,13 @@ function insertData(person) {
     factView.append("li").html(fact.toString());
   });
   return panel;
+}
+
+export function setActiveView(activeView) {
+  document.querySelectorAll(`#view-all .${activeView}`).forEach(b => {
+    b.href = "?";
+    b.classList.remove("inactive");
+  });
 }
 
 /**

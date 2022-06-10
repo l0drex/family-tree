@@ -17,8 +17,13 @@ import {showError, hideError, translationToString} from "../main.js";
   // add options to search field
   graphView.addOptions(data.persons);
 
-  // get id from url
   let url = new URL(window.location);
+
+  // set active view button
+  let view = url.searchParams.get("view-all");
+  graphView.setActiveView(view);
+
+  // get id from url
   let id = url.searchParams.get("id");
   if (!id) {
     id = data.persons[0].id;

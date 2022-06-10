@@ -1,5 +1,7 @@
 import {config} from "../main.js";
 
+export const view = {ALL: "all", LIVING: "living", ANCESTORS: "ancestors", DESCENDANTS: "descendants"}
+
 export let viewGraph = {
   nodes: [],
   links: []
@@ -334,4 +336,3 @@ export function getPersonPath(person) {
 function isVisible(node) {
   return viewGraph.nodes.includes(node) && !(node.type.includes("removed"));
 }
-
