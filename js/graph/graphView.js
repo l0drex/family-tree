@@ -359,7 +359,7 @@ export function draw(viewGraph, startPerson) {
 
   // family links
   let link = linkLayer.selectAll(".link")
-    .data(viewGraph.links);
+    .data(viewGraph.links.filter(l => ![l.source.type, l.target.type].includes("person-hidden")));
   link.enter().append("polyline")
     .attr("class", "link");
   link.exit().remove();

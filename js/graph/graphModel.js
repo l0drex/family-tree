@@ -5,7 +5,15 @@ export let viewGraph = {
   nodes: [],
   links: []
 };
-let persons;
+let persons = [];
+persons.findById = (id) => {
+  if (typeof id === "string") {
+    return persons.find(p => p.data.id === id)
+  }
+  if (id instanceof GedcomX.ResourceReference) {
+    return persons.find(p => id.matches(p.data.id))
+  }
+}
 let relationships = [];
 export let startPerson;
 
@@ -39,46 +47,6 @@ export const filter = {
           de: "keine Geschwister"
         });
     }
-  },
-  apply: function (object) {
-    if (object.type === "person") {
-      return filter.applyOnPerson(object);
-    }
-
-    // it's a relationship
-
-    let contained = true;
-    if (object.data.isParentChild()) {
-      object.data.getMembers().forEach(personId => {
-        let person = persons.findById(personId);
-        if (person === undefined) {
-          contained = false;
-          return;
-        }
-        contained = contained && filter.applyOnPerson(person)
-      });
-    } else if (object.data.isCouple()) {
-      let contained = 2;
-      object.data.getMembers().forEach(personId => {
-        let person = persons.findById(personId);
-        if (person === undefined) {
-          contained--;
-          persons.push(toGraphObject(
-            new GedcomX.Person({id: personId.resource.substring(1)}),
-            "person"));
-        }
-      });
-    }
-
-    return contained;
-  },
-  applyOnPerson(person) {
-    if (filter.active.includes(filter.NO_DEAD) &&
-      // remove if there is a known death or the age is higher than plausible
-      ((person.data.getFactsByType(personFactTypes.Death)[0]) || person.data.getAge() >= 120)) {
-      return false;
-    }
-    return true;
   }
 }
 
@@ -111,23 +79,30 @@ function toGraphObject(object, type) {
 }
 
 export function setData(data) {
-  console.log("Found", data.persons.length, "people", data.persons);
-  console.log("Found", data.relationships.length, "relationships", data.relationships);
-
   // add some necessary data
-  persons = data.persons.map(p => toGraphObject(p, "person")).filter(filter.applyOnPerson);
-  persons.findById = (id) => {
-    if (typeof id === "string") {
-      return persons.find(p => p.data.id === id)
-    }
-    if (id instanceof GedcomX.ResourceReference) {
-      return persons.find(p => id.matches(p.data.id))
-    }
-  }
+  data.persons.forEach(p => {
+    let person = toGraphObject(p, "person");
 
-  relationships = data.relationships.map(r => toGraphObject(r, "family")).filter(filter.apply);
-  console.assert(persons.length > 0, "no persons")
-  console.assert(relationships.length > 0, "no relationships")
+    // filter
+    if (filter.active.includes(filter.NO_DEAD)) {
+      if ((person.data.getFactsByType(personFactTypes.Death)[0]) || person.data.getAge() >= 120) {
+        person.type += "-hidden";
+      }
+    }
+
+    persons.push(person);
+  });
+
+  let person_ids = persons.map(p => "#" + p.data.id);
+  relationships = data.relationships.filter(r =>
+    person_ids.includes(r.person1.resource) &&
+    person_ids.includes(r.person2.resource)
+  ).map(r => toGraphObject(r, "family"));
+  console.assert(persons.length > 0, "no persons");
+  console.assert(relationships.length > 0, "no relationships");
+
+  console.log("Found", persons.length, "people", data.persons);
+  console.log("Found", relationships.length, "relationships", data.relationships);
 }
 
 export let ageGen0;
@@ -267,7 +242,6 @@ function addChild(parentChild) {
     }
   }
 
-  console.assert(family, "no family found for " + childId)
   if (!isVisible(family)) {
     family.type = "etc";
     showNode(family);
