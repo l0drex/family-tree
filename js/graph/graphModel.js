@@ -75,7 +75,7 @@ export function setStartPerson(id, activeView) {
     activeView = "";
   }
   switch (activeView) {
-    case view.ALL:
+    case view.ALL: {
       console.groupCollapsed("Showing full graph");
       if (persons.length >= 100) {
         showWarning({
@@ -86,9 +86,11 @@ export function setStartPerson(id, activeView) {
       show(persons);
       console.groupEnd();
       break;
-    case view.LIVING:
+    }
+    case view.LIVING: {
       break;
-    case view.ANCESTORS:
+    }
+    case view.ANCESTORS: {
       console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
       // stack to collect ancestors of ancestors
       let ancestors = [startPerson];
@@ -100,9 +102,22 @@ export function setStartPerson(id, activeView) {
       show(ancestors);
       console.groupEnd();
       break;
-    case view.DESCENDANTS:
+    }
+    case view.DESCENDANTS: {
+      console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
+      // stack to collect descendants of descendants
+      let descendants = [startPerson];
+      let index = 0;
+      while (index < descendants.length) {
+        getChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
+        index++;
+      }
+      descendants.forEach(d => getPartners(d).forEach(p => descendants.push(p)))
+      show(descendants);
+      console.groupEnd();
       break;
-    default:
+    }
+    default: {
       console.log("Showing explorable graph");
       let families = relationships.filter(r => r.data.isCouple() && r.data.involvesPerson(id));
       if (!families.length) {
@@ -115,6 +130,7 @@ export function setStartPerson(id, activeView) {
       }
       console.assert(families.length > 0, "No families to show, graph will be empty!", families)
       families.forEach(showFamily);
+    }
   }
 }
 
@@ -144,6 +160,18 @@ function getChildren(person) {
   return relationships
     .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
     .map(r => persons.findById(r.data.person2));
+}
+
+/**
+ * Returns the partners of a person
+ * @param person
+ * @returns {*[]}
+ */
+function getPartners(person) {
+  return relationships
+    .filter(r => r.data.isCouple() &&
+      r.data.involvesPerson(person.data))
+    .map(r => persons.findById(r.data.getOtherPerson(person.data)));
 }
 
 /**
