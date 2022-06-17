@@ -109,11 +109,11 @@ GedcomX.Person.prototype.getFullName = function () {
 }
 
 GedcomX.Person.prototype.getGeneration = function () {
-    let generationFacts = this.getFactsByType(personFactTypes.Generation);
-    if (!generationFacts.length) {
-      return
-    }
-    return generationFacts[0].value
+  let generationFacts = this.getFactsByType(personFactTypes.Generation);
+  if (!generationFacts.length) {
+    return
+  }
+  return generationFacts[0].value
 }
 
 GedcomX.Person.prototype.getAge = function () {

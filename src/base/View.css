@@ -1,155 +1,157 @@
 #family-tree {
-    --male: #9bcfec;
-    --female: #ff9494;
-    --divers: #d5a3ee;
-    --grid-size: 16px;
-    margin: 0;
-    border-radius: 0;
-    grid-area: main;
-    width: 100%;
-    height: 100%;
+  --male: #9bcfec;
+  --female: #ff9494;
+  --divers: #d5a3ee;
+  --grid-size: 16px;
+  margin: 0;
+  border-radius: 0;
+  grid-area: main;
+  width: 100%;
+  height: 100%;
 }
 
 #family-tree:hover {
-    cursor: grab;
+  cursor: grab;
 }
 
 #family-tree:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 #family-tree text {
-    fill: var(--foreground);
-    font-size: var(--grid-size);
-    text-anchor: middle;
-    stroke: none;
+  fill: var(--foreground);
+  font-size: var(--grid-size);
+  text-anchor: middle;
+  stroke: none;
 }
 
 .link {
-    fill: none;
-    stroke: var(--foreground);
-    stroke-width: .2rem;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+  fill: none;
+  stroke: var(--foreground);
+  stroke-width: .2rem;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .etc, .partnerNode circle {
-    fill: var(--background-higher);
-    text-anchor: middle;
-    cursor: pointer;
+  fill: var(--background-higher);
+  text-anchor: middle;
+  cursor: pointer;
 }
 
 .partnerNode.locked circle {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 #family-tree .partnerNode text {
-    text-anchor: end;
+  text-anchor: end;
 }
 
 .infoBackground {
-    fill: var(--background);
+  fill: var(--background);
 }
 
 #background {
-    fill: transparent;
-    stroke: none;
+  fill: transparent;
+  stroke: none;
 }
 
 @media (prefers-color-scheme: light) {
-    #family-tree {
-        --male: #9bcfec;
-        --female: #ff9494;
-        --divers: #d5a3ee;
-    }
+  #family-tree {
+    --male: #9bcfec;
+    --female: #ff9494;
+    --divers: #d5a3ee;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-    #family-tree {
-        --male: #254579;
-        --female: #911c1c;
-        --divers: #8d53a4;
-        background: black;
-    }
+  #family-tree {
+    --male: #254579;
+    --female: #911c1c;
+    --divers: #8d53a4;
+    background: black;
+  }
 }
 
 @media print {
-    .person .bg {
-        border: solid;
-    }
+  .person .bg {
+    border: solid;
+  }
 
-    .person .focused {
-        font-weight: bold;
-    }
+  .person .focused {
+    font-weight: bold;
+  }
 }
 
 /* stuff for the html nodes */
 
 .person {
-    color: var(--foreground);
-    overflow: visible;
-    cursor: pointer;
-    font-size: var(--grid-size);
+  color: var(--foreground);
+  overflow: visible;
+  cursor: pointer;
+  font-size: var(--grid-size);
 }
 
 .person:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .person p {
-    margin: 0;
-    text-align: center;
-    line-height: 1.25;
+  margin: 0;
+  text-align: center;
+  line-height: 1.25;
 }
 
 .person .bg {
-    border-radius: 1rem;
-    border-width: .2rem;
-    padding: .5rem .75rem;
-    border-color: var(--background-higher);
-    background-color: var(--background-higher);
+  border-radius: 1rem;
+  border-width: .2rem;
+  padding: .5rem .75rem;
+  border-color: var(--background-higher);
+  background-color: var(--background-higher);
 }
 
 .person.female .bg {
-    background-color: var(--female);
-    border-color: var(--female);
+  background-color: var(--female);
+  border-color: var(--female);
 }
 
 .person.female .bg.focused {
-    box-shadow: 0 0 1rem var(--female);
+  box-shadow: 0 0 1rem var(--female);
 }
 
 .person.male .bg {
-    background-color: var(--male);
-    border-color: var(--male);
+  background-color: var(--male);
+  border-color: var(--male);
 }
 
 .person.male .bg.focused {
-    box-shadow: 0 0 1rem var(--male);
+  box-shadow: 0 0 1rem var(--male);
 }
 
 .person.divers .bg {
-    background-color: var(--divers);
-    border-color: var(--divers);
+  background-color: var(--divers);
+  border-color: var(--divers);
 }
 
 .person.divers .bg.focused {
-    box-shadow: 0 0 1rem var(--divers);
+  box-shadow: 0 0 1rem var(--divers);
 }
 
 .person.dead .bg {
-    border-style: solid;
-    background-color: var(--background);
+  border-style: solid;
+  background-color: var(--background);
 }
 
 /*View option styles*/
 #view-all {
-    display: flex;
-    position: absolute;
-    background: none;
-    align-items: baseline;
+  display: flex;
+  position: absolute;
+  background: none;
+  align-items: baseline;
+  max-width: 100vw;
+  overflow-x: auto;
 }
 
 #view-all > * {
-    margin-left: 1rem;
+  margin-left: 1rem;
 }

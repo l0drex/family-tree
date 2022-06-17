@@ -5,17 +5,17 @@
 import config from "./config";
 
 export function localize(language) {
-    // strip country-specific stuff
-    language = language.slice(0, 2);
+  // strip country-specific stuff
+  language = language.slice(0, 2);
 
-    if (config.supportedLanguages.includes(language)) {
-        document.querySelector("html").setAttribute("lang", language)
-        // set the page title
-        document.title = document.querySelector("#title").innerHTML;
-    } else {
-        console.warn(`Language ${language} is not supported. Falling back to english.`);
-        localize("en");
-    }
+  if (config.supportedLanguages.includes(language)) {
+    document.querySelector("html").setAttribute("lang", language)
+    // set the page title
+    document.title = document.querySelector("#title").innerHTML;
+  } else {
+    console.warn(`Language ${language} is not supported. Falling back to english.`);
+    localize("en");
+  }
 }
 
 /**
@@ -25,12 +25,12 @@ export function localize(language) {
  * @returns {string}
  */
 export function translationToString(translationObject) {
-    if (!("en" in translationObject))
-        console.error(`${translationObject} has no translation into english, the default language!`);
+  if (!("en" in translationObject))
+    console.error(`${translationObject} has no translation into english, the default language!`);
 
-    if (!(config.browserLang in translationObject)) {
-        console.debug(`${translationObject} has no translation for the currently used language!`)
-        return translationObject.en;
-    }
-    return translationObject[config.browserLang];
+  if (!(config.browserLang in translationObject)) {
+    console.debug(`${translationObject} has no translation for the currently used language!`)
+    return translationObject.en;
+  }
+  return translationObject[config.browserLang];
 }
