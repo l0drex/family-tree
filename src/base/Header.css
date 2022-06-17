@@ -1,0 +1,27 @@
+header {
+    padding: .75rem 1rem;
+    width: 100%;
+    z-index: 1;
+}
+
+header {
+    box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
+    display: flex;
+    align-items: center;
+    background: var(--primary);
+    color: white;
+    grid-area: header;
+}
+
+header ::selection {
+    background: #55d64e;
+}
+
+header * {
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+header > *:not(:last-child) {
+    margin-right: 1rem;
+}

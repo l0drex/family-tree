@@ -1,0 +1,35 @@
+article, .notification {
+    border-radius: .5rem;
+    padding: .75rem 1rem;
+    max-width: 50rem;
+    width: 100%;
+}
+
+article h1 {
+    font-size: 2em;
+    margin: 0;
+    border-bottom: solid 1px var(--lines);
+    padding-bottom: .75rem;
+}
+
+details {
+    background: var(--background-lower);
+    border-radius: .5rem;
+    padding: .5rem 1rem;
+}
+
+details:focus-visible {
+    border: none;
+    border-bottom: solid var(--primary);
+}
+
+p {
+    line-height: 1.5em;
+}
+
+kbd {
+    border-bottom: solid var(--foreground-secondary) .15rem;
+    border-radius: .5rem;
+    padding: .1rem .3rem;
+    background: var(--background-lower);
+}

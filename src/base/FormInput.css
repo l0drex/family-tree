@@ -1,0 +1,16 @@
+.card {
+    text-align: center;
+    background: var(--background-higher);
+    border-radius: 1rem;
+    padding: .66rem 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.file-selected {
+    background: var(--positive-green);
+}
+
+.file-upload *:not(:last-child) {
+    margin-bottom: .5rem;
+}

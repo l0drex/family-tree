@@ -1,0 +1,26 @@
+footer {
+    background: inherit;
+    border-top: solid var(--foreground-secondary) .1rem;
+    text-align: left;
+    grid-area: footer;
+    padding: .5rem 1rem;
+    width: 100%;
+}
+
+#family-path {
+    margin: 0;
+    padding-left: 0;
+}
+
+#family-path li {
+    display: inline;
+}
+
+#family-path li:not(:last-child):after {
+    content: " / ";
+    font-weight: normal !important;
+}
+
+#family-path li.focusPerson {
+    font-weight: bold;
+}
