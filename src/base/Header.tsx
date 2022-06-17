@@ -5,7 +5,7 @@ function Header() {
     return (
         <header>
             <a href="App">
-                <img src={process.env.PUBLIC_URL + "logo.svg"} width="40" height="100%" alt={translationToString({
+                <img src={process.env.PUBLIC_URL + "/logo.svg"} width="40" height="100%" alt={translationToString({
                     en: "A smiling tree.",
                     de: "Ein lächelnder Baum."
                 }) + " 🌳"}/>
