@@ -103,12 +103,12 @@ class App extends React.Component<any, any> {
         if (error.name.startsWith("Warning")) {
             console.warn(error.message);
             notifications.push(
-                <Notification type="warning" description={error.message}/>
+                <Notification type="warning" description={error.message} key={error.message}/>
             );
         } else {
             console.error(error.message);
             notifications.push(
-                <Notification type="error" description={error.message}/>
+                <Notification type="error" description={error.message} key={error.message}/>
             );
         }
 

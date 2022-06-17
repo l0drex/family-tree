@@ -4,19 +4,14 @@ import {Component} from "react";
 import * as React from "react";
 import {translationToString} from "../main";
 
-interface IState {
-    focused: boolean,
-    file?: File
-}
-
-class Form extends Component<any, IState> {
+class Form extends Component<any, any> {
     public input: React.RefObject<HTMLInputElement>;
 
     constructor(props) {
         super(props);
         this.state = {
             focused: false,
-            file: null
+            file: ""
         }
         this.input = React.createRef();
     }
@@ -28,7 +23,7 @@ class Form extends Component<any, IState> {
                     <div
                         className={"card"
                             + (this.state.focused ? " focused" : "")
-                            + (this.state.file !== null ? " file-selected" : "")}
+                            + (this.state.file !== "" ? " file-selected" : "")}
                         onDragEnter={this.checkDropAllowed.bind(this)} onDragOver={this.checkDropAllowed.bind(this)}
                         onDrop={this.onDrop.bind(this)}
                         onDragLeave={this.removeFocus.bind(this)} onDragEnd={this.removeFocus.bind(this)}>
@@ -38,7 +33,7 @@ class Form extends Component<any, IState> {
                         })}</label>
                         <br/>
                         <input type="file" id="gedcom-file" accept="application/json" onChange={(e) =>
-                            this.setState({file: e.target.files[0]})} ref={this.input}/>
+                            this.setState({file: e.target.files[0].name})} ref={this.input}/>
                     </div>
                 </div>
 
@@ -67,8 +62,9 @@ class Form extends Component<any, IState> {
         e.preventDefault();
         this.setState({
             focused: false,
-            file: e.dataTransfer.files[0]
+            file: e.dataTransfer.files[0].name
         });
+        document.querySelector<HTMLInputElement>("#gedcom-file").files = e.dataTransfer.files;
     }
 
     removeFocus() {

@@ -22,9 +22,9 @@ class Uploader extends React.Component<any, any> {
                 })} emoji="📁">
                     <p>
                         {translationToString({
-                            en: "Select the file with the button below." +
+                            en: "Select the file with the button below. " +
                                 "Then click the green button to view the family tree.",
-                            de: "Wähle die Datei über den unteren Knopf aus." +
+                            de: "Wähle die Datei über den unteren Knopf aus. " +
                                 "Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen."
                         })}
                     </p>
