@@ -1,6 +1,5 @@
 import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
-import {graphModel} from "./ModelGraph";
 
 export const baseUri = "http://gedcomx.org/";
 
@@ -116,13 +115,22 @@ GedcomX.Person.prototype.getGeneration = function (): number {
   return generationFacts[0].value
 }
 
+let referenceAge = {
+  age: undefined,
+  generation: undefined
+};
+export function setReferenceAge(age: number, generation: number) {
+  referenceAge.age = age;
+  referenceAge.generation = generation;
+}
+
 GedcomX.Person.prototype.getAge = function (): number | undefined {
   let birth = this.getFactsByType(personFactTypes.Birth)[0];
   // exact calculation not possible without birthdate
   if (!birth || !birth.date || !birth.date.toDateObject()) {
     // guess the age based on the generation number
-    if (graphModel.ageGen0 && this.getGeneration()) {
-      return (graphModel.startPerson.data.getGeneration() - this.getGeneration()) * 25 + graphModel.ageGen0
+    if (referenceAge.age && this.getGeneration()) {
+      return (referenceAge.generation - this.getGeneration()) * 25 + referenceAge.age;
     }
     return undefined
   }

@@ -45,6 +45,7 @@ export class GraphFamily implements GraphObject {
 export class ViewGraph {
   nodes: (GraphPerson | GraphFamily)[] = []
   links: { source, target }[]
+  startPerson: GraphPerson
 
   reset = () => {
     this.nodes = [];
@@ -106,22 +107,13 @@ export class ViewGraph {
 
     let childId: GedcomX.ResourceReference = parentChild.data.person2;
     let child = graphModel.findById(childId);
+    if (!this.isVisible(child)) {
+      return;
+    }
+
     let parents = graphModel.getParents(child).map(p => p.data);
     let family = couples.find(f =>
       (f.data.involvesPerson(parents[0]) && f.data.involvesPerson(parents[1])));
-
-    if (!this.isVisible(child)) {
-      if (!this.isVisible(family) || family.type === "etc") {
-        return;
-      }
-      console.debug("Adding child", child.data.getFullName());
-      this.showNode(child);
-      let familiesOfChild = couples.filter(f => f.data.involvesPerson(child.data));
-      if (familiesOfChild.length) {
-        familiesOfChild.forEach(this.showCouple);
-      }
-    }
-
     if (!family) {
       console.error("no family found for " + childId);
       return;
@@ -158,7 +150,7 @@ export class ViewGraph {
   }
 
   hideFamily = (family: GraphFamily) => {
-    if (family.data.involvesPerson(graphModel.startPerson.data)) {
+    if (family.data.involvesPerson(this.startPerson.data)) {
       console.warn("Initial families cannot be removed!");
       return;
     }

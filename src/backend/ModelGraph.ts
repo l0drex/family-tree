@@ -1,11 +1,9 @@
-import GedcomX from "./gedcomx";
+import GedcomX, {setReferenceAge} from "./gedcomx";
 import viewGraph, {GraphFamily, GraphPerson, view} from "./ViewGraph";
 
 class ModelGraph {
   persons: GraphPerson[]
   relationships: GraphFamily[]
-  startPerson: GraphPerson
-  private ageGen0Value: number;
 
   constructor(data) {
     if (data.persons.length < 0 || data.relationships.length < 0) {
@@ -17,10 +15,6 @@ class ModelGraph {
     // add some necessary data
     this.persons = data.persons.map(p => toGraphObject(p, "person"));
     this.relationships = data.relationships.map(r => toGraphObject(r, "family"));
-  }
-
-  get ageGen0() {
-    return this.ageGen0Value;
   }
 
   findById = (id: string | GedcomX.ResourceReference): GraphPerson => {
@@ -49,9 +43,10 @@ class ModelGraph {
   }
 
   buildViewGraph = (startId: number, activeView?: string) => {
-    this.startPerson = this.findById(startId);
-    console.info("Starting graph with", this.startPerson.data.getFullName());
-    this.setAgeGen0();
+    let startPerson = this.findById(startId);
+    console.info("Starting graph with", startPerson.data.getFullName());
+    this.setAgeGen0(startPerson);
+    viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
     if (activeView === null) {
@@ -65,24 +60,25 @@ class ModelGraph {
         break;
       case view.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        peopleToShow = this.getAncestors(this.startPerson)
-          .concat(this.getDescendants(this.startPerson))
+        peopleToShow = this.getAncestors(startPerson)
+          .concat(this.getDescendants(startPerson))
           .filter(p => !p.data.isDead());
         break;
       }
       case view.ANCESTORS:
-        console.groupCollapsed(`Showing all ancestors of ${this.startPerson.data.getFullName()}`);
-        peopleToShow = this.getAncestors(this.startPerson);
+        console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
+        peopleToShow = this.getAncestors(startPerson);
         break;
       case view.DESCENDANTS:
-        console.groupCollapsed(`Showing all descendants of ${this.startPerson.data.getFullName()}`);
-        peopleToShow = this.getDescendants(this.startPerson);
+        console.groupCollapsed(`Showing all descendants of ${startPerson.data.getFullName()}`);
+        peopleToShow = this.getDescendants(startPerson);
         break;
       default: {
         console.groupCollapsed("Showing explorable graph");
-        peopleToShow = this.getParents(this.startPerson)
-          .concat(this.getChildren(this.startPerson))
-          .concat(this.getPartners(this.startPerson));
+        peopleToShow = [startPerson]
+          .concat(this.getParents(startPerson))
+          .concat(this.getChildren(startPerson))
+          .concat(this.getPartners(startPerson));
       }
     }
     peopleToShow.forEach(viewGraph.showNode);
@@ -103,16 +99,16 @@ class ModelGraph {
       .map(r => this.findById(r.data.person2));
   }
 
-  private setAgeGen0 = () => {
+  private setAgeGen0 = (startPerson) => {
     let personWithKnownAge = this.persons
-      .filter(p => p.data.getGeneration() === this.startPerson.data.getGeneration())
+      .filter(p => p.data.getGeneration() === startPerson.data.getGeneration())
       .find(p => typeof p.data.getAge() === "number");
 
     if (!personWithKnownAge) {
       console.warn("No age for generation 0 could be found");
       return;
     }
-    this.ageGen0Value = personWithKnownAge.data.getAge();
+    setReferenceAge(personWithKnownAge.data.getAge(), personWithKnownAge.data.getGeneration());
   }
 
   private getPartners(person: GedcomX.Person) {

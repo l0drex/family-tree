@@ -1,5 +1,4 @@
 import {Etc, Family} from "../nodes/Family";
-import {graphModel} from "../backend/ModelGraph";
 import Person from "../nodes/Person";
 import {Component} from "react";
 import config from "../config";
@@ -35,7 +34,7 @@ class TreeView extends Component<any, any> {
           <g id="nodes">
             {this.props.graph.nodes.filter(n => n.type === "family").map(r =>
               <Family data={r} key={r.viewId}
-                      locked={r.data.involvesPerson(graphModel.startPerson.data)}
+                      locked={r.data.involvesPerson(viewGraph.startPerson.data)}
                       onClick={this.onGraphChanged.bind(this)}/>)}
             {this.props.graph.nodes.filter(n => n.type === "etc").map(r =>
               <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
