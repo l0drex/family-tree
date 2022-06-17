@@ -52,23 +52,23 @@ export class ViewGraph {
   }
 
   showNode = (node: GraphObject) => {
-    if (this.nodes.includes(node)) {
-      if (node.type.includes("removed")) {
-        node.type = node.type.replace("-removed", "");
-        return true;
-      }
-
+    if (this.isVisible(node)) {
       return false;
+    }
+
+    if (this.nodes.includes(node)) {
+      console.assert(node.type.includes("removed"));
+      node.type = node.type.replace("-removed", "");
+      return true;
     }
 
     node.viewId = this.nodes.length;
     this.nodes.push(node);
-
     return true;
   }
 
   hideNode = (node: GraphObject) => {
-    if (node.type.includes("removed")) {
+    if (!this.isVisible(node)) {
       return false;
     }
 
@@ -78,11 +78,15 @@ export class ViewGraph {
 
   showCouple = (couple: GraphFamily) => {
     console.debug("Adding couple", couple.data.toString())
-    let members = couple.data.getMembers().map(id => graphModel.findById(id));
-    let visibleMembers = members.filter(this.isVisible);
+    let visibleMembers = couple.data.getMembers()
+      .map(id => graphModel.findById(id))
+      .filter(this.isVisible);
+
     if (!visibleMembers.length) {
       return;
-    } else if (visibleMembers.length === 1) {
+    }
+
+    if (visibleMembers.length === 1) {
       couple.type = "etc";
     } else {
       couple.type = "family";
@@ -97,13 +101,14 @@ export class ViewGraph {
     })
   }
 
-  addChild = (parentChild) => {
-    let families = graphModel.relationships.filter(r => r.data.isCouple());
+  showParentChild = (parentChild: GraphFamily) => {
+    let couples = graphModel.relationships.filter(r => r.data.isCouple());
 
-    let childId = parentChild.data.person2;
+    let childId: GedcomX.ResourceReference = parentChild.data.person2;
     let child = graphModel.findById(childId);
-    let parentIds = graphModel.getParents(graphModel.findById(childId)).map(p => p.data);
-    let family = families.find(f => (f.data.involvesPerson(parentIds[0]) && f.data.involvesPerson(parentIds[1])));
+    let parents = graphModel.getParents(child).map(p => p.data);
+    let family = couples.find(f =>
+      (f.data.involvesPerson(parents[0]) && f.data.involvesPerson(parents[1])));
 
     if (!this.isVisible(child)) {
       if (!this.isVisible(family) || family.type === "etc") {
@@ -111,17 +116,22 @@ export class ViewGraph {
       }
       console.debug("Adding child", child.data.getFullName());
       this.showNode(child);
-      let familiesOfChild = families.filter(f => f.data.involvesPerson(child.data));
+      let familiesOfChild = couples.filter(f => f.data.involvesPerson(child.data));
       if (familiesOfChild.length) {
         familiesOfChild.forEach(this.showCouple);
       }
     }
 
-    console.assert(family, "no family found for " + childId)
+    if (!family) {
+      console.error("no family found for " + childId);
+      return;
+    }
+
     if (!this.isVisible(family)) {
       family.type = "etc";
       this.showNode(family);
     }
+
     let link = {
       "source": family.viewId,
       "target": child.viewId
@@ -133,18 +143,21 @@ export class ViewGraph {
     }
   }
 
-  showFamily = (couple) => {
-    console.groupCollapsed("Adding family:", couple.data.toString());
+  /**
+   * Called when user clicked on etc node.
+   * @param family
+   */
+  showFamily = (family: GraphFamily) => {
+    console.groupCollapsed("Adding family:", family.data.toString());
 
-    couple.data.getMembers().map(graphModel.findById).forEach(this.showNode);
-
-    this.showCouple(couple);
-    graphModel.relationships.filter(r => r.data.isParentChild()).forEach(this.addChild);
+    family.data.getMembers().map(graphModel.findById).forEach(this.showNode);
+    this.showCouple(family);
+    graphModel.relationships.filter(r => r.data.isParentChild()).forEach(this.showParentChild);
 
     console.groupEnd();
   }
 
-  hideFamily = (family) => {
+  hideFamily = (family: GraphFamily) => {
     if (family.data.involvesPerson(graphModel.startPerson.data)) {
       console.warn("Initial families cannot be removed!");
       return;

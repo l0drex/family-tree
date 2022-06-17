@@ -23,7 +23,7 @@ class ModelGraph {
     return this.ageGen0Value;
   }
 
-  findById = (id: string | GedcomX.ResourceReference) => {
+  findById = (id: string | GedcomX.ResourceReference): GraphPerson => {
     if (typeof id === "string") {
       return this.persons.find(p => p.data.id === id)
     }
@@ -32,11 +32,11 @@ class ModelGraph {
     }
   }
 
-  findByName = (name: string) => {
+  findByName = (name: string): GraphPerson => {
     return this.persons.find(person => person.data.getFullName().toLowerCase().includes(name));
   }
 
-  getPersonPath = (person: GraphPerson) => {
+  getPersonPath = (person: GraphPerson): GraphPerson[] => {
     let entries = [];
     let child = this.getChildren(person)[0];
     let parent = this.getParents(person)[0];
@@ -87,7 +87,7 @@ class ModelGraph {
     }
     peopleToShow.forEach(viewGraph.showNode);
     this.relationships.filter(r => r.data.isCouple()).forEach(viewGraph.showCouple);
-    this.relationships.filter(r => r.data.isParentChild()).forEach(viewGraph.addChild);
+    this.relationships.filter(r => r.data.isParentChild()).forEach(viewGraph.showParentChild);
     console.groupEnd();
   }
 
