@@ -65,7 +65,7 @@ export const relationshipFactTypes = {
 
 // Person
 
-GedcomX.Person.prototype.getBirthName = function () {
+GedcomX.Person.prototype.getBirthName = function (): string {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.BirthName)
   if (name) {
     return name.nameForms[0].fullText;
@@ -74,7 +74,7 @@ GedcomX.Person.prototype.getBirthName = function () {
   }
 }
 
-GedcomX.Person.prototype.getMarriedName = function () {
+GedcomX.Person.prototype.getMarriedName = function (): string {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.MarriedName)
   if (name) {
     return name.nameForms[0].fullText;
@@ -83,7 +83,7 @@ GedcomX.Person.prototype.getMarriedName = function () {
   }
 }
 
-GedcomX.Person.prototype.getAlsoKnownAs = function () {
+GedcomX.Person.prototype.getAlsoKnownAs = function (): string {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.AlsoKnownAs)
   if (name) {
     return name.nameForms[0].fullText;
@@ -92,7 +92,7 @@ GedcomX.Person.prototype.getAlsoKnownAs = function () {
   }
 }
 
-GedcomX.Person.prototype.getNickname = function () {
+GedcomX.Person.prototype.getNickname = function (): string {
   let name = this.getNames().find(name => name.type && name.type === nameTypes.Nickname)
   if (name) {
     return name.nameForms[0].fullText;
@@ -101,14 +101,14 @@ GedcomX.Person.prototype.getNickname = function () {
   }
 }
 
-GedcomX.Person.prototype.getFullName = function () {
+GedcomX.Person.prototype.getFullName = function (): string {
   if (!this.names) {
     return "?";
   }
   return this.getNames()[0].nameForms[0].fullText;
 }
 
-GedcomX.Person.prototype.getGeneration = function () {
+GedcomX.Person.prototype.getGeneration = function (): number {
   let generationFacts = this.getFactsByType(personFactTypes.Generation);
   if (!generationFacts.length) {
     return
@@ -116,7 +116,7 @@ GedcomX.Person.prototype.getGeneration = function () {
   return generationFacts[0].value
 }
 
-GedcomX.Person.prototype.getAge = function () {
+GedcomX.Person.prototype.getAge = function (): number | undefined {
   let birth = this.getFactsByType(personFactTypes.Birth)[0];
   // exact calculation not possible without birthdate
   if (!birth || !birth.date || !birth.date.toDateObject()) {
@@ -135,11 +135,7 @@ GedcomX.Person.prototype.getAge = function () {
   }
 
   // subtraction returns milliseconds, have to convert to year
-  let age = Math.floor((lastDate.getMilliseconds() - birthDate.getMilliseconds()) / 31536000000);
-  if (age < 120) {
-    return age;
-  }
-  return 120;
+  return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
 }
 
 GedcomX.Person.prototype.getGender = function () {
@@ -150,7 +146,7 @@ GedcomX.Person.prototype.getGender = function () {
   return {type: genderTypes.Unknown};
 }
 
-GedcomX.Person.prototype.isDead = function () {
+GedcomX.Person.prototype.isDead = function (): boolean {
   return this.getFactsByType(personFactTypes.Death).length > 0 || this.getAge() >= 120
 }
 

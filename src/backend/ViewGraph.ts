@@ -134,7 +134,6 @@ export class ViewGraph {
   }
 
   showFamily = (couple) => {
-    console.debug(couple)
     console.groupCollapsed("Adding family:", couple.data.toString());
 
     couple.data.getMembers().map(graphModel.findById).forEach(this.showNode);

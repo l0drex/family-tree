@@ -104,15 +104,15 @@ class ModelGraph {
   }
 
   private setAgeGen0 = () => {
-    this.persons.every(p => {
-      if (p.data.getGeneration() === this.startPerson.data.getGeneration()) {
-        if (!this.ageGen0Value && p.data.getGeneration() === this.startPerson.data.getGeneration() && p.data.getAge()) {
-          this.ageGen0Value = p.data.getAge();
-          return false;
-        }
-      }
-      return true;
-    });
+    let personWithKnownAge = this.persons
+      .filter(p => p.data.getGeneration() === this.startPerson.data.getGeneration())
+      .find(p => typeof p.data.getAge() === "number");
+
+    if (!personWithKnownAge) {
+      console.warn("No age for generation 0 could be found");
+      return;
+    }
+    this.ageGen0Value = personWithKnownAge.data.getAge();
   }
 
   private getPartners(person: GedcomX.Person) {
