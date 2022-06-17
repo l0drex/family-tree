@@ -1,4 +1,4 @@
-[![Build & deploy](https://github.com/l0drex/family-tree/actions/workflows/build-deploy.yml/badge.svg?branch=main)](https://github.com/l0drex/family-tree/actions/workflows/build-deploy.yml)
+[![Build React app](https://github.com/l0drex/family-tree/actions/workflows/build.yml/badge.svg)](https://github.com/l0drex/family-tree/actions/workflows/build.yml)
 
 # About
 
