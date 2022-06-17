@@ -1,0 +1,11 @@
+.warning {
+  color: var(--warning-foreground);
+  background: var(--warning-background);
+  border-color: var(--warning-foreground);
+}
+
+.error {
+  color: var(--error-foreground);
+  background: var(--error-background);
+  border-color: var(--error-foreground);
+}
