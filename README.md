@@ -1,3 +1,5 @@
+[![Build & deploy](https://github.com/l0drex/family-tree/actions/workflows/build-deploy.yml/badge.svg?branch=main)](https://github.com/l0drex/family-tree/actions/workflows/build-deploy.yml)
+
 # About
 
 This project allows displaying family tree data stored in csv tables as graphs on a website.
