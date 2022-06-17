@@ -1,0 +1,103 @@
+form {
+    text-align: right;
+}
+
+form > * {
+    margin: .5rem 0;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type=file] {
+    color: var(--foreground-secondary);
+}
+
+.card-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+input[type=submit], button, .button {
+    background: linear-gradient(45deg, var(--primary), #34cec0);
+    color: white;
+    font-weight: bold;
+    border-radius: 2.33rem;
+    padding: .66rem 1rem;
+    border: none;
+    text-decoration: none;
+}
+
+.button.inline, button.inline {
+    padding: .33rem 1rem;
+}
+
+.button.inactive, button.inactive {
+    background: white;
+    color: var(--primary);
+    font-weight: normal;
+    border: solid var(--primary) 2pt;
+}
+
+.button.inactive:active, button.inactive:active {
+    color: white;
+}
+
+input[type=submit]:hover, .button:hover, button:hover, .focused {
+    box-shadow: 0 0 1rem var(--primary);
+}
+
+input[type=submit]:focus-visible, .button:focus-visible, button:focus-visible {
+    border: solid var(--secondary);
+}
+
+input[type=submit]:active, button:active, .button:active {
+    background: var(--primary);
+}
+
+.search {
+    display: flex;
+    align-items: center;
+}
+
+input[type=search] {
+    border: none;
+    border-bottom: solid white;
+    border-radius: 0;
+    background: none;
+    color: white;
+    padding: 0 .25rem;
+    min-width: 10rem;
+    width: 100%;
+    flex-shrink: 2;
+    margin-left: 1rem;
+}
+
+input[type=search].error, input[type=search]:invalid {
+    border-bottom-color: var(--error-foreground);
+    background: var(--error-background);
+    color: var(--error-foreground);
+}
+
+input[type=search]:focus {
+    outline: none;
+    border-bottom-color: #55d64e;
+}
+
+.search input[type=submit] {
+    background: none;
+    padding: revert;
+    border-radius: 0;
+}
+
+.search input[type=submit]:hover {
+    box-shadow: none;
+    text-shadow: 0 0 1rem var(--primary);
+}
+
+button:hover, input[type=submit]:hover, input[type=file] {
+    cursor: pointer;
+}
