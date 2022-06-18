@@ -18,7 +18,7 @@ class TreeView extends Component<any, any> {
 
   render() {
     d3cola
-      .flowLayout("x", config.gridSize * 1.5 + config.gridSize * 2.5 + config.gridSize * .5)
+      .flowLayout("x", config.gridSize * 5)
       .nodes(this.state.viewGraph.nodes)
       .links(this.state.viewGraph.links)
       .start(10, 0, 10);
@@ -29,7 +29,7 @@ class TreeView extends Component<any, any> {
         <g id="vis">
           <g id="links">
             {this.props.graph.links.map((l, i) =>
-              <polyline className="link" key={i}/>)}
+              <path className="link" key={i}/>)}
           </g>
           <g id="nodes">
             {this.props.graph.nodes.filter(n => n.type === "family").map(r =>
@@ -88,7 +88,8 @@ class TreeView extends Component<any, any> {
     svg.select("rect").call(svgZoom);
 
     let personNode = nodesLayer.selectAll(".person")
-      .data(this.state.viewGraph.nodes.filter(p => p.type === "person"));
+      .data(this.state.viewGraph.nodes.filter(p => p.type === "person"))
+      .call(d3cola.drag);
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.viewGraph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
@@ -107,7 +108,7 @@ class TreeView extends Component<any, any> {
 
       src: https://marvl.infotech.monash.edu/webcola/, at the bottom of the page
        */
-      .flowLayout("x", config.gridSize * 5)
+      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
       .symmetricDiffLinkLengths(config.gridSize)
       .start(10, 0, 10);
 
@@ -120,13 +121,25 @@ class TreeView extends Component<any, any> {
       etcNode
         .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-      link.attr("points", d => {
+      link.attr("d", d => {
+        // 1 or -1
+        let flip = -(Number((d.source.y - d.target.y)>0)*2-1);
+        let radius = Math.min(config.gridSize/2, Math.abs(d.target.x - d.source.x)/2, Math.abs(d.target.y - d.source.y)/2);
+
         if (d.target.type === "family") {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `M${d.source.x} ${d.source.y} ` +
+            `H${d.target.x - radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
+            `V${d.target.y}`;
         } else if ([d.source.type, d.target.type].includes("etc")) {
-          return `${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
+          return `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`;
         } else {
-          return `${d.source.x},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.source.y} ${d.source.x + config.gridSize * 1.5},${d.target.y} ${d.target.x},${d.target.y}`;
+          return `M${d.source.x},${d.source.y} ` +
+            `h${config.gridSize} ` +
+            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
+            `V${d.target.y - (flip)*radius} ` +
+            `a${radius} ${radius} 0 0 ${(-flip+1)/2} ${radius} ${flip * radius} ` +
+            `H${d.target.x}`;
         }
       });
     });
