@@ -52,8 +52,13 @@ input[type=submit], button, .button {
   color: white;
 }
 
+input[type=submit], .button, button, .card {
+  transition: all .5s;
+}
+
 input[type=submit]:hover, .button:hover, button:hover, .focused {
   box-shadow: 0 0 1rem var(--primary);
+  scale: 1.05;
 }
 
 input[type=submit]:focus-visible, .button:focus-visible, button:focus-visible {

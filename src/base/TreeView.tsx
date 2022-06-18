@@ -89,7 +89,7 @@ class TreeView extends Component<any, any> {
 
     let personNode = nodesLayer.selectAll(".person")
       .data(this.state.viewGraph.nodes.filter(p => p.type === "person"))
-      .call(d3cola.drag);
+      //.call(d3cola.drag);
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.viewGraph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")

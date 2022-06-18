@@ -24,9 +24,10 @@ aside h1, aside h2 {
   font-size: 2em;
   font-weight: bold;
   text-align: center;
+  transition: all .3s;
 }
 
-#info-panel input[type=search]:focus {
+#info-panel input[type=search]:hover, #info-panel input[type=search]:focus {
   border-bottom: solid var(--foreground);
 }
 

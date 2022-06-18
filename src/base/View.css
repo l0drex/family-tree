@@ -92,10 +92,6 @@
   font-size: var(--grid-size);
 }
 
-.person:active {
-  cursor: grabbing;
-}
-
 .person p {
   margin: 0;
   text-align: center;
@@ -108,6 +104,11 @@
   padding: .5rem .75rem;
   border-color: var(--background-higher);
   background-color: var(--background-higher);
+  transition: scale .5s;
+}
+
+.person:hover .bg{
+  scale: 1.05;
 }
 
 .person.female .bg {

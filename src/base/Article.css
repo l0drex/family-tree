@@ -23,6 +23,16 @@ details:focus-visible {
   border-bottom: solid var(--primary);
 }
 
+/* src: https://stackoverflow.com/questions/38213329/how-to-add-css3-transition-with-html5-details-summary-tag-reveal */
+details[open] summary ~ * {
+  animation: sweep .5s ease-in-out;
+}
+
+@keyframes sweep {
+  0%    {opacity: 0; transform: translateX(-10px)}
+  100%  {opacity: 1; transform: translateX(0)}
+}
+
 p {
   line-height: 1.5em;
 }
