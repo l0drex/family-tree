@@ -17,7 +17,7 @@ footer {
 }
 
 #family-path li:not(:last-child):after {
-  content: " / ";
+  content: " > ";
   font-weight: normal !important;
 }
 
