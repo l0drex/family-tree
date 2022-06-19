@@ -12,22 +12,36 @@ import InfoPanel from "./base/InfoPanel";
 import View from "./base/View";
 import {graphModel, GraphModel} from "./backend/ModelGraph";
 import {GraphPerson} from "./backend/ViewGraph";
+import {ReactNode} from "react";
 
-class App extends React.Component<any, any> {
+interface State {
+  notifications: ReactNode[]
+  focusId: string
+  focusHidden: boolean
+  dataAvailable: boolean
+}
+
+class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
 
     let url = new URL(window.location.href);
+
+    let data = sessionStorage.getItem("familyData");
+    if (data) {
+      GraphModel(new GedcomX(JSON.parse(data)));
+    }
+
     this.state = {
       notifications: [],
-      focus: url.searchParams.get("id"),
+      focusId: url.searchParams.get("id"),
       focusHidden: false,
-      data: sessionStorage.getItem("familyData")
+      dataAvailable: graphModel !== undefined
     };
   }
 
   render() {
-    if (this.state.data === null) {
+    if (!this.state.dataAvailable) {
       // show upload form
       return (
         <>
@@ -35,21 +49,22 @@ class App extends React.Component<any, any> {
           <main>
             {this.state.notifications}
             <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-            <NavigationTutorial/>
           </main>
+          <aside>
+            <NavigationTutorial/>
+          </aside>
         </>
       );
     }
 
-    GraphModel(new GedcomX(JSON.parse(this.state.data)));
     let focus;
-    if (this.state.focus) {
-      focus = graphModel.findById(this.state.focus);
+    if (this.state.focusId) {
+      focus = graphModel.findById(this.state.focusId);
     } else {
       focus = graphModel.persons[0];
     }
     if (!focus) {
-      throw new Error(`No person with id ${this.state.focus} could be found`)
+      throw new Error(`No person with id ${this.state.focusId} could be found`)
     }
 
     return (
@@ -64,8 +79,10 @@ class App extends React.Component<any, any> {
   }
 
   onFileSelected(fileContent) {
+    sessionStorage.setItem("familyData", fileContent);
+    GraphModel(new GedcomX(JSON.parse(fileContent)));
     this.setState({
-      data: fileContent
+      dataAvailable: true
     });
   }
 
@@ -78,7 +95,7 @@ class App extends React.Component<any, any> {
     }
     this.setState({
       focusHidden: false,
-      focus: newFocus.data.id
+      focusId: newFocus.data.id
     });
   }
 

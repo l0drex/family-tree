@@ -8,13 +8,7 @@ class InfoPanel extends Component<any, any> {
     super(props);
 
     this.state = {
-      orientation: window.screen.orientation
-    }
-
-    window.onresize = () => {
-      this.setState({
-        orientation: window.screen.orientation
-      });
+      isPortrait: window.matchMedia("orientation: portrait").matches
     }
   }
 
@@ -26,9 +20,9 @@ class InfoPanel extends Component<any, any> {
         <a href={"?id=" + person.id}>
           <pre className="id">{person.id}</pre>
         </a>
-        {(this.state.orientation.type === "portrait" || true) &&
-          <SearchField onRefocus={this.props.onRefocus} person={person}/>}
-        {(this.state.orientation.type === "landscape") && <h1 className="fullName">{person.getFullName()}</h1>}
+        {this.state.isPortrait ?
+          <SearchField onRefocus={this.props.onRefocus} person={person}/> :
+          <h1 className="fullName">{person.getFullName()}</h1>}
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
 
@@ -63,6 +57,14 @@ class InfoPanel extends Component<any, any> {
         </ul>
       </aside>
     );
+  }
+
+  componentDidMount() {
+    window.addEventListener("resize", () => {
+      this.setState({
+        isPortrait: window.matchMedia("orientation: portrait").matches
+      })
+    })
   }
 }
 

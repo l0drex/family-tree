@@ -1,26 +1,35 @@
-import {Etc, Family} from "../nodes/Family";
-import Person from "../nodes/Person";
+import {Etc, Family, Person} from "../nodes/Nodes";
 import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import viewGraph from "../backend/ViewGraph";
+import viewGraph, {GraphPerson, ViewGraph} from "../backend/ViewGraph";
 
 let d3cola = cola.d3adaptor(d3);
 
-class TreeView extends Component<any, any> {
+interface Props {
+  focus: GraphPerson
+  focusHidden: boolean
+  onRefocus: (newFocus: GraphPerson) => void
+}
+
+interface State {
+  graph: ViewGraph
+}
+
+class TreeView extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      viewGraph: viewGraph
+      graph: viewGraph
     }
   }
 
   render() {
     d3cola
       .flowLayout("x", config.gridSize * 5)
-      .nodes(this.state.viewGraph.nodes)
-      .links(this.state.viewGraph.links)
+      .nodes(this.state.graph.nodes)
+      .links(this.state.graph.links)
       .start(10, 0, 10);
 
     return (
@@ -28,17 +37,17 @@ class TreeView extends Component<any, any> {
         <rect id='background' width='100%' height='100%'/>
         <g id="vis">
           <g id="links">
-            {this.props.graph.links.map((l, i) =>
+            {this.state.graph.links.map((l, i) =>
               <path className="link" key={i}/>)}
           </g>
           <g id="nodes">
-            {this.props.graph.nodes.filter(n => n.type === "family").map(r =>
+            {this.state.graph.nodes.filter(n => n.type === "family").map(r =>
               <Family data={r} key={r.viewId}
-                      locked={r.data.involvesPerson(viewGraph.startPerson.data)}
-                      onClick={this.onGraphChanged.bind(this)}/>)}
-            {this.props.graph.nodes.filter(n => n.type === "etc").map(r =>
+                     locked={r.data.involvesPerson(this.state.graph.startPerson.data)}
+                     onClick={this.onGraphChanged.bind(this)}/>)}
+            {this.state.graph.nodes.filter(n => n.type === "etc").map(r =>
               <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
-            {this.props.graph.nodes.filter(n => n.type === "person").map(p =>
+            {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
               <Person data={p} onClick={this.props.onRefocus} key={p.viewId}
                       focused={!this.props.focusHidden && p.data.id === this.props.focus.data.id}/>)}
           </g>
@@ -88,29 +97,19 @@ class TreeView extends Component<any, any> {
     svg.select("rect").call(svgZoom);
 
     let personNode = nodesLayer.selectAll(".person")
-      .data(this.state.viewGraph.nodes.filter(p => p.type === "person"))
+      .data(this.state.graph.nodes.filter(p => p.type === "person"))
       //.call(d3cola.drag);
     let partnerNode = nodesLayer.selectAll(".partnerNode")
-      .data(this.state.viewGraph.nodes.filter(node => node.type === "family"));
+      .data(this.state.graph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
-      .data(this.state.viewGraph.nodes.filter(n => n.type === "etc"));
+      .data(this.state.graph.nodes.filter(n => n.type === "etc"));
     let link = linkLayer.selectAll(".link")
-      .data(this.state.viewGraph.links);
+      .data(this.state.graph.links);
 
     d3cola
-      /*
-      Adding some documentation since it's kinda hard to find:
-      1. Iterations with no constraints
-      2. Only structural (user-specified) constraints
-      3. Iterations of layout with all constraints including anti-overlap constraints
-      4. Not documented, but used in gridded small groups example.
-         Seems to be the iterations while visible or something like that
-
-      src: https://marvl.infotech.monash.edu/webcola/, at the bottom of the page
-       */
       .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
       .symmetricDiffLinkLengths(config.gridSize)
-      .start(10, 0, 10);
+      .start(15, 0, 10);
 
     d3cola.on("tick", () => {
       personNode
@@ -145,7 +144,7 @@ class TreeView extends Component<any, any> {
 
   onGraphChanged() {
     this.setState({
-      viewGraph: viewGraph
+      graph: viewGraph
     });
   }
 }

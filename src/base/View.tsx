@@ -2,7 +2,7 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import viewGraph, {view} from "../backend/ViewGraph";
+import viewGraph, {GraphPerson, view, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 
 function ViewOption(props) {
@@ -41,7 +41,18 @@ function ViewOptions(props) {
   );
 }
 
-class View extends Component<any, any> {
+interface Props {
+  focus: GraphPerson
+  focusHidden: boolean
+  onRefocus: (newFocus: GraphPerson) => void
+}
+
+interface State {
+  activeView: string
+  viewGraph: ViewGraph
+}
+
+class View extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -70,9 +81,7 @@ class View extends Component<any, any> {
     return (
       <main>
         <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
-        <TreeView graph={this.state.viewGraph}
-                  focus={this.props.focus} focusHidden={this.props.focusHidden} onRefocus={this.props.onRefocus}
-        />
+        <TreeView focus={this.props.focus} focusHidden={this.props.focusHidden} onRefocus={this.props.onRefocus}/>
       </main>
     );
   }
