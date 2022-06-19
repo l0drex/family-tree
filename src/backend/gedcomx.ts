@@ -239,6 +239,8 @@ GedcomX.Date.prototype.toString = function (): string {
 
 GedcomX.Fact.prototype.toString = function (): string {
   let string;
+  let value = this.value;
+
   switch (this.type) {
     case personFactTypes.Birth:
       string = translationToString({
@@ -257,12 +259,26 @@ GedcomX.Fact.prototype.toString = function (): string {
         en: "",
         de: ""
       });
+      switch (value) {
+        case "single":
+          value = translationToString({
+            en: "single",
+            de: "ledig"
+          });
+          break;
+        case "married":
+          value = translationToString({
+            en: "married",
+            de: "verheiratet"
+          });
+          break;
+      }
       break;
     case personFactTypes.Religion:
       string = translationToString({
         en: "Religion:",
         de: "Religion:"
-      })
+      });
       break;
     case personFactTypes.Occupation:
       string = translationToString({
@@ -281,23 +297,6 @@ GedcomX.Fact.prototype.toString = function (): string {
       break;
   }
 
-  let value = this.value;
-  if (this.type === personFactTypes.MaritalStatus) {
-    switch (value) {
-      case "single":
-        value = translationToString({
-          en: "single",
-          de: "ledig"
-        });
-        break;
-      case "married":
-        value = translationToString({
-          en: "married",
-          de: "verheiratet"
-        });
-        break;
-    }
-  }
   string += translationToString({
     en: `${value || value === 0 ? " " + value : ""}` +
       `${this.date && this.date.toString() ? " on " + this.date.toString() : ""}` +

@@ -25,6 +25,10 @@ function ViewOptions(props) {
         en: "All",
         de: "Alle"
       })} active={props.activeView === view.ALL} onClick={props.onViewChange}/>
+      <ViewOption name={view.ANCESTORS} localName={translationToString({
+        en: "Ancestors",
+        de: "Vorfahren"
+      })} active={props.activeView === view.ANCESTORS} onClick={props.onViewChange}/>
       <ViewOption name={view.LIVING} localName={translationToString({
         en: "Living",
         de: "Lebende"
@@ -33,10 +37,6 @@ function ViewOptions(props) {
         en: "Descendants",
         de: "Nachkommen"
       })} active={props.activeView === view.DESCENDANTS} onClick={props.onViewChange}/>
-      <ViewOption name={view.ANCESTORS} localName={translationToString({
-        en: "Ancestors",
-        de: "Vorfahren"
-      })} active={props.activeView === view.ANCESTORS} onClick={props.onViewChange}/>
     </div>
   );
 }
