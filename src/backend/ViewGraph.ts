@@ -22,7 +22,7 @@ export class GraphPerson implements GraphObject {
   type = "person"
   data: GedcomX.Person
   width = config.gridSize * 5
-  height = config.gridSize
+  height = config.gridSize / 2 * 2.25
   viewId
 
   constructor(data) {

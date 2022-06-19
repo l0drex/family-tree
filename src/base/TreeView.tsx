@@ -114,8 +114,8 @@ class TreeView extends Component<any, any> {
 
     d3cola.on("tick", () => {
       personNode
-        .attr("x", d => d.x - config.gridSize * 2.5)
-        .attr("y", d => d.y - config.gridSize / 2);
+        .attr("x", d => d.x - d.bounds.width() / 2)
+        .attr("y", d => d.y - d.bounds.height() / 2);
       partnerNode
         .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
       etcNode

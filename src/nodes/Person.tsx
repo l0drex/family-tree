@@ -1,3 +1,4 @@
+import "./Person.css";
 import {translationToString} from "../main";
 import Gedcomx from "../backend/gedcomx";
 

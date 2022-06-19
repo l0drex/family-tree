@@ -83,66 +83,6 @@
   }
 }
 
-/* stuff for the html nodes */
-
-.person {
-  color: var(--foreground);
-  overflow: visible;
-  cursor: pointer;
-  font-size: var(--grid-size);
-}
-
-.person p {
-  margin: 0;
-  text-align: center;
-  line-height: 1.25;
-}
-
-.person .bg {
-  border-radius: 1rem;
-  border-width: .2rem;
-  padding: .5rem .75rem;
-  border-color: var(--background-higher);
-  background-color: var(--background-higher);
-  transition: scale .5s;
-}
-
-.person:hover .bg{
-  scale: 1.05;
-}
-
-.person.female .bg {
-  background-color: var(--female);
-  border-color: var(--female);
-}
-
-.person.female .bg.focused {
-  box-shadow: 0 0 1rem var(--female);
-}
-
-.person.male .bg {
-  background-color: var(--male);
-  border-color: var(--male);
-}
-
-.person.male .bg.focused {
-  box-shadow: 0 0 1rem var(--male);
-}
-
-.person.divers .bg {
-  background-color: var(--divers);
-  border-color: var(--divers);
-}
-
-.person.divers .bg.focused {
-  box-shadow: 0 0 1rem var(--divers);
-}
-
-.person.dead .bg {
-  border-style: solid;
-  background-color: var(--background);
-}
-
 /*View option styles*/
 #view-all {
   display: flex;
