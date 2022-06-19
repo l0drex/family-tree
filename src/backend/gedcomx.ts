@@ -3,6 +3,8 @@ import {translationToString} from "../main";
 
 export const baseUri = "http://gedcomx.org/";
 
+GedcomX.enableRsExtensions();
+
 export const genderTypes = {
   Male: baseUri + "Male",
   Female: baseUri + "Female",
@@ -146,12 +148,13 @@ GedcomX.Person.prototype.getAge = function (): number | undefined {
   return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
 }
 
-GedcomX.Person.prototype.getGender = function () {
+GedcomX.Person.prototype.getGender = function (): string {
+  let gender = {type: genderTypes.Unknown};
   if (this.gender.type) {
-    return this.gender;
+    gender = this.gender;
   }
 
-  return {type: genderTypes.Unknown};
+  return gender.type.substring(baseUri.length).toLowerCase();
 }
 
 GedcomX.Person.prototype.isDead = function (): boolean {
@@ -161,27 +164,27 @@ GedcomX.Person.prototype.isDead = function (): boolean {
 
 // Relationship
 
-GedcomX.Relationship.prototype.isParentChild = function () {
+GedcomX.Relationship.prototype.isParentChild = function (): boolean {
   return this.getType() === relationshipTypes.ParentChild;
 }
 
-GedcomX.Relationship.prototype.isCouple = function () {
+GedcomX.Relationship.prototype.isCouple = function (): boolean {
   return this.getType() === relationshipTypes.Couple || this.getFactsByType(relationshipFactTypes.Marriage);
 }
 
-GedcomX.Relationship.prototype.getMembers = function () {
+GedcomX.Relationship.prototype.getMembers = function (): GedcomX.ResourceReference[] {
   return [this.getPerson1(), this.getPerson2()]
 }
 
-GedcomX.Relationship.prototype.marriage = function () {
+GedcomX.Relationship.prototype.marriage = function (): GedcomX.Fact {
   return this.getFactsByType(relationshipFactTypes.Marriage);
 }
 
-GedcomX.Relationship.prototype.getFactsByType = function (type) {
+GedcomX.Relationship.prototype.getFactsByType = function (type): GedcomX.Fact {
   return this.getFacts().find(fact => fact.type === type);
 }
 
-GedcomX.Relationship.prototype.toString = function () {
+GedcomX.Relationship.prototype.toString = function (): string {
   let type = "Relationship";
   if (this.type) {
     type = this.getType().substring(baseUri.length);
@@ -192,7 +195,7 @@ GedcomX.Relationship.prototype.toString = function () {
 
 // Date
 
-GedcomX.Date.prototype.toDateObject = function () {
+GedcomX.Date.prototype.toDateObject = function (): Date {
   if (!this.getFormal()) {
     return undefined;
   }
@@ -214,7 +217,7 @@ GedcomX.Date.prototype.toDateObject = function () {
   return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
-GedcomX.Date.prototype.toString = function () {
+GedcomX.Date.prototype.toString = function (): string {
   if (this.original) {
     return this.original;
   }
@@ -234,7 +237,7 @@ GedcomX.Date.prototype.toString = function () {
 
 // Fact
 
-GedcomX.Fact.prototype.toString = function () {
+GedcomX.Fact.prototype.toString = function (): string {
   let string;
   switch (this.type) {
     case personFactTypes.Birth:
@@ -315,7 +318,7 @@ GedcomX.Fact.prototype.toString = function () {
 
 // Qualifier
 
-GedcomX.Qualifier.prototype.toString = function () {
+GedcomX.Qualifier.prototype.toString = function (): string {
   let string;
   switch (this.name) {
     case personFactQualifiers.Age:
@@ -340,7 +343,7 @@ GedcomX.Qualifier.prototype.toString = function () {
 
 // PlaceRef
 
-GedcomX.PlaceReference.prototype.toString = function () {
+GedcomX.PlaceReference.prototype.toString = function (): string {
   if (!this.original) {
     return "";
   }

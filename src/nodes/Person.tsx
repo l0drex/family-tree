@@ -1,5 +1,5 @@
 import {translationToString} from "../main";
-import Gedcomx, {baseUri} from "../backend/gedcomx";
+import Gedcomx from "../backend/gedcomx";
 
 function Person(props) {
   let viewOptions = props.data;
@@ -8,7 +8,7 @@ function Person(props) {
     <foreignObject
       className={
         "person"
-        + (" " + person.getGender().type.substring(baseUri.length).toLowerCase())
+        + (" " + person.getGender())
         + (person.isDead() ? " dead" : "")}
       id={person.id}
       x={-viewOptions.bounds.width() / 2} y={-viewOptions.bounds.height() / 2}
