@@ -33,7 +33,7 @@
   stroke-linejoin: round;
 }
 
-.etc, .partnerNode circle {
+.etc, .partnerNode *:not(.marriageDate) {
   fill: var(--background-higher);
   text-anchor: middle;
   cursor: pointer;
@@ -43,7 +43,7 @@
   cursor: not-allowed;
 }
 
-#family-tree .partnerNode text {
+#family-tree .partnerNode .marriageDate {
   text-anchor: end;
 }
 
