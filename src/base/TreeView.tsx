@@ -126,13 +126,11 @@ class TreeView extends Component<any, any> {
         let flip = -(Number((d.source.y - d.target.y)>0)*2-1);
         let radius = Math.min(config.gridSize/2, Math.abs(d.target.x - d.source.x)/2, Math.abs(d.target.y - d.source.y)/2);
 
-        if (d.target.type === "family") {
+        if (d.target.type !== "person") {
           return `M${d.source.x} ${d.source.y} ` +
             `H${d.target.x - radius} ` +
             `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
             `V${d.target.y}`;
-        } else if ([d.source.type, d.target.type].includes("etc")) {
-          return `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`;
         } else {
           return `M${d.source.x},${d.source.y} ` +
             `h${config.gridSize} ` +
