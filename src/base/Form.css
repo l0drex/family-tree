@@ -53,12 +53,12 @@ input[type=submit], button, .button {
 }
 
 input[type=submit], .button, button, .card {
-  transition: all .5s;
+  transition: box-shadow .5s, scale .2s;
 }
 
 input[type=submit]:hover, .button:hover, button:hover, .focused {
   box-shadow: 0 0 1rem var(--primary);
-  scale: 1.05;
+  scale: 1.06;
 }
 
 input[type=submit]:focus-visible, .button:focus-visible, button:focus-visible {
@@ -67,6 +67,7 @@ input[type=submit]:focus-visible, .button:focus-visible, button:focus-visible {
 
 input[type=submit]:active, button:active, .button:active {
   background: var(--primary);
+  scale: 1.04;
 }
 
 .search {
