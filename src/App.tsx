@@ -1,6 +1,6 @@
 import * as React from "react";
 import './App.css';
-import {localize, translationToString} from "./main";
+import {localize} from "./main";
 import config from "./config";
 import GedcomX from "./backend/gedcomx";
 import Header from "./base/Header";
@@ -41,18 +41,7 @@ class App extends React.Component<any, any> {
       );
     }
 
-    let data = new GedcomX(JSON.parse(this.state.data));
-    if (!data) {
-      throw new Error(
-        translationToString({
-          en: "The calculated graph is empty!" +
-            "Please check if your files are empty. If not, please contact the administrator!",
-          de: "Der berechnete Graph ist leer!" +
-            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-        }));
-    }
-
-    GraphModel(data);
+    GraphModel(new GedcomX(JSON.parse(this.state.data)));
     let focus;
     if (this.state.focus) {
       focus = graphModel.findById(this.state.focus);
@@ -68,7 +57,7 @@ class App extends React.Component<any, any> {
         <Header/>
         {this.state.notifications}
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
-        <View data={data} focus={focus} onRefocus={this.onRefocus.bind(this)} focusHidden={this.state.focusHidden}/>
+        <View focus={focus} onRefocus={this.onRefocus.bind(this)} focusHidden={this.state.focusHidden}/>
         <FamilyPath focus={focus}/>
       </>
     );

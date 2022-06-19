@@ -1,5 +1,6 @@
 import GedcomX, {setReferenceAge} from "./gedcomx";
 import viewGraph, {GraphFamily, GraphPerson, view} from "./ViewGraph";
+import {translationToString} from "../main";
 
 class ModelGraph {
   persons: GraphPerson[]
@@ -147,6 +148,15 @@ export let graphModel: ModelGraph;
 export function GraphModel(data) {
   if (graphModel !== undefined) {
     return;
+  }
+  if (!data) {
+    throw new Error(
+      translationToString({
+        en: "The calculated graph is empty!" +
+          "Please check if your files are empty. If not, please contact the administrator!",
+        de: "Der berechnete Graph ist leer!" +
+          " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+      }));
   }
   graphModel = new ModelGraph(data);
 }
