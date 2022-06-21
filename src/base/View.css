@@ -23,6 +23,7 @@
   font-size: var(--grid-size);
   text-anchor: middle;
   stroke: none;
+  user-select: none;
 }
 
 .link {
@@ -89,6 +90,7 @@
   overflow: visible;
   cursor: pointer;
   font-size: var(--grid-size);
+  user-select: none;
 }
 
 .person p {
