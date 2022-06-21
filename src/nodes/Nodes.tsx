@@ -14,7 +14,7 @@ export function Family(props) {
     }}>
       <circle r={config.gridSize / 2}/>
       {props.data.data.marriage() && props.data.data.marriage().date && props.data.data.marriage().date.toString() &&
-        <text x="-24pt" y="5pt" className="marriageDate">
+        <text x={-config.gridSize} y="4pt" className="marriageDate">
           {`💍 ${props.data.data.marriage().date.toString()}`}
         </text>}
       {!props.locked && <text y="4">-</text>}
