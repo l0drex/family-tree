@@ -57,17 +57,7 @@ class TreeView extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.animateTree()
-  }
-
-  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    this.animateTree()
-  }
-
-  animateTree() {
     let svg = d3.select("#family-tree");
-    let nodesLayer = svg.select("#nodes");
-    let linkLayer = svg.select("#links");
 
     const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
     d3cola.size(viewportSize);
@@ -96,9 +86,25 @@ class TreeView extends Component<Props, State> {
       .touchable(() => ('ontouchstart' in window) || window.TouchEvent);
     svg.select("rect").call(svgZoom);
 
+
+    this.animateTree()
+  }
+
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+    this.animateTree()
+  }
+
+  animateTree() {
+    d3cola
+      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
+      .symmetricDiffLinkLengths(config.gridSize)
+      .start(15, 0, 10);
+
+    let nodesLayer = d3.select("#nodes");
+    let linkLayer = d3.select("#links");
+
     let personNode = nodesLayer.selectAll(".person")
       .data(this.state.graph.nodes.filter(p => p.type === "person"))
-      //.call(d3cola.drag);
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.graph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
@@ -106,10 +112,19 @@ class TreeView extends Component<Props, State> {
     let link = linkLayer.selectAll(".link")
       .data(this.state.graph.links);
 
-    d3cola
-      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
-      .symmetricDiffLinkLengths(config.gridSize)
-      .start(15, 0, 10);
+    personNode
+      .transition()
+      .duration(300)
+      .style("opacity","1")
+    //.call(d3cola.drag);
+    link
+      .transition()
+      .duration(600)
+      .style("opacity","1")
+    etcNode
+      .transition()
+      .duration(300)
+      .style("opacity","1")
 
     d3cola.on("tick", () => {
       personNode

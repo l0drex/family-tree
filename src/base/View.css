@@ -32,6 +32,11 @@
   stroke-width: .2rem;
   stroke-linecap: round;
   stroke-linejoin: round;
+  opacity: 0;
+}
+
+.etc {
+  opacity: 0;
 }
 
 .etc, .partnerNode *:not(.marriageDate) {
@@ -91,6 +96,7 @@
   cursor: pointer;
   font-size: var(--grid-size);
   user-select: none;
+  opacity: 0;
 }
 
 .person p {
