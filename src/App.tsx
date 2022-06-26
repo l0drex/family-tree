@@ -35,7 +35,7 @@ class App extends React.Component<any, State> {
     this.state = {
       notifications: [],
       focusId: url.searchParams.get("id"),
-      focusHidden: false,
+      focusHidden: graphModel === undefined,
       dataAvailable: graphModel !== undefined
     };
   }
@@ -49,10 +49,8 @@ class App extends React.Component<any, State> {
           <main>
             {this.state.notifications}
             <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-          </main>
-          <aside>
             <NavigationTutorial/>
-          </aside>
+          </main>
         </>
       );
     }
@@ -82,7 +80,8 @@ class App extends React.Component<any, State> {
     sessionStorage.setItem("familyData", fileContent);
     GraphModel(new GedcomX(JSON.parse(fileContent)));
     this.setState({
-      dataAvailable: true
+      dataAvailable: true,
+      focusHidden: false
     });
   }
 
@@ -101,6 +100,21 @@ class App extends React.Component<any, State> {
 
   componentDidMount() {
     localize(config.browserLang);
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.add("sidebar-hidden");
+    } else {
+      root.classList.remove("sidebar-hidden");
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<State>, snapshot?: any) {
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.add("sidebar-hidden");
+    } else {
+      root.classList.remove("sidebar-hidden");
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {

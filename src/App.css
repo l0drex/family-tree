@@ -45,4 +45,12 @@ main > * {
       "main sidebar"
       "footer sidebar";
   }
+
+  #root.sidebar-hidden {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+    "header"
+    "main"
+    "footer";
+  }
 }
