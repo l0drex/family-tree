@@ -1,7 +1,6 @@
 import config from "../config";
 import {translationToString} from "../main";
 import viewGraph from "../backend/ViewGraph";
-import Gedcomx from "../backend/gedcomx";
 
 export function Family(props) {
   return (
@@ -42,23 +41,21 @@ export function Etc(props) {
 }
 
 export function Person(props) {
-  let viewOptions = props.data;
-  let person: Gedcomx.Person = props.data.data;
+  let graphPerson = props.data;
   return (
     <foreignObject
       className={
         "person"
-        + (" " + person.getGender())
-        + (person.isDead() ? " dead" : "")}
-      id={person.id}
-      x={-viewOptions.bounds.width() / 2} y={-viewOptions.bounds.height() / 2}
-      width={viewOptions.bounds.width()} height={viewOptions.bounds.height()}
-      onClick={() => props.onClick(viewOptions)}>
+        + (" " + graphPerson.gender)
+        + (graphPerson.data.isDead() ? " dead" : "")}
+      x={-graphPerson.bounds.width() / 2} y={-graphPerson.bounds.height() / 2}
+      width={graphPerson.bounds.width()} height={graphPerson.bounds.height()}
+      onClick={() => props.onClick(graphPerson)}>
       <div className={"bg" + (props.focused ? " focused" : "")} title={translationToString({
         en: "Click to show more information",
         de: "Klicke für weitere Informationen"
       })}>
-        <p className="fullName">{person.getFullName()}</p>
+        <p className="fullName">{graphPerson.name}</p>
       </div>
     </foreignObject>
   );

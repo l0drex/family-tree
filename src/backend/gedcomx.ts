@@ -2,6 +2,8 @@ import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
 import config from "../config";
 
+GedcomX.enableRsExtensions();
+
 export interface GraphObject {
   type
   width
@@ -10,7 +12,7 @@ export interface GraphObject {
   data
 }
 
-export class GraphPerson implements GraphObject {
+export class GraphPerson extends GedcomX.DisplayProperties implements GraphObject {
   type = "person"
   data: GedcomX.Person
   width = config.gridSize * 5
@@ -18,6 +20,11 @@ export class GraphPerson implements GraphObject {
   viewId
 
   constructor(data) {
+    super({
+      name: data.getFullName(),
+      gender: data.getGender(),
+      descendancyNumber: data.getGeneration()
+    });
     this.data = data;
   }
 }
@@ -35,8 +42,6 @@ export class GraphFamily implements GraphObject {
 }
 
 export const baseUri = "http://gedcomx.org/";
-
-GedcomX.enableRsExtensions();
 
 export const genderTypes = {
   Male: baseUri + "Male",
@@ -154,6 +159,7 @@ let referenceAge = {
   age: undefined,
   generation: undefined
 };
+
 export function setReferenceAge(age: number, generation: number) {
   referenceAge.age = age;
   referenceAge.generation = generation;
@@ -194,7 +200,7 @@ GedcomX.Person.prototype.isDead = function (): boolean {
   return this.getFactsByType(personFactTypes.Death).length > 0 || this.getAge() >= 120
 }
 
-GedcomX.Person.prototype.toGraphObject = function(): GraphPerson {
+GedcomX.Person.prototype.toGraphObject = function (): GraphPerson {
   return new GraphPerson(this);
 }
 
