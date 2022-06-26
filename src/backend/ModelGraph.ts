@@ -1,6 +1,7 @@
 import GedcomX, {setReferenceAge} from "./gedcomx";
-import viewGraph, {GraphFamily, GraphPerson, view} from "./ViewGraph";
+import {GraphFamily, GraphPerson} from "./gedcomx";
 import {translationToString} from "../main";
+import viewGraph, {view} from "./ViewGraph";
 
 class ModelGraph {
   persons: GraphPerson[]
@@ -14,8 +15,8 @@ class ModelGraph {
     console.log("Found", data.persons.length, "people", data.persons);
     console.log("Found", data.relationships.length, "relationships", data.relationships);
     // add some necessary data
-    this.persons = data.persons.map(p => toGraphObject(p, "person"));
-    this.relationships = data.relationships.map(r => toGraphObject(r, "family"));
+    this.persons = data.persons.map(p => p.toGraphObject());
+    this.relationships = data.relationships.map(r => r.toGraphObject());
   }
 
   findById = (id: string | GedcomX.ResourceReference): GraphPerson => {
@@ -159,18 +160,4 @@ export function GraphModel(data) {
       }));
   }
   graphModel = new ModelGraph(data);
-}
-
-function toGraphObject(object: GedcomX.Person | GedcomX.Relationship, type: "person" | "family") {
-  let graphObject;
-  switch (type) {
-    case "person":
-      graphObject = new GraphPerson(object)
-      break;
-    case "family":
-      graphObject = new GraphFamily(object);
-      break;
-  }
-
-  return graphObject;
 }

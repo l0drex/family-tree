@@ -1,5 +1,4 @@
-import GedcomX from "./gedcomx";
-import config from "../config";
+import GedcomX, {GraphFamily, GraphObject, GraphPerson} from "./gedcomx";
 import {graphModel} from "./ModelGraph";
 
 export enum view {
@@ -8,38 +7,6 @@ export enum view {
   LIVING = "living",
   ANCESTORS = "ancestors",
   DESCENDANTS = "descendants"
-}
-
-export interface GraphObject {
-  type
-  width
-  height
-  viewId
-  data
-}
-
-export class GraphPerson implements GraphObject {
-  type = "person"
-  data: GedcomX.Person
-  width = config.gridSize * 5
-  height = config.gridSize / 2 * 2.25
-  viewId
-
-  constructor(data) {
-    this.data = data;
-  }
-}
-
-export class GraphFamily implements GraphObject {
-  type = "family"
-  data: GedcomX.Relationship
-  width = config.margin * 2
-  height = config.margin * 2
-  viewId
-
-  constructor(data: GedcomX.Relationship) {
-    this.data = data
-  }
 }
 
 export class ViewGraph {

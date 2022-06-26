@@ -3,7 +3,8 @@ import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import viewGraph, {GraphPerson, ViewGraph} from "../backend/ViewGraph";
+import {GraphPerson} from "../backend/gedcomx";
+import viewGraph, {ViewGraph} from "../backend/ViewGraph";
 
 let d3cola = cola.d3adaptor(d3);
 

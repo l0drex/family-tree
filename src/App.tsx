@@ -2,7 +2,7 @@ import * as React from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
-import GedcomX from "./backend/gedcomx";
+import GedcomX, {GraphPerson} from "./backend/gedcomx";
 import Header from "./base/Header";
 import NavigationTutorial from "./base/NavigationTutorial";
 import Notification from "./base/Notification";
@@ -11,7 +11,6 @@ import Uploader from "./base/Uploader";
 import InfoPanel from "./base/InfoPanel";
 import View from "./base/View";
 import {graphModel, GraphModel} from "./backend/ModelGraph";
-import {GraphPerson} from "./backend/ViewGraph";
 import {ReactNode} from "react";
 
 interface State {

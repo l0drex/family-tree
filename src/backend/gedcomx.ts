@@ -1,5 +1,38 @@
 import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
+import config from "../config";
+
+export interface GraphObject {
+  type
+  width
+  height
+  viewId
+  data
+}
+
+export class GraphPerson implements GraphObject {
+  type = "person"
+  data: GedcomX.Person
+  width = config.gridSize * 5
+  height = config.gridSize / 2 * 2.25
+  viewId
+
+  constructor(data) {
+    this.data = data;
+  }
+}
+
+export class GraphFamily implements GraphObject {
+  type = "family"
+  data: GedcomX.Relationship
+  width = config.margin * 2
+  height = config.margin * 2
+  viewId
+
+  constructor(data: GedcomX.Relationship) {
+    this.data = data
+  }
+}
 
 export const baseUri = "http://gedcomx.org/";
 
@@ -161,6 +194,10 @@ GedcomX.Person.prototype.isDead = function (): boolean {
   return this.getFactsByType(personFactTypes.Death).length > 0 || this.getAge() >= 120
 }
 
+GedcomX.Person.prototype.toGraphObject = function(): GraphPerson {
+  return new GraphPerson(this);
+}
+
 
 // Relationship
 
@@ -190,6 +227,10 @@ GedcomX.Relationship.prototype.toString = function (): string {
     type = this.getType().substring(baseUri.length);
   }
   return `${type} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
+}
+
+GedcomX.Relationship.prototype.toGraphObject = function(): GraphFamily {
+  return new GraphFamily(this);
 }
 
 

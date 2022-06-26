@@ -2,8 +2,9 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import viewGraph, {GraphPerson, view, ViewGraph} from "../backend/ViewGraph";
+import viewGraph, {view, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
+import {GraphPerson} from "../backend/gedcomx";
 
 function ViewOption(props) {
   let className = "button inline";
