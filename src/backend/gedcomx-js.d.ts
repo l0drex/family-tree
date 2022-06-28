@@ -4,7 +4,7 @@ declare module "gedcomx-js" {
   export function enableRsExtensions();
 
   export class Base {
-    constructor(json: any);
+    constructor(json?: any);
 
     init(json: any): Base;
 
@@ -293,7 +293,7 @@ declare module "gedcomx-js" {
 
     getNickname(): string
 
-    getAge(): number | undefined
+    getAgeToday(): number | undefined
 
     isDead(): boolean
 

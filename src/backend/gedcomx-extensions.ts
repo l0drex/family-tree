@@ -28,7 +28,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
     super({
       name: person.getFullName(),
       gender: readableGender(person.getGender()),
-      descendancyNumber: getGeneration(person)
+      ascendancyNumber: getGeneration(person)
     });
     this.data = person;
   }
@@ -116,10 +116,10 @@ export const baseUri = "http://gedcomx.org/";
 
 // Person
 
-function getGeneration(person): number {
+function getGeneration(person): number | undefined {
   let generationFacts = person.getFactsByType(PersonFactTypes.Generation);
   if (!generationFacts.length) {
-    return
+    return undefined
   }
   return generationFacts[0].value
 }
@@ -135,6 +135,7 @@ let referenceAge = {
 };
 
 export function setReferenceAge(age: number, generation: number) {
+  console.info(`Setting reference age to ${age} at generation ${generation}`)
   referenceAge.age = age;
   referenceAge.generation = generation;
 }
@@ -186,12 +187,15 @@ Person.prototype.getNickname = function (): string {
   }
 }
 
-Person.prototype.getAge = function (): number | undefined {
+/**
+ * Calculates age today
+ */
+Person.prototype.getAgeToday = function (): number | undefined {
   let birth = this.getFactsByType(PersonFactTypes.Birth)[0];
   // exact calculation not possible without birthdate
   if (!birth || !birth.date || !birth.date.toDateObject()) {
     // guess the age based on the generation number
-    if (referenceAge.age && getGeneration(this)) {
+    if (referenceAge.age !== undefined && getGeneration(this) !== undefined) {
       return (referenceAge.generation - getGeneration(this)) * 25 + referenceAge.age;
     }
     return undefined
@@ -199,17 +203,13 @@ Person.prototype.getAge = function (): number | undefined {
 
   let birthDate = birth.date.toDateObject();
   let lastDate = new Date();
-  let death = this.getFactsByType(PersonFactTypes.Death)[0]
-  if (death && death.date && death.date.toDateObject()) {
-    lastDate = death.date.toDateObject();
-  }
 
   // subtraction returns milliseconds, have to convert to year
   return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
 }
 
 Person.prototype.isDead = function (): boolean {
-  return this.getFactsByType(PersonFactTypes.Death).length > 0 || this.getAge() >= 120
+  return this.getFactsByType(PersonFactTypes.Death).length > 0 || this.getAgeToday() >= 120
 }
 
 Person.prototype.toGraphObject = function (): GraphPerson {
