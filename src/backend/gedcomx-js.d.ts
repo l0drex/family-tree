@@ -14,20 +14,33 @@ declare module "gedcomx-js" {
   export class ExtensibleData extends Base {
     getId(): string;
 
-    setId(id: string): void;
+    setId(id: string): ExtensibleData;
   }
 
   export class Root extends ExtensibleData {
-    lang
-    description
-    persons
-    relationships
+    lang: string
+    description: string
     sourceDescriptions
     agents
     events
     documents
     places
     attribution
+
+    getPersons(): Person[]
+    setPersons(persons: Person[] | object[]): Root
+    addPerson(person: Person): Root
+    getPersonById(id: string | number): Person
+    getRelationships(): Relationship[]
+    getPersonsRelationships(person: Person | string): Relationship[]
+    getPersonsParentRelationships(person: Person | string): Relationship[]
+    getPersonsParents(person: Person | string): Person[]
+    getPersonsCoupleRelationships(person: Person | string): Relationship[]
+    getPersonsSpouses(person: Person | string): Person[]
+    getPersonsChildRelationships(person: Person | string): Relationship[]
+    getPersonsChildren(person: Person | string): Person[]
+    setRelationships(relationships: Relationship[] | object[]): Root
+    addRelationship(relationship: Relationship | object): Root
   }
   export function GedcomX(json: any): Root;
 
