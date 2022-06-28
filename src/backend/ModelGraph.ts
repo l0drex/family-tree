@@ -1,11 +1,11 @@
-import GedcomX, {setReferenceAge} from "./gedcomx";
-import {GraphFamily, GraphPerson} from "./gedcomx";
+import {setReferenceAge, GraphPerson, RelationshipTypes} from "./gedcomx-extensions";
 import {translationToString} from "../main";
 import viewGraph, {view} from "./ViewGraph";
+import {FamilyView, Relationship, ResourceReference} from "gedcomx-js";
 
 class ModelGraph {
   persons: GraphPerson[]
-  relationships: GraphFamily[]
+  relationships: Relationship[]
 
   constructor(data) {
     if (data.persons.length < 0 || data.relationships.length < 0) {
@@ -16,15 +16,23 @@ class ModelGraph {
     console.log("Found", data.relationships.length, "relationships", data.relationships);
     // add some necessary data
     this.persons = data.persons.map(p => p.toGraphObject());
-    this.relationships = data.relationships.map(r => r.toGraphObject());
+    this.relationships = data.relationships;
   }
 
-  findById = (id: string | GedcomX.ResourceReference): GraphPerson => {
+  get parentChilds() {
+    return this.relationships.filter(r => r.getType() === RelationshipTypes.ParentChild);
+  }
+
+  get couples() {
+    return this.relationships.filter(r => r.getType() === RelationshipTypes.Couple);
+  }
+
+  findById = (id: string | ResourceReference): GraphPerson => {
     if (typeof id === "string") {
-      return this.persons.find(p => p.data.id === id)
+      return this.persons.find(p => p.data.getId() === id)
     }
-    if (id instanceof GedcomX.ResourceReference) {
-      return this.persons.find(p => id.matches(p.data.id))
+    if (id instanceof ResourceReference) {
+      return this.persons.find(p => id.matches(p.data.getId()))
     }
   }
 
@@ -44,7 +52,7 @@ class ModelGraph {
     return entries;
   }
 
-  buildViewGraph = (startId: number, activeView?: string) => {
+  buildViewGraph = (startId: string, activeView?: string) => {
     let startPerson = this.findById(startId);
     console.info("Starting graph with", startPerson.data.getFullName());
     this.setAgeGen0(startPerson);
@@ -54,73 +62,134 @@ class ModelGraph {
     if (activeView === null) {
       activeView = view.DEFAULT;
     }
-    let peopleToShow;
     switch (activeView) {
       case view.ALL:
         console.groupCollapsed("Showing full graph");
-        peopleToShow = this.persons;
+        this.persons.map(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
+          .forEach(v => viewGraph.showFamily(v)));
         break;
       case view.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        peopleToShow = this.getAncestors(startPerson)
-          .concat(this.getDescendants(startPerson))
-          .filter(p => !p.data.isDead());
+        this.getAncestors(startPerson)
+          .filter(p => !p.data.isDead())
+          .forEach(p => this.getFamiliesAsParent(p).forEach(f => viewGraph.showFamily(f)));
+        this.getDescendants(startPerson)
+          .filter(p => !p.data.isDead())
+          .forEach(p => this.getFamiliesAsChild(p).forEach(f => viewGraph.showFamily(f)));
         break;
       }
       case view.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
-        peopleToShow = this.getAncestors(startPerson);
+        this.getAncestors(startPerson)
+          .forEach(p => this.getFamiliesAsParent(p).forEach(f => viewGraph.showFamily(f)));
         break;
       case view.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.data.getFullName()}`);
-        peopleToShow = this.getDescendants(startPerson);
+        this.getDescendants(startPerson)
+          .filter(p => p !== startPerson)
+          .forEach(p => this.getFamiliesAsChild(p).forEach(f => viewGraph.showFamily(f)));
         break;
       default: {
-        console.groupCollapsed("Showing explorable graph");
-        peopleToShow = [startPerson]
-          .concat(this.getParents(startPerson))
-          .concat(this.getChildren(startPerson))
-          .concat(this.getPartners(startPerson));
+        console.group("Showing explorable graph");
+        this.getFamiliesAsParent(startPerson).forEach(viewGraph.showFamily);
+        this.getFamiliesAsChild(startPerson).forEach(viewGraph.showFamily);
+        console.groupEnd();
+        return;
       }
     }
-    peopleToShow.forEach(viewGraph.showNode);
-    this.relationships.filter(r => r.data.isCouple()).forEach(viewGraph.showCouple);
-    this.relationships.filter(r => r.data.isParentChild()).forEach(viewGraph.showParentChild);
     console.groupEnd();
   }
 
-  getParents = (person: GedcomX.Person) => {
-    return this.relationships
-      .filter(r => r.data.isParentChild() && r.data.person2.matches(person.data.id))
-      .map(r => this.findById(r.data.person1));
+  getFamiliesAsParent(person: GraphPerson): FamilyView[] {
+    let families = this.couples
+      // get all partners of the person
+      .filter(r => r.involvesPerson(person.data))
+      .map(c => {
+        let partner = c.getOtherPerson(person.data);
+        let children = this.getChildrenOfBoth(person, partner)
+          .map(person => {
+            return {
+              resource: "#" + person.data.getId()
+            }
+          });
+        return new FamilyView({
+          parent1: c.getPerson1(),
+          parent2: c.getPerson2(),
+          children: children
+        });
+      });
+    console.debug(`Families where ${person} is parent:`, families);
+    return families;
   }
 
-  getChildren = (person: GedcomX.Person) => {
-    return this.relationships
-      .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
-      .map(r => this.findById(r.data.person2));
+  getFamiliesAsChild(person: GraphPerson): FamilyView[] {
+    let parents = this.getParents(person).map(p => "#" + p.data.getId());
+    let families = this.couples
+      // find couples where both are parents
+      .filter(r => parents.includes(r.getPerson1().getResource()) && parents.includes(r.getPerson2().getResource()))
+      .map(c => {
+        let children = this.getChildrenOfBoth(c.getPerson1(), c.getPerson2()).map(person => {
+          return {
+            resource: "#" + person.data.getId()
+          }
+        });
+        console.assert(children.map(r => r.resource).includes("#" + person.data.getId()), `${person} is not a child`)
+
+        return new FamilyView({
+          parent1: c.getPerson1(),
+          parent2: c.getPerson2(),
+          children: children
+        });
+      });
+
+    console.debug(`Families where ${person} is a child:`, families);
+
+    return families;
+  }
+
+  private getChildrenOfBoth(parent1: GraphPerson | ResourceReference, parent2: GraphPerson | ResourceReference) {
+    if (parent1 instanceof ResourceReference) {
+      parent1 = this.findById(parent1);
+    }
+    if (parent2 instanceof ResourceReference) {
+      parent2 = this.findById(parent2);
+    }
+    let childrenOfParent1 = this.getChildren(parent1);
+    let childrenOfParent2 = this.getChildren(parent2);
+    return childrenOfParent1.filter(c => childrenOfParent2.includes(c));
   }
 
   private setAgeGen0 = (startPerson) => {
     let personWithKnownAge = this.persons
-      .filter(p => p.data.getGeneration() === startPerson.data.getGeneration())
+      .filter(p => p.getAscendancyNumber() === startPerson.getAscendancyNumber())
       .find(p => typeof p.data.getAge() === "number");
 
     if (!personWithKnownAge) {
       console.warn("No age for generation 0 could be found");
       return;
     }
-    setReferenceAge(personWithKnownAge.data.getAge(), personWithKnownAge.data.getGeneration());
+    setReferenceAge(personWithKnownAge.data.getAge(),
+      // get generation from generation fact
+      Number(personWithKnownAge.getAscendancyNumber()));
   }
 
-  private getPartners(person: GedcomX.Person) {
-    return this.relationships
-      .filter(r => r.data.isCouple() &&
-        r.data.involvesPerson(person.data))
-      .map(r => this.findById(r.data.getOtherPerson(person.data)));
+  private getParents = (person: GraphPerson) => {
+    return this.parentChilds.filter(r => r.getPerson2().matches(person.data.getId()))
+      .map(r => this.findById(r.getPerson1()));
   }
 
-  private getAncestors(person: GedcomX.Person) {
+  getChildren = (person: GraphPerson) => {
+    return this.parentChilds.filter(r => r.getPerson1().matches(person.data.getId()))
+      .map(r => this.findById(r.getPerson2()));
+  }
+
+  private getPartners(person: GraphPerson) {
+    return this.couples
+      .filter(r => r.involvesPerson(person.data))
+      .map(r => this.findById(r.getOtherPerson(person.data)));
+  }
+
+  private getAncestors(person: GraphPerson) {
     // stack to collect ancestors of ancestors
     let ancestors = [person];
     let index = 0;
@@ -131,7 +200,7 @@ class ModelGraph {
     return ancestors;
   }
 
-  private getDescendants(person: GedcomX.Person) {
+  private getDescendants(person: GraphPerson) {
     // stack to collect descendants of descendants
     let descendants = [person];
     let index = 0;
@@ -139,7 +208,6 @@ class ModelGraph {
       this.getChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
       index++;
     }
-    descendants.forEach(d => this.getPartners(d).forEach(p => descendants.push(p)));
     return descendants;
   }
 }

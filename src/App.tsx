@@ -2,7 +2,8 @@ import * as React from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
-import GedcomX, {GraphPerson} from "./backend/gedcomx";
+import {GraphPerson} from "./backend/gedcomx-extensions";
+import {Root} from "gedcomx-js";
 import Header from "./base/Header";
 import NavigationTutorial from "./base/NavigationTutorial";
 import Notification from "./base/Notification";
@@ -28,7 +29,7 @@ class App extends React.Component<any, State> {
 
     let data = sessionStorage.getItem("familyData");
     if (data) {
-      GraphModel(new GedcomX(JSON.parse(data)));
+      GraphModel(new Root(JSON.parse(data)));
     }
 
     this.state = {
@@ -77,7 +78,7 @@ class App extends React.Component<any, State> {
 
   onFileSelected(fileContent) {
     sessionStorage.setItem("familyData", fileContent);
-    GraphModel(new GedcomX(JSON.parse(fileContent)));
+    GraphModel(new Root(JSON.parse(fileContent)));
     this.setState({
       dataAvailable: true,
       focusHidden: false
@@ -85,7 +86,7 @@ class App extends React.Component<any, State> {
   }
 
   onRefocus(newFocus: GraphPerson) {
-    if (newFocus.data.id === this.state.focusId) {
+    if (newFocus.data.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden
       })
@@ -93,7 +94,7 @@ class App extends React.Component<any, State> {
     }
     this.setState({
       focusHidden: false,
-      focusId: newFocus.data.id
+      focusId: newFocus.data.getId()
     });
   }
 

@@ -3,7 +3,7 @@ import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import {GraphPerson} from "../backend/gedcomx";
+import {GraphFamily, GraphPerson} from "../backend/gedcomx-extensions";
 import viewGraph, {ViewGraph} from "../backend/ViewGraph";
 
 let d3cola = cola.d3adaptor(d3);
@@ -44,13 +44,13 @@ class TreeView extends Component<Props, State> {
           <g id="nodes">
             {this.state.graph.nodes.filter(n => n.type === "family").map(r =>
               <Family data={r} key={r.viewId}
-                     locked={r.data.involvesPerson(this.state.graph.startPerson.data)}
+                     locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}
                      onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "etc").map(r =>
               <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
               <Person data={p} onClick={this.props.onRefocus} key={p.viewId}
-                      focused={!this.props.focusHidden && p.data.id === this.props.focus.data.id}/>)}
+                      focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.data.getId()}/>)}
           </g>
         </g>
       </svg>
@@ -117,7 +117,7 @@ class TreeView extends Component<Props, State> {
       .transition()
       .duration(300)
       .style("opacity","1")
-    //.call(d3cola.drag);
+      //.call(d3cola.drag);
     link
       .transition()
       .duration(600)

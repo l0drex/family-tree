@@ -12,7 +12,8 @@ export function Family(props) {
       props.onClick();
     }}>
       <circle r={config.gridSize / 2}/>
-      {props.data.data.marriage() && props.data.data.marriage().date && props.data.data.marriage().date.toString() &&
+      {/* TODO add marriage date*/}
+      {props.data.marriage && props.data.marriage() && props.data.marriage().date && props.data.marriage().date.toString() &&
         <text x={-config.gridSize} y="4pt" className="marriageDate">
           {`💍 ${props.data.data.marriage().date.toString()}`}
         </text>}

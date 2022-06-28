@@ -4,7 +4,7 @@ import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
 import viewGraph, {view, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
-import {GraphPerson} from "../backend/gedcomx";
+import {GraphPerson} from "../backend/gedcomx-extensions";
 
 function ViewOption(props) {
   let className = "button inline";
@@ -61,7 +61,7 @@ class View extends Component<Props, State> {
     let view: string = url.searchParams.get("view-all") || "";
     console.debug(`View: ${view.length > 0 ? view : "default"}`);
 
-    graphModel.buildViewGraph(this.props.focus.data.id, view);
+    graphModel.buildViewGraph(this.props.focus.data.getId(), view);
     console.assert(viewGraph.nodes.length > 0,
       "Viewgraph has no nodes!");
     console.assert(viewGraph.links.length > 0,
@@ -89,7 +89,7 @@ class View extends Component<Props, State> {
 
   onViewChanged(view) {
     let newView = view === this.state.activeView ? "" : view;
-    graphModel.buildViewGraph(this.props.focus.data.id, newView);
+    graphModel.buildViewGraph(this.props.focus.data.getId(), newView);
     this.setState({
       activeView: newView,
       viewGraph: viewGraph

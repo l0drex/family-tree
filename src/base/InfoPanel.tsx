@@ -1,9 +1,18 @@
 import './InfoPanel.css';
 import {Component} from "react";
 import SearchField from "./SearchField";
-import Gedcomx, {personFactTypes} from "../backend/gedcomx";
+import {GraphPerson, PersonFactTypes} from "../backend/gedcomx-extensions";
 
-class InfoPanel extends Component<any, any> {
+interface Props {
+  onRefocus,
+  person: GraphPerson
+}
+
+interface State {
+  isPortrait: boolean
+}
+
+class InfoPanel extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -13,42 +22,41 @@ class InfoPanel extends Component<any, any> {
   }
 
   render() {
-    let person: Gedcomx.Person = this.props.person.data;
-    // TODO fix form
+    let person = this.props.person;
     return (
       <aside id="info-panel">
-        <a href={"?id=" + person.id}>
-          <pre className="id">{person.id}</pre>
+        <a href={"?id=" + person.data.getId()}>
+          <pre className="id">{person.data.getId()}</pre>
         </a>
         {this.state.isPortrait ?
           <SearchField onRefocus={this.props.onRefocus} person={person}/> :
-          <h1 className="fullName">{person.getFullName()}</h1>}
-        {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
-        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
+          <h1 className="fullName">{person.getName()}</h1>}
+        {person.data.getMarriedName() && <h2 className="birth-name">{person.data.getBirthName()}</h2>}
+        {person.data.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.data.getAlsoKnownAs()}</h2>}
 
         <ul id="factView">
-          {person.getFacts().sort((a, b) => {
+          {person.data.getFacts().sort((a, b) => {
             // place birth at top, generation right below
-            if (a.type === personFactTypes.Birth) {
+            if (a.getType() === PersonFactTypes.Birth) {
               return -1;
-            } else if (b.type === personFactTypes.Birth) {
+            } else if (b.getType() === PersonFactTypes.Birth) {
               return 1;
-            } else if (a.type === personFactTypes.Generation) {
+            } else if (a.getType() === PersonFactTypes.Generation) {
               return -1;
-            } else if (b.type === personFactTypes.Generation) {
+            } else if (b.getType() === PersonFactTypes.Generation) {
               return 1;
             }
 
-            if (a.date && !b.date) {
+            if (a.getDate() && !b.getDate()) {
               return 1;
-            } else if (!a.date && b.date) {
+            } else if (!a.getDate() && b.getDate()) {
               return -1;
             }
-            if (a.date && b.date) {
-              let aDate = a.date.toDateObject();
-              let bDate = b.date.toDateObject();
+            if (a.getDate() && b.getDate()) {
+              let aDate = a.getDate().toDateObject();
+              let bDate = b.getDate().toDateObject();
               if (aDate && bDate) {
-                return aDate - bDate;
+                return aDate.getMilliseconds() - bDate.getMilliseconds();
               }
             }
 

@@ -1,5 +1,6 @@
-import GedcomX, {GraphFamily, GraphObject, GraphPerson} from "./gedcomx";
+import {GraphFamily, GraphObject, GraphPerson} from "./gedcomx-extensions";
 import {graphModel} from "./ModelGraph";
+import {FamilyView} from "gedcomx-js";
 
 export enum view {
   DEFAULT = "",
@@ -10,7 +11,7 @@ export enum view {
 }
 
 export class ViewGraph {
-  nodes: (GraphPerson | GraphFamily)[] = []
+  nodes: GraphObject[] = []
   links: { source, target }[]
   startPerson: GraphPerson
 
@@ -44,90 +45,51 @@ export class ViewGraph {
     return true;
   }
 
-  showCouple = (couple: GraphFamily) => {
-    console.debug("Adding couple", couple.data.toString())
-    let visibleMembers = couple.data.getMembers()
-      .map(id => graphModel.findById(id))
-      .filter(this.isVisible);
-
-    if (!visibleMembers.length) {
-      return;
-    }
-
-    if (visibleMembers.length === 1) {
-      couple.type = "etc";
-    } else {
-      couple.type = "family";
-    }
-    this.showNode(couple);
-
-    visibleMembers.forEach(p => {
-      this.links.push({
-        "source": p.viewId,
-        "target": couple.viewId
-      });
+  showLink = (source: number, target: number) => {
+    this.links.push({
+      source: source,
+      target: target
     })
-  }
-
-  showParentChild = (parentChild: GraphFamily) => {
-    let couples = graphModel.relationships.filter(r => r.data.isCouple());
-
-    let childId: GedcomX.ResourceReference = parentChild.data.person2;
-    let child = graphModel.findById(childId);
-    if (!this.isVisible(child)) {
-      return;
-    }
-
-    let parents = graphModel.getParents(child).map(p => p.data);
-    let family = couples.find(f =>
-      (f.data.involvesPerson(parents[0]) && f.data.involvesPerson(parents[1])));
-    if (!family) {
-      console.error("no family found for " + childId);
-      return;
-    }
-
-    if (!this.isVisible(family)) {
-      family.type = "etc";
-      this.showNode(family);
-    }
-
-    let link = {
-      "source": family.viewId,
-      "target": child.viewId
-    }
-    if (!this.links.find(
-      l => (l.source === link.source && l.target === link.target) ||
-        (l.source === family && l.target === child))) {
-      this.links.push(link);
-    }
   }
 
   /**
    * Called when user clicked on etc node.
    * @param family
    */
-  showFamily = (family: GraphFamily) => {
-    console.groupCollapsed("Adding family:", family.data.toString());
+  showFamily = (family: FamilyView) => {
+    let graphFamily = this.getGraphFamily(family);
+    console.groupCollapsed("Adding family:", graphFamily);
 
-    family.data.getMembers().map(graphModel.findById).forEach(this.showNode);
-    this.showCouple(family);
-    graphModel.relationships.filter(r => r.data.isParentChild()).forEach(this.showParentChild);
+    this.showNode(graphFamily);
+    let parent1 = graphModel.findById(graphFamily.getParent1());
+    this.showNode(parent1);
+    this.showLink(parent1.viewId, graphFamily.viewId);
+
+    let parent2 = graphModel.findById(graphFamily.getParent2());
+    this.showNode(parent2);
+    this.showLink(parent2.viewId, graphFamily.viewId)
+
+    graphFamily.getChildren().forEach(c => {
+      let child = graphModel.findById(c);
+      this.showNode(child);
+      this.showLink(graphFamily.viewId,child.viewId)
+    });
 
     console.groupEnd();
   }
 
   hideFamily = (family: GraphFamily) => {
-    if (family.data.involvesPerson(this.startPerson.data)) {
+    if (family.involvesPerson(this.startPerson.data.getId())) {
       console.warn("Initial families cannot be removed!");
       return;
     }
 
-    console.groupCollapsed("Hiding family:", family.data.toString());
+    console.groupCollapsed("Hiding family:", family.toString());
 
     // find all leaves, e.g. all nodes who are not connected to other families
-    let parents = family.data.getMembers().map(graphModel.findById);
-    let children1 = graphModel.getChildren(graphModel.findById(family.data.person1));
-    let children2 = graphModel.getChildren(graphModel.findById(family.data.person2));
+    let parents = family.getMembers().map(graphModel.findById);
+    let children1 = graphModel.getChildren(graphModel.findById(family.getParent1()));
+    let children2 = graphModel.getChildren(graphModel.findById(family.getParent2()));
     let children = children1.concat(children2).filter(c => children1.includes(c) && children2.includes(c));
 
     let leaves = parents.concat(children).filter(person => {
@@ -156,11 +118,11 @@ export class ViewGraph {
 
       switch (node.type) {
         case "person":
-          return leaves.find(l => l.data.id === node.data.id);
+          return leaves.find(l => l.data.getId() === (node as GraphPerson).data.getId());
         case "etc":
-          let visibleMembers = node.data.getMembers()
+          let visibleMembers = (node as GraphFamily).getMembers()
             .map(graphModel.findById);
-          let children = graphModel.getChildren(graphModel.findById(node.data.person1));
+          let children = graphModel.getChildren(graphModel.findById((node as GraphFamily).getParent1()));
           visibleMembers = visibleMembers.concat(children);
           return visibleMembers.filter(p => !leaves.includes(p) && this.isVisible(p)).length === 0;
         case "family":
@@ -188,6 +150,14 @@ export class ViewGraph {
 
   isVisible = (node) => {
     return this.nodes.includes(node) && !(node.type.includes("removed"));
+  }
+
+  private getGraphFamily(family: FamilyView): GraphFamily {
+    let graphFamily = this.nodes.find(n => n.type==="family" && (n as GraphFamily).equals(family));
+    if (graphFamily === undefined) {
+      console.debug("Adding new family", family, this.nodes.filter(n => n.type === "family"))
+      return new GraphFamily(family)
+    } else return graphFamily as GraphFamily;
   }
 }
 

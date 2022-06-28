@@ -27,7 +27,7 @@ class SearchField extends Component<any, any> {
         <datalist id="names">
           {
             graphModel.persons.map(p =>
-              <option value={p.data.getFullName()} key={p.data.id}>{p.data.getFullName()}</option>
+              <option value={p.getName()} key={p.data.getId()}>{p.getName()}</option>
             )
           }
         </datalist>
@@ -68,7 +68,7 @@ class SearchField extends Component<any, any> {
         return;
       }
 
-      console.log(`Assuming the person is ${person.data.getFullName()} with id ${person.data.id}`);
+      console.log(`Assuming the person is ${person.getName()} with id ${person.data.getId()}`);
       this.props.onRefocus(person);
     }
   }
