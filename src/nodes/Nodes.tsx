@@ -1,6 +1,7 @@
 import config from "../config";
 import {translationToString} from "../main";
 import viewGraph from "../backend/ViewGraph";
+import {GraphPerson} from "../backend/gedcomx-extensions";
 
 export function Family(props) {
   return (
@@ -42,13 +43,13 @@ export function Etc(props) {
 }
 
 export function Person(props) {
-  let graphPerson = props.data;
+  let graphPerson: GraphPerson = props.data;
   return (
     <foreignObject
       className={
         "person"
-        + (" " + graphPerson.gender)
-        + (graphPerson.data.isDead() ? " dead" : "")}
+        + (" " + graphPerson.getGender())
+        + (graphPerson.data.getLiving() ? "": " dead")}
       x={-graphPerson.bounds.width() / 2} y={-graphPerson.bounds.height() / 2}
       width={graphPerson.bounds.width()} height={graphPerson.bounds.height()}
       onClick={() => props.onClick(graphPerson)}>
@@ -56,7 +57,7 @@ export function Person(props) {
         en: "Click to show more information",
         de: "Klicke für weitere Informationen"
       })}>
-        <p className="fullName">{graphPerson.name}</p>
+        <p className="fullName">{graphPerson.getName()}</p>
       </div>
     </foreignObject>
   );

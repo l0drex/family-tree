@@ -5,7 +5,7 @@ import {
   Fact, FamilyView,
   Person,
   PlaceReference,
-  Qualifier, Relationship, ResourceReference
+  Qualifier, Relationship
 } from "gedcomx-js";
 
 GedcomX.enableRsExtensions();
@@ -14,6 +14,7 @@ export interface GraphObject {
   type: string
   width: number
   height: number
+  bounds
   viewId: number
 }
 
@@ -22,6 +23,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
   data: Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
+  bounds
   viewId
 
   constructor(person: Person) {
@@ -33,7 +35,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
     this.data = person;
   }
 
-  equals = (person: Person|GraphPerson) => {
+  equals = (person: Person | GraphPerson) => {
     if (person instanceof GraphPerson) {
       person = person.data;
     }
@@ -49,6 +51,7 @@ export class GraphFamily extends GedcomX.FamilyView implements GraphObject {
   type = "family"
   width = config.margin * 2
   height = config.margin * 2
+  bounds
   viewId
 
   equals = (object: FamilyView): Boolean => {
@@ -153,7 +156,7 @@ export function setReferenceAge(age: number, generation: number) {
 
 Person.prototype.getFullName = function (): string {
   try {
-    return this.getNames()[0].getNameForms()[0].getFullText(true);
+    return this.getPreferredName().getNameForms()[0].getFullText(true);
   } catch (e) {
     if (e instanceof TypeError) {
       return "?";
@@ -219,15 +222,15 @@ Person.prototype.getAgeToday = function (): number | undefined {
   return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
 }
 
-Person.prototype.isDead = function (): boolean {
-  return this.getFactsByType(PersonFactTypes.Death).length > 0 || this.getAgeToday() >= 120
+Person.prototype.getLiving = function (): boolean {
+  return this.getFactsByType(PersonFactTypes.Death).length === 0 && this.getAgeToday() < 120
 }
 
 Person.prototype.toGraphObject = function (): GraphPerson {
   return new GraphPerson(this);
 }
 
-Person.prototype.toString = function(): string {
+Person.prototype.toString = function (): string {
   return `${this.getFullName()} (#${this.getId()})`;
 }
 
@@ -411,11 +414,11 @@ PlaceReference.prototype.toString = function (): string {
 
 // FamilyView
 
-FamilyView.prototype.getParents = function() {
+FamilyView.prototype.getParents = function () {
   return [this.getParent1(), this.getParent2()];
 }
 
-FamilyView.prototype.getMembers = function() {
+FamilyView.prototype.getMembers = function () {
   return this.getChildren().concat(this.getParents());
 }
 

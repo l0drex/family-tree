@@ -26,19 +26,19 @@ test("isDead calculated correctly", () => {
     .addFact(new Fact()
       .setType(PersonFactTypes.Generation)
       .setValue(0));
-  expect(person.isDead()).toBeTruthy();
+  expect(person.getLiving()).toBeFalsy();
 
   person = new Person()
     .addFact(new Fact()
       .setType(PersonFactTypes.Birth)
       .setDate(new GedcomX.Date()
         .setFormal("+1900")));
-  expect(person.isDead()).toBeTruthy();
+  expect(person.getLiving()).toBeFalsy();
 
   person = new Person()
     .addFact(new Fact()
       .setType(PersonFactTypes.Death)
       .setDate(new GedcomX.Date()
         .setFormal("+2000")));
-  expect(person.isDead()).toBeTruthy();
+  expect(person.getLiving()).toBeFalsy();
 })

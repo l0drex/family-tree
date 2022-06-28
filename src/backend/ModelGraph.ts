@@ -69,10 +69,10 @@ class ModelGraph extends Root {
       case view.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
         this.getAncestors(startPerson)
-          .filter(p => !p.isDead())
+          .filter(p => !p.getLiving())
           .forEach(p => this.getFamiliesAsParent(p).forEach(f => viewGraph.showFamily(f)));
         this.getDescendants(startPerson)
-          .filter(p => !p.isDead())
+          .filter(p => !p.getLiving())
           .forEach(p => this.getFamiliesAsChild(p).forEach(f => viewGraph.showFamily(f)));
         break;
       }

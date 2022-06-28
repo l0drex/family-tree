@@ -312,6 +312,18 @@ declare module "gedcomx-js" {
 
     addFact(fact: Fact | object): Person
 
+    // official extensions
+
+    getLiving(): boolean
+
+    setLiving(living: boolean): Person
+
+    getDisplay(): DisplayProperties
+
+    setDisplay(display: DisplayProperties): Person
+
+    getPreferredName(): Name
+
     // extensions
     getFullName(): string
 
@@ -324,8 +336,6 @@ declare module "gedcomx-js" {
     getNickname(): string
 
     getAgeToday(): number | undefined
-
-    isDead(): boolean
 
     toGraphObject()
   }
