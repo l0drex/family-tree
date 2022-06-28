@@ -58,7 +58,7 @@ export class ViewGraph {
    */
   showFamily = (family: FamilyView) => {
     let graphFamily = this.getGraphFamily(family);
-    console.groupCollapsed("Adding family:", graphFamily);
+    console.debug("Showing family:", graphFamily);
 
     this.showNode(graphFamily);
     let parent1 = graphModel.findById(graphFamily.getParent1());
@@ -155,7 +155,7 @@ export class ViewGraph {
   private getGraphFamily(family: FamilyView): GraphFamily {
     let graphFamily = this.nodes.find(n => n.type==="family" && (n as GraphFamily).equals(family));
     if (graphFamily === undefined) {
-      console.debug("Adding new family", family, this.nodes.filter(n => n.type === "family"))
+      console.debug("Adding new family to view", family, this.nodes.filter(n => n.type === "family"))
       return new GraphFamily(family)
     } else return graphFamily as GraphFamily;
   }

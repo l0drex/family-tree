@@ -81,13 +81,13 @@ class ModelGraph {
       case view.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
         this.getAncestors(startPerson)
-          .forEach(p => this.getFamiliesAsParent(p).forEach(f => viewGraph.showFamily(f)));
+          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
         break;
       case view.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.data.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
-          .forEach(p => this.getFamiliesAsChild(p).forEach(f => viewGraph.showFamily(f)));
+          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
         break;
       default: {
         console.group("Showing explorable graph");
@@ -118,7 +118,7 @@ class ModelGraph {
           children: children
         });
       });
-    console.debug(`Families where ${person} is parent:`, families);
+    console.debug(`Families where ${person} is a parent:`, families);
     return families;
   }
 
@@ -162,13 +162,13 @@ class ModelGraph {
   private setAgeGen0 = (startPerson) => {
     let personWithKnownAge = this.persons
       .filter(p => p.getAscendancyNumber() === startPerson.getAscendancyNumber())
-      .find(p => typeof p.data.getAge() === "number");
+      .find(p => typeof p.data.getAgeToday() === "number");
 
     if (!personWithKnownAge) {
       console.warn("No age for generation 0 could be found");
       return;
     }
-    setReferenceAge(personWithKnownAge.data.getAge(),
+    setReferenceAge(personWithKnownAge.data.getAgeToday(),
       // get generation from generation fact
       Number(personWithKnownAge.getAscendancyNumber()));
   }
