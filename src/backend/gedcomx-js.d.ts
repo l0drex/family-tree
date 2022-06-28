@@ -19,6 +19,8 @@ declare module "gedcomx-js" {
 
   export class Root extends ExtensibleData {
     lang: string
+    persons: Person[]
+    relationships: Relationship[]
     description: string
     sourceDescriptions
     agents
@@ -28,20 +30,34 @@ declare module "gedcomx-js" {
     attribution
 
     getPersons(): Person[]
+
     setPersons(persons: Person[] | object[]): Root
+
     addPerson(person: Person): Root
+
     getPersonById(id: string | number): Person
+
     getRelationships(): Relationship[]
+
     getPersonsRelationships(person: Person | string): Relationship[]
+
     getPersonsParentRelationships(person: Person | string): Relationship[]
+
     getPersonsParents(person: Person | string): Person[]
+
     getPersonsCoupleRelationships(person: Person | string): Relationship[]
+
     getPersonsSpouses(person: Person | string): Person[]
+
     getPersonsChildRelationships(person: Person | string): Relationship[]
+
     getPersonsChildren(person: Person | string): Person[]
+
     setRelationships(relationships: Relationship[] | object[]): Root
+
     addRelationship(relationship: Relationship | object): Root
   }
+
   export function GedcomX(json: any): Root;
 
   export class ResourceReference extends Base {
@@ -49,7 +65,7 @@ declare module "gedcomx-js" {
 
     setResource(uri: string): ResourceReference
 
-    matches(resource: Base|string): boolean
+    matches(resource: Base | string): boolean
   }
 
 
@@ -174,6 +190,7 @@ declare module "gedcomx-js" {
     // extensions
     toDateObject(): Date
   }
+
   export {GDate as Date};
 
   export class Fact {
@@ -332,9 +349,9 @@ declare module "gedcomx-js" {
 
     addFact(fact: Fact): Relationship
 
-    involvesPerson(person: Person|string): boolean
+    involvesPerson(person: Person | string): boolean
 
-    getOtherPerson(person: Person|string): ResourceReference
+    getOtherPerson(person: Person | string): ResourceReference
 
     // extensions
     getMembers(): ResourceReference[]
@@ -359,7 +376,8 @@ declare module "gedcomx-js" {
 
 
     // extensions
-    involvesPerson(person: ResourceReference|string): boolean
+    involvesPerson(person: ResourceReference | string): boolean
+
     getMembers(): ResourceReference[]
   }
 

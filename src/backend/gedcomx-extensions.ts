@@ -33,7 +33,11 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
     this.data = person;
   }
 
-  toString() {
+  equals = (person: Person) => {
+    return person.getId() === this.data.getId();
+  }
+
+  toString = () => {
     return `${this.data.getFullName()} (#${this.data.getId()} @${this.viewId})`
   }
 }

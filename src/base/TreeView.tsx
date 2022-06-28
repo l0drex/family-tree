@@ -3,13 +3,14 @@ import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import {GraphFamily, GraphPerson} from "../backend/gedcomx-extensions";
+import * as GedcomX from "gedcomx-js";
 import viewGraph, {ViewGraph} from "../backend/ViewGraph";
+import {GraphFamily, GraphPerson} from "../backend/gedcomx-extensions";
 
 let d3cola = cola.d3adaptor(d3);
 
 interface Props {
-  focus: GraphPerson
+  focus: GedcomX.Person
   focusHidden: boolean
   onRefocus: (newFocus: GraphPerson) => void
 }
@@ -50,7 +51,7 @@ class TreeView extends Component<Props, State> {
               <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
               <Person data={p} onClick={this.props.onRefocus} key={p.viewId}
-                      focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.data.getId()}/>)}
+                      focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.getId()}/>)}
           </g>
         </g>
       </svg>

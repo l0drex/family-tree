@@ -6,9 +6,9 @@ function FamilyPath(props) {
     <footer>
       <ol id="family-path">
         {graphModel.getPersonPath(props.focus).map(p =>
-          <li className={(p.data.getId() === props.focus.data.id) ? "focusPerson" : ""}
-              key={p.data.getId()}>
-            {p.data.getFullName()}
+          <li className={(p.getId() === props.focus.getId()) ? "focusPerson" : ""}
+              key={p.getId()}>
+            {p.getFullName()}
           </li>)}
       </ol>
     </footer>

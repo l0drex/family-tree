@@ -3,7 +3,6 @@ import './App.css';
 import {localize} from "./main";
 import config from "./config";
 import {GraphPerson} from "./backend/gedcomx-extensions";
-import {Root} from "gedcomx-js";
 import Header from "./base/Header";
 import NavigationTutorial from "./base/NavigationTutorial";
 import Notification from "./base/Notification";
@@ -11,7 +10,7 @@ import FamilyPath from "./base/FamilyPath";
 import Uploader from "./base/Uploader";
 import InfoPanel from "./base/InfoPanel";
 import View from "./base/View";
-import {graphModel, GraphModel} from "./backend/ModelGraph";
+import {graphModel, loadData} from "./backend/ModelGraph";
 import {ReactNode} from "react";
 
 interface State {
@@ -29,7 +28,7 @@ class App extends React.Component<any, State> {
 
     let data = sessionStorage.getItem("familyData");
     if (data) {
-      GraphModel(new Root(JSON.parse(data)));
+      loadData(JSON.parse(data));
     }
 
     this.state = {
@@ -57,7 +56,7 @@ class App extends React.Component<any, State> {
 
     let focus;
     if (this.state.focusId) {
-      focus = graphModel.findById(this.state.focusId);
+      focus = graphModel.getPersonById(this.state.focusId);
     } else {
       focus = graphModel.persons[0];
     }
@@ -78,7 +77,7 @@ class App extends React.Component<any, State> {
 
   onFileSelected(fileContent) {
     sessionStorage.setItem("familyData", fileContent);
-    GraphModel(new Root(JSON.parse(fileContent)));
+    loadData(JSON.parse(fileContent));
     this.setState({
       dataAvailable: true,
       focusHidden: false

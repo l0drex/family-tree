@@ -1,11 +1,12 @@
 import './InfoPanel.css';
 import {Component} from "react";
 import SearchField from "./SearchField";
-import {GraphPerson, PersonFactTypes} from "../backend/gedcomx-extensions";
+import {PersonFactTypes} from "../backend/gedcomx-extensions";
+import {Person} from "gedcomx-js";
 
 interface Props {
   onRefocus,
-  person: GraphPerson
+  person: Person
 }
 
 interface State {
@@ -25,17 +26,17 @@ class InfoPanel extends Component<Props, State> {
     let person = this.props.person;
     return (
       <aside id="info-panel">
-        <a href={"?id=" + person.data.getId()}>
-          <pre className="id">{person.data.getId()}</pre>
+        <a href={"?id=" + person.getId()}>
+          <pre className="id">{person.getId()}</pre>
         </a>
         {this.state.isPortrait ?
           <SearchField onRefocus={this.props.onRefocus} person={person}/> :
-          <h1 className="fullName">{person.getName()}</h1>}
-        {person.data.getMarriedName() && <h2 className="birth-name">{person.data.getBirthName()}</h2>}
-        {person.data.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.data.getAlsoKnownAs()}</h2>}
+          <h1 className="fullName">{person.getFullName()}</h1>}
+        {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
+        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
 
         <ul id="factView">
-          {person.data.getFacts().sort((a, b) => {
+          {person.getFacts().sort((a, b) => {
             // place birth at top, generation right below
             if (a.getType() === PersonFactTypes.Birth) {
               return -1;
