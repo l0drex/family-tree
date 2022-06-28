@@ -5,7 +5,7 @@ import {
   Fact, FamilyView,
   Person,
   PlaceReference,
-  Qualifier, Relationship
+  Qualifier, Relationship, ResourceReference
 } from "gedcomx-js";
 
 GedcomX.enableRsExtensions();
@@ -33,7 +33,10 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
     this.data = person;
   }
 
-  equals = (person: Person) => {
+  equals = (person: Person|GraphPerson) => {
+    if (person instanceof GraphPerson) {
+      person = person.data;
+    }
     return person.getId() === this.data.getId();
   }
 
@@ -51,6 +54,10 @@ export class GraphFamily extends GedcomX.FamilyView implements GraphObject {
   equals = (object: FamilyView): Boolean => {
     return this.getParent1().getResource() === object.getParent1().getResource() &&
       this.getParent2().getResource() === object.getParent2().getResource();
+  }
+
+  toString = () => {
+    return `Family of ${this.getParent1().getResource()} and ${this.getParent2().getResource()}`
   }
 }
 
@@ -404,12 +411,16 @@ PlaceReference.prototype.toString = function (): string {
 
 // FamilyView
 
-FamilyView.prototype.involvesPerson = function (person) {
-  return !!this.getMembers().find(m => m.matches(person));
+FamilyView.prototype.getParents = function() {
+  return [this.getParent1(), this.getParent2()];
 }
 
 FamilyView.prototype.getMembers = function() {
-  return this.getChildren().concat([this.getParent1(), this.getParent2()]);
+  return this.getChildren().concat(this.getParents());
+}
+
+FamilyView.prototype.involvesPerson = function (person) {
+  return !!this.getMembers().find(m => m.matches(person));
 }
 
 export default GedcomX;

@@ -1,6 +1,6 @@
 import {GraphFamily, GraphObject, GraphPerson} from "./gedcomx-extensions";
 import {graphModel} from "./ModelGraph";
-import {FamilyView, Person} from "gedcomx-js";
+import {FamilyView, Person, ResourceReference} from "gedcomx-js";
 
 export enum view {
   DEFAULT = "",
@@ -15,7 +15,7 @@ export class ViewGraph {
   links: { source, target }[]
   private startPersonValue: GraphPerson
 
-  set startPerson(startPerson: Person|GraphPerson) {
+  set startPerson(startPerson: Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
       this.startPersonValue = startPerson
     } else {
@@ -57,10 +57,15 @@ export class ViewGraph {
     return true;
   }
 
-  showLink = (source: number, target: number) => {
+  showLink = (source: GraphObject, target: GraphObject, swap = false) => {
+    let existingLink = this.links.find(l => new Set([l.source, l.target, source, target]).size === 2);
+    if (existingLink !== undefined) {
+      return;
+    }
+
     this.links.push({
-      source: source,
-      target: target
+      source: swap ? target.viewId : source.viewId,
+      target: swap ? source.viewId : target.viewId
     })
   }
 
@@ -71,27 +76,10 @@ export class ViewGraph {
   showFamily = (family: FamilyView) => {
     let graphFamily = this.getGraphFamily(family);
     console.debug("Showing family:", graphFamily);
-
+    graphFamily.type = "family";
     this.showNode(graphFamily);
-    let parent1 = this.getGraphPerson(
-      graphModel.getPersonById(
-        graphFamily.getParent1()));
-    this.showNode(parent1);
-    this.showLink(parent1.viewId, graphFamily.viewId);
-
-    let parent2 = this.getGraphPerson(
-      graphModel.getPersonById(
-        graphFamily.getParent2()));
-    this.showNode(parent2);
-    this.showLink(parent2.viewId, graphFamily.viewId)
-
-    graphFamily.getChildren().forEach(c => {
-      let child = this.getGraphPerson(graphModel.getPersonById(c));
-      this.showNode(child);
-      this.showLink(graphFamily.viewId,child.viewId)
-    });
-
-    console.groupEnd();
+    [family.getParent1(), family.getParent2()].forEach(id => this.showPerson(id, graphFamily, true));
+    graphFamily.getChildren().forEach(id => this.showPerson(id, graphFamily, false));
   }
 
   hideFamily = (family: GraphFamily) => {
@@ -103,12 +91,9 @@ export class ViewGraph {
     console.groupCollapsed("Hiding family:", family.toString());
 
     // find all leaves, e.g. all nodes who are not connected to other families
-    let parents: GraphPerson[] = family.getMembers().map(graphModel.getPersonById).map(this.getGraphPerson);
-    let children1 = graphModel.getPersonsChildren(family.getParent1()).map(this.getGraphPerson);
-    let children2 = graphModel.getPersonsChildren(family.getParent2()).map(this.getGraphPerson);
-    let children: GraphPerson[] = children1.concat(children2).filter(c => children1.includes(c) && children2.includes(c));
-
-    let leaves = parents.concat(children).filter(person => {
+    let leaves = family.getMembers()
+      .map(p => graphModel.getPersonById(p)).map(p => this.getGraphPerson(p))
+      .filter(person => {
         // check if the node is connected to two families
         let linksToFamilies = viewGraph.links.filter(link => {
           let nodes = [link.source, link.target];
@@ -124,7 +109,7 @@ export class ViewGraph {
         return linksToFamilies.length <= 1;
       }
     );
-    console.debug("Removing the following people:", leaves.map(l => l.data.getFullName()));
+    console.debug("Removing the following people:", leaves.map(l => l.toString()));
 
     // remove nodes from the graph
     this.nodes.filter(node => {
@@ -137,10 +122,8 @@ export class ViewGraph {
           return leaves.find(l => l.data.getId() === (node as GraphPerson).data.getId());
         case "etc":
           let visibleMembers = (node as GraphFamily).getMembers()
-            .map(graphModel.getPersonById);
-          let children = graphModel.getPersonsChildren(graphModel.getPersonById((node as GraphFamily).getParent1()));
-          visibleMembers = visibleMembers.concat(children);
-          return visibleMembers.filter(p => !leaves.map(gp => gp.data).includes(p) && this.isVisible(p)).length === 0;
+            .map(p => this.getGraphPerson(graphModel.getPersonById(p)));
+          return visibleMembers.filter(p => !leaves.includes(p) && this.isVisible(p)).length === 0;
         case "family":
           // replace family that should be removed with an etc-node
           if (node === family) {
@@ -150,7 +133,6 @@ export class ViewGraph {
           return false;
         default:
           // this happens when the node type is not caught, e.g. when the node was previously hidden (type-removed)
-          console.warn("Unknown node type", node);
           return false;
       }
     }).forEach(this.hideNode);
@@ -164,8 +146,23 @@ export class ViewGraph {
     console.groupEnd();
   }
 
-  isVisible = (node) => {
+  private isVisible = (node) => {
     return this.nodes.includes(node) && !(node.type.includes("removed"));
+  }
+
+  private showPerson = (p: ResourceReference, graphFamily: GraphFamily, isParent: boolean) => {
+    let person = graphModel.getPersonById(p);
+    let graphPerson = this.getGraphPerson(person);
+    this.showNode(graphPerson);
+    this.showLink(graphFamily, graphPerson, isParent);
+
+    // add etc
+    let families = isParent ? graphModel.getFamiliesAsChild(person) : graphModel.getFamiliesAsParent(person);
+    families.map(this.getGraphFamily).filter(f => !this.isVisible(f)).forEach(graphEtc => {
+      graphEtc.type = "etc";
+      this.showNode(graphEtc);
+      this.showLink(graphPerson, graphEtc, isParent);
+    });
   }
 
   private getGraphPerson(person: Person): GraphPerson {
@@ -177,8 +174,8 @@ export class ViewGraph {
     return graphPerson as GraphPerson;
   }
 
-  private getGraphFamily(family: FamilyView): GraphFamily {
-    let graphFamily = this.nodes.find(n => n.type==="family" && (n as GraphFamily).equals(family));
+  private getGraphFamily = (family: FamilyView): GraphFamily => {
+    let graphFamily = this.nodes.find(n => (n.type === "family" || n.type === "etc") && (n as GraphFamily).equals(family));
     if (graphFamily === undefined) {
       console.debug("Adding new family to view", family, this.nodes.filter(n => n.type === "family"))
       graphFamily = new GraphFamily(family)

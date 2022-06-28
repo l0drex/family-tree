@@ -378,6 +378,8 @@ declare module "gedcomx-js" {
     // extensions
     involvesPerson(person: ResourceReference | string): boolean
 
+    getParents(): ResourceReference[]
+
     getMembers(): ResourceReference[]
   }
 
