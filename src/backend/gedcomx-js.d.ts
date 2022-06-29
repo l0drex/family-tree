@@ -432,11 +432,11 @@ declare module "gedcomx-js" {
 
     getAscendancyNumber(): string
 
-    setAscendancyNumber(ascendancyNumber: number): DisplayProperties
+    setAscendancyNumber(ascendancyNumber: string): DisplayProperties
 
-    getDescendancyNumber()
+    getDescendancyNumber(): string
 
-    setDescendancyNumber(descendancyNumber: number): DisplayProperties
+    setDescendancyNumber(descendancyNumber: string): DisplayProperties
 
     getFamiliesAsParent(): FamilyView[]
 
