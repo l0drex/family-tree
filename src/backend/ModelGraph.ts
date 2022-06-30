@@ -1,6 +1,6 @@
 import {setReferenceAge, PersonFactTypes} from "./gedcomx-extensions";
 import {translationToString} from "../main";
-import viewGraph, {view} from "./ViewGraph";
+import viewGraph, {ViewMode} from "./ViewGraph";
 import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
 
 class ModelGraph extends Root {
@@ -31,13 +31,6 @@ class ModelGraph extends Root {
     return this.persons.find(person => person.getFullName().toLowerCase().includes(name));
   }
 
-  getPersonsChildren(person: Person | string | ResourceReference): Person[] {
-    if (person instanceof ResourceReference) {
-      person = person.getResource().substring(1);
-    }
-    return super.getPersonsChildren(person);
-  }
-
   getPersonPath = (person: Person): Person[] => {
     let entries = [];
     let child = this.getPersonsChildren(person)[0];
@@ -50,23 +43,20 @@ class ModelGraph extends Root {
     return entries;
   }
 
-  buildViewGraph = (startId: string, activeView?: string) => {
+  buildViewGraph = (startId: string, activeView?: ViewMode) => {
     let startPerson = this.getPersonById(startId);
     console.info("Starting graph with", startPerson.getFullName());
     this.setAgeGen0(startPerson);
     viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
-    if (activeView === null) {
-      activeView = view.DEFAULT;
-    }
     switch (activeView) {
-      case view.ALL:
+      case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
         this.persons.forEach(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
           .forEach(viewGraph.showFamily));
         break;
-      case view.LIVING: {
+      case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
         this.getAncestors(startPerson)
           .filter(p => !p.getLiving())
@@ -76,12 +66,12 @@ class ModelGraph extends Root {
           .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
         break;
       }
-      case view.ANCESTORS:
+      case ViewMode.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.getFullName()}`);
         this.getAncestors(startPerson)
           .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
         break;
-      case view.DESCENDANTS:
+      case ViewMode.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)

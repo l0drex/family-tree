@@ -1,4 +1,4 @@
-import {Etc, Family, Person} from "../nodes/Nodes";
+import {Etc, Family, Person} from "./Nodes";
 import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
@@ -142,18 +142,18 @@ class TreeView extends Component<Props, State> {
         let flip = -(Number((d.source.y - d.target.y)>0)*2-1);
         let radius = Math.min(config.gridSize/2, Math.abs(d.target.x - d.source.x)/2, Math.abs(d.target.y - d.source.y)/2);
 
-        if (d.target.type !== "person") {
-          return `M${d.source.x} ${d.source.y} ` +
-            `H${d.target.x - radius} ` +
-            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
-            `V${d.target.y}`;
-        } else {
+        if (d.target.type === "person") {
           return `M${d.source.x},${d.source.y} ` +
             `h${config.gridSize} ` +
-            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
-            `V${d.target.y - (flip)*radius} ` +
-            `a${radius} ${radius} 0 0 ${(-flip+1)/2} ${radius} ${flip * radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y - (flip) * radius} ` +
+            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
             `H${d.target.x}`;
+        } else {
+          return `M${d.source.x} ${d.source.y} ` +
+            `H${d.target.x - radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y}`;
         }
       });
     });

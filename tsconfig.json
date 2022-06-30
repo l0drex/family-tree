@@ -3,7 +3,8 @@
     "module": "commonjs",
     "target": "es5",
     "sourceMap": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules"

@@ -1,6 +1,6 @@
 import * as GedcomX from "gedcomx-js";
 import {Fact, Person} from "gedcomx-js"
-import {PersonFactTypes, setReferenceAge} from "../backend/gedcomx-extensions";
+import {PersonFactTypes, setReferenceAge} from "./gedcomx-extensions";
 
 test("Age calculated correct", () => {
   setReferenceAge(0, 0);

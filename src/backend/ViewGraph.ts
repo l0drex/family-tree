@@ -2,7 +2,7 @@ import {GraphFamily, GraphObject, GraphPerson} from "./gedcomx-extensions";
 import {graphModel} from "./ModelGraph";
 import {FamilyView, Person, ResourceReference} from "gedcomx-js";
 
-export enum view {
+export enum ViewMode {
   DEFAULT = "",
   ALL = "all",
   LIVING = "living",
@@ -166,8 +166,12 @@ export class ViewGraph {
     });
   }
 
-  private getGraphPerson = (person: Person): GraphPerson => {
-    return this.nodes.find(n => n instanceof GraphPerson && n.equals(person.getDisplay())) as GraphPerson
+  private getGraphPerson = (person: Person | ResourceReference): GraphPerson => {
+    if (person instanceof ResourceReference) {
+      person = graphModel.getPersonById(person);
+    }
+
+    return this.nodes.find(n => n instanceof GraphPerson && n.equals((person as Person).getDisplay())) as GraphPerson
       || person.getDisplay() as GraphPerson;
   }
 

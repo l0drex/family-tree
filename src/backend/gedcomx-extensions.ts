@@ -169,7 +169,11 @@ Person.prototype.getFullName = function (): string {
     return this.getPreferredName().getNameForms()[0].getFullText(true);
   } catch (e) {
     if (e instanceof TypeError) {
-      return "?";
+      if (this.getNames().length < 0) {
+        return "?";
+      } else {
+        return this.getNames()[0].getNameForms()[0].getFullText(true);
+      }
     }
     throw e;
   }
