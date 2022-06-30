@@ -63,17 +63,17 @@ class ModelGraph extends Root {
     switch (activeView) {
       case view.ALL:
         console.groupCollapsed("Showing full graph");
-        this.persons.map(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
-          .forEach(v => viewGraph.showFamily(v)));
+        this.persons.forEach(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
+          .forEach(viewGraph.showFamily));
         break;
       case view.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
         this.getAncestors(startPerson)
           .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsParent(p).forEach(f => viewGraph.showFamily(f)));
+          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
         this.getDescendants(startPerson)
           .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsChild(p).forEach(f => viewGraph.showFamily(f)));
+          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
         break;
       }
       case view.ANCESTORS:
@@ -99,6 +99,10 @@ class ModelGraph extends Root {
   }
 
   getFamiliesAsParent(person: Person): FamilyView[] {
+    if (person.getDisplay().getFamiliesAsParent().length > 0) {
+      return person.getDisplay().getFamiliesAsParent();
+    }
+
     let families = this.getPersonsCoupleRelationships(person)
       .map(c => {
         let partner = c.getOtherPerson(person);
@@ -115,10 +119,16 @@ class ModelGraph extends Root {
         });
       });
     console.debug(`Families where ${person} is a parent:`, families);
+    person.getDisplay().setFamiliesAsParent(families);
+
     return families;
   }
 
   getFamiliesAsChild(person: Person): FamilyView[] {
+    if (person.getDisplay().getFamiliesAsChild().length > 0) {
+      return person.getDisplay().getFamiliesAsChild();
+    }
+
     let parents = this.getPersonsParents(person).map(p => p.getId());
     // find couples where both are parents
     let families = this.getPersonsCoupleRelationships(parents[0])
@@ -139,6 +149,7 @@ class ModelGraph extends Root {
       });
 
     console.debug(`Families where ${person} is a child:`, families);
+    person.getDisplay().setFamiliesAsChild(families);
 
     return families;
   }

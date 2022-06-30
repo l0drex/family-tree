@@ -2,6 +2,7 @@ import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
 import config from "../config";
 import {
+  DisplayProperties,
   Fact, FamilyView,
   Person,
   PlaceReference,
@@ -10,8 +11,12 @@ import {
 
 GedcomX.enableRsExtensions();
 
+type PersonType = "person";
+type FamilyType = "family" | "etc";
+type GraphObjectType = PersonType | FamilyType;
+
 export interface GraphObject {
-  type: string
+  type: GraphObjectType | `${GraphObjectType}-removed`
   width: number
   height: number
   bounds
@@ -19,7 +24,7 @@ export interface GraphObject {
 }
 
 export class GraphPerson extends GedcomX.DisplayProperties implements GraphObject {
-  type = "person"
+  type: PersonType | `${PersonType}-removed` = "person"
   data: Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
@@ -35,7 +40,12 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
     this.data = person;
   }
 
-  equals = (person: Person | GraphPerson) => {
+  equals = (person: Person | GraphPerson | DisplayProperties) => {
+    if (person instanceof DisplayProperties) {
+      return person.getName() === this.getName()
+        && person.getBirthDate() === this.getBirthDate();
+    }
+
     if (person instanceof GraphPerson) {
       person = person.data;
     }
@@ -48,7 +58,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
 }
 
 export class GraphFamily extends GedcomX.FamilyView implements GraphObject {
-  type = "family"
+  type: FamilyType | `${FamilyType}-removed` = "family"
   width = config.margin * 2
   height = config.margin * 2
   bounds
@@ -232,6 +242,14 @@ Person.prototype.toGraphObject = function (): GraphPerson {
 
 Person.prototype.toString = function (): string {
   return `${this.getFullName()} (#${this.getId()})`;
+}
+
+Person.prototype.getDisplay = function (): GraphPerson {
+  if (this.displayProperties === undefined || !(this.displayProperties instanceof GraphPerson)) {
+    this.setDisplay(new GraphPerson(this));
+  }
+
+  return this.display;
 }
 
 

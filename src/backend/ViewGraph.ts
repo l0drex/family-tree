@@ -38,7 +38,8 @@ export class ViewGraph {
     }
 
     if (this.nodes.includes(node)) {
-      console.assert(node.type.includes("removed"));
+      console.assert(node.type.includes("-removed"));
+      // @ts-ignore
       node.type = node.type.replace("-removed", "");
       return true;
     }
@@ -165,13 +166,9 @@ export class ViewGraph {
     });
   }
 
-  private getGraphPerson(person: Person): GraphPerson {
-    let graphPerson = this.nodes.find(n => n.type === "person" && (n as GraphPerson).equals(person));
-    if (graphPerson === undefined) {
-      graphPerson = new GraphPerson(person);
-    }
-
-    return graphPerson as GraphPerson;
+  private getGraphPerson = (person: Person): GraphPerson => {
+    return this.nodes.find(n => n instanceof GraphPerson && n.equals(person.getDisplay())) as GraphPerson
+      || person.getDisplay() as GraphPerson;
   }
 
   private getGraphFamily = (family: FamilyView): GraphFamily => {
