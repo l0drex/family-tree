@@ -169,7 +169,7 @@ Person.prototype.getFullName = function (): string {
     return this.getPreferredName().getNameForms()[0].getFullText(true);
   } catch (e) {
     if (e instanceof TypeError) {
-      if (this.getNames().length < 0) {
+      if (this.getNames().length < 1) {
         return "?";
       } else {
         return this.getNames()[0].getNameForms()[0].getFullText(true);
@@ -279,28 +279,15 @@ Relationship.prototype.toGraphObject = function (): GraphFamily {
 // Date
 
 GedcomX.Date.prototype.toDateObject = function (): Date {
-  if (!this.getFormal()) {
+  let dateString = this.getFormal();
+  if (!dateString || !isNaN(Number(dateString.substring(0, 1)))) {
     return undefined;
   }
 
-  let year = this.formal.substring(1, 5);
-  if (!year) {
-    return undefined;
-  }
-  let month = this.formal.substring(6, 8);
-  if (month) {
-    // some javascript weirdness
-    month = parseInt(month) - 1;
-  }
-  let day = this.formal.substring(9, 11);
-  let hour = this.formal.substring(12, 14);
-  let minute = this.formal.substring(15, 17);
-  let second = this.formal.substring(18, 20);
-
-  return new Date(Date.UTC(year, month, day, hour, minute, second));
+  return new Date(dateString.substring(1));
 }
 
-GedcomX.Date.prototype.toString = function (): string {
+GedcomX.Date.prototype.toString = function (locales?: string): string {
   if (this.original) {
     return this.original;
   }
@@ -310,17 +297,33 @@ GedcomX.Date.prototype.toString = function (): string {
     return "";
   }
 
-  if (this.formal.length <= 11) {
-    return dateObject.toLocaleDateString();
+  if (this.formal.length === 5) {
+    // year is known
+    return dateObject.toLocaleDateString(locales, {
+      year: "numeric"
+    });
+  } else if (this.formal.length === 8) {
+    // year and month are known
+    return dateObject.toLocaleDateString(locales, {
+      year: "numeric",
+      month: "long"
+    });
+  } else if (this.formal.length === 11) {
+    // year, month and day are known
+    return dateObject.toLocaleDateString(locales, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
   }
 
-  return dateObject.toLocaleString();
+  return dateObject.toLocaleString(locales);
 }
 
 
 // Fact
 
-Fact.prototype.toString = function (): string {
+Fact.prototype.toString = function (locales?: string): string {
   let string;
   let value = this.value;
 
@@ -382,11 +385,11 @@ Fact.prototype.toString = function (): string {
 
   string += translationToString({
     en: `${value || value === 0 ? " " + value : ""}` +
-      `${this.date && this.date.toString() ? " on " + this.date.toString() : ""}` +
+      `${this.date && this.date.toString(locales) ? (this.date.formal.length >= 11 ? " on " : " in ") + this.date.toString(locales) : ""}` +
       `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`,
 
     de: `${value || value === 0 ? " " + value : ""}` +
-      `${this.date && this.date.toString() ? " am " + this.date.toString() : ""}` +
+      `${this.date && this.date.toString(locales) ? " am " + this.date.toString() : ""}` +
       `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`
   });
 

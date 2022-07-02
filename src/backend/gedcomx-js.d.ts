@@ -189,6 +189,8 @@ declare module "gedcomx-js" {
 
     // extensions
     toDateObject(): Date
+
+    toString(locales?: string): string
   }
 
   export {GDate as Date};
@@ -215,6 +217,9 @@ declare module "gedcomx-js" {
     setQualifiers(qualifiers: Qualifier[]): Fact
 
     addQualifier(qualifier: Qualifier): Fact
+
+    // extensions
+    toString(locales?: string): string
   }
 
   export class Qualifier extends Base {
@@ -283,6 +288,10 @@ declare module "gedcomx-js" {
     setNameForms(nameForms: NameForm[]): Name
 
     addNameForm(nameForm: NameForm): Name
+
+    getPreferred(): boolean
+
+    setPreferred(preferred: boolean): Name
   }
 
   export class Person extends Subject {
