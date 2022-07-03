@@ -39,6 +39,12 @@ test("toDateObject works", () => {
   let dateExpected = new Date("0000");
   expect(date.getTime())
     .toBe(dateExpected.getTime());
+
+  gDate.setFormal("-0006");
+  date = gDate.toDateObject();
+  dateExpected = new Date("-6");
+  expect(date.getTime())
+    .toBe(dateExpected.getTime());
 })
 
 test("toString works", () => {
