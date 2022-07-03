@@ -190,7 +190,7 @@ declare module "gedcomx-js" {
     // extensions
     toDateObject(): Date
 
-    toString(locales?: string): string
+    toString(): string
   }
 
   export {GDate as Date};
@@ -219,7 +219,7 @@ declare module "gedcomx-js" {
     addQualifier(qualifier: Qualifier): Fact
 
     // extensions
-    toString(locales?: string): string
+    toString(): string
   }
 
   export class Qualifier extends Base {

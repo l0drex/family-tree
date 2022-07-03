@@ -284,11 +284,29 @@ GedcomX.Date.prototype.toDateObject = function (): Date {
     return undefined;
   }
 
-  return new Date(dateString.substring(1));
+  // TODO does not respect timezones yet
+  if (dateString.length > 11) {
+    if (dateString.length <= 14) {
+      // add minutes if only hour is given to prevent undefined return
+      dateString += ":00"
+    }
+    dateString += "Z";
+  }
+  if (dateString[0] === "+") {
+    // should be ok, but isn't
+    dateString = dateString.substring(1)
+  }
+
+  let date = new Date(dateString);
+  if (date.toString() === "Invalid Date") {
+    console.error("Invalid Date", dateString)
+    return undefined;
+  }
+  return date;
 }
 
-GedcomX.Date.prototype.toString = function (locales?: string): string {
-  if (this.original) {
+GedcomX.Date.prototype.toString = function (): string {
+  if (!this.formal && this.original) {
     return this.original;
   }
 
@@ -297,33 +315,47 @@ GedcomX.Date.prototype.toString = function (locales?: string): string {
     return "";
   }
 
-  if (this.formal.length === 5) {
-    // year is known
-    return dateObject.toLocaleDateString(locales, {
-      year: "numeric"
-    });
-  } else if (this.formal.length === 8) {
-    // year and month are known
-    return dateObject.toLocaleDateString(locales, {
-      year: "numeric",
-      month: "long"
-    });
-  } else if (this.formal.length === 11) {
-    // year, month and day are known
-    return dateObject.toLocaleDateString(locales, {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    });
+  let options = {};
+  options["year"] = "numeric";
+  switch (this.formal.length) {
+    case 5:
+      break;
+    case 8:
+      // year and month are known
+      options["month"] = "long";
+      break;
+    default:
+      // full date is known
+      options["month"] = "2-digit";
+      options["day"] = "2-digit";
+      break;
+  }
+  let date = dateObject.toLocaleDateString(config.browserLang, options);
+
+  let time = "";
+  if (this.formal.length >= 14) {
+    options = {};
+    options["hour"] = "2-digit";
+
+    if (this.formal.length >= 17) {
+      options["minute"] = "2-digit";
+    }
+    if (this.formal.length >= 20) {
+      options["second"] = "2-digit";
+    }
+    time = dateObject.toLocaleTimeString(config.browserLang, options);
   }
 
-  return dateObject.toLocaleString(locales);
+  return translationToString({
+    en: `${this.formal.length >= 11 ? "on" : "in"} ${date}${time ? " at " + time : ""}`,
+    de: `${this.formal.length >= 11 ? "am" : "in"} ${date}${time ? " um " + time : ""}`
+  })
 }
 
 
 // Fact
 
-Fact.prototype.toString = function (locales?: string): string {
+Fact.prototype.toString = function (): string {
   let string;
   let value = this.value;
 
@@ -384,13 +416,13 @@ Fact.prototype.toString = function (locales?: string): string {
   }
 
   string += translationToString({
-    en: `${value || value === 0 ? " " + value : ""}` +
-      `${this.date && this.date.toString(locales) ? (this.date.formal.length >= 11 ? " on " : " in ") + this.date.toString(locales) : ""}` +
-      `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`,
+    en: (value || value === 0 ? ` ${value}` : "") +
+      (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
+      (this.place && this.place.toString() ? ` in ${this.place.toString()}` : ""),
 
-    de: `${value || value === 0 ? " " + value : ""}` +
-      `${this.date && this.date.toString(locales) ? " am " + this.date.toString() : ""}` +
-      `${this.place && this.place.toString() ? " in " + this.place.toString() : ""}`
+    de: (value || value === 0 ? " " + value : "") +
+      (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
+      (this.place && this.place.toString() ? " in " + this.place.toString() : "")
   });
 
   if (this.qualifiers) {

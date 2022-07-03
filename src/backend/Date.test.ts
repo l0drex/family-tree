@@ -1,4 +1,5 @@
 import {Date as GDate} from "gedcomx-js";
+import config from "../config";
 require("./gedcomx-extensions")
 
 test("toDateObject works", () => {
@@ -36,24 +37,31 @@ test("toDateObject works", () => {
   gDate.setFormal("+0000");
   date = gDate.toDateObject();
   let dateExpected = new Date("0000");
-  console.debug(dateExpected)
   expect(date.getTime())
     .toBe(dateExpected.getTime());
 })
 
 test("toString works", () => {
+  config.browserLang = "en";
+
   let date = new GDate();
   expect(date.toString()).toBe("")
 
   date.setFormal("+2022")
-  expect(date.toString("en")).toBe("2022")
+  expect(date.toString()).toBe("in 2022")
 
   date.setFormal("+2022-01")
-  expect(date.toString("en")).toBe("January 2022")
+  expect(date.toString()).toBe("in January 2022")
 
   date.setFormal("+2022-01-25")
-  expect(date.toString("en")).toBe("01/25/2022")
+  expect(date.toString()).toBe("on 01/25/2022")
 
-  date.setFormal("+2022-01-25T05:22")
-  expect(date.toString("en")).toBe("1/25/2022, 5:22:00 AM")
+  date.setFormal("+2022-01-25T05")
+  expect(date.toString()).toBe("on 01/25/2022 at 06 AM")
+
+  date.setFormal("+2022-01-25T05:05")
+  expect(date.toString()).toBe("on 01/25/2022 at 06:05 AM")
+
+  date.setFormal("+2022-01-25T05:06:06")
+  expect(date.toString()).toBe("on 01/25/2022 at 06:06:06 AM")
 })
