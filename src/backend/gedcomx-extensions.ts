@@ -63,6 +63,7 @@ export class GraphFamily extends GedcomX.FamilyView implements GraphObject {
   height = config.margin * 2
   bounds
   viewId
+  marriage
 
   equals = (object: FamilyView): Boolean => {
     return this.getParent1().getResource() === object.getParent1().getResource() &&

@@ -1,4 +1,4 @@
-import {GraphFamily, GraphObject, GraphPerson} from "./gedcomx-extensions";
+import {GraphFamily, GraphObject, GraphPerson, PersonFactTypes} from "./gedcomx-extensions";
 import {graphModel} from "./ModelGraph";
 import {FamilyView, Person, ResourceReference} from "gedcomx-js";
 
@@ -179,7 +179,13 @@ export class ViewGraph {
     let graphFamily = this.nodes.find(n => (n.type === "family" || n.type === "etc") && (n as GraphFamily).equals(family));
     if (graphFamily === undefined) {
       console.debug("Adding new family to view", family, this.nodes.filter(n => n.type === "family"))
-      graphFamily = new GraphFamily(family)
+      graphFamily = new GraphFamily(family);
+
+      // try to add a marriage date
+      let marriageFacts = graphModel.getPersonById(family.getParent1()).getFactsByType(PersonFactTypes.MaritalStatus);
+      if (marriageFacts.length > 0) {
+        (graphFamily as GraphFamily).marriage = marriageFacts[0].getDate();
+      }
     }
 
     return graphFamily as GraphFamily;
