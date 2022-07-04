@@ -1,4 +1,5 @@
-import {GraphFamily, GraphObject, GraphPerson, PersonFactTypes} from "./gedcomx-extensions";
+import {GraphFamily, GraphObject, GraphPerson} from "./graph";
+import {PersonFactTypes} from "./gedcomx-extensions";
 import {graphModel} from "./ModelGraph";
 import {FamilyView, Person, ResourceReference} from "gedcomx-js";
 

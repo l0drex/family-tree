@@ -4,7 +4,7 @@ import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
 import viewGraph, {ViewMode, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
-import {GraphPerson} from "../backend/gedcomx-extensions";
+import {GraphPerson} from "../backend/graph";
 import {Person} from "gedcomx-js";
 
 function ViewOption(props) {

@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import * as cola from "webcola";
 import * as GedcomX from "gedcomx-js";
 import viewGraph, {ViewGraph} from "../backend/ViewGraph";
-import {GraphFamily, GraphPerson} from "../backend/gedcomx-extensions";
+import {GraphFamily, GraphPerson} from "../backend/graph";
 
 let d3cola = cola.d3adaptor(d3);
 

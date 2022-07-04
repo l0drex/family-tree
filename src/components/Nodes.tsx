@@ -1,7 +1,7 @@
 import config from "../config";
 import {translationToString} from "../main";
 import viewGraph from "../backend/ViewGraph";
-import {GraphPerson} from "../backend/gedcomx-extensions";
+import {GraphPerson} from "../backend/graph";
 
 export function Family(props) {
   return (

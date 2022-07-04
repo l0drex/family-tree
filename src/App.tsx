@@ -2,7 +2,7 @@ import * as React from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
-import {GraphPerson} from "./backend/gedcomx-extensions";
+import {GraphPerson} from "./backend/graph";
 import Header from "./components/Header";
 import NavigationTutorial from "./components/NavigationTutorial";
 import Notification from "./components/Notification";
