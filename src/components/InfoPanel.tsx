@@ -1,9 +1,19 @@
 import './InfoPanel.css';
 import {Component} from "react";
 import SearchField from "./SearchField";
-import Gedcomx, {personFactTypes} from "../backend/gedcomx";
+import {PersonFactTypes} from "../backend/gedcomx-extensions";
+import {Person} from "gedcomx-js";
 
-class InfoPanel extends Component<any, any> {
+interface Props {
+  onRefocus,
+  person: Person
+}
+
+interface State {
+  isPortrait: boolean
+}
+
+class InfoPanel extends Component<Props, State> {
   constructor(props) {
     super(props);
 
@@ -13,12 +23,11 @@ class InfoPanel extends Component<any, any> {
   }
 
   render() {
-    let person: Gedcomx.Person = this.props.person.data;
-    // TODO fix form
+    let person = this.props.person;
     return (
       <aside id="info-panel">
-        <a href={"?id=" + person.id}>
-          <pre className="id">{person.id}</pre>
+        <a href={"?id=" + person.getId()}>
+          <pre className="id">{person.getId()}</pre>
         </a>
         {this.state.isPortrait ?
           <SearchField onRefocus={this.props.onRefocus} person={person}/> :
@@ -29,26 +38,26 @@ class InfoPanel extends Component<any, any> {
         <ul id="factView">
           {person.getFacts().sort((a, b) => {
             // place birth at top, generation right below
-            if (a.type === personFactTypes.Birth) {
+            if (a.getType() === PersonFactTypes.Birth) {
               return -1;
-            } else if (b.type === personFactTypes.Birth) {
+            } else if (b.getType() === PersonFactTypes.Birth) {
               return 1;
-            } else if (a.type === personFactTypes.Generation) {
+            } else if (a.getType() === PersonFactTypes.Generation) {
               return -1;
-            } else if (b.type === personFactTypes.Generation) {
+            } else if (b.getType() === PersonFactTypes.Generation) {
               return 1;
             }
 
-            if (a.date && !b.date) {
+            if (a.getDate() && !b.getDate()) {
               return 1;
-            } else if (!a.date && b.date) {
+            } else if (!a.getDate() && b.getDate()) {
               return -1;
             }
-            if (a.date && b.date) {
-              let aDate = a.date.toDateObject();
-              let bDate = b.date.toDateObject();
+            if (a.getDate() && b.getDate()) {
+              let aDate = a.getDate().toDateObject();
+              let bDate = b.getDate().toDateObject();
               if (aDate && bDate) {
-                return aDate - bDate;
+                return aDate.getMilliseconds() - bDate.getMilliseconds();
               }
             }
 

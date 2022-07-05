@@ -27,7 +27,7 @@ class SearchField extends Component<any, any> {
         <datalist id="names">
           {
             graphModel.persons.map(p =>
-              <option value={p.data.getFullName()} key={p.data.id}>{p.data.getFullName()}</option>
+              <option value={p.getFullName()} key={p.getId()}>{p.getFullName()}</option>
             )
           }
         </datalist>
@@ -56,7 +56,7 @@ class SearchField extends Component<any, any> {
     let name = document.querySelector<HTMLInputElement>("#input-name").value;
     if (name) {
       // find a person that matches the given name
-      let person = graphModel.findByName(name.toLowerCase());
+      let person = graphModel.getPersonByName(name.toLowerCase());
 
       // if no person was found, throw error
       this.setState({hasError: !person});
@@ -68,7 +68,7 @@ class SearchField extends Component<any, any> {
         return;
       }
 
-      console.log(`Assuming the person is ${person.data.getFullName()} with id ${person.data.id}`);
+      console.log(`Assuming the person is ${person.getFullName()} with id ${person.getId()}`);
       this.props.onRefocus(person);
     }
   }

@@ -2,16 +2,15 @@ import * as React from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
-import GedcomX from "./backend/gedcomx";
-import Header from "./base/Header";
-import NavigationTutorial from "./base/NavigationTutorial";
-import Notification from "./base/Notification";
-import FamilyPath from "./base/FamilyPath";
-import Uploader from "./base/Uploader";
-import InfoPanel from "./base/InfoPanel";
-import View from "./base/View";
-import {graphModel, GraphModel} from "./backend/ModelGraph";
-import {GraphPerson} from "./backend/ViewGraph";
+import {GraphPerson} from "./backend/graph";
+import Header from "./components/Header";
+import NavigationTutorial from "./components/NavigationTutorial";
+import Notification from "./components/Notification";
+import FamilyPath from "./components/FamilyPath";
+import Uploader from "./components/Uploader";
+import InfoPanel from "./components/InfoPanel";
+import View from "./components/View";
+import {graphModel, loadData} from "./backend/ModelGraph";
 import {ReactNode} from "react";
 
 interface State {
@@ -29,13 +28,13 @@ class App extends React.Component<any, State> {
 
     let data = sessionStorage.getItem("familyData");
     if (data) {
-      GraphModel(new GedcomX(JSON.parse(data)));
+      loadData(JSON.parse(data));
     }
 
     this.state = {
       notifications: [],
       focusId: url.searchParams.get("id"),
-      focusHidden: false,
+      focusHidden: graphModel === undefined,
       dataAvailable: graphModel !== undefined
     };
   }
@@ -49,17 +48,15 @@ class App extends React.Component<any, State> {
           <main>
             {this.state.notifications}
             <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-          </main>
-          <aside>
             <NavigationTutorial/>
-          </aside>
+          </main>
         </>
       );
     }
 
     let focus;
     if (this.state.focusId) {
-      focus = graphModel.findById(this.state.focusId);
+      focus = graphModel.getPersonById(this.state.focusId);
     } else {
       focus = graphModel.persons[0];
     }
@@ -80,14 +77,15 @@ class App extends React.Component<any, State> {
 
   onFileSelected(fileContent) {
     sessionStorage.setItem("familyData", fileContent);
-    GraphModel(new GedcomX(JSON.parse(fileContent)));
+    loadData(JSON.parse(fileContent));
     this.setState({
-      dataAvailable: true
+      dataAvailable: true,
+      focusHidden: false
     });
   }
 
   onRefocus(newFocus: GraphPerson) {
-    if (newFocus.data.id === this.state.focusId) {
+    if (newFocus.data.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden
       })
@@ -95,12 +93,27 @@ class App extends React.Component<any, State> {
     }
     this.setState({
       focusHidden: false,
-      focusId: newFocus.data.id
+      focusId: newFocus.data.getId()
     });
   }
 
   componentDidMount() {
     localize(config.browserLang);
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.add("sidebar-hidden");
+    } else {
+      root.classList.remove("sidebar-hidden");
+    }
+  }
+
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<State>, snapshot?: any) {
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.add("sidebar-hidden");
+    } else {
+      root.classList.remove("sidebar-hidden");
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {

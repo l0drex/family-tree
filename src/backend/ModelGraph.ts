@@ -1,40 +1,40 @@
-import GedcomX, {setReferenceAge} from "./gedcomx";
-import viewGraph, {GraphFamily, GraphPerson, view} from "./ViewGraph";
+import {setReferenceAge, PersonFactTypes} from "./gedcomx-extensions";
 import {translationToString} from "../main";
+import viewGraph, {ViewMode} from "./ViewGraph";
+import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
 
-class ModelGraph {
-  persons: GraphPerson[]
-  relationships: GraphFamily[]
-
+class ModelGraph extends Root {
   constructor(data) {
-    if (data.persons.length < 0 || data.relationships.length < 0) {
-      throw new Error("Data is empty!")
+    super(data)
+    if (!data || data.persons.length < 0 || data.relationships.length < 0) {
+      throw new Error(
+        translationToString({
+          en: "The calculated graph is empty!" +
+            "Please check if your files are empty. If not, please contact the administrator!",
+          de: "Der berechnete Graph ist leer!" +
+            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
+        }));
     }
 
-    console.log("Found", data.persons.length, "people", data.persons);
-    console.log("Found", data.relationships.length, "relationships", data.relationships);
-    // add some necessary data
-    this.persons = data.persons.map(p => toGraphObject(p, "person"));
-    this.relationships = data.relationships.map(r => toGraphObject(r, "family"));
+    console.log("Found", data.persons.length, "people");
+    console.log("Found", data.relationships.length, "relationships");
   }
 
-  findById = (id: string | GedcomX.ResourceReference): GraphPerson => {
-    if (typeof id === "string") {
-      return this.persons.find(p => p.data.id === id)
+  getPersonById(id: string | number | ResourceReference): Person {
+    if (id instanceof ResourceReference) {
+      id = id.getResource().substring(1);
     }
-    if (id instanceof GedcomX.ResourceReference) {
-      return this.persons.find(p => id.matches(p.data.id))
-    }
+    return super.getPersonById(id);
   }
 
-  findByName = (name: string): GraphPerson => {
-    return this.persons.find(person => person.data.getFullName().toLowerCase().includes(name));
+  getPersonByName = (name: string): Person => {
+    return this.persons.find(person => person.getFullName().toLowerCase().includes(name));
   }
 
-  getPersonPath = (person: GraphPerson): GraphPerson[] => {
+  getPersonPath = (person: Person): Person[] => {
     let entries = [];
-    let child = this.getChildren(person)[0];
-    let parent = this.getParents(person)[0];
+    let child = this.getPersonsChildren(person)[0];
+    let parent = this.getPersonsParents(person)[0];
 
     if (parent) entries.push(parent);
     entries.push(person);
@@ -43,134 +43,173 @@ class ModelGraph {
     return entries;
   }
 
-  buildViewGraph = (startId: number, activeView?: string) => {
-    let startPerson = this.findById(startId);
-    console.info("Starting graph with", startPerson.data.getFullName());
+  buildViewGraph = (startId: string, activeView?: ViewMode) => {
+    let startPerson = this.getPersonById(startId);
+    console.info("Starting graph with", startPerson.getFullName());
     this.setAgeGen0(startPerson);
     viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
-    if (activeView === null) {
-      activeView = view.DEFAULT;
-    }
-    let peopleToShow;
     switch (activeView) {
-      case view.ALL:
+      case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
-        peopleToShow = this.persons;
+        this.persons.forEach(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
+          .forEach(viewGraph.showFamily));
         break;
-      case view.LIVING: {
+      case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        peopleToShow = this.getAncestors(startPerson)
-          .concat(this.getDescendants(startPerson))
-          .filter(p => !p.data.isDead());
+        this.getAncestors(startPerson)
+          .filter(p => !p.getLiving())
+          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
+        this.getDescendants(startPerson)
+          .filter(p => !p.getLiving())
+          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
         break;
       }
-      case view.ANCESTORS:
-        console.groupCollapsed(`Showing all ancestors of ${startPerson.data.getFullName()}`);
-        peopleToShow = this.getAncestors(startPerson);
+      case ViewMode.ANCESTORS:
+        console.groupCollapsed(`Showing all ancestors of ${startPerson.getFullName()}`);
+        this.getAncestors(startPerson)
+          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
         break;
-      case view.DESCENDANTS:
-        console.groupCollapsed(`Showing all descendants of ${startPerson.data.getFullName()}`);
-        peopleToShow = this.getDescendants(startPerson);
+      case ViewMode.DESCENDANTS:
+        console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
+        this.getDescendants(startPerson)
+          .filter(p => p !== startPerson)
+          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
         break;
       default: {
-        console.groupCollapsed("Showing explorable graph");
-        peopleToShow = [startPerson]
-          .concat(this.getParents(startPerson))
-          .concat(this.getChildren(startPerson))
-          .concat(this.getPartners(startPerson));
+        console.group("Showing explorable graph");
+        this.getFamiliesAsParent(startPerson).forEach(viewGraph.showFamily);
+        this.getFamiliesAsChild(startPerson).forEach(viewGraph.showFamily);
+        console.groupEnd();
+        return;
       }
     }
-    peopleToShow.forEach(viewGraph.showNode);
-    this.relationships.filter(r => r.data.isCouple()).forEach(viewGraph.showCouple);
-    this.relationships.filter(r => r.data.isParentChild()).forEach(viewGraph.showParentChild);
     console.groupEnd();
   }
 
-  getParents = (person: GedcomX.Person) => {
-    return this.relationships
-      .filter(r => r.data.isParentChild() && r.data.person2.matches(person.data.id))
-      .map(r => this.findById(r.data.person1));
+  getFamiliesAsParent(person: Person): FamilyView[] {
+    if (person.getDisplay().getFamiliesAsParent().length > 0) {
+      return person.getDisplay().getFamiliesAsParent();
+    }
+
+    let families = this.getPersonsCoupleRelationships(person)
+      .map(c => {
+        let partner = c.getOtherPerson(person);
+        let children = this.getChildrenOfBoth(person, partner)
+          .map(person => {
+            return {
+              resource: "#" + person.getId()
+            }
+          });
+        return new FamilyView({
+          parent1: c.getPerson1(),
+          parent2: c.getPerson2(),
+          children: children
+        });
+      });
+    console.debug(`Families where ${person} is a parent:`, families);
+    person.getDisplay().setFamiliesAsParent(families);
+
+    return families;
   }
 
-  getChildren = (person: GedcomX.Person) => {
-    return this.relationships
-      .filter(r => r.data.isParentChild() && r.data.person1.matches(person.data.id))
-      .map(r => this.findById(r.data.person2));
+  getFamiliesAsChild(person: Person): FamilyView[] {
+    if (person.getDisplay().getFamiliesAsChild().length > 0) {
+      return person.getDisplay().getFamiliesAsChild();
+    }
+
+    let parents = this.getPersonsParents(person).map(p => p.getId());
+    // find couples where both are parents
+    let families = this.getPersonsCoupleRelationships(parents[0])
+      .filter(r => parents[1] === r.getPerson2().getResource().substring(1))
+      .map(c => {
+        let children = this.getChildrenOfBoth(c.getPerson1(), c.getPerson2()).map(person => {
+          return {
+            resource: "#" + person.getId()
+          }
+        });
+        console.assert(children.map(r => r.resource).includes("#" + person.getId()), `${person} is not a child`)
+
+        return new FamilyView({
+          parent1: c.getPerson1(),
+          parent2: c.getPerson2(),
+          children: children
+        });
+      });
+
+    console.debug(`Families where ${person} is a child:`, families);
+    person.getDisplay().setFamiliesAsChild(families);
+
+    return families;
   }
 
-  private setAgeGen0 = (startPerson) => {
+  private getChildrenOfBoth(parent1: Person | ResourceReference, parent2: Person | ResourceReference) {
+    if (parent1 instanceof ResourceReference) {
+      parent1 = this.getPersonById(parent1.getResource().substring(1));
+    }
+    if (parent2 instanceof ResourceReference) {
+      parent2 = this.getPersonById(parent2.getResource().substring(1));
+    }
+    let childrenOfParent1 = this.getPersonsChildren(parent1);
+    let childrenOfParent2 = this.getPersonsChildren(parent2);
+    return childrenOfParent1.filter(c => childrenOfParent2.includes(c));
+  }
+
+  private setAgeGen0 = (startPerson: Person) => {
     let personWithKnownAge = this.persons
-      .filter(p => p.data.getGeneration() === startPerson.data.getGeneration())
-      .find(p => typeof p.data.getAge() === "number");
+      .filter(p => {
+        let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.Generation);
+        if (generationStartFacts.length < 1) {
+          return false;
+        }
+        let generationStart = generationStartFacts[0].getValue();
+        let generationPFacts = p.getFactsByType(PersonFactTypes.Generation)
+        if (generationPFacts.length < 1) {
+          return false;
+        }
+        let generationP = generationPFacts[0].getValue()
+        return generationP === generationStart;
+      })
+      .find(p => typeof p.getAgeToday() === "number");
 
     if (!personWithKnownAge) {
       console.warn("No age for generation 0 could be found");
       return;
     }
-    setReferenceAge(personWithKnownAge.data.getAge(), personWithKnownAge.data.getGeneration());
+    setReferenceAge(personWithKnownAge.getAgeToday(),
+      // get generation from generation fact
+      Number(personWithKnownAge.getFactsByType(PersonFactTypes.Generation)[0].getValue()));
   }
 
-  private getPartners(person: GedcomX.Person) {
-    return this.relationships
-      .filter(r => r.data.isCouple() &&
-        r.data.involvesPerson(person.data))
-      .map(r => this.findById(r.data.getOtherPerson(person.data)));
-  }
-
-  private getAncestors(person: GedcomX.Person) {
+  private getAncestors(person: Person): Person[] {
     // stack to collect ancestors of ancestors
     let ancestors = [person];
     let index = 0;
     while (index < ancestors.length) {
-      this.getParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
+      this.getPersonsParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
       index++;
     }
     return ancestors;
   }
 
-  private getDescendants(person: GedcomX.Person) {
+  private getDescendants(person: Person): Person[] {
     // stack to collect descendants of descendants
     let descendants = [person];
     let index = 0;
     while (index < descendants.length) {
-      this.getChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
+      this.getPersonsChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
       index++;
     }
-    descendants.forEach(d => this.getPartners(d).forEach(p => descendants.push(p)));
     return descendants;
   }
 }
 
 export let graphModel: ModelGraph;
 
-export function GraphModel(data) {
+export function loadData(data: object) {
   if (graphModel !== undefined) {
     return;
   }
-  if (!data) {
-    throw new Error(
-      translationToString({
-        en: "The calculated graph is empty!" +
-          "Please check if your files are empty. If not, please contact the administrator!",
-        de: "Der berechnete Graph ist leer!" +
-          " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-      }));
-  }
   graphModel = new ModelGraph(data);
-}
-
-function toGraphObject(object: GedcomX.Person | GedcomX.Relationship, type: "person" | "family") {
-  let graphObject;
-  switch (type) {
-    case "person":
-      graphObject = new GraphPerson(object)
-      break;
-    case "family":
-      graphObject = new GraphFamily(object);
-      break;
-  }
-
-  return graphObject;
 }

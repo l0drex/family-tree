@@ -1,7 +1,7 @@
 #family-tree {
-  --male: #9bcfec;
-  --female: #ff9494;
-  --divers: #d5a3ee;
+  --male: #5353fd;
+  --female: #c53535;
+  --divers: #81459b;
   --grid-size: 16px;
   margin: 0;
   border-radius: 0;
@@ -23,6 +23,7 @@
   font-size: var(--grid-size);
   text-anchor: middle;
   stroke: none;
+  user-select: none;
 }
 
 .link {
@@ -31,6 +32,11 @@
   stroke-width: .2rem;
   stroke-linecap: round;
   stroke-linejoin: round;
+  opacity: 0;
+}
+
+.etc {
+  opacity: 0;
 }
 
 .etc, .partnerNode *:not(.marriageDate) {
@@ -56,19 +62,8 @@
   stroke: none;
 }
 
-@media (prefers-color-scheme: light) {
-  #family-tree {
-    --male: #9bcfec;
-    --female: #ff9494;
-    --divers: #d5a3ee;
-  }
-}
-
 @media (prefers-color-scheme: dark) {
   #family-tree {
-    --male: #254579;
-    --female: #911c1c;
-    --divers: #8d53a4;
     background: black;
   }
 }
@@ -85,10 +80,12 @@
 
 /* Person node styles */
 .person {
-  color: var(--foreground);
+  color: white;
   overflow: visible;
   cursor: pointer;
   font-size: var(--grid-size);
+  user-select: none;
+  opacity: 0;
 }
 
 .person p {
@@ -141,6 +138,7 @@
   border-radius: 1.525rem;
   border-style: solid;
   background-color: var(--background);
+  color: var(--foreground);
 }
 
 /*View option styles*/

@@ -2,8 +2,10 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import viewGraph, {GraphPerson, view, ViewGraph} from "../backend/ViewGraph";
+import viewGraph, {ViewMode, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
+import {GraphPerson} from "../backend/graph";
+import {Person} from "gedcomx-js";
 
 function ViewOption(props) {
   let className = "button inline";
@@ -21,28 +23,28 @@ function ViewOptions(props) {
               de: "Zeige:"
             })}</span>
 
-      <ViewOption name={view.ALL} localName={translationToString({
+      <ViewOption name={ViewMode.ALL} localName={translationToString({
         en: "All",
         de: "Alle"
-      })} active={props.activeView === view.ALL} onClick={props.onViewChange}/>
-      <ViewOption name={view.ANCESTORS} localName={translationToString({
+      })} active={props.activeView === ViewMode.ALL} onClick={props.onViewChange}/>
+      <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
         en: "Ancestors",
         de: "Vorfahren"
-      })} active={props.activeView === view.ANCESTORS} onClick={props.onViewChange}/>
-      <ViewOption name={view.LIVING} localName={translationToString({
+      })} active={props.activeView === ViewMode.ANCESTORS} onClick={props.onViewChange}/>
+      <ViewOption name={ViewMode.LIVING} localName={translationToString({
         en: "Living",
         de: "Lebende"
-      })} active={props.activeView === view.LIVING} onClick={props.onViewChange}/>
-      <ViewOption name={view.DESCENDANTS} localName={translationToString({
+      })} active={props.activeView === ViewMode.LIVING} onClick={props.onViewChange}/>
+      <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
         en: "Descendants",
         de: "Nachkommen"
-      })} active={props.activeView === view.DESCENDANTS} onClick={props.onViewChange}/>
+      })} active={props.activeView === ViewMode.DESCENDANTS} onClick={props.onViewChange}/>
     </div>
   );
 }
 
 interface Props {
-  focus: GraphPerson
+  focus: Person
   focusHidden: boolean
   onRefocus: (newFocus: GraphPerson) => void
 }
@@ -57,10 +59,10 @@ class View extends Component<Props, State> {
     super(props);
 
     let url = new URL(window.location.href);
-    let view: string = url.searchParams.get("view-all") || "";
-    console.debug(`View: ${view.length > 0 ? view : "default"}`);
+    let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
+    console.debug(`View: ${view}`);
 
-    graphModel.buildViewGraph(this.props.focus.data.id, view);
+    graphModel.buildViewGraph(this.props.focus.getId(), ViewMode[view]);
     console.assert(viewGraph.nodes.length > 0,
       "Viewgraph has no nodes!");
     console.assert(viewGraph.links.length > 0,
@@ -88,7 +90,7 @@ class View extends Component<Props, State> {
 
   onViewChanged(view) {
     let newView = view === this.state.activeView ? "" : view;
-    graphModel.buildViewGraph(this.props.focus.data.id, newView);
+    graphModel.buildViewGraph(this.props.focus.getId(), newView);
     this.setState({
       activeView: newView,
       viewGraph: viewGraph

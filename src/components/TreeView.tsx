@@ -1,14 +1,16 @@
-import {Etc, Family, Person} from "../nodes/Nodes";
+import {Etc, Family, Person} from "./Nodes";
 import {Component} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
-import viewGraph, {GraphPerson, ViewGraph} from "../backend/ViewGraph";
+import * as GedcomX from "gedcomx-js";
+import viewGraph, {ViewGraph} from "../backend/ViewGraph";
+import {GraphFamily, GraphPerson} from "../backend/graph";
 
 let d3cola = cola.d3adaptor(d3);
 
 interface Props {
-  focus: GraphPerson
+  focus: GedcomX.Person
   focusHidden: boolean
   onRefocus: (newFocus: GraphPerson) => void
 }
@@ -43,13 +45,13 @@ class TreeView extends Component<Props, State> {
           <g id="nodes">
             {this.state.graph.nodes.filter(n => n.type === "family").map(r =>
               <Family data={r} key={r.viewId}
-                     locked={r.data.involvesPerson(this.state.graph.startPerson.data)}
+                     locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}
                      onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "etc").map(r =>
               <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
               <Person data={p} onClick={this.props.onRefocus} key={p.viewId}
-                      focused={!this.props.focusHidden && p.data.id === this.props.focus.data.id}/>)}
+                      focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.getId()}/>)}
           </g>
         </g>
       </svg>
@@ -57,17 +59,7 @@ class TreeView extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.animateTree()
-  }
-
-  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    this.animateTree()
-  }
-
-  animateTree() {
     let svg = d3.select("#family-tree");
-    let nodesLayer = svg.select("#nodes");
-    let linkLayer = svg.select("#links");
 
     const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
     d3cola.size(viewportSize);
@@ -96,9 +88,25 @@ class TreeView extends Component<Props, State> {
       .touchable(() => ('ontouchstart' in window) || window.TouchEvent);
     svg.select("rect").call(svgZoom);
 
+
+    this.animateTree()
+  }
+
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+    this.animateTree()
+  }
+
+  animateTree() {
+    d3cola
+      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
+      .symmetricDiffLinkLengths(config.gridSize)
+      .start(15, 0, 10);
+
+    let nodesLayer = d3.select("#nodes");
+    let linkLayer = d3.select("#links");
+
     let personNode = nodesLayer.selectAll(".person")
       .data(this.state.graph.nodes.filter(p => p.type === "person"))
-      //.call(d3cola.drag);
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.graph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
@@ -106,10 +114,19 @@ class TreeView extends Component<Props, State> {
     let link = linkLayer.selectAll(".link")
       .data(this.state.graph.links);
 
-    d3cola
-      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
-      .symmetricDiffLinkLengths(config.gridSize)
-      .start(15, 0, 10);
+    personNode
+      .transition()
+      .duration(300)
+      .style("opacity","1")
+      //.call(d3cola.drag);
+    link
+      .transition()
+      .duration(600)
+      .style("opacity","1")
+    etcNode
+      .transition()
+      .duration(300)
+      .style("opacity","1")
 
     d3cola.on("tick", () => {
       personNode
@@ -125,18 +142,18 @@ class TreeView extends Component<Props, State> {
         let flip = -(Number((d.source.y - d.target.y)>0)*2-1);
         let radius = Math.min(config.gridSize/2, Math.abs(d.target.x - d.source.x)/2, Math.abs(d.target.y - d.source.y)/2);
 
-        if (d.target.type !== "person") {
-          return `M${d.source.x} ${d.source.y} ` +
-            `H${d.target.x - radius} ` +
-            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
-            `V${d.target.y}`;
-        } else {
+        if (d.target.type === "person") {
           return `M${d.source.x},${d.source.y} ` +
             `h${config.gridSize} ` +
-            `a${radius} ${radius} 0 0 ${(flip+1)/2} ${radius} ${flip * radius} ` +
-            `V${d.target.y - (flip)*radius} ` +
-            `a${radius} ${radius} 0 0 ${(-flip+1)/2} ${radius} ${flip * radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y - (flip) * radius} ` +
+            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
             `H${d.target.x}`;
+        } else {
+          return `M${d.source.x} ${d.source.y} ` +
+            `H${d.target.x - radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y}`;
         }
       });
     });

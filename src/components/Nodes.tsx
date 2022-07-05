@@ -1,7 +1,7 @@
 import config from "../config";
 import {translationToString} from "../main";
 import viewGraph from "../backend/ViewGraph";
-import Gedcomx from "../backend/gedcomx";
+import {GraphPerson} from "../backend/graph";
 
 export function Family(props) {
   return (
@@ -13,9 +13,10 @@ export function Family(props) {
       props.onClick();
     }}>
       <circle r={config.gridSize / 2}/>
-      {props.data.data.marriage() && props.data.data.marriage().date && props.data.data.marriage().date.toString() &&
-        <text x="-24pt" y="5pt" className="marriageDate">
-          {`💍 ${props.data.data.marriage().date.toString()}`}
+      {/* TODO add marriage date*/}
+      {props.data.marriage &&
+        <text x={-config.gridSize} y="4pt" className="marriageDate">
+          {`💍 ${props.data.marriage}`}
         </text>}
       {!props.locked && <text y="4">-</text>}
       <title>{props.locked ? translationToString({
@@ -42,23 +43,21 @@ export function Etc(props) {
 }
 
 export function Person(props) {
-  let viewOptions = props.data;
-  let person: Gedcomx.Person = props.data.data;
+  let graphPerson: GraphPerson = props.data;
   return (
     <foreignObject
       className={
         "person"
-        + (" " + person.getGender())
-        + (person.isDead() ? " dead" : "")}
-      id={person.id}
-      x={-viewOptions.bounds.width() / 2} y={-viewOptions.bounds.height() / 2}
-      width={viewOptions.bounds.width()} height={viewOptions.bounds.height()}
-      onClick={() => props.onClick(viewOptions)}>
+        + (" " + graphPerson.getGender())
+        + (graphPerson.data.getLiving() ? "": " dead")}
+      x={-graphPerson.bounds.width() / 2} y={-graphPerson.bounds.height() / 2}
+      width={graphPerson.bounds.width()} height={graphPerson.bounds.height()}
+      onClick={() => props.onClick(graphPerson)}>
       <div className={"bg" + (props.focused ? " focused" : "")} title={translationToString({
         en: "Click to show more information",
         de: "Klicke für weitere Informationen"
       })}>
-        <p className="fullName">{person.getFullName()}</p>
+        <p className="fullName">{graphPerson.getName()}</p>
       </div>
     </foreignObject>
   );
