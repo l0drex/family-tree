@@ -8,5 +8,5 @@ test("toString works", () => {
   expect(fact.toString()).toBe("born")
 
   fact.setDate(new Date().setFormal("+2022-01-25T06:55"))
-  expect(fact.toString()).toBe("born on 01/25/2022 at 07:55 AM")
+  expect(fact.toString()).toBe("born on 01/25/2022 at 06:55 AM")
 })

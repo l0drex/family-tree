@@ -63,11 +63,11 @@ test("toString works", () => {
   expect(date.toString()).toBe("on 01/25/2022")
 
   date.setFormal("+2022-01-25T05")
-  expect(date.toString()).toBe("on 01/25/2022 at 06 AM")
+  expect(date.toString()).toBe("on 01/25/2022 at 05 AM")
 
   date.setFormal("+2022-01-25T05:05")
-  expect(date.toString()).toBe("on 01/25/2022 at 06:05 AM")
+  expect(date.toString()).toBe("on 01/25/2022 at 05:05 AM")
 
   date.setFormal("+2022-01-25T05:06:06")
-  expect(date.toString()).toBe("on 01/25/2022 at 06:06:06 AM")
+  expect(date.toString()).toBe("on 01/25/2022 at 05:06:06 AM")
 })
