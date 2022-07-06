@@ -169,7 +169,13 @@ Person.prototype.getAgeToday = function (): number | undefined {
 }
 
 Person.prototype.getLiving = function (): boolean {
-  return this.getFactsByType(PersonFactTypes.Death).length === 0 && this.getAgeToday() < 120
+  if (this.getFactsByType(PersonFactTypes.Death).length > 0) {
+    return false;
+  }
+  if (this.getAgeToday() === undefined) {
+    return true;
+  }
+  return this.getAgeToday() < 120
 }
 
 Person.prototype.toGraphObject = function (): GraphPerson {

@@ -22,8 +22,10 @@ test("Age calculated correct", () => {
 
 test("living calculated correctly", () => {
   setReferenceAge(20, 10);
-  let person = new Person()
-    .addFact(new Fact()
+  let person = new Person();
+  expect(person.getLiving()).toBeTruthy();
+
+  person.addFact(new Fact()
       .setType(PersonFactTypes.Generation)
       .setValue(0));
   expect(person.getLiving()).toBeFalsy();
