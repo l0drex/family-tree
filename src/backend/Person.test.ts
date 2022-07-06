@@ -1,6 +1,7 @@
 import * as GedcomX from "gedcomx-js";
 import {Fact, Person, Name, NameForm} from "gedcomx-js"
 import {PersonFactTypes, setReferenceAge} from "./gedcomx-extensions";
+import config from "../config";
 
 test("Age calculated correct", () => {
   setReferenceAge(0, 0);
@@ -26,8 +27,8 @@ test("living calculated correctly", () => {
   expect(person.getLiving()).toBeTruthy();
 
   person.addFact(new Fact()
-      .setType(PersonFactTypes.Generation)
-      .setValue(0));
+    .setType(PersonFactTypes.Generation)
+    .setValue(0));
   expect(person.getLiving()).toBeFalsy();
 
   person = new Person()
@@ -45,7 +46,7 @@ test("living calculated correctly", () => {
   expect(person.getLiving()).toBeFalsy();
 })
 
-test("get full name returns a name", () => {
+test("get full name returns the correct name", () => {
   let person = new Person();
   expect(person.getFullName()).toBe("?");
 
@@ -53,8 +54,21 @@ test("get full name returns a name", () => {
     .addNameForm(new NameForm().setFullText("Maximilian Mustermann")))
   expect(person.getFullName()).toBe("Maximilian Mustermann");
 
+  config.browserLang = "en";
   person.addName(new Name()
+    .setLang("en")
+    .addNameForm(new NameForm().setFullText("John Doe")));
+  expect(person.getFullName()).toBe("John Doe");
+
+  let preferredName = new Name()
     .addNameForm(new NameForm().setFullText("Max Mustermann"))
-    .setPreferred(true));
+    .setPreferred(true);
+  person.addName(preferredName);
   expect(person.getFullName()).toBe("Max Mustermann");
+
+  preferredName.addNameForm(new NameForm()
+    .setLang("en")
+    .setFullText("John Smith"))
+  person.setNames([preferredName])
+  expect(person.getFullName()).toBe("John Smith");
 })

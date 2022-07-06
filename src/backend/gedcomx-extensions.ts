@@ -2,7 +2,7 @@ import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
 import config from "../config";
 import {
-  Fact, FamilyView,
+  Fact, FamilyView, NameForm,
   Person,
   PlaceReference,
   Qualifier, Relationship
@@ -97,18 +97,26 @@ export function setReferenceAge(age: number, generation: number) {
 }
 
 Person.prototype.getFullName = function (): string {
-  try {
-    return this.getPreferredName().getNameForms()[0].getFullText(true);
-  } catch (e) {
-    if (e instanceof TypeError) {
-      if (this.getNames().length < 1) {
-        return "?";
-      } else {
-        return this.getNames()[0].getNameForms()[0].getFullText(true);
-      }
-    }
-    throw e;
+  if (this.getNames().length < 1) {
+    return "?";
   }
+
+  let names = [
+    this.getPreferredName(),
+    this.getNames().filter(n => n.getLang() === config.browserLang)[0],
+    this.getNames()[0]
+  ];
+
+  // first name that is defined
+  let name = names.find(n => n !== undefined);
+  if (name.getNameForms().length === 0) {
+    return "?";
+  }
+  // name form that matches language, or if none matches return the first without lang
+  let nameForm = name.getNameForms().find((nf: NameForm) => nf.getLang() === config.browserLang);
+  nameForm ??= name.getNameForms().find((nf: NameForm) => nf.getLang() === "");
+  nameForm ??= name.getNameForms()[0];
+  return nameForm.getFullText(true);
 }
 
 Person.prototype.getBirthName = function (): string {
