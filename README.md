@@ -16,7 +16,9 @@ Supported languages[^1]: 🇺🇲/🇬🇧[^2] 🇩🇪
 
 # 🌳 Usage
 
-Upload a valid gedcomx-file on the home page. On submit, the family view should open and display the graph.
+Upload a valid gedcomx-file on the home page. On submit, the family view should open and display the graph:
+
+![grafik](https://user-images.githubusercontent.com/46622675/177526424-7507cbc5-e640-4657-bf1c-2a2d2a459685.png)
 
 ---
 For developers:
