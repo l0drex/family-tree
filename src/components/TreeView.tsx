@@ -72,19 +72,19 @@ class TreeView extends Component<Props, State> {
      - Move with wheel (shift changes the axes)
     */
     let svgZoom = d3.zoom()
-      .on("zoom", () => {
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "wheel") {
-          if (d3.event.sourceEvent.wheelDelta < 0)
+      .on("zoom", event => {
+        if (event.sourceEvent && event.sourceEvent.type === "wheel") {
+          if (event.sourceEvent.wheelDelta < 0)
             svg.node().style.cursor = "zoom-out";
           else
             svg.node().style.cursor = "zoom-in";
         }
-        svg.select("#vis").attr("transform", d3.event.transform.toString());
+        svg.select("#vis").attr("transform", event.transform.toString());
       })
       .on("end", () => {
         svg.node().style.cursor = "";
       })
-      .filter(() => d3.event.type !== "dblclick" && (d3.event.type === "wheel" ? d3.event.ctrlKey : true))
+      .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
       .touchable(() => ('ontouchstart' in window) || window.TouchEvent);
     svg.select("rect").call(svgZoom);
 
@@ -130,8 +130,8 @@ class TreeView extends Component<Props, State> {
 
     d3cola.on("tick", () => {
       personNode
-        .attr("x", d => d.x - d.bounds.width() / 2)
-        .attr("y", d => d.y - d.bounds.height() / 2);
+        .attr("x", d => d.x - d.width / 2)
+        .attr("y", d => d.y - d.height / 2);
       partnerNode
         .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
       etcNode

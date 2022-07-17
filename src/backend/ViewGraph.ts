@@ -65,6 +65,7 @@ export class ViewGraph {
       return;
     }
 
+    // TODO use id instead
     this.links.push({
       source: swap ? target.viewId : source.viewId,
       target: swap ? source.viewId : target.viewId
