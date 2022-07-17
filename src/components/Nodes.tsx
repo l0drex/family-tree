@@ -50,8 +50,8 @@ export function Person(props) {
         "person"
         + (" " + graphPerson.getGender())
         + (graphPerson.data.getLiving() ? "": " dead")}
-      x={-graphPerson.bounds.width() / 2} y={-graphPerson.bounds.height() / 2}
-      width={graphPerson.bounds.width()} height={graphPerson.bounds.height()}
+      x={-graphPerson.width / 2} y={-graphPerson.height / 2}
+      width={graphPerson.width} height={graphPerson.height}
       onClick={() => props.onClick(graphPerson)}>
       <div className={"bg" + (props.focused ? " focused" : "")} title={translationToString({
         en: "Click to show more information",
