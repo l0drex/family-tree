@@ -16,7 +16,7 @@ html {
   --foreground-secondary: #595959;
   --background: white;
   --background-higher: #d2d2d2;
-  --background-lower: var(--background-higher);
+  --background-lower: #b6b6b6;
   --lines: #b6b6b6;
   --primary: #366120;
   --secondary: yellow;
@@ -203,10 +203,10 @@ body {
     --foreground: black;
     --foreground-secondary: #595959;
     --background: white;
-    --background-higher: #d5d5d5;
-    --background-lower: #f2f2f2;
+    --background-higher: #c9d5c6;
+    --background-lower: #e8eee2;
     --lines: #b6b6b6;
-    --positive-green: #91ff91;
+    --positive-green: #99ee87;
     --warning-foreground: #595900;
     --warning-background: #ffff91;
     --error-foreground: #c00;
