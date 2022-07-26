@@ -11,10 +11,13 @@ export enum ViewMode {
   DESCENDANTS = "descendants"
 }
 
-export class ViewGraph {
+export class ViewGraph implements EventTarget {
   nodes: GraphObject[] = []
   links: { source, target }[]
   private startPersonValue: GraphPerson
+  eventListeners: {
+    [key: string]: EventListenerOrEventListenerObject[]
+  } = {}
 
   set startPerson(startPerson: Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
@@ -33,45 +36,6 @@ export class ViewGraph {
     this.links = [];
   }
 
-  showNode = (node: GraphObject) => {
-    if (this.isVisible(node)) {
-      return false;
-    }
-
-    if (this.nodes.includes(node)) {
-      console.assert(node.type.includes("-removed"));
-      // @ts-ignore
-      node.type = node.type.replace("-removed", "");
-      return true;
-    }
-
-    node.viewId = this.nodes.length;
-    this.nodes.push(node);
-    return true;
-  }
-
-  hideNode = (node: GraphObject) => {
-    if (!this.isVisible(node)) {
-      return false;
-    }
-
-    node.type += "-removed";
-    return true;
-  }
-
-  showLink = (source: GraphObject, target: GraphObject, swap = false) => {
-    let existingLink = this.links.find(l => new Set([l.source, l.target, source, target]).size === 2);
-    if (existingLink !== undefined) {
-      return;
-    }
-
-    // TODO use id instead
-    this.links.push({
-      source: swap ? target.viewId : source.viewId,
-      target: swap ? source.viewId : target.viewId
-    })
-  }
-
   /**
    * Called when user clicked on etc node.
    * @param family
@@ -83,6 +47,12 @@ export class ViewGraph {
     this.showNode(graphFamily);
     [family.getParent1(), family.getParent2()].forEach(id => this.showPerson(id, graphFamily, true));
     graphFamily.getChildren().forEach(id => this.showPerson(id, graphFamily, false));
+    this.dispatchEvent(new CustomEvent("add", {
+      detail: {
+        nodes: this.nodes,
+        links: this.links
+      }
+    }));
   }
 
   hideFamily = (family: GraphFamily) => {
@@ -97,21 +67,21 @@ export class ViewGraph {
     let leaves = family.getMembers()
       .map(p => graphModel.getPersonById(p)).map(p => this.getGraphPerson(p))
       .filter(person => {
-        // check if the node is connected to two families
-        let linksToFamilies = viewGraph.links.filter(link => {
-          let nodes = [link.source, link.target];
-          if (!(nodes.includes(person))) {
-            return false;
-          }
-          // remove etc and person node
-          nodes = nodes.filter(n => n.type === "family");
-          return nodes.length;
-        });
-        console.debug("Found", linksToFamilies.length, "connections to other families for", person.data.getFullName(),
-          linksToFamilies);
-        return linksToFamilies.length <= 1;
-      }
-    );
+          // check if the node is connected to two families
+          let linksToFamilies = viewGraph.links.filter(link => {
+            let nodes = [link.source, link.target];
+            if (!(nodes.includes(person))) {
+              return false;
+            }
+            // remove etc and person node
+            nodes = nodes.filter(n => n.type === "family");
+            return nodes.length;
+          });
+          console.debug("Found", linksToFamilies.length, "connections to other families for", person.data.getFullName(),
+            linksToFamilies);
+          return linksToFamilies.length <= 1;
+        }
+      );
     console.debug("Removing the following people:", leaves.map(l => l.toString()));
 
     // remove nodes from the graph
@@ -147,6 +117,12 @@ export class ViewGraph {
     });
 
     console.groupEnd();
+    this.dispatchEvent(new CustomEvent("remove", {
+      detail: {
+        nodes: this.nodes,
+        links: this.links
+      }
+    }));
   }
 
   private isVisible = (node) => {
@@ -166,6 +142,45 @@ export class ViewGraph {
       this.showNode(graphEtc);
       this.showLink(graphPerson, graphEtc, isParent);
     });
+  }
+
+  private showNode = (node: GraphObject) => {
+    if (this.isVisible(node)) {
+      return false;
+    }
+
+    if (this.nodes.includes(node)) {
+      console.assert(node.type.includes("-removed"));
+      // @ts-ignore
+      node.type = node.type.replace("-removed", "");
+      return true;
+    }
+
+    node.viewId = this.nodes.length;
+    this.nodes.push(node);
+    return true;
+  }
+
+  private hideNode = (node: GraphObject) => {
+    if (!this.isVisible(node)) {
+      return false;
+    }
+
+    node.type += "-removed";
+    return true;
+  }
+
+  private showLink = (source: GraphObject, target: GraphObject, swap = false) => {
+    let existingLink = this.links.find(l => new Set([l.source, l.target, source, target]).size === 2);
+    if (existingLink !== undefined) {
+      return;
+    }
+
+    // TODO use id instead
+    this.links.push({
+      source: swap ? target.viewId : source.viewId,
+      target: swap ? source.viewId : target.viewId
+    })
   }
 
   private getGraphPerson = (person: Person | ResourceReference): GraphPerson => {
@@ -191,6 +206,40 @@ export class ViewGraph {
     }
 
     return graphFamily as GraphFamily;
+  }
+
+  dispatchEvent(event: Event): boolean {
+    let listeners = this.eventListeners[event.type];
+    if (listeners === undefined) {
+      return;
+    }
+    listeners.forEach(f => {
+      if ("handleEvent" in f) {
+        f.handleEvent(event);
+        return;
+      }
+      f(event);
+    });
+    return false;
+  }
+
+  addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
+    let listeners = this.eventListeners[type];
+    if (listeners === undefined) {
+      listeners = []
+    }
+    if (listeners.includes(callback)) {
+      return;
+    }
+    listeners.push(callback)
+    this.eventListeners[type] = listeners;
+  }
+
+  removeEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
+    let index = this.eventListeners[type].indexOf(callback);
+    if (index >= 0) {
+      delete this.eventListeners[type][index];
+    }
   }
 }
 

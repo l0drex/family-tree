@@ -91,6 +91,9 @@ let referenceAge = {
 };
 
 export function setReferenceAge(age: number, generation: number) {
+  if (referenceAge.age !== undefined && referenceAge.generation !== undefined) {
+    return;
+  }
   console.info(`Setting reference age to ${age} at generation ${generation}`)
   referenceAge.age = age;
   referenceAge.generation = generation;

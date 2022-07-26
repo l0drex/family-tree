@@ -1,3 +1,7 @@
+meter {
+  margin-left: .5rem;
+}
+
 #family-tree {
   --male: #5353fd;
   --female: #fc4545;

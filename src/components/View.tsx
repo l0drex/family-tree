@@ -115,7 +115,6 @@ class View extends Component<any, State> {
         </main>
         <FamilyPath focus={focus}/>
       </>
-
     );
   }
 
