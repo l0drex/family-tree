@@ -2,6 +2,7 @@ import {setReferenceAge, PersonFactTypes} from "./gedcomx-extensions";
 import {translationToString} from "../main";
 import viewGraph, {ViewMode} from "./ViewGraph";
 import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
+import config from "../config";
 
 class ModelGraph extends Root {
   constructor(data) {
@@ -66,12 +67,11 @@ class ModelGraph extends Root {
         break;
       case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        this.getAncestors(startPerson)
-          .filter(p => !p.getLiving())
-          .forEach(p => families = families.concat(this.getFamiliesAsParent(p)));
-        this.getDescendants(startPerson)
-          .filter(p => !p.getLiving())
-          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
+        this.persons.filter(p => p.getLiving())
+          .forEach(p => {
+          families = families.concat(this.getFamiliesAsChild(p));
+          families = families.concat(this.getFamiliesAsParent(p));
+        });
         break;
       }
       case ViewMode.ANCESTORS:
@@ -83,7 +83,11 @@ class ModelGraph extends Root {
         console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
-          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
+          .forEach(p => families = families.concat(this.getFamiliesAsChild(p))
+            .concat(this.getFamiliesAsParent(p)));
+        if (families.length === 0) {
+          families = families.concat(this.getFamiliesAsChild(startPerson));
+        }
         break;
       default: {
         console.group("Showing explorable graph");
@@ -93,6 +97,10 @@ class ModelGraph extends Root {
     }
 
     families.forEach(viewGraph.showFamily);
+    if (viewGraph.nodes.filter(n => n.type === "person").length > config.maxElements) {
+      console.warn("Not all elements are shown. Graph would become too slow.")
+      families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
+    }
 
     console.groupEnd();
     return viewGraph

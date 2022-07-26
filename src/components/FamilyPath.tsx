@@ -4,6 +4,7 @@ import viewGraph from "../backend/ViewGraph";
 import {useState} from "react";
 import {GraphObject} from "../backend/graph";
 import {translationToString} from "../main";
+import config from "../config";
 
 function FamilyPath(props) {
   const updateValue = (e: CustomEvent) => setN(e.detail.nodes.filter((n: GraphObject) => n.type === "person").length)
@@ -26,7 +27,8 @@ function FamilyPath(props) {
           en: `Percentage of visible nodes:`,
           de: `Sichtbarer Anteil:`
         })}
-        <meter value={n} max={graphModel.persons.length} low={2} optimum={10} high={100} title={`~${Math.round(n / graphModel.persons.length * 100)}%`}/>
+        <meter value={n} max={graphModel.persons.length} high={config.maxElements}
+               title={`${n} P, ~${Math.round(n / graphModel.persons.length * 100)}%`}/>
       </div>
     </footer>
   );

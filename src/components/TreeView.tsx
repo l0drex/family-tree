@@ -127,8 +127,7 @@ class TreeView extends Component<Props, State> {
     personNode
       .transition()
       .duration(300)
-      .style("opacity","1")
-      //.call(d3cola.drag);
+      .style("opacity","1");
     link
       .transition()
       .duration(600)
