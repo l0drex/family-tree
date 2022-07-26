@@ -80,7 +80,7 @@ class View extends Component<any, State> {
 
   componentDidMount() {
     let root = document.querySelector<HTMLDivElement>("#root");
-    root.classList.remove("sidebar-hidden");
+    root.classList.add("sidebar-visible");
   }
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
@@ -89,9 +89,9 @@ class View extends Component<any, State> {
     }
     let root = document.querySelector<HTMLDivElement>("#root");
     if (this.state.focusHidden) {
-      root.classList.add("sidebar-hidden");
+      root.classList.remove("sidebar-visible");
     } else {
-      root.classList.remove("sidebar-hidden");
+      root.classList.add("sidebar-visible");
     }
   }
 
