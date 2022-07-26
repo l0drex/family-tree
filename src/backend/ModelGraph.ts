@@ -194,24 +194,26 @@ class ModelGraph extends Root {
 
   private getAncestors(person: Person): Person[] {
     // stack to collect ancestors of ancestors
-    let ancestors = [person];
-    let index = 0;
-    while (index < ancestors.length) {
-      this.getPersonsParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
-      index++;
+    let ancestors = new Set<Person>([person]);
+    let iterator = ancestors.values();
+    let nextPerson = iterator.next()
+    while (!nextPerson.done) {
+      this.getPersonsParents(nextPerson.value).forEach(p => ancestors.add(p))
+      nextPerson = iterator.next();
     }
-    return ancestors;
+    return Array.from(ancestors);
   }
 
   private getDescendants(person: Person): Person[] {
     // stack to collect descendants of descendants
-    let descendants = [person];
-    let index = 0;
-    while (index < descendants.length) {
-      this.getPersonsChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
-      index++;
+    let descendants = new Set<Person>([person]);
+    let iterator = descendants.values();
+    let nextPerson = iterator.next()
+    while (!nextPerson.done) {
+      this.getPersonsChildren(nextPerson.value).forEach(p => descendants.add(p))
+      nextPerson = iterator.next();
     }
-    return descendants;
+    return Array.from(descendants);
   }
 }
 
