@@ -8,38 +8,38 @@ import {GraphPerson} from "../backend/graph";
 import {Person} from "gedcomx-js";
 
 function ViewOption(props) {
-  let className = "button inline";
   return (
-    <button className={className + " all" + (props.active ? "" : " inactive")}
-            onClick={() => props.onClick(props.name)}>{props.localName}</button>
+    <option onClick={() => props.onClick(props.name)} selected={props.active}>{props.localName}</option>
   );
 }
 
 function ViewOptions(props) {
   return (
-    <div id="view-all">
-            <span lang="en">{translationToString({
-              en: "Show:",
-              de: "Zeige:"
-            })}</span>
+    <form id="view-all">
+      <label lang="en">{translationToString({
+        en: "Show:",
+        de: "Zeige:"
+      })}</label>
 
-      <ViewOption name={ViewMode.ALL} localName={translationToString({
-        en: "All",
-        de: "Alle"
-      })} active={props.activeView === ViewMode.ALL} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
-        en: "Ancestors",
-        de: "Vorfahren"
-      })} active={props.activeView === ViewMode.ANCESTORS} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.LIVING} localName={translationToString({
-        en: "Living",
-        de: "Lebende"
-      })} active={props.activeView === ViewMode.LIVING} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
-        en: "Descendants",
-        de: "Nachkommen"
-      })} active={props.activeView === ViewMode.DESCENDANTS} onClick={props.onViewChange}/>
-    </div>
+      <select className="button inline all">
+        <ViewOption name={ViewMode.ALL} localName={translationToString({
+          en: "All",
+          de: "Alle"
+        })} active={props.activeView === ViewMode.ALL} onClick={props.onViewChange}/>
+        <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
+          en: "Ancestors",
+          de: "Vorfahren"
+        })} active={props.activeView === ViewMode.ANCESTORS} onClick={props.onViewChange}/>
+        <ViewOption name={ViewMode.LIVING} localName={translationToString({
+          en: "Living",
+          de: "Lebende"
+        })} active={props.activeView === ViewMode.LIVING} onClick={props.onViewChange}/>
+        <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
+          en: "Descendants",
+          de: "Nachkommen"
+        })} active={props.activeView === ViewMode.DESCENDANTS} onClick={props.onViewChange}/>
+      </select>
+    </form>
   );
 }
 
