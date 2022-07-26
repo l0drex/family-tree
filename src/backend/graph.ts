@@ -11,11 +11,11 @@ type FamilyType = "family" | "etc";
 type GraphObjectType = PersonType | FamilyType;
 
 export interface GraphObject extends cola.Node {
-  type: GraphObjectType | `${GraphObjectType}-removed`
+  type: GraphObjectType
 }
 
 export class GraphPerson extends DisplayProperties implements GraphObject {
-  type: PersonType | `${PersonType}-removed` = "person"
+  type: PersonType = "person"
   data: Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
@@ -49,7 +49,7 @@ export class GraphPerson extends DisplayProperties implements GraphObject {
 }
 
 export class GraphFamily extends FamilyView implements GraphObject {
-  type: FamilyType | `${FamilyType}-removed` = "family"
+  type: FamilyType = "family"
   width = config.margin * 2
   height = config.margin * 2
   marriage

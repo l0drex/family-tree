@@ -135,7 +135,7 @@ export class ViewGraph implements EventTarget {
   }
 
   private isVisible = (node) => {
-    return this.nodes.includes(node) && !(node.type.includes("removed"));
+    return this.nodes.includes(node);
   }
 
   private showPerson = (p: ResourceReference, graphFamily: GraphFamily, isParent: boolean) => {
@@ -174,7 +174,8 @@ export class ViewGraph implements EventTarget {
       return false;
     }
 
-    node.type += "-removed";
+    let index = this.nodes.indexOf(node);
+    this.nodes.splice(index, 1);
     return true;
   }
 
