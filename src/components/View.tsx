@@ -50,7 +50,7 @@ function ViewOptions(props) {
 }
 
 interface State {
-  activeView: string
+  activeView: ViewMode | string
   viewGraph: ViewGraph
   focusId: string
   focusHidden: boolean
@@ -85,7 +85,7 @@ class View extends Component<any, State> {
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
     if (prevState.focusId !== this.state.focusId) {
-      this.onViewChanged(this.state.activeView);
+      //this.onViewChanged(this.state.activeView);
     }
     let root = document.querySelector<HTMLDivElement>("#root");
     if (this.state.focusHidden) {
@@ -119,10 +119,9 @@ class View extends Component<any, State> {
   }
 
   onViewChanged(view) {
-    let newView = view === this.state.activeView ? "" : view;
-    let viewGraph = graphModel.buildViewGraph(this.state.focusId, newView);
+    let viewGraph = graphModel.buildViewGraph(this.state.focusId, view);
     this.setState({
-      activeView: newView,
+      activeView: view,
       viewGraph: viewGraph
     });
   }
@@ -136,7 +135,8 @@ class View extends Component<any, State> {
     }
     this.setState({
       focusHidden: false,
-      focusId: newFocus.data.getId()
+      focusId: newFocus.data.getId(),
+      viewGraph: graphModel.buildViewGraph(newFocus.data.getId(), this.state.activeView)
     });
   }
 }

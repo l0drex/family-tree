@@ -11,6 +11,8 @@ export enum ViewMode {
   DESCENDANTS = "descendants"
 }
 
+type eventTypes = "remove" | "add";
+
 export class ViewGraph implements EventTarget {
   nodes: GraphObject[] = []
   links: { source: GraphObject, target: GraphObject }[]
@@ -108,7 +110,7 @@ export class ViewGraph implements EventTarget {
           }
           return false;
         default:
-          // this happens when the node type is not caught, e.g. when the node was previously hidden (type-removed)
+          console.warn("Possible error, this should never happen!")
           return false;
       }
     }).forEach(this.hideNode);
@@ -157,13 +159,7 @@ export class ViewGraph implements EventTarget {
     if (this.isVisible(node)) {
       return false;
     }
-
-    if (this.nodes.includes(node)) {
-      console.assert(node.type.includes("-removed"));
-      // @ts-ignore
-      node.type = node.type.replace("-removed", "");
-      return true;
-    }
+    console.assert(!this.nodes.includes(node))
 
     this.nodes.push(node);
     return true;
@@ -231,11 +227,11 @@ export class ViewGraph implements EventTarget {
     return false;
   }
 
-  addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
+  addEventListener(type: eventTypes, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
     this.eventListeners[type].add(callback)
   }
 
-  removeEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
+  removeEventListener(type: eventTypes, callback: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
     this.eventListeners[type].delete(callback);
   }
 }

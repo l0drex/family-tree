@@ -20,8 +20,14 @@ interface State {
 }
 
 class TreeView extends Component<Props, State> {
+  mounted = false
+
   constructor(props) {
     super(props);
+
+    viewGraph.addEventListener("add", this.onGraphChanged.bind(this));
+    viewGraph.addEventListener("remove", this.onGraphChanged.bind(this));
+
     this.state = {
       graph: viewGraph
     }
@@ -47,14 +53,13 @@ class TreeView extends Component<Props, State> {
               <path className="link" key={i}/>)}
           </g>
           <g id="nodes">
-            {this.state.graph.nodes.filter(n => n.type === "family").map(r =>
-              <Family data={r} key={`${r.x}:${r.y}`}
-                     locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}
-                     onClick={this.onGraphChanged.bind(this)}/>)}
-            {this.state.graph.nodes.filter(n => n.type === "etc").map(r =>
-              <Etc key={`${r.x}:${r.y}`} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
-            {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
-              <Person data={p} onClick={this.props.onRefocus} key={`${p.x}:${p.y}`}
+            {this.state.graph.nodes.filter(n => n.type === "family").map((r, i) =>
+              <Family data={r} key={i}
+                     locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}/>)}
+            {this.state.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
+              <Etc key={i} data={r}/>)}
+            {this.state.graph.nodes.filter(n => n.type === "person").map((p, i) =>
+              <Person data={p} onClick={this.props.onRefocus} key={i}
                       focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.getId()}/>)}
           </g>
         </g>
@@ -64,6 +69,7 @@ class TreeView extends Component<Props, State> {
 
   componentDidMount() {
     let svg = d3.select("#family-tree");
+    this.mounted = true;
 
     const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
     d3cola.size(viewportSize);
@@ -96,7 +102,7 @@ class TreeView extends Component<Props, State> {
     this.animateTree()
   }
 
-  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
     this.animateTree()
   }
 
@@ -164,9 +170,11 @@ class TreeView extends Component<Props, State> {
   }
 
   onGraphChanged() {
-    this.setState({
-      graph: viewGraph
-    });
+    if (this.mounted) {
+      this.setState({
+        graph: viewGraph
+      });
+    }
   }
 }
 

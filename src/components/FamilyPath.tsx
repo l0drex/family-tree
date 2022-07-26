@@ -6,11 +6,11 @@ import {GraphObject} from "../backend/graph";
 import {translationToString} from "../main";
 
 function FamilyPath(props) {
+  const updateValue = (e: CustomEvent) => setN(e.detail.nodes.filter((n: GraphObject) => n.type === "person").length)
+
   let [n, setN] = useState(viewGraph.nodes.filter(n => n.type === "person").length)
-  viewGraph.addEventListener("add", (e: CustomEvent) => {
-    console.log("event received")
-    setN(e.detail.nodes.filter((n: GraphObject) => n.type === "person").length)
-  })
+  viewGraph.addEventListener("add", updateValue)
+  viewGraph.addEventListener("remove", updateValue)
 
   return (
     <footer>

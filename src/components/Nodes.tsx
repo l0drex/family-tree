@@ -10,10 +10,8 @@ export function Family(props) {
         return;
       }
       viewGraph.hideFamily(props.data);
-      props.onClick();
     }}>
       <circle r={config.gridSize / 2}/>
-      {/* TODO add marriage date*/}
       {props.data.marriage &&
         <text x={-config.gridSize} y="4pt" className="marriageDate">
           {`💍 ${props.data.marriage}`}
@@ -32,10 +30,7 @@ export function Family(props) {
 
 export function Etc(props) {
   return (
-    <g className="etc" onClick={(e) => {
-      viewGraph.showFamily(props.data);
-      props.onClick(e);
-    }}>
+    <g className="etc" onClick={() => viewGraph.showFamily(props.data)}>
       <circle r={config.gridSize / 2}/>
       <text y="5">+</text>
     </g>

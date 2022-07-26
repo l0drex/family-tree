@@ -43,7 +43,7 @@ class ModelGraph extends Root {
     return entries;
   }
 
-  buildViewGraph = (startId: string, activeView?: ViewMode) => {
+  buildViewGraph = (startId: string, activeView?: ViewMode | string) => {
     let startPerson;
     if (startId !== null) {
       startPerson = this.getPersonById(startId);
