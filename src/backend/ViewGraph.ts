@@ -13,11 +13,14 @@ export enum ViewMode {
 
 export class ViewGraph implements EventTarget {
   nodes: GraphObject[] = []
-  links: { source, target }[]
+  links: { source: GraphObject, target: GraphObject }[]
   private startPersonValue: GraphPerson
   eventListeners: {
-    [key: string]: EventListenerOrEventListenerObject[]
-  } = {}
+    [key: string]: Set<EventListenerOrEventListenerObject>
+  } = {
+    "add": new Set(),
+    "remove": new Set()
+  }
 
   set startPerson(startPerson: Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
@@ -111,9 +114,15 @@ export class ViewGraph implements EventTarget {
     }).forEach(this.hideNode);
 
     // remove links from the graph
-    leaves = leaves.map(l => l.viewId);
     this.links = this.links.filter(link => {
-      return !(leaves.includes(link.source.viewId)) && !(leaves.includes(link.target.viewId));
+      let included = false;
+      if (link.source instanceof GraphPerson) {
+        included ||= leaves.includes(link.source);
+      }
+      if (link.target instanceof GraphPerson) {
+        included ||= leaves.includes(link.target);
+      }
+      return !included;
     });
 
     console.groupEnd();
@@ -156,7 +165,6 @@ export class ViewGraph implements EventTarget {
       return true;
     }
 
-    node.viewId = this.nodes.length;
     this.nodes.push(node);
     return true;
   }
@@ -176,10 +184,9 @@ export class ViewGraph implements EventTarget {
       return;
     }
 
-    // TODO use id instead
     this.links.push({
-      source: swap ? target.viewId : source.viewId,
-      target: swap ? source.viewId : target.viewId
+      source: swap ? target : source,
+      target: swap ? source : target
     })
   }
 
@@ -224,22 +231,11 @@ export class ViewGraph implements EventTarget {
   }
 
   addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean): void {
-    let listeners = this.eventListeners[type];
-    if (listeners === undefined) {
-      listeners = []
-    }
-    if (listeners.includes(callback)) {
-      return;
-    }
-    listeners.push(callback)
-    this.eventListeners[type] = listeners;
+    this.eventListeners[type].add(callback)
   }
 
   removeEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
-    let index = this.eventListeners[type].indexOf(callback);
-    if (index >= 0) {
-      delete this.eventListeners[type][index];
-    }
+    this.eventListeners[type].delete(callback);
   }
 }
 

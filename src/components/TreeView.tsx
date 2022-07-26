@@ -48,13 +48,13 @@ class TreeView extends Component<Props, State> {
           </g>
           <g id="nodes">
             {this.state.graph.nodes.filter(n => n.type === "family").map(r =>
-              <Family data={r} key={r.viewId}
+              <Family data={r} key={`${r.x}:${r.y}`}
                      locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}
                      onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "etc").map(r =>
-              <Etc key={r.viewId} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
+              <Etc key={`${r.x}:${r.y}`} data={r} onClick={this.onGraphChanged.bind(this)}/>)}
             {this.state.graph.nodes.filter(n => n.type === "person").map(p =>
-              <Person data={p} onClick={this.props.onRefocus} key={p.viewId}
+              <Person data={p} onClick={this.props.onRefocus} key={`${p.x}:${p.y}`}
                       focused={!this.props.focusHidden && (p as GraphPerson).data.getId() === this.props.focus.getId()}/>)}
           </g>
         </g>

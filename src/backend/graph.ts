@@ -2,6 +2,7 @@ import {DisplayProperties, FamilyView, Person} from "gedcomx-js";
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import {baseUri, GenderTypes, getGeneration} from "./gedcomx-extensions";
+import * as cola from "webcola";
 
 GedcomX.enableRsExtensions();
 
@@ -9,12 +10,8 @@ type PersonType = "person";
 type FamilyType = "family" | "etc";
 type GraphObjectType = PersonType | FamilyType;
 
-export interface GraphObject {
+export interface GraphObject extends cola.Node {
   type: GraphObjectType | `${GraphObjectType}-removed`
-  width: number
-  height: number
-  bounds
-  viewId: number
 }
 
 export class GraphPerson extends DisplayProperties implements GraphObject {
@@ -22,8 +19,8 @@ export class GraphPerson extends DisplayProperties implements GraphObject {
   data: Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
-  bounds
-  viewId
+  x: number;
+  y: number;
 
   constructor(person: Person) {
     super({
@@ -47,7 +44,7 @@ export class GraphPerson extends DisplayProperties implements GraphObject {
   }
 
   toString = () => {
-    return `${this.data.getFullName()} (#${this.data.getId()} @${this.viewId})`
+    return `${this.data.getFullName()} (#${this.data.getId()})`
   }
 }
 
@@ -55,9 +52,9 @@ export class GraphFamily extends FamilyView implements GraphObject {
   type: FamilyType | `${FamilyType}-removed` = "family"
   width = config.margin * 2
   height = config.margin * 2
-  bounds
-  viewId
   marriage
+  x: number;
+  y: number;
 
   equals = (object: FamilyView): Boolean => {
     return this.getParent1().getResource() === object.getParent1().getResource() &&
