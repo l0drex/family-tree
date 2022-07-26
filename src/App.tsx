@@ -1,6 +1,6 @@
 import * as React from "react";
 import './App.css';
-import {localize} from "./main";
+import {localize, translationToString} from "./main";
 import config from "./config";
 import {GraphPerson} from "./backend/graph";
 import Header from "./components/Header";
