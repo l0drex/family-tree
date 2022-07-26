@@ -4,7 +4,7 @@ import {graphModel} from "./ModelGraph";
 import {FamilyView, Person, ResourceReference} from "gedcomx-js";
 
 export enum ViewMode {
-  DEFAULT = "",
+  DEFAULT = "default",
   ALL = "all",
   LIVING = "living",
   ANCESTORS = "ancestors",

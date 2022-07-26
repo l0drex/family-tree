@@ -50,42 +50,47 @@ class ModelGraph extends Root {
     viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
+    let families: FamilyView[] = [];
     switch (activeView) {
       case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
-        this.persons.forEach(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
-          .forEach(viewGraph.showFamily));
+        this.persons.forEach(p => {
+          families = families.concat(this.getFamiliesAsChild(p));
+          families = families.concat(this.getFamiliesAsParent(p));
+        });
         break;
       case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
         this.getAncestors(startPerson)
           .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
+          .forEach(p => families = families.concat(this.getFamiliesAsParent(p)));
         this.getDescendants(startPerson)
           .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
+          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
         break;
       }
       case ViewMode.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.getFullName()}`);
         this.getAncestors(startPerson)
-          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
+          .forEach(p => families = families.concat(this.getFamiliesAsParent(p)));
         break;
       case ViewMode.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
-          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
+          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
         break;
       default: {
         console.group("Showing explorable graph");
-        this.getFamiliesAsParent(startPerson).forEach(viewGraph.showFamily);
-        this.getFamiliesAsChild(startPerson).forEach(viewGraph.showFamily);
-        console.groupEnd();
-        return;
+        families = this.getFamiliesAsParent(startPerson)
+          .concat(this.getFamiliesAsChild(startPerson));
       }
     }
+
+    families.forEach(viewGraph.showFamily);
+
     console.groupEnd();
+    return viewGraph
   }
 
   getFamiliesAsParent(person: Person): FamilyView[] {

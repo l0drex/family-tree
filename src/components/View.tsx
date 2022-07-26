@@ -2,14 +2,14 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import viewGraph, {ViewMode, ViewGraph} from "../backend/ViewGraph";
+import {ViewMode, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import {GraphPerson} from "../backend/graph";
 import {Person} from "gedcomx-js";
 
 function ViewOption(props) {
   return (
-    <option onClick={() => props.onClick(props.name)} selected={props.active}>{props.localName}</option>
+    <option value={props.name}>{props.localName}</option>
   );
 }
 
@@ -21,23 +21,27 @@ function ViewOptions(props) {
         de: "Zeige:"
       })}</label>
 
-      <select className="button inline all">
-        <ViewOption name={ViewMode.ALL} localName={translationToString({
-          en: "All",
-          de: "Alle"
-        })} active={props.activeView === ViewMode.ALL} onClick={props.onViewChange}/>
+      <select className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
+        <ViewOption name={ViewMode.DEFAULT} localName={translationToString({
+          en: "Default",
+          de: "Standard"
+        })} active={props.activeView === ViewMode.DEFAULT}/>
         <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
           en: "Ancestors",
           de: "Vorfahren"
-        })} active={props.activeView === ViewMode.ANCESTORS} onClick={props.onViewChange}/>
+        })} active={props.activeView === ViewMode.ANCESTORS}/>
         <ViewOption name={ViewMode.LIVING} localName={translationToString({
           en: "Living",
           de: "Lebende"
-        })} active={props.activeView === ViewMode.LIVING} onClick={props.onViewChange}/>
+        })} active={props.activeView === ViewMode.LIVING}/>
         <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
           en: "Descendants",
           de: "Nachkommen"
-        })} active={props.activeView === ViewMode.DESCENDANTS} onClick={props.onViewChange}/>
+        })} active={props.activeView === ViewMode.DESCENDANTS}/>
+        <ViewOption name={ViewMode.ALL} localName={translationToString({
+          en: "All",
+          de: "Alle"
+        })} active={props.activeView === ViewMode.ALL}/>
       </select>
     </form>
   );
@@ -62,7 +66,7 @@ class View extends Component<Props, State> {
     let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
     console.debug(`View: ${view}`);
 
-    graphModel.buildViewGraph(this.props.focus.getId(), ViewMode[view]);
+    let viewGraph = graphModel.buildViewGraph(this.props.focus.getId(), ViewMode[view]);
     console.assert(viewGraph.nodes.length > 0,
       "Viewgraph has no nodes!");
     console.assert(viewGraph.links.length > 0,
@@ -90,7 +94,7 @@ class View extends Component<Props, State> {
 
   onViewChanged(view) {
     let newView = view === this.state.activeView ? "" : view;
-    graphModel.buildViewGraph(this.props.focus.getId(), newView);
+    let viewGraph = graphModel.buildViewGraph(this.props.focus.getId(), newView);
     this.setState({
       activeView: newView,
       viewGraph: viewGraph

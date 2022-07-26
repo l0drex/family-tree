@@ -28,6 +28,10 @@ class TreeView extends Component<Props, State> {
   }
 
   render() {
+    console.assert(viewGraph.nodes.length > 0,
+      "View graph has no nodes!");
+    console.assert(viewGraph.links.length > 0,
+      "View graph has no links!");
     d3cola
       .flowLayout("x", config.gridSize * 5)
       .nodes(this.state.graph.nodes)
