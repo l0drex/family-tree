@@ -5,7 +5,9 @@ import {graphModel} from "../backend/ModelGraph";
 import {ViewMode, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import {GraphPerson} from "../backend/graph";
-import {Person} from "gedcomx-js";
+import InfoPanel from "./InfoPanel";
+import * as React from "react";
+import FamilyPath from "./FamilyPath";
 
 function ViewOption(props) {
   return (
@@ -47,18 +49,14 @@ function ViewOptions(props) {
   );
 }
 
-interface Props {
-  focus: Person
-  focusHidden: boolean
-  onRefocus: (newFocus: GraphPerson) => void
-}
-
 interface State {
   activeView: string
   viewGraph: ViewGraph
+  focusId: string
+  focusHidden: boolean
 }
 
-class View extends Component<Props, State> {
+class View extends Component<any, State> {
   constructor(props) {
     super(props);
 
@@ -66,38 +64,80 @@ class View extends Component<Props, State> {
     let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
     console.debug(`View: ${view}`);
 
-    let viewGraph = graphModel.buildViewGraph(this.props.focus.getId(), ViewMode[view]);
+    let focusId = url.searchParams.get("id");
+    let viewGraph = graphModel.buildViewGraph(focusId, ViewMode[view]);
     console.assert(viewGraph.nodes.length > 0,
       "Viewgraph has no nodes!");
     console.assert(viewGraph.links.length > 0,
       "Viewgraph has no links!");
     this.state = {
       activeView: view,
-      viewGraph: viewGraph
+      viewGraph: viewGraph,
+      focusId: focusId,
+      focusHidden: false
     }
   }
 
+  componentDidMount() {
+    let root = document.querySelector<HTMLDivElement>("#root");
+    root.classList.remove("sidebar-hidden");
+  }
+
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    if (prevProps.focus !== this.props.focus) {
+    if (prevState.focusId !== this.state.focusId) {
       this.onViewChanged(this.state.activeView);
+    }
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.add("sidebar-hidden");
+    } else {
+      root.classList.remove("sidebar-hidden");
     }
   }
 
   render() {
+    let focus;
+    if (this.state.focusId) {
+      focus = graphModel.getPersonById(this.state.focusId);
+    } else {
+      focus = graphModel.persons[0];
+    }
+    if (!focus) {
+      throw new Error(`No person with id ${this.state.focusId} could be found`)
+    }
+
     return (
-      <main>
-        <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
-        <TreeView focus={this.props.focus} focusHidden={this.props.focusHidden} onRefocus={this.props.onRefocus}/>
-      </main>
+      <>
+        {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
+        <main>
+          <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
+          <TreeView focus={focus} focusHidden={this.state.focusHidden} onRefocus={this.onRefocus.bind(this)}/>
+        </main>
+        <FamilyPath focus={focus}/>
+      </>
+
     );
   }
 
   onViewChanged(view) {
     let newView = view === this.state.activeView ? "" : view;
-    let viewGraph = graphModel.buildViewGraph(this.props.focus.getId(), newView);
+    let viewGraph = graphModel.buildViewGraph(this.state.focusId, newView);
     this.setState({
       activeView: newView,
       viewGraph: viewGraph
+    });
+  }
+
+  onRefocus(newFocus: GraphPerson) {
+    if (newFocus.data.getId() === this.state.focusId) {
+      this.setState({
+        focusHidden: !this.state.focusHidden
+      })
+      return;
+    }
+    this.setState({
+      focusHidden: false,
+      focusId: newFocus.data.getId()
     });
   }
 }

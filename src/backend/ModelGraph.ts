@@ -44,7 +44,12 @@ class ModelGraph extends Root {
   }
 
   buildViewGraph = (startId: string, activeView?: ViewMode) => {
-    let startPerson = this.getPersonById(startId);
+    let startPerson;
+    if (startId !== null) {
+      startPerson = this.getPersonById(startId);
+    } else {
+      startPerson = this.persons[0];
+    }
     console.info("Starting graph with", startPerson.getFullName());
     this.setAgeGen0(startPerson);
     viewGraph.startPerson = startPerson;
