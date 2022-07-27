@@ -6,7 +6,6 @@ import * as cola from "webcola";
 import * as GedcomX from "gedcomx-js";
 import viewGraph, {ColorMode, ViewGraph} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
-import {graphModel} from "../backend/ModelGraph";
 
 let d3cola = cola.d3adaptor(d3);
 
@@ -133,7 +132,8 @@ class TreeView extends Component<Props, State> {
     const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     switch (this.props.colorMode) {
       case "name": {
-        let last_names = graphModel.persons.map(p => p.getFullName().split(" ").reverse()[0]);
+        let last_names = viewGraph.nodes.filter(n => n.type === "person")
+          .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
         last_names = Array.from(new Set(last_names));
         const nameColor = d3.scaleOrdinal(last_names, d3.schemeSet3)
         personNode
