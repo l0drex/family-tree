@@ -32,7 +32,7 @@ class SearchField extends Component<Props, State> {
           en: "Name",
           de: "Name"
         })} spellCheck="false" className={this.state.hasError ? "error" : ""}
-               defaultValue={this.props.person.getFullName()}/>
+               value={this.props.person.getFullName()}/>
         <input className="emoji" type="submit" value="🔍" onInput={this.resetError}/>
         <datalist id="names">
           {
