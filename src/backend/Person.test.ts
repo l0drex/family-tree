@@ -11,13 +11,13 @@ test("Age calculated correct", () => {
       .setValue(0));
   expect(person.getAgeToday()).toBe(0);
 
-  setReferenceAge(20, 0);
+  setReferenceAge(20, 0, true);
   expect(person.getAgeToday()).toBe(20);
 
-  setReferenceAge(0, 10);
+  setReferenceAge(0, 10, true);
   expect(person.getAgeToday()).toBe(250);
 
-  setReferenceAge(20, 10);
+  setReferenceAge(20, 10, true);
   expect(person.getAgeToday()).toBe(270);
 })
 
@@ -25,18 +25,6 @@ test("living calculated correctly", () => {
   setReferenceAge(20, 10);
   let person = new Person();
   expect(person.getLiving()).toBeTruthy();
-
-  person.addFact(new Fact()
-    .setType(PersonFactTypes.Generation)
-    .setValue(0));
-  expect(person.getLiving()).toBeFalsy();
-
-  person = new Person()
-    .addFact(new Fact()
-      .setType(PersonFactTypes.Birth)
-      .setDate(new GedcomX.Date()
-        .setFormal("+1900")));
-  expect(person.getLiving()).toBeFalsy();
 
   person = new Person()
     .addFact(new Fact()

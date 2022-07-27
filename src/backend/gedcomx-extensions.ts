@@ -90,13 +90,17 @@ let referenceAge = {
   generation: undefined
 };
 
-export function setReferenceAge(age: number, generation: number) {
-  if (referenceAge.age !== undefined && referenceAge.generation !== undefined) {
+export function setReferenceAge(age: number, generation: number, forceUpdate = false) {
+  if (forceUpdate) {
+    referenceAge = {age: age, generation: generation};
     return;
   }
-  console.info(`Setting reference age to ${age} at generation ${generation}`)
-  referenceAge.age = age;
-  referenceAge.generation = generation;
+  if (referenceAge.age === undefined && age !== undefined) {
+    referenceAge.age = age;
+  }
+  if (referenceAge.generation === undefined && generation !== undefined) {
+    referenceAge.generation = generation;
+  }
 }
 
 Person.prototype.getFullName = function (): string {
