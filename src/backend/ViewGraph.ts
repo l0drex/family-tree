@@ -11,6 +11,12 @@ export enum ViewMode {
   DESCENDANTS = "descendants"
 }
 
+export enum ColorMode {
+  GENDER = "gender",
+  AGE = "age",
+  NAME = "name"
+}
+
 type eventTypes = "remove" | "add";
 
 export class ViewGraph implements EventTarget {

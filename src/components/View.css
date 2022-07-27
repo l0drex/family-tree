@@ -3,30 +3,12 @@ meter {
 }
 
 #family-tree {
-  --male: #5353fd;
-  --female: #fc4545;
-  --divers: #c054ef;
   --grid-size: 16px;
   margin: 0;
   border-radius: 0;
   grid-area: main;
   width: 100%;
   height: 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  #family-tree {
-    --male: #5353fd;
-    --female: #c53535;
-    --divers: #81459b;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  #family-tree {
-    --female: #fc4545;
-    --divers: #c054ef;
-  }
 }
 
 #family-tree:hover {
@@ -124,40 +106,6 @@ meter {
 
 .person:hover .bg {
   scale: 1.05;
-}
-
-.person.female .bg {
-  background-color: var(--female);
-  border-color: var(--female);
-}
-
-.person.female .bg.focused {
-  box-shadow: 0 0 1rem var(--female);
-}
-
-.person.male .bg {
-  background-color: var(--male);
-  border-color: var(--male);
-}
-
-.person.male .bg.focused {
-  box-shadow: 0 0 1rem var(--male);
-}
-
-.person.divers .bg {
-  background-color: var(--divers);
-  border-color: var(--divers);
-}
-
-.person.divers .bg.focused {
-  box-shadow: 0 0 1rem var(--divers);
-}
-
-.person.dead .bg {
-  border-radius: 1.525rem;
-  border-style: solid;
-  background-color: var(--background);
-  color: var(--foreground);
 }
 
 /*View option styles*/

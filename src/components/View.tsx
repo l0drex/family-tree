@@ -2,48 +2,57 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import {ViewMode, ViewGraph} from "../backend/ViewGraph";
+import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import {GraphPerson} from "../backend/graph";
 import InfoPanel from "./InfoPanel";
 import * as React from "react";
 import FamilyPath from "./FamilyPath";
 
-function ViewOption(props) {
-  return (
-    <option value={props.name}>{props.localName}</option>
-  );
-}
 
 function ViewOptions(props) {
   return (
     <form id="view-all">
-      <label lang="en">{translationToString({
+      <label htmlFor="view-selector">{translationToString({
         en: "Show:",
         de: "Zeige:"
       })}</label>
 
-      <select className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
-        <ViewOption name={ViewMode.DEFAULT} localName={translationToString({
+      <select id="view-selector" className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
+        <option value={ViewMode.DEFAULT}>{translationToString({
           en: "Default",
           de: "Standard"
-        })} active={props.activeView === ViewMode.DEFAULT}/>
-        <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
+        })}</option>
+        <option value={ViewMode.ANCESTORS}>{translationToString({
           en: "Ancestors",
           de: "Vorfahren"
-        })} active={props.activeView === ViewMode.ANCESTORS}/>
-        <ViewOption name={ViewMode.LIVING} localName={translationToString({
+        })}</option>
+        <option value={ViewMode.LIVING}>{translationToString({
           en: "Living",
           de: "Lebende"
-        })} active={props.activeView === ViewMode.LIVING}/>
-        <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
+        })}</option>
+        <option value={ViewMode.DESCENDANTS}>{translationToString({
           en: "Descendants",
           de: "Nachkommen"
-        })} active={props.activeView === ViewMode.DESCENDANTS}/>
-        <ViewOption name={ViewMode.ALL} localName={translationToString({
+        })}</option>
+        <option value={ViewMode.ALL}>{translationToString({
           en: "All",
           de: "Alle"
-        })} active={props.activeView === ViewMode.ALL}/>
+        })}</option>
+      </select>
+
+      <label htmlFor="color-selector">{translationToString({
+        en: "Color by:",
+        de: "Färbe nach:"
+      })
+      }</label>
+      <select id="color-selector" className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
+        <option value={ColorMode.GENDER}>{translationToString({
+          en: "Gender",
+          de: "Geschlecht"
+        })}</option>
+        <option value={ColorMode.NAME}>Nachname</option>
+        <option value={ColorMode.AGE}>Alter</option>
       </select>
     </form>
   );
@@ -81,6 +90,9 @@ class View extends Component<any, State> {
   componentDidMount() {
     let root = document.querySelector<HTMLDivElement>("#root");
     root.classList.add("sidebar-visible");
+
+    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
+    colorSelector.addEventListener("change", this.render.bind(this))
   }
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
@@ -106,12 +118,14 @@ class View extends Component<any, State> {
       throw new Error(`No person with id ${this.state.focusId} could be found`)
     }
 
+    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
+    const colorMode = colorSelector ? colorSelector.value : ColorMode.GENDER;
     return (
       <>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
           <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
-          <TreeView focus={focus} focusHidden={this.state.focusHidden} onRefocus={this.onRefocus.bind(this)}/>
+          <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden} onRefocus={this.onRefocus.bind(this)}/>
         </main>
         <FamilyPath focus={focus}/>
       </>
@@ -127,6 +141,7 @@ class View extends Component<any, State> {
   }
 
   onRefocus(newFocus: GraphPerson) {
+    // FIXME change focused attribute
     if (newFocus.data.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden

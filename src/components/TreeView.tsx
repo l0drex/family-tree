@@ -4,8 +4,9 @@ import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import * as GedcomX from "gedcomx-js";
-import viewGraph, {ViewGraph} from "../backend/ViewGraph";
+import viewGraph, {ColorMode, ViewGraph} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
+import {graphModel} from "../backend/ModelGraph";
 
 let d3cola = cola.d3adaptor(d3);
 
@@ -13,6 +14,7 @@ interface Props {
   focus: GedcomX.Person
   focusHidden: boolean
   onRefocus: (newFocus: GraphPerson) => void
+  colorMode: ColorMode | string
 }
 
 interface State {
@@ -55,7 +57,7 @@ class TreeView extends Component<Props, State> {
           <g id="nodes">
             {this.state.graph.nodes.filter(n => n.type === "family").map((r, i) =>
               <Family data={r} key={i}
-                     locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}/>)}
+                      locked={(r as GraphFamily).involvesPerson(this.state.graph.startPerson.data.getId())}/>)}
             {this.state.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
               <Etc key={i} data={r}/>)}
             {this.state.graph.nodes.filter(n => n.type === "person").map((p, i) =>
@@ -100,6 +102,7 @@ class TreeView extends Component<Props, State> {
 
 
     this.animateTree()
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", this.animateTree.bind(this))
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>, snapshot?: any) {
@@ -108,7 +111,7 @@ class TreeView extends Component<Props, State> {
 
   animateTree() {
     d3cola
-      .flowLayout("x", d => d.target.type==="person" ? config.gridSize * 5 : config.gridSize * 3.5)
+      .flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
       .symmetricDiffLinkLengths(config.gridSize)
       .start(15, 0, 10);
 
@@ -124,18 +127,63 @@ class TreeView extends Component<Props, State> {
     let link = linkLayer.selectAll(".link")
       .data(this.state.graph.links);
 
+    // reset style
+    personNode.select(".bg").attr("style", null);
+
+    const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    switch (this.props.colorMode) {
+      case "name": {
+        let last_names = graphModel.persons.map(p => p.getFullName().split(" ").reverse()[0]);
+        last_names = Array.from(new Set(last_names));
+        const nameColor = d3.scaleOrdinal(last_names, d3.schemeSet3)
+        personNode
+          .select(".bg")
+          .style("background-color", d => nameColor(d.getName().split(" ").reverse()[0]))
+          .style("color", "black")
+        personNode
+          .select(".focused")
+          .style("box-shadow", d => `0 0 1rem ${nameColor(d.getName().split(" ").reverse()[0])}`);
+        break;
+      }
+      case "age": {
+        const ageColor = d3.scaleSequential()
+          .domain([0, 120])
+          .interpolator((d) => darkMode ? d3.interpolateGreens(d) : d3.interpolateGreens(1 - d))
+        personNode
+          .select(".bg")
+          .style("background-color", (d: GraphPerson) => ageColor(d.data.getAgeToday()))
+          .style("color", (d: GraphPerson) =>
+            (d.data.getAgeToday() < 60) ? "var(--background)" : "var(--foreground)");
+        personNode
+          .select(".focused")
+          .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeToday())}`);
+        break;
+      }
+      case "gender": {
+        const genderColor = d3.scaleOrdinal(["female", "male", "intersex", "unknown"], d3.schemeSet1);
+        personNode
+          .select(".bg")
+          .style("background-color", (d: GraphPerson) => genderColor(d.getGender()))
+        personNode
+          .select(".focused")
+          .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
+        break;
+      }
+    }
+
     personNode
       .transition()
       .duration(300)
-      .style("opacity","1");
+      .style("opacity", "1")
+
     link
       .transition()
       .duration(600)
-      .style("opacity","1")
+      .style("opacity", "1")
     etcNode
       .transition()
       .duration(300)
-      .style("opacity","1")
+      .style("opacity", "1")
 
     d3cola.on("tick", () => {
       personNode
@@ -148,8 +196,8 @@ class TreeView extends Component<Props, State> {
 
       link.attr("d", d => {
         // 1 or -1
-        let flip = -(Number((d.source.y - d.target.y)>0)*2-1);
-        let radius = Math.min(config.gridSize/2, Math.abs(d.target.x - d.source.x)/2, Math.abs(d.target.y - d.source.y)/2);
+        let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
+        let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
 
         if (d.target.type === "person") {
           return `M${d.source.x},${d.source.y} ` +
