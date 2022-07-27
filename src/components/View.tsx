@@ -23,6 +23,10 @@ function ViewOptions(props) {
           en: "Default",
           de: "Standard"
         })}</option>
+        <option value={ViewMode.DESCENDANTS}>{translationToString({
+          en: "Descendants",
+          de: "Nachkommen"
+        })}</option>
         <option value={ViewMode.ANCESTORS}>{translationToString({
           en: "Ancestors",
           de: "Vorfahren"
@@ -30,10 +34,6 @@ function ViewOptions(props) {
         <option value={ViewMode.LIVING}>{translationToString({
           en: "Living",
           de: "Lebende"
-        })}</option>
-        <option value={ViewMode.DESCENDANTS}>{translationToString({
-          en: "Descendants",
-          de: "Nachkommen"
         })}</option>
         <option value={ViewMode.ALL}>{translationToString({
           en: "All",
@@ -141,7 +141,6 @@ class View extends Component<any, State> {
   }
 
   onRefocus(newFocus: GraphPerson) {
-    // FIXME change focused attribute
     if (newFocus.data.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden
