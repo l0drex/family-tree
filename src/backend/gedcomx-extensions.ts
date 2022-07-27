@@ -180,7 +180,7 @@ Person.prototype.getAgeToday = function (): number | undefined {
 }
 
 Person.prototype.getLiving = function (): boolean {
-  return this.getFactsByType(PersonFactTypes.Death).length == 0;
+  return this.getFactsByType(PersonFactTypes.Death).length === 0;
 }
 
 Person.prototype.toGraphObject = function (): GraphPerson {
