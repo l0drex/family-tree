@@ -10,10 +10,6 @@ interface Props {
 }
 
 class InfoPanel extends Component<Props, null> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     let person = this.props.person;
     return (
