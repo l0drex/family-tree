@@ -1,4 +1,4 @@
-import {Component} from "react";
+import {ChangeEvent, Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
@@ -13,47 +13,50 @@ import FamilyPath from "./FamilyPath";
 function ViewOptions(props) {
   return (
     <form id="view-all">
-      <label htmlFor="view-selector">{translationToString({
-        en: "Show:",
-        de: "Zeige:"
-      })}</label>
+      <div>
+        <label htmlFor="view-selector">{translationToString({
+          en: "Show:",
+          de: "Zeige:"
+        })}</label>
+        <select id="view-selector" className="button inline all">
+          <option value={ViewMode.DEFAULT}>{translationToString({
+            en: "Default",
+            de: "Standard"
+          })}</option>
+          <option value={ViewMode.DESCENDANTS}>{translationToString({
+            en: "Descendants",
+            de: "Nachkommen"
+          })}</option>
+          <option value={ViewMode.ANCESTORS}>{translationToString({
+            en: "Ancestors",
+            de: "Vorfahren"
+          })}</option>
+          <option value={ViewMode.LIVING}>{translationToString({
+            en: "Living",
+            de: "Lebende"
+          })}</option>
+          <option value={ViewMode.ALL}>{translationToString({
+            en: "All",
+            de: "Alle"
+          })}</option>
+        </select>
+      </div>
 
-      <select id="view-selector" className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
-        <option value={ViewMode.DEFAULT}>{translationToString({
-          en: "Default",
-          de: "Standard"
-        })}</option>
-        <option value={ViewMode.DESCENDANTS}>{translationToString({
-          en: "Descendants",
-          de: "Nachkommen"
-        })}</option>
-        <option value={ViewMode.ANCESTORS}>{translationToString({
-          en: "Ancestors",
-          de: "Vorfahren"
-        })}</option>
-        <option value={ViewMode.LIVING}>{translationToString({
-          en: "Living",
-          de: "Lebende"
-        })}</option>
-        <option value={ViewMode.ALL}>{translationToString({
-          en: "All",
-          de: "Alle"
-        })}</option>
-      </select>
-
-      <label htmlFor="color-selector">{translationToString({
-        en: "Color by:",
-        de: "Färbe nach:"
-      })
-      }</label>
-      <select id="color-selector" className="button inline all" onChange={event => props.onViewChange(event.target.value)}>
-        <option value={ColorMode.GENDER}>{translationToString({
-          en: "Gender",
-          de: "Geschlecht"
-        })}</option>
-        <option value={ColorMode.NAME}>Nachname</option>
-        <option value={ColorMode.AGE}>Alter</option>
-      </select>
+      <div>
+        <label htmlFor="color-selector">{translationToString({
+          en: "Color by:",
+          de: "Färbe nach:"
+        })
+        }</label>
+        <select id="color-selector" className="button inline all">
+          <option value={ColorMode.GENDER}>{translationToString({
+            en: "Gender",
+            de: "Geschlecht"
+          })}</option>
+          <option value={ColorMode.NAME}>Nachname</option>
+          <option value={ColorMode.AGE}>Alter</option>
+        </select>
+      </div>
     </form>
   );
 }
@@ -92,7 +95,10 @@ class View extends Component<any, State> {
     root.classList.add("sidebar-visible");
 
     let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
-    colorSelector.addEventListener("change", this.render.bind(this))
+    colorSelector.addEventListener("change", () => this.onViewChanged.bind(this)(this.state.activeView));
+
+    let viewSelector = document.querySelector<HTMLSelectElement>("#view-selector");
+    viewSelector.addEventListener("change", e => this.onViewChanged.bind(this)((e.target as HTMLSelectElement).value));
   }
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
@@ -124,8 +130,9 @@ class View extends Component<any, State> {
       <>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
-          <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
-          <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden} onRefocus={this.onRefocus.bind(this)}/>
+          <ViewOptions activeView={this.state.activeView}/>
+          <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden}
+                    onRefocus={this.onRefocus.bind(this)}/>
         </main>
         <FamilyPath focus={focus}/>
       </>
@@ -133,10 +140,9 @@ class View extends Component<any, State> {
   }
 
   onViewChanged(view) {
-    let viewGraph = graphModel.buildViewGraph(this.state.focusId, view);
     this.setState({
       activeView: view,
-      viewGraph: viewGraph
+      viewGraph: graphModel.buildViewGraph(this.state.focusId, view)
     });
   }
 

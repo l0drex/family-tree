@@ -4,6 +4,8 @@ import viewGraph, {ViewMode} from "./ViewGraph";
 import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
 import config from "../config";
 
+let lastViewGraphBuildParams: {id: string, view: ViewMode | string}
+
 class ModelGraph extends Root {
   constructor(data) {
     super(data)
@@ -44,7 +46,17 @@ class ModelGraph extends Root {
     return entries;
   }
 
-  buildViewGraph = (startId: string, activeView?: ViewMode | string) => {
+  buildViewGraph = (startId: string, activeView: ViewMode | string) => {
+    if (lastViewGraphBuildParams !== undefined) {
+      if (lastViewGraphBuildParams.id === startId && lastViewGraphBuildParams.view === activeView) {
+        return viewGraph;
+      }
+    }
+    lastViewGraphBuildParams = {
+      id: startId,
+      view: activeView
+    }
+
     let startPerson;
     if (startId !== null) {
       startPerson = this.getPersonById(startId);
