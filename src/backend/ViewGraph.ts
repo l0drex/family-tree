@@ -48,7 +48,7 @@ export class ViewGraph implements EventTarget {
   }
 
   /**
-   * Called when user clicked on etc node.
+   * Called when user clicked on etc. node.
    * @param family
    */
   showFamily = (family: FamilyView) => {

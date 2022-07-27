@@ -1,4 +1,4 @@
-import {ChangeEvent, Component} from "react";
+import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
@@ -10,7 +10,7 @@ import * as React from "react";
 import FamilyPath from "./FamilyPath";
 
 
-function ViewOptions(props) {
+function ViewOptions() {
   return (
     <form id="view-all">
       <div>
@@ -18,7 +18,7 @@ function ViewOptions(props) {
           en: "Show:",
           de: "Zeige:"
         })}</label>
-        <select id="view-selector" className="button inline all">
+        <select id="view-selector" className="button inline all" defaultValue={ViewMode.DEFAULT}>
           <option value={ViewMode.DEFAULT}>{translationToString({
             en: "Default",
             de: "Standard"
@@ -48,7 +48,7 @@ function ViewOptions(props) {
           de: "Färbe nach:"
         })
         }</label>
-        <select id="color-selector" className="button inline all">
+        <select id="color-selector" className="button inline all" defaultValue={ColorMode.GENDER}>
           <option value={ColorMode.GENDER}>{translationToString({
             en: "Gender",
             de: "Geschlecht"
@@ -130,7 +130,7 @@ class View extends Component<any, State> {
       <>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
-          <ViewOptions activeView={this.state.activeView}/>
+          <ViewOptions/>
           <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden}
                     onRefocus={this.onRefocus.bind(this)}/>
         </main>

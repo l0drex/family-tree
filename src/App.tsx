@@ -1,8 +1,7 @@
 import * as React from "react";
 import './App.css';
-import {localize, translationToString} from "./main";
+import {localize} from "./main";
 import config from "./config";
-import {GraphPerson} from "./backend/graph";
 import Header from "./components/Header";
 import NavigationTutorial from "./components/NavigationTutorial";
 import Notification from "./components/Notification";
@@ -19,9 +18,7 @@ interface State {
 class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
-
-    let url = new URL(window.location.href);
-
+    new URL(window.location.href);
     let data = sessionStorage.getItem("familyData");
     if (data) {
       loadData(JSON.parse(data));
