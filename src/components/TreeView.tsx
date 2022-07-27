@@ -151,9 +151,11 @@ class TreeView extends Component<Props, State> {
           .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))
         personNode
           .select(".bg")
-          .style("background-color", (d: GraphPerson) => ageColor(d.data.getAgeToday()))
+          .style("background-color", (d: GraphPerson) => d.data.getLiving() ? ageColor(d.data.getAgeToday()) : "var(background-higher)")
           .style("color", (d: GraphPerson) =>
-            (d.data.getAgeToday() < 70) ? "var(--background)" : "var(--foreground)");
+            (d.data.getAgeToday() < 70 && d.data.getLiving()) ? "var(--background)" : "var(--foreground)")
+          .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : ageColor(d.data.getAgeToday()))
+          .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid");
         personNode
           .select(".focused")
           .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeToday())}`);
@@ -163,7 +165,9 @@ class TreeView extends Component<Props, State> {
         const genderColor = d3.scaleOrdinal(["female", "male", "intersex", "unknown"], d3.schemeSet1);
         personNode
           .select(".bg")
-          .style("background-color", (d: GraphPerson) => genderColor(d.getGender()))
+          .style("background-color", (d: GraphPerson) => d.data.getLiving() ? genderColor(d.getGender()) : "var(--background-higher)")
+          .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : genderColor(d.getGender()))
+          .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid")
         personNode
           .select(".focused")
           .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
