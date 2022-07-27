@@ -131,7 +131,7 @@ class TreeView extends Component<Props, State> {
 
     const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
     switch (this.props.colorMode) {
-      case "name": {
+      case ColorMode.NAME: {
         let last_names = viewGraph.nodes.filter(n => n.type === "person")
           .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
         last_names = Array.from(new Set(last_names));
@@ -145,21 +145,21 @@ class TreeView extends Component<Props, State> {
           .style("box-shadow", d => `0 0 1rem ${nameColor(d.getName().split(" ").reverse()[0])}`);
         break;
       }
-      case "age": {
+      case ColorMode.AGE: {
         const ageColor = d3.scaleSequential()
           .domain([0, 120])
-          .interpolator((d) => darkMode ? d3.interpolateGreens(d) : d3.interpolateGreens(1 - d))
+          .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))
         personNode
           .select(".bg")
           .style("background-color", (d: GraphPerson) => ageColor(d.data.getAgeToday()))
           .style("color", (d: GraphPerson) =>
-            (d.data.getAgeToday() < 60) ? "var(--background)" : "var(--foreground)");
+            (d.data.getAgeToday() < 70) ? "var(--background)" : "var(--foreground)");
         personNode
           .select(".focused")
           .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeToday())}`);
         break;
       }
-      case "gender": {
+      case ColorMode.GENDER: {
         const genderColor = d3.scaleOrdinal(["female", "male", "intersex", "unknown"], d3.schemeSet1);
         personNode
           .select(".bg")
