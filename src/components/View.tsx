@@ -8,6 +8,7 @@ import {GraphPerson} from "../backend/graph";
 import InfoPanel from "./InfoPanel";
 import * as React from "react";
 import FamilyPath from "./FamilyPath";
+import {Person} from "gedcomx-js";
 
 
 function ViewOptions() {
@@ -146,8 +147,8 @@ class View extends Component<any, State> {
     });
   }
 
-  onRefocus(newFocus: GraphPerson) {
-    if (newFocus.data.getId() === this.state.focusId) {
+  onRefocus(newFocus: Person) {
+    if (newFocus.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden
       })
@@ -155,8 +156,8 @@ class View extends Component<any, State> {
     }
     this.setState({
       focusHidden: false,
-      focusId: newFocus.data.getId(),
-      viewGraph: graphModel.buildViewGraph(newFocus.data.getId(), this.state.activeView)
+      focusId: newFocus.getId(),
+      viewGraph: graphModel.buildViewGraph(newFocus.getId(), this.state.activeView)
     });
   }
 }

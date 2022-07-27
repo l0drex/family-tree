@@ -1,8 +1,18 @@
 import {Component} from "react";
 import {translationToString} from "../main";
 import {graphModel} from "../backend/ModelGraph";
+import {Person} from "gedcomx-js";
 
-class SearchField extends Component<any, any> {
+interface Props {
+  person: Person,
+  onRefocus: (newFocus: Person) => void
+}
+
+interface State {
+  hasError: boolean
+}
+
+class SearchField extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {

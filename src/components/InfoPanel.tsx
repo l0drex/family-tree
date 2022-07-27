@@ -5,7 +5,7 @@ import {PersonFactTypes} from "../backend/gedcomx-extensions";
 import {Person} from "gedcomx-js";
 
 interface Props {
-  onRefocus,
+  onRefocus: (newFocus: Person) => void,
   person: Person
 }
 
@@ -18,7 +18,7 @@ class InfoPanel extends Component<Props, State> {
     super(props);
 
     this.state = {
-      isPortrait: window.matchMedia("orientation: portrait").matches
+      isPortrait: window.matchMedia("(orientation: portrait)").matches
     }
   }
 
