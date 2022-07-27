@@ -4,7 +4,6 @@ import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
 import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
-import {GraphPerson} from "../backend/graph";
 import InfoPanel from "./InfoPanel";
 import * as React from "react";
 import FamilyPath from "./FamilyPath";
