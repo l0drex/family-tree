@@ -1,8 +1,8 @@
 import './InfoPanel.css';
 import {Component} from "react";
 import SearchField from "./SearchField";
-import {PersonFactTypes} from "../backend/gedcomx-extensions";
 import {Person} from "gedcomx-js";
+import {PersonFactTypes} from "../backend/gedcomx-enums";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,

@@ -1,12 +1,12 @@
-import {setReferenceAge, PersonFactTypes} from "./gedcomx-extensions";
+import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
 import {translationToString} from "../main";
 import viewGraph, {ViewMode} from "./ViewGraph";
-import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
 import config from "../config";
+import {PersonFactTypes} from "./gedcomx-enums";
 
 let lastViewGraphBuildParams: {id: string, view: ViewMode | string}
 
-class ModelGraph extends Root {
+class ModelGraph extends GedcomX.Root {
   constructor(data) {
     super(data)
     if (!data || data.persons.length < 0 || data.relationships.length < 0) {
@@ -23,18 +23,18 @@ class ModelGraph extends Root {
     console.log("Found", data.relationships.length, "relationships");
   }
 
-  getPersonById(id: string | number | ResourceReference): Person {
-    if (id instanceof ResourceReference) {
+  getPersonById(id: string | number | GedcomX.ResourceReference): GedcomX.Person {
+    if (id instanceof GedcomX.ResourceReference) {
       id = id.getResource().substring(1);
     }
     return super.getPersonById(id);
   }
 
-  getPersonByName = (name: string): Person => {
+  getPersonByName = (name: string): GedcomX.Person => {
     return this.persons.find(person => person.getFullName().toLowerCase().includes(name));
   }
 
-  getPersonPath = (person: Person): Person[] => {
+  getPersonPath = (person: GedcomX.Person): GedcomX.Person[] => {
     let entries = [];
     let child = this.getPersonsChildren(person)[0];
     let parent = this.getPersonsParents(person)[0];
@@ -57,7 +57,7 @@ class ModelGraph extends Root {
       view: activeView
     }
 
-    let startPerson;
+    let startPerson: GedcomX.Person;
     if (startId !== null) {
       startPerson = this.getPersonById(startId);
     } else {
@@ -68,7 +68,7 @@ class ModelGraph extends Root {
     viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
-    let families: FamilyView[] = [];
+    let families: GedcomX.FamilyView[] = [];
     switch (activeView) {
       case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
@@ -89,14 +89,14 @@ class ModelGraph extends Root {
       case ViewMode.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.getFullName()}`);
         this.getAncestors(startPerson)
+          .filter(p => p !== startPerson)
           .forEach(p => families = families.concat(this.getFamiliesAsParent(p)));
         break;
       case ViewMode.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
-          .forEach(p => families = families.concat(this.getFamiliesAsChild(p))
-            .concat(this.getFamiliesAsParent(p)));
+          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
         if (families.length === 0) {
           families = families.concat(this.getFamiliesAsChild(startPerson));
         }
@@ -108,17 +108,29 @@ class ModelGraph extends Root {
       }
     }
 
-    families.forEach(viewGraph.showFamily);
-    if (viewGraph.nodes.filter(n => n.type === "person").length > config.maxElements) {
-      console.warn("Not all elements are shown. Graph would become too slow.")
-      families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
+    if (families.length > 0) {
+      families.forEach(viewGraph.showFamily);
+      if (viewGraph.nodes.filter(n => n.type === "person").length > config.maxElements) {
+        console.warn("Not all elements are shown. Graph would become too slow.")
+        families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
+      }
+    } else {
+      // adding at least the start person with etc-nodes
+      this.getFamiliesAsChild(startPerson).forEach(f => {
+        viewGraph.showFamily(f);
+        viewGraph.hideFamily(f);
+      })
+      this.getFamiliesAsParent(startPerson).forEach(f => {
+        viewGraph.showFamily(f);
+        viewGraph.hideFamily(f);
+      })
     }
 
     console.groupEnd();
     return viewGraph
   }
 
-  getFamiliesAsParent(person: Person): FamilyView[] {
+  getFamiliesAsParent(person: GedcomX.Person): GedcomX.FamilyView[] {
     if (person.getDisplay().getFamiliesAsParent().length > 0) {
       return person.getDisplay().getFamiliesAsParent();
     }
@@ -132,7 +144,7 @@ class ModelGraph extends Root {
               resource: "#" + person.getId()
             }
           });
-        return new FamilyView({
+        return new GedcomX.FamilyView({
           parent1: c.getPerson1(),
           parent2: c.getPerson2(),
           children: children
@@ -144,7 +156,7 @@ class ModelGraph extends Root {
     return families;
   }
 
-  getFamiliesAsChild(person: Person): FamilyView[] {
+  getFamiliesAsChild(person: GedcomX.Person): GedcomX.FamilyView[] {
     if (person.getDisplay().getFamiliesAsChild().length > 0) {
       return person.getDisplay().getFamiliesAsChild();
     }
@@ -161,7 +173,9 @@ class ModelGraph extends Root {
         });
         console.assert(children.map(r => r.resource).includes("#" + person.getId()), `${person} is not a child`)
 
-        return new FamilyView({
+        console.log("Fw in model", GedcomX.FamilyView)
+
+        return new GedcomX.FamilyView({
           parent1: c.getPerson1(),
           parent2: c.getPerson2(),
           children: children
@@ -174,11 +188,11 @@ class ModelGraph extends Root {
     return families;
   }
 
-  private getChildrenOfBoth(parent1: Person | ResourceReference, parent2: Person | ResourceReference) {
-    if (parent1 instanceof ResourceReference) {
+  private getChildrenOfBoth(parent1: GedcomX.Person | GedcomX.ResourceReference, parent2: GedcomX.Person | GedcomX.ResourceReference) {
+    if (parent1 instanceof GedcomX.ResourceReference) {
       parent1 = this.getPersonById(parent1.getResource().substring(1));
     }
-    if (parent2 instanceof ResourceReference) {
+    if (parent2 instanceof GedcomX.ResourceReference) {
       parent2 = this.getPersonById(parent2.getResource().substring(1));
     }
     let childrenOfParent1 = this.getPersonsChildren(parent1);
@@ -186,7 +200,7 @@ class ModelGraph extends Root {
     return childrenOfParent1.filter(c => childrenOfParent2.includes(c));
   }
 
-  private setAgeGen0 = (startPerson: Person) => {
+  private setAgeGen0 = (startPerson: GedcomX.Person) => {
     let personWithKnownAge = this.persons
       .filter(p => {
         let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.Generation);
@@ -212,9 +226,9 @@ class ModelGraph extends Root {
       Number(personWithKnownAge.getFactsByType(PersonFactTypes.Generation)[0].getValue()));
   }
 
-  private getAncestors(person: Person): Person[] {
+  private getAncestors(person: GedcomX.Person): GedcomX.Person[] {
     // stack to collect ancestors of ancestors
-    let ancestors = new Set<Person>([person]);
+    let ancestors = new Set<GedcomX.Person>([person]);
     let iterator = ancestors.values();
     let nextPerson = iterator.next()
     while (!nextPerson.done) {
@@ -224,9 +238,9 @@ class ModelGraph extends Root {
     return Array.from(ancestors);
   }
 
-  private getDescendants(person: Person): Person[] {
+  private getDescendants(person: GedcomX.Person): GedcomX.Person[] {
     // stack to collect descendants of descendants
-    let descendants = new Set<Person>([person]);
+    let descendants = new Set<GedcomX.Person>([person]);
     let iterator = descendants.values();
     let nextPerson = iterator.next()
     while (!nextPerson.done) {

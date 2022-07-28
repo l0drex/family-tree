@@ -1,6 +1,6 @@
 import {Date, Fact} from "gedcomx-js";
-import {PersonFactTypes} from "./gedcomx-extensions";
 import config from "../config";
+import {PersonFactTypes} from "./gedcomx-enums";
 
 test("toString works", () => {
   config.browserLang = "en";

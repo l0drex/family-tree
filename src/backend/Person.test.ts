@@ -1,7 +1,8 @@
 import * as GedcomX from "gedcomx-js";
 import {Fact, Person, Name, NameForm} from "gedcomx-js"
-import {PersonFactTypes, setReferenceAge} from "./gedcomx-extensions";
+import {setReferenceAge} from "./gedcomx-extensions";
 import config from "../config";
+import {PersonFactTypes} from "./gedcomx-enums";
 
 test("Age calculated correct", () => {
   setReferenceAge(0, 0);

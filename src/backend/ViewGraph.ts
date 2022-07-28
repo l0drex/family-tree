@@ -1,7 +1,8 @@
 import {GraphFamily, GraphObject, GraphPerson} from "./graph";
-import {PersonFactTypes} from "./gedcomx-extensions";
+import {PersonFactTypes} from "./gedcomx-enums";
 import {graphModel} from "./ModelGraph";
-import {FamilyView, Person, ResourceReference} from "gedcomx-js";
+import {Person, ResourceReference} from "gedcomx-js";
+import GedcomX from "./gedcomx-extensions";
 
 export enum ViewMode {
   DEFAULT = "default",
@@ -51,7 +52,7 @@ export class ViewGraph implements EventTarget {
    * Called when user clicked on etc. node.
    * @param family
    */
-  showFamily = (family: FamilyView) => {
+  showFamily = (family: GedcomX.FamilyView) => {
     let graphFamily = this.getGraphFamily(family);
     console.debug("Showing family:", graphFamily);
     graphFamily.type = "family";
@@ -66,16 +67,17 @@ export class ViewGraph implements EventTarget {
     }));
   }
 
-  hideFamily = (family: GraphFamily) => {
-    if (family.involvesPerson(this.startPerson.data.getId())) {
-      console.warn("Initial families cannot be removed!");
-      return;
+  hideFamily = (family: GraphFamily | GedcomX.FamilyView) => {
+    console.log(family)
+    if (family instanceof GedcomX.FamilyView) {
+      family = this.getGraphFamily(family);
     }
 
     console.groupCollapsed("Hiding family:", family.toString());
 
     // find all leaves, e.g. all nodes who are not connected to other families
     let leaves = family.getMembers()
+      .filter(m => m.getResource().substring(1) !== this.startPerson.data.getId())
       .map(p => graphModel.getPersonById(p)).map(p => this.getGraphPerson(p))
       .filter(person => {
           // check if the node is connected to two families
@@ -202,7 +204,7 @@ export class ViewGraph implements EventTarget {
       || person.getDisplay() as GraphPerson;
   }
 
-  private getGraphFamily = (family: FamilyView): GraphFamily => {
+  private getGraphFamily = (family: GedcomX.FamilyView): GraphFamily => {
     let graphFamily = this.nodes.find(n => (n.type === "family" || n.type === "etc") && (n as GraphFamily).equals(family));
     if (graphFamily === undefined) {
       console.debug("Adding new family to view", family, this.nodes.filter(n => n.type === "family"))

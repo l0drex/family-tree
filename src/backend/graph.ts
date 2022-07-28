@@ -1,8 +1,9 @@
 import {DisplayProperties, FamilyView, Person} from "gedcomx-js";
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
-import {baseUri, GenderTypes, getGeneration} from "./gedcomx-extensions";
+import {getGeneration} from "./gedcomx-extensions";
 import * as cola from "webcola";
+import {baseUri, GenderTypes} from "./gedcomx-enums";
 
 GedcomX.enableRsExtensions();
 
