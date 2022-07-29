@@ -9,6 +9,7 @@ import Uploader from "./components/Uploader";
 import View from "./components/View";
 import {graphModel, loadData} from "./backend/ModelGraph";
 import {ReactNode} from "react";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 interface State {
   notifications: ReactNode[]
@@ -31,35 +32,25 @@ class App extends React.Component<any, State> {
   }
 
   render() {
-    if (!this.state.dataAvailable) {
-      // show upload form
-      return (
-        <>
-          <Header/>
-          <main>
-            {this.state.notifications}
-            <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-            <NavigationTutorial/>
-          </main>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <Header/>
+    return <BrowserRouter basename={"family-tree"}>
+      <Header/>
         {this.state.notifications}
-        <View/>
-      </>
-    );
+        <Routes>
+          <Route path="/" element={
+            <main>
+              <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
+              <NavigationTutorial/>
+            </main>
+          }/>
+          <Route path="/view" element={<View/>}/>
+        </Routes>
+    </BrowserRouter>
   }
 
   onFileSelected(fileContent) {
     sessionStorage.setItem("familyData", fileContent);
     loadData(JSON.parse(fileContent));
-    this.setState({
-      dataAvailable: true
-    });
+    window.location.href +="view";
   }
 
   componentDidMount() {
