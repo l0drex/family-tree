@@ -2,6 +2,7 @@
 
 declare module "gedcomx-js" {
   export function enableRsExtensions();
+  export function addExtensions(extensions: Function);
 
   export class Base {
     constructor(json?: any);
@@ -374,8 +375,6 @@ declare module "gedcomx-js" {
 
     // extensions
     getMembers(): ResourceReference[]
-
-    toGraphObject()
   }
 
   export class FamilyView extends Base {

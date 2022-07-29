@@ -10,10 +10,8 @@ export function Family(props) {
         return;
       }
       viewGraph.hideFamily(props.data);
-      props.onClick();
     }}>
       <circle r={config.gridSize / 2}/>
-      {/* TODO add marriage date*/}
       {props.data.marriage &&
         <text x={-config.gridSize} y="4pt" className="marriageDate">
           {`💍 ${props.data.marriage}`}
@@ -32,10 +30,7 @@ export function Family(props) {
 
 export function Etc(props) {
   return (
-    <g className="etc" onClick={(e) => {
-      viewGraph.showFamily(props.data);
-      props.onClick(e);
-    }}>
+    <g className="etc" onClick={() => viewGraph.showFamily(props.data)}>
       <circle r={config.gridSize / 2}/>
       <text y="5">+</text>
     </g>
@@ -46,13 +41,10 @@ export function Person(props) {
   let graphPerson: GraphPerson = props.data;
   return (
     <foreignObject
-      className={
-        "person"
-        + (" " + graphPerson.getGender())
-        + (graphPerson.data.getLiving() ? "": " dead")}
-      x={-graphPerson.bounds.width() / 2} y={-graphPerson.bounds.height() / 2}
-      width={graphPerson.bounds.width()} height={graphPerson.bounds.height()}
-      onClick={() => props.onClick(graphPerson)}>
+      className="person"
+      x={graphPerson.x - graphPerson.width / 2} y={graphPerson.y - graphPerson.height / 2}
+      width={graphPerson.width} height={graphPerson.height}
+      onClick={() => props.onClick(graphPerson.data)}>
       <div className={"bg" + (props.focused ? " focused" : "")} title={translationToString({
         en: "Click to show more information",
         de: "Klicke für weitere Informationen"

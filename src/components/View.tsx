@@ -2,59 +2,73 @@ import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel} from "../backend/ModelGraph";
-import viewGraph, {ViewMode, ViewGraph} from "../backend/ViewGraph";
+import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
-import {GraphPerson} from "../backend/graph";
+import InfoPanel from "./InfoPanel";
+import * as React from "react";
+import FamilyPath from "./FamilyPath";
 import {Person} from "gedcomx-js";
 
-function ViewOption(props) {
-  let className = "button inline";
+
+function ViewOptions() {
   return (
-    <button className={className + " all" + (props.active ? "" : " inactive")}
-            onClick={() => props.onClick(props.name)}>{props.localName}</button>
+    <form id="view-all">
+      <div>
+        <label htmlFor="view-selector">{translationToString({
+          en: "Show:",
+          de: "Zeige:"
+        })}</label>
+        <select id="view-selector" className="button inline all" defaultValue={ViewMode.DEFAULT}>
+          <option value={ViewMode.DEFAULT}>{translationToString({
+            en: "Default",
+            de: "Standard"
+          })}</option>
+          <option value={ViewMode.DESCENDANTS}>{translationToString({
+            en: "Descendants",
+            de: "Nachkommen"
+          })}</option>
+          <option value={ViewMode.ANCESTORS}>{translationToString({
+            en: "Ancestors",
+            de: "Vorfahren"
+          })}</option>
+          <option value={ViewMode.LIVING}>{translationToString({
+            en: "Living",
+            de: "Lebende"
+          })}</option>
+          <option value={ViewMode.ALL}>{translationToString({
+            en: "All",
+            de: "Alle"
+          })}</option>
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="color-selector">{translationToString({
+          en: "Color by:",
+          de: "Färbe nach:"
+        })
+        }</label>
+        <select id="color-selector" className="button inline all" defaultValue={ColorMode.GENDER}>
+          <option value={ColorMode.GENDER}>{translationToString({
+            en: "Gender",
+            de: "Geschlecht"
+          })}</option>
+          <option value={ColorMode.NAME}>Nachname</option>
+          <option value={ColorMode.AGE}>Alter</option>
+        </select>
+      </div>
+    </form>
   );
-}
-
-function ViewOptions(props) {
-  return (
-    <div id="view-all">
-            <span lang="en">{translationToString({
-              en: "Show:",
-              de: "Zeige:"
-            })}</span>
-
-      <ViewOption name={ViewMode.ALL} localName={translationToString({
-        en: "All",
-        de: "Alle"
-      })} active={props.activeView === ViewMode.ALL} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.ANCESTORS} localName={translationToString({
-        en: "Ancestors",
-        de: "Vorfahren"
-      })} active={props.activeView === ViewMode.ANCESTORS} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.LIVING} localName={translationToString({
-        en: "Living",
-        de: "Lebende"
-      })} active={props.activeView === ViewMode.LIVING} onClick={props.onViewChange}/>
-      <ViewOption name={ViewMode.DESCENDANTS} localName={translationToString({
-        en: "Descendants",
-        de: "Nachkommen"
-      })} active={props.activeView === ViewMode.DESCENDANTS} onClick={props.onViewChange}/>
-    </div>
-  );
-}
-
-interface Props {
-  focus: Person
-  focusHidden: boolean
-  onRefocus: (newFocus: GraphPerson) => void
 }
 
 interface State {
-  activeView: string
+  activeView: ViewMode | string
   viewGraph: ViewGraph
+  focusId: string
+  focusHidden: boolean
 }
 
-class View extends Component<Props, State> {
+class View extends Component<any, State> {
   constructor(props) {
     super(props);
 
@@ -62,38 +76,87 @@ class View extends Component<Props, State> {
     let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
     console.debug(`View: ${view}`);
 
-    graphModel.buildViewGraph(this.props.focus.getId(), ViewMode[view]);
+    let focusId = url.searchParams.get("id");
+    let viewGraph = graphModel.buildViewGraph(focusId, ViewMode[view]);
     console.assert(viewGraph.nodes.length > 0,
       "Viewgraph has no nodes!");
     console.assert(viewGraph.links.length > 0,
       "Viewgraph has no links!");
     this.state = {
       activeView: view,
-      viewGraph: viewGraph
+      viewGraph: viewGraph,
+      focusId: focusId,
+      focusHidden: false
     }
   }
 
+  componentDidMount() {
+    let root = document.querySelector<HTMLDivElement>("#root");
+    root.classList.add("sidebar-visible");
+
+    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
+    colorSelector.addEventListener("change", () => this.onViewChanged.bind(this)(this.state.activeView));
+
+    let viewSelector = document.querySelector<HTMLSelectElement>("#view-selector");
+    viewSelector.addEventListener("change", e => this.onViewChanged.bind(this)((e.target as HTMLSelectElement).value));
+  }
+
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    if (prevProps.focus !== this.props.focus) {
-      this.onViewChanged(this.state.activeView);
+    if (prevState.focusId !== this.state.focusId) {
+      //this.onViewChanged(this.state.activeView);
+    }
+    let root = document.querySelector<HTMLDivElement>("#root");
+    if (this.state.focusHidden) {
+      root.classList.remove("sidebar-visible");
+    } else {
+      root.classList.add("sidebar-visible");
     }
   }
 
   render() {
+    let focus;
+    if (this.state.focusId) {
+      focus = graphModel.getPersonById(this.state.focusId);
+    } else {
+      focus = graphModel.persons[0];
+    }
+    if (!focus) {
+      throw new Error(`No person with id ${this.state.focusId} could be found`)
+    }
+
+    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
+    const colorMode = colorSelector ? colorSelector.value : ColorMode.GENDER;
     return (
-      <main>
-        <ViewOptions activeView={this.state.activeView} onViewChange={this.onViewChanged.bind(this)}/>
-        <TreeView focus={this.props.focus} focusHidden={this.props.focusHidden} onRefocus={this.props.onRefocus}/>
-      </main>
+      <>
+        {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
+        <main>
+          <ViewOptions/>
+          <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden}
+                    onRefocus={this.onRefocus.bind(this)}/>
+        </main>
+        <FamilyPath focus={focus}/>
+      </>
     );
   }
 
   onViewChanged(view) {
-    let newView = view === this.state.activeView ? "" : view;
-    graphModel.buildViewGraph(this.props.focus.getId(), newView);
     this.setState({
-      activeView: newView,
-      viewGraph: viewGraph
+      activeView: view,
+      viewGraph: graphModel.buildViewGraph(this.state.focusId, view)
+    });
+  }
+
+  onRefocus(newFocus: Person) {
+    if (newFocus.getId() === this.state.focusId) {
+      this.setState({
+        focusHidden: !this.state.focusHidden
+      })
+      return;
+    }
+    this.setState({
+      focusHidden: false,
+      focusId: newFocus.getId(),
+      viewGraph: graphModel.buildViewGraph(newFocus.getId(), this.state.activeView)
     });
   }
 }

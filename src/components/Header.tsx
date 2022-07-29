@@ -4,7 +4,7 @@ import {translationToString} from "../main";
 function Header() {
   return (
     <header>
-      <a href="App">
+      <a href="/" onClick={removeData}>
         <img src={process.env.PUBLIC_URL + "/logo.svg"} width="40" height="100%" alt={translationToString({
           en: "A smiling tree.",
           de: "Ein lächelnder Baum."
@@ -16,6 +16,10 @@ function Header() {
       })}</span>
     </header>
   );
+}
+
+function removeData() {
+  window.sessionStorage.removeItem("familyData")
 }
 
 export default Header;

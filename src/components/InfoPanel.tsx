@@ -1,27 +1,15 @@
 import './InfoPanel.css';
 import {Component} from "react";
 import SearchField from "./SearchField";
-import {PersonFactTypes} from "../backend/gedcomx-extensions";
 import {Person} from "gedcomx-js";
+import {PersonFactTypes} from "../backend/gedcomx-enums";
 
 interface Props {
-  onRefocus,
+  onRefocus: (newFocus: Person) => void,
   person: Person
 }
 
-interface State {
-  isPortrait: boolean
-}
-
-class InfoPanel extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isPortrait: window.matchMedia("orientation: portrait").matches
-    }
-  }
-
+class InfoPanel extends Component<Props, null> {
   render() {
     let person = this.props.person;
     return (
@@ -29,9 +17,7 @@ class InfoPanel extends Component<Props, State> {
         <a href={"?id=" + person.getId()}>
           <pre className="id">{person.getId()}</pre>
         </a>
-        {this.state.isPortrait ?
-          <SearchField onRefocus={this.props.onRefocus} person={person}/> :
-          <h1 className="fullName">{person.getFullName()}</h1>}
+        <SearchField onRefocus={this.props.onRefocus} person={person}/>
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
 
@@ -66,14 +52,6 @@ class InfoPanel extends Component<Props, State> {
         </ul>
       </aside>
     );
-  }
-
-  componentDidMount() {
-    window.addEventListener("resize", () => {
-      this.setState({
-        isPortrait: window.matchMedia("orientation: portrait").matches
-      })
-    })
   }
 }
 

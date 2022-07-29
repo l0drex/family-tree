@@ -39,18 +39,18 @@ main > * {
 @media (orientation: landscape) {
   #root {
     grid-template-rows: auto 1fr auto;
-    grid-template-columns: 2fr 1fr;
-    grid-template-areas:
-      "header header"
-      "main sidebar"
-      "footer sidebar";
-  }
-
-  #root.sidebar-hidden {
     grid-template-columns: 1fr;
     grid-template-areas:
     "header"
     "main"
     "footer";
+  }
+
+  #root.sidebar-visible {
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas:
+      "header header"
+      "main sidebar"
+      "footer sidebar";
   }
 }

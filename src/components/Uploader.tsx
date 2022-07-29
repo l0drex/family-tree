@@ -46,6 +46,11 @@ class Uploader extends React.Component<any, any> {
 
             </p>
           </details>
+
+          {translationToString({
+            en: <p>The source code is available on <a href={"https://github.com/l0drex/family-tree"}>Github</a>.</p>,
+            de: <p>Der Quellcode ist auf <a href={"https://github.com/l0drex/family-tree"}>Github</a> verfügbar.</p>
+          })}
         </Article>
       </>
     );

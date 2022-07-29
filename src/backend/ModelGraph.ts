@@ -1,9 +1,12 @@
-import {setReferenceAge, PersonFactTypes} from "./gedcomx-extensions";
+import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
 import {translationToString} from "../main";
 import viewGraph, {ViewMode} from "./ViewGraph";
-import {FamilyView, Person, ResourceReference, Root} from "gedcomx-js";
+import config from "../config";
+import {PersonFactTypes} from "./gedcomx-enums";
 
-class ModelGraph extends Root {
+let lastViewGraphBuildParams: {id: string, view: ViewMode | string}
+
+class ModelGraph extends GedcomX.Root {
   constructor(data) {
     super(data)
     if (!data || data.persons.length < 0 || data.relationships.length < 0) {
@@ -20,18 +23,18 @@ class ModelGraph extends Root {
     console.log("Found", data.relationships.length, "relationships");
   }
 
-  getPersonById(id: string | number | ResourceReference): Person {
-    if (id instanceof ResourceReference) {
+  getPersonById(id: string | number | GedcomX.ResourceReference): GedcomX.Person {
+    if (id instanceof GedcomX.ResourceReference) {
       id = id.getResource().substring(1);
     }
     return super.getPersonById(id);
   }
 
-  getPersonByName = (name: string): Person => {
+  getPersonByName = (name: string): GedcomX.Person => {
     return this.persons.find(person => person.getFullName().toLowerCase().includes(name));
   }
 
-  getPersonPath = (person: Person): Person[] => {
+  getPersonPath = (person: GedcomX.Person): GedcomX.Person[] => {
     let entries = [];
     let child = this.getPersonsChildren(person)[0];
     let parent = this.getPersonsParents(person)[0];
@@ -43,52 +46,88 @@ class ModelGraph extends Root {
     return entries;
   }
 
-  buildViewGraph = (startId: string, activeView?: ViewMode) => {
-    let startPerson = this.getPersonById(startId);
+  buildViewGraph = (startId: string, activeView: ViewMode | string) => {
+    if (lastViewGraphBuildParams !== undefined) {
+      if (lastViewGraphBuildParams.id === startId && lastViewGraphBuildParams.view === activeView) {
+        return viewGraph;
+      }
+    }
+    lastViewGraphBuildParams = {
+      id: startId,
+      view: activeView
+    }
+
+    let startPerson: GedcomX.Person;
+    if (startId !== null) {
+      startPerson = this.getPersonById(startId);
+    } else {
+      startPerson = this.persons[0];
+    }
     console.info("Starting graph with", startPerson.getFullName());
     this.setAgeGen0(startPerson);
     viewGraph.startPerson = startPerson;
 
     viewGraph.reset();
+    let families: GedcomX.FamilyView[] = [];
     switch (activeView) {
       case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
-        this.persons.forEach(p => this.getFamiliesAsChild(p).concat(this.getFamiliesAsParent(p))
-          .forEach(viewGraph.showFamily));
+        this.persons.forEach(p => {
+          families = families.concat(this.getFamiliesAsChild(p));
+          families = families.concat(this.getFamiliesAsParent(p));
+        });
         break;
       case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        this.getAncestors(startPerson)
-          .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
-        this.getDescendants(startPerson)
-          .filter(p => !p.getLiving())
-          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
+        this.persons.filter(p => p.getLiving())
+          .forEach(p => {
+          families = families.concat(this.getFamiliesAsChild(p));
+          families = families.concat(this.getFamiliesAsParent(p));
+        });
         break;
       }
       case ViewMode.ANCESTORS:
         console.groupCollapsed(`Showing all ancestors of ${startPerson.getFullName()}`);
         this.getAncestors(startPerson)
-          .forEach(p => this.getFamiliesAsParent(p).forEach(viewGraph.showFamily));
+          .filter(p => p !== startPerson)
+          .forEach(p => families = families.concat(this.getFamiliesAsParent(p)));
         break;
       case ViewMode.DESCENDANTS:
         console.groupCollapsed(`Showing all descendants of ${startPerson.getFullName()}`);
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
-          .forEach(p => this.getFamiliesAsChild(p).forEach(viewGraph.showFamily));
+          .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
         break;
       default: {
         console.group("Showing explorable graph");
-        this.getFamiliesAsParent(startPerson).forEach(viewGraph.showFamily);
-        this.getFamiliesAsChild(startPerson).forEach(viewGraph.showFamily);
-        console.groupEnd();
-        return;
+        families = this.getFamiliesAsParent(startPerson)
+          .concat(this.getFamiliesAsChild(startPerson));
       }
     }
+
+    if (families.length > 0) {
+      families.forEach(viewGraph.showFamily);
+      if (viewGraph.nodes.filter(n => n.type === "person").length > config.maxElements) {
+        console.warn("Not all elements are shown. Graph would become too slow.")
+        families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
+      }
+    } else {
+      // adding at least the start person with etc-nodes
+      this.getFamiliesAsChild(startPerson).forEach(f => {
+        viewGraph.showFamily(f);
+        viewGraph.hideFamily(f);
+      })
+      this.getFamiliesAsParent(startPerson).forEach(f => {
+        viewGraph.showFamily(f);
+        viewGraph.hideFamily(f);
+      })
+    }
+
     console.groupEnd();
+    return viewGraph
   }
 
-  getFamiliesAsParent(person: Person): FamilyView[] {
+  getFamiliesAsParent(person: GedcomX.Person): GedcomX.FamilyView[] {
     if (person.getDisplay().getFamiliesAsParent().length > 0) {
       return person.getDisplay().getFamiliesAsParent();
     }
@@ -102,7 +141,7 @@ class ModelGraph extends Root {
               resource: "#" + person.getId()
             }
           });
-        return new FamilyView({
+        return new GedcomX.FamilyView({
           parent1: c.getPerson1(),
           parent2: c.getPerson2(),
           children: children
@@ -114,7 +153,7 @@ class ModelGraph extends Root {
     return families;
   }
 
-  getFamiliesAsChild(person: Person): FamilyView[] {
+  getFamiliesAsChild(person: GedcomX.Person): GedcomX.FamilyView[] {
     if (person.getDisplay().getFamiliesAsChild().length > 0) {
       return person.getDisplay().getFamiliesAsChild();
     }
@@ -131,7 +170,7 @@ class ModelGraph extends Root {
         });
         console.assert(children.map(r => r.resource).includes("#" + person.getId()), `${person} is not a child`)
 
-        return new FamilyView({
+        return new GedcomX.FamilyView({
           parent1: c.getPerson1(),
           parent2: c.getPerson2(),
           children: children
@@ -144,11 +183,11 @@ class ModelGraph extends Root {
     return families;
   }
 
-  private getChildrenOfBoth(parent1: Person | ResourceReference, parent2: Person | ResourceReference) {
-    if (parent1 instanceof ResourceReference) {
+  private getChildrenOfBoth(parent1: GedcomX.Person | GedcomX.ResourceReference, parent2: GedcomX.Person | GedcomX.ResourceReference) {
+    if (parent1 instanceof GedcomX.ResourceReference) {
       parent1 = this.getPersonById(parent1.getResource().substring(1));
     }
-    if (parent2 instanceof ResourceReference) {
+    if (parent2 instanceof GedcomX.ResourceReference) {
       parent2 = this.getPersonById(parent2.getResource().substring(1));
     }
     let childrenOfParent1 = this.getPersonsChildren(parent1);
@@ -156,7 +195,7 @@ class ModelGraph extends Root {
     return childrenOfParent1.filter(c => childrenOfParent2.includes(c));
   }
 
-  private setAgeGen0 = (startPerson: Person) => {
+  private setAgeGen0 = (startPerson: GedcomX.Person) => {
     let personWithKnownAge = this.persons
       .filter(p => {
         let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.Generation);
@@ -182,26 +221,28 @@ class ModelGraph extends Root {
       Number(personWithKnownAge.getFactsByType(PersonFactTypes.Generation)[0].getValue()));
   }
 
-  private getAncestors(person: Person): Person[] {
+  private getAncestors(person: GedcomX.Person): GedcomX.Person[] {
     // stack to collect ancestors of ancestors
-    let ancestors = [person];
-    let index = 0;
-    while (index < ancestors.length) {
-      this.getPersonsParents(ancestors[index]).filter(p => !ancestors.includes(p)).forEach(p => ancestors.push(p))
-      index++;
+    let ancestors = new Set<GedcomX.Person>([person]);
+    let iterator = ancestors.values();
+    let nextPerson = iterator.next()
+    while (!nextPerson.done) {
+      this.getPersonsParents(nextPerson.value).forEach(p => ancestors.add(p))
+      nextPerson = iterator.next();
     }
-    return ancestors;
+    return Array.from(ancestors);
   }
 
-  private getDescendants(person: Person): Person[] {
+  private getDescendants(person: GedcomX.Person): GedcomX.Person[] {
     // stack to collect descendants of descendants
-    let descendants = [person];
-    let index = 0;
-    while (index < descendants.length) {
-      this.getPersonsChildren(descendants[index]).filter(p => !descendants.includes(p)).forEach(p => descendants.push(p))
-      index++;
+    let descendants = new Set<GedcomX.Person>([person]);
+    let iterator = descendants.values();
+    let nextPerson = iterator.next()
+    while (!nextPerson.done) {
+      this.getPersonsChildren(nextPerson.value).forEach(p => descendants.add(p))
+      nextPerson = iterator.next();
     }
-    return descendants;
+    return Array.from(descendants);
   }
 }
 
