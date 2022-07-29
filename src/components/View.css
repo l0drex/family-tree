@@ -122,3 +122,7 @@ meter {
 #view-all > * {
   margin-left: 1rem;
 }
+
+#view-all div label {
+  margin-right: .5rem;
+}
