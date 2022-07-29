@@ -76,12 +76,12 @@ class View extends Component<any, State> {
     let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
     console.debug(`View: ${view}`);
 
-    let focusId = url.searchParams.get("id");
+    let focusId = url.hash.substring(1);
     let viewGraph = graphModel.buildViewGraph(focusId, ViewMode[view]);
     console.assert(viewGraph.nodes.length > 0,
-      "Viewgraph has no nodes!");
+      "View graph has no nodes!");
     console.assert(viewGraph.links.length > 0,
-      "Viewgraph has no links!");
+      "View graph has no links!");
     this.state = {
       activeView: view,
       viewGraph: viewGraph,
