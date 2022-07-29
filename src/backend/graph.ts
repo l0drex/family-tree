@@ -1,11 +1,7 @@
-import {DisplayProperties, FamilyView, Person} from "gedcomx-js";
-import * as GedcomX from "gedcomx-js";
+import GedcomX, {getGeneration} from "./gedcomx-extensions";
 import config from "../config";
-import {getGeneration} from "./gedcomx-extensions";
 import * as cola from "webcola";
 import {baseUri, GenderTypes} from "./gedcomx-enums";
-
-GedcomX.enableRsExtensions();
 
 type PersonType = "person";
 type FamilyType = "family" | "etc";
@@ -15,15 +11,15 @@ export interface GraphObject extends cola.Node {
   type: GraphObjectType
 }
 
-export class GraphPerson extends DisplayProperties implements GraphObject {
+export class GraphPerson extends GedcomX.DisplayProperties implements GraphObject {
   type: PersonType = "person"
-  data: Person
+  data: GedcomX.Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
   x: number;
   y: number;
 
-  constructor(person: Person) {
+  constructor(person: GedcomX.Person) {
     super({
       name: person.getFullName(),
       gender: readableGender(person.getGender()),
@@ -32,8 +28,8 @@ export class GraphPerson extends DisplayProperties implements GraphObject {
     this.data = person;
   }
 
-  equals = (person: Person | GraphPerson | DisplayProperties) => {
-    if (person instanceof DisplayProperties) {
+  equals = (person: GedcomX.Person | GraphPerson | GedcomX.DisplayProperties) => {
+    if (person instanceof GedcomX.DisplayProperties) {
       return person.getName() === this.getName()
         && person.getBirthDate() === this.getBirthDate();
     }
@@ -49,7 +45,7 @@ export class GraphPerson extends DisplayProperties implements GraphObject {
   }
 }
 
-export class GraphFamily extends FamilyView implements GraphObject {
+export class GraphFamily extends GedcomX.FamilyView implements GraphObject {
   type: FamilyType = "family"
   width = config.margin * 2
   height = config.margin * 2
@@ -57,7 +53,7 @@ export class GraphFamily extends FamilyView implements GraphObject {
   x: number;
   y: number;
 
-  equals = (object: FamilyView): Boolean => {
+  equals = (object: GedcomX.FamilyView): Boolean => {
     return this.getParent1().getResource() === object.getParent1().getResource() &&
       this.getParent2().getResource() === object.getParent2().getResource();
   }
@@ -71,3 +67,14 @@ function readableGender(gender): string {
   gender = gender || {type: GenderTypes.Unknown};
   return gender.type.substring(baseUri.length).toLowerCase();
 }
+
+function extend(GedcomX) {
+  GedcomX.Person.prototype.getDisplay = function (): GraphPerson {
+    if (this.displayProperties === undefined || !(this.displayProperties instanceof GraphPerson)) {
+      this.setDisplay(new GraphPerson(this));
+    }
+
+    return this.display;
+  }
+}
+GedcomX.addExtensions(extend);

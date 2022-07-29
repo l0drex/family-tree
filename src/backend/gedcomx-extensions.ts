@@ -1,8 +1,6 @@
 import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
 import config from "../config";
-import {NameForm, Relationship} from "gedcomx-js";
-import {GraphFamily, GraphPerson} from "./graph";
 import {baseUri, NameTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
 
 // Person
@@ -51,8 +49,8 @@ function extend(GedcomX) {
       return "?";
     }
     // name form that matches language, or if none matches return the first without lang
-    let nameForm = name.getNameForms().find((nf: NameForm) => nf.getLang() === config.browserLang);
-    nameForm ??= name.getNameForms().find((nf: NameForm) => nf.getLang() === "");
+    let nameForm = name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === config.browserLang);
+    nameForm ??= name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === "");
     nameForm ??= name.getNameForms()[0];
     return nameForm.getFullText(true);
   }
@@ -118,22 +116,9 @@ function extend(GedcomX) {
     return this.getFactsByType(PersonFactTypes.Death).length === 0;
   }
 
-  GedcomX.Person.prototype.toGraphObject = function (): GraphPerson {
-    return new GraphPerson(this);
-  }
-
   GedcomX.Person.prototype.toString = function (): string {
     return `${this.getFullName()} (#${this.getId()})`;
   }
-
-  GedcomX.Person.prototype.getDisplay = function (): GraphPerson {
-    if (this.displayProperties === undefined || !(this.displayProperties instanceof GraphPerson)) {
-      this.setDisplay(new GraphPerson(this));
-    }
-
-    return this.display;
-  }
-
 
 // Relationship
 
@@ -147,10 +132,6 @@ function extend(GedcomX) {
       type = this.getType().substring(baseUri.length);
     }
     return `${type} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
-  }
-
-  GedcomX.Relationship.prototype.toGraphObject = function (): GraphFamily {
-    return new GraphFamily(this);
   }
 
 

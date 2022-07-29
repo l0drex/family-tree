@@ -1,14 +1,3 @@
-import * as GedcomX from "gedcomx-js";
-import {translationToString} from "../main";
-import config from "../config";
-import {
-  Fact, FamilyView, NameForm,
-  Person,
-  PlaceReference,
-  Qualifier, Relationship
-} from "gedcomx-js";
-import {GraphFamily, GraphPerson} from "./graph";
-
 export enum Confidence {
   Low = "http://gedcomx.org/Low", Medium = "http://gedcomx.org/Medium", High = "http://gedcomx.org/High"
 }

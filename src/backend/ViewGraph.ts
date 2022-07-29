@@ -1,7 +1,6 @@
 import {GraphFamily, GraphObject, GraphPerson} from "./graph";
 import {PersonFactTypes} from "./gedcomx-enums";
 import {graphModel} from "./ModelGraph";
-import {Person, ResourceReference} from "gedcomx-js";
 import GedcomX from "./gedcomx-extensions";
 
 export enum ViewMode {
@@ -31,7 +30,7 @@ export class ViewGraph implements EventTarget {
     "remove": new Set()
   }
 
-  set startPerson(startPerson: Person | GraphPerson) {
+  set startPerson(startPerson: GedcomX.Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
       this.startPersonValue = startPerson
     } else {
@@ -148,7 +147,7 @@ export class ViewGraph implements EventTarget {
     return this.nodes.includes(node);
   }
 
-  private showPerson = (p: ResourceReference, graphFamily: GraphFamily, isParent: boolean) => {
+  private showPerson = (p: GedcomX.ResourceReference, graphFamily: GraphFamily, isParent: boolean) => {
     let person = graphModel.getPersonById(p);
     let graphPerson = this.getGraphPerson(person);
     this.showNode(graphPerson);
@@ -195,12 +194,12 @@ export class ViewGraph implements EventTarget {
     })
   }
 
-  private getGraphPerson = (person: Person | ResourceReference): GraphPerson => {
-    if (person instanceof ResourceReference) {
+  private getGraphPerson = (person: GedcomX.Person | GedcomX.ResourceReference): GraphPerson => {
+    if (person instanceof GedcomX.ResourceReference) {
       person = graphModel.getPersonById(person);
     }
 
-    return this.nodes.find(n => n instanceof GraphPerson && n.equals((person as Person).getDisplay())) as GraphPerson
+    return this.nodes.find(n => n instanceof GraphPerson && n.equals((person as GedcomX.Person).getDisplay())) as GraphPerson
       || person.getDisplay() as GraphPerson;
   }
 

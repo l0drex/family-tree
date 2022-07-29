@@ -375,8 +375,6 @@ declare module "gedcomx-js" {
 
     // extensions
     getMembers(): ResourceReference[]
-
-    toGraphObject()
   }
 
   export class FamilyView extends Base {
