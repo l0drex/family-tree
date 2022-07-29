@@ -58,7 +58,7 @@ class ModelGraph extends GedcomX.Root {
     }
 
     let startPerson: GedcomX.Person;
-    if (startId !== null) {
+    if (startId !== null && startId.length > 0) {
       startPerson = this.getPersonById(startId);
     } else {
       startPerson = this.persons[0];
