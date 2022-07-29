@@ -97,9 +97,6 @@ class ModelGraph extends GedcomX.Root {
         this.getDescendants(startPerson)
           .filter(p => p !== startPerson)
           .forEach(p => families = families.concat(this.getFamiliesAsChild(p)));
-        if (families.length === 0) {
-          families = families.concat(this.getFamiliesAsChild(startPerson));
-        }
         break;
       default: {
         console.group("Showing explorable graph");
@@ -172,8 +169,6 @@ class ModelGraph extends GedcomX.Root {
           }
         });
         console.assert(children.map(r => r.resource).includes("#" + person.getId()), `${person} is not a child`)
-
-        console.log("Fw in model", GedcomX.FamilyView)
 
         return new GedcomX.FamilyView({
           parent1: c.getPerson1(),
