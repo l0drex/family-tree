@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 export enum Confidence {
   Low = "http://gedcomx.org/Low", Medium = "http://gedcomx.org/Medium", High = "http://gedcomx.org/High"
 }
