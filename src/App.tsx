@@ -50,7 +50,11 @@ class App extends React.Component<any, State> {
   onFileSelected(fileContent) {
     sessionStorage.setItem("familyData", fileContent);
     loadData(JSON.parse(fileContent));
-    window.location.href +="view";
+    if (window.location.href.endsWith("/")) {
+      window.location.href += "view";
+    } else {
+      window.location.href += "/view";
+    }
   }
 
   componentDidMount() {
