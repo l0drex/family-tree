@@ -48,7 +48,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: (github.event_name == 'workflow_dispatch' && inputs.deploy) || github.event_name == 'release'
+    if: (github.event_name == 'workflow_dispatch' && inputs.Deploy) || github.event_name == 'release'
     runs-on: ubuntu-latest
     needs: build
     concurrency:
