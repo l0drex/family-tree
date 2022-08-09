@@ -102,9 +102,6 @@ class View extends Component<any, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    if (prevState.focusId !== this.state.focusId) {
-      //this.onViewChanged(this.state.activeView);
-    }
     let root = document.querySelector<HTMLDivElement>("#root");
     if (this.state.focusHidden) {
       root.classList.remove("sidebar-visible");

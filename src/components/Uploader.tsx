@@ -55,6 +55,16 @@ class Uploader extends React.Component<any, any> {
       </>
     );
   }
+
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+    let root = document.getElementById("root");
+    root.classList.remove("sidebar-visible");
+  }
+
+  componentDidMount() {
+    let root = document.getElementById("root");
+    root.classList.remove("sidebar-visible");
+  }
 }
 
 export default Uploader;
