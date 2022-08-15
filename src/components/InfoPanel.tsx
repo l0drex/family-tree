@@ -21,6 +21,7 @@ class InfoPanel extends Component<Props, null> {
         <SearchField onRefocus={this.props.onRefocus} person={person}/>
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
+        {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}
 
         <ul id="factView">
           {person.getFacts().sort((a, b) => {

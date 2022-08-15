@@ -31,7 +31,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
   equals = (person: GedcomX.Person | GraphPerson | GedcomX.DisplayProperties) => {
     if (person instanceof GedcomX.DisplayProperties) {
       return person.getName() === this.getName()
-        && person.getBirthDate() === this.getBirthDate();
+        && person.getAscendancyNumber() === this.getAscendancyNumber();
     }
 
     if (person instanceof GraphPerson) {
