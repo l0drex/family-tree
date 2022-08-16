@@ -8,6 +8,7 @@ import NavigationTutorial from "./components/NavigationTutorial";
 import Notification from "./components/Notification";
 import Uploader from "./components/Uploader";
 import View from "./components/View";
+import Statistics from "./components/Statistics"
 import {graphModel, loadData} from "./backend/ModelGraph";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
@@ -43,6 +44,7 @@ class App extends React.Component<any, State> {
             </main>
           }/>
           <Route path="/view" element={<View/>}/>
+          <Route path="/stats" element={<Statistics/>}/>
         </Routes>
     </BrowserRouter>
   }

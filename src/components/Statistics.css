@@ -1,0 +1,8 @@
+main#stats {
+  display: grid;
+}
+
+#stats .graph {
+  border-radius: 1rem;
+  padding: 0 1rem;
+}
