@@ -168,7 +168,7 @@ class TreeView extends Component<Props, State> {
           .style("background-color", (d: GraphPerson) => d.data.getLiving() ? genderColor(d.getGender()) : "var(--background-higher)")
           .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : genderColor(d.getGender()))
           .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid")
-          .style("color", (d: GraphPerson) => d.data.getLiving() ? "var(--background)" : "var(--foreground)")
+          .style("color", (d: GraphPerson) => d.data.getLiving() && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
         personNode
           .select(".focused")
           .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
