@@ -15,9 +15,6 @@ class InfoPanel extends Component<Props, null> {
     let person = this.props.person;
     return (
       <aside id="info-panel">
-        <Link to={`#${person.getId()}`}>
-          <pre className="id">{person.getId()}</pre>
-        </Link>
         <SearchField onRefocus={this.props.onRefocus} person={person}/>
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
