@@ -2,7 +2,7 @@ import './Header.css';
 import {Link} from 'react-router-dom';
 import {translationToString} from "../main";
 
-function Header() {
+function Header(props) {
   return (
     <header>
       <Link to="/" onClick={removeData}>
@@ -15,6 +15,9 @@ function Header() {
         en: "Family tree",
         de: "Stammbaum"
       })}</span>
+      <div>
+        {props.children}
+      </div>
     </header>
   );
 }
