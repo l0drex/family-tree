@@ -3,7 +3,6 @@ import {Component} from "react";
 import SearchField from "./SearchField";
 import {Person} from "gedcomx-js";
 import {PersonFactTypes} from "../backend/gedcomx-enums";
-import {Link} from "react-router-dom";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
