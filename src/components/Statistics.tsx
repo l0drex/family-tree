@@ -42,7 +42,7 @@ function renderReligionStats(width, height, radius) {
 
   const data = Array.from(new Set(graphModel.persons.map(p => {
     let fact = p.getFactsByType(PersonFactTypes.Religion)[0];
-    if (fact === undefined) return;
+    if (fact === undefined) return undefined;
     return fact.getValue()
   })));
   let color = d3.scaleOrdinal()
@@ -76,19 +76,19 @@ function renderJobStats(width, height, margin) {
     .append("g")
     .attr("transform", `translate(${100},${margin})`)
 
-  let jobs = graphModel.persons.map(p => {
-    let fact = p.getFactsByType(PersonFactTypes.Occupation)[0]
-    return fact === undefined ? undefined : fact.getValue();
-  }).filter(j => j !== undefined)
   let counter: { [key: string]: number } = {};
-  jobs.forEach(j => {
-    if (j in counter) counter[j]++;
-    else counter[j] = 1;
+  graphModel.persons.forEach(p => {
+    let fact = p.getFactsByType(PersonFactTypes.Occupation)[0]
+    if (fact === undefined) return;
+    let occupation = fact.getValue();
+
+    if (occupation in counter) counter[occupation]++;
+    else counter[occupation] = 1;
   })
-  let data = jobs.map((name, value) => {
+  let data = Object.keys(counter).map(j => {
     return {
-      "name": name,
-      "value": value
+      name: j,
+      value: counter[j]
     }
   })
 
@@ -104,17 +104,17 @@ function renderJobStats(width, height, margin) {
 
   let y = d3.scaleBand()
     .range([0, height])
-    .domain(Object.keys(counter))
+    .domain(Object.keys(counter).sort((a,b) => counter[b] - counter[a]))
     .padding(.3)
   svg.append("g")
     .call(d3.axisLeft(y))
 
   svg.selectAll("rect")
-    .data(data.sort((a, b) => a.value - b.value)).enter()
+    .data(data).enter()
     .append("rect")
     .attr("x", x(0))
     .attr("y", d => y(d.name))
-    .attr("width", d => d.value)
+    .attr("width", d => x(d.value))
     .attr("height", y.bandwidth())
     .attr("fill", "var(--primary)")
 }
