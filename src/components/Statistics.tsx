@@ -4,146 +4,131 @@ import "./Statistics.css";
 import {Component} from "react";
 import {GenderTypes, PersonFactTypes} from "../backend/gedcomx-enums";
 import {graphModel} from "../backend/ModelGraph";
+import {BarStackHorizontal, Pie} from "@visx/shape";
+import {scaleBand, scaleLinear, scaleOrdinal} from "@visx/scale";
 
-function renderGenderStats(width, height, radius) {
-  let svg = d3.select("#gender svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", `translate(${width / 2},${height / 2})`)
+/**
+ * Counts how many of each value is in the array
+ * @param array
+ */
+function count(array: string[]): { label: string; value: number }[] {
+  let counter = {}
+  array.forEach(key => {
+    if (key in counter) {
+      counter[key]++;
+    } else {
+      counter[key] = 1;
+    }
+  });
 
-  const data = [GenderTypes.Female, GenderTypes.Male, GenderTypes.Intersex, GenderTypes.Unknown];
-  let color = d3.scaleOrdinal()
-    .domain(data)
-    .range(d3.schemeSet1)
-
-  let pie = d3.pie()
-    .value(g => graphModel.persons
-      .filter(p => p.getGender().getType() === g)
-      .length)
-
-  let data_ready = pie(data);
-
-  svg.selectAll('path').data(data_ready)
-    .enter()
-    .append('path')
-    .attr('d', d3.arc()
-      .innerRadius(0)
-      .outerRadius(radius))
-    .attr('fill', d => color(d.data))
-}
-
-function renderReligionStats(width, height, radius) {
-  let svg = d3.select("#religion svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", `translate(${width / 2},${height / 2})`)
-
-  const data = Array.from(new Set(graphModel.persons.map(p => {
-    let fact = p.getFactsByType(PersonFactTypes.Religion)[0];
-    if (fact === undefined) return undefined;
-    return fact.getValue()
-  })));
-  let color = d3.scaleOrdinal()
-    .domain(data)
-    .range(d3.schemeTableau10)
-
-  let pie = d3.pie()
-    .value(g => graphModel.persons
-      .filter(p => {
-        let fact = p.getFactsByType(PersonFactTypes.Religion)[0];
-        if (fact) return fact.getValue() === g;
-        return false;
-      })
-      .length)
-
-  let data_ready = pie(data);
-
-  svg.selectAll('path').data(data_ready)
-    .enter()
-    .append('path')
-    .attr('d', d3.arc()
-      .innerRadius(0)
-      .outerRadius(radius))
-    .attr('fill', d => color(d.data))
-}
-
-function renderJobStats(width, height, margin) {
-  let svg = d3.select("#occupation svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", `translate(${100},${margin})`)
-
-  let counter: { [key: string]: number } = {};
-  graphModel.persons.forEach(p => {
-    let fact = p.getFactsByType(PersonFactTypes.Occupation)[0]
-    if (fact === undefined) return;
-    let occupation = fact.getValue();
-
-    if (occupation in counter) counter[occupation]++;
-    else counter[occupation] = 1;
-  })
-  let data = Object.keys(counter).map(j => {
+  return Object.keys(counter).map(k => {
     return {
-      name: j,
-      value: counter[j]
+      label: k,
+      value: counter[k]
+    }
+  });
+}
+
+const width = 200, height = 200, padding = 0;
+const radius = Math.min(width, height) / 2;
+
+function Stat(props: { title: string, children }) {
+  return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
+    <h1>{props.title}</h1>
+    <svg width={width} height={height}>
+      {props.children}
+    </svg>
+  </div>
+}
+
+function getGenderPerGeneration() {
+  let data: { [generation: string]: {[gender: string]: number} } = {};
+
+  graphModel.persons.forEach(p => {
+    let genFact = p.getFactsByType(PersonFactTypes.Generation)[0];
+    let generation;
+    try {
+      generation = genFact.getValue();
+    } catch (e) {
+      return;
+    }
+    if (!(generation in data)) {
+      data[generation] = {};
+    }
+
+    let gender = p.getGender().getType() ?? GenderTypes.Unknown;
+    if (gender in data[generation]) {
+      data[generation][gender]++;
+    } else {
+      data[generation][gender] = 1;
     }
   })
 
-  let x = d3.scaleLinear()
-    .domain([0, Math.max(...Object.values(counter))])
-    .range([0, width]);
-  svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .attr("transform", "translate(-10,0)rotate(-45)")
-    .style("text-anchor", "end")
+  return Object.keys(data).map(key => {
+    return {
+      generation: key,
+      gender: data[key]
+    }
+  })
+}
 
-  let y = d3.scaleBand()
-    .range([0, height])
-    .domain(Object.keys(counter).sort((a,b) => counter[b] - counter[a]))
-    .padding(.3)
-  svg.append("g")
-    .call(d3.axisLeft(y))
+function GenderStats() {
+  let data = getGenderPerGeneration();
+  console.debug(data)
 
-  svg.selectAll("rect")
-    .data(data).enter()
-    .append("rect")
-    .attr("x", x(0))
-    .attr("y", d => y(d.name))
-    .attr("width", d => x(d.value))
-    .attr("height", y.bandwidth())
-    .attr("fill", "var(--primary)")
+  let keys = [GenderTypes.Female, GenderTypes.Male, GenderTypes.Intersex];
+
+  return <Stat title="Gender">
+    <BarStackHorizontal
+      data={data}
+      keys={keys}
+      xScale={scaleLinear<number>({
+        domain: [0, Math.max(...data.map(d => Object.values(d.gender)
+          .reduce((a, b) => a + b)))],
+        range: [0, width],
+        nice: true
+      })}
+      yScale={scaleBand<string>({
+        domain: data.map(d => d.generation),
+        range: [0, height],
+        paddingInner: 5
+      })}
+      color={scaleOrdinal({
+        domain: keys,
+        range: d3.schemeSet1.map(e => e.toString())
+      })}
+      y={d => d.generation}
+      value={(d, key) => d.gender[key] ?? 0}
+      left={width/2}
+      offset="wiggle"/>
+  </Stat>
 }
 
 export default class Statistics extends Component<any, any> {
-
   render() {
+    let religionData = count(graphModel.persons.map(p => {
+      let fact = p.getFactsByType(PersonFactTypes.Religion)[0];
+      if (fact === undefined) return undefined;
+      else return fact.getValue();
+    }));
+
     return <main id="stats">
-      <div id="gender" className={"graph"}>
-        <h1>Gender</h1>
-        <svg></svg>
-      </div>
-      <div id="religion" className={"graph"}>
-        <h1>Religion</h1>
-        <svg></svg>
-      </div>
-      <div id="occupation" className={"graph"}>
-        <h1>Occupation</h1>
-        <svg></svg>
-      </div>
+      <GenderStats/>
+      <Stat title="Religion">
+        <Pie
+          data={religionData}
+          top={height / 2}
+          left={width / 2}
+          pieValue={d => d.value}
+          outerRadius={radius}
+          fill={d => scaleOrdinal<string, string>({
+            domain: religionData.map(d => d.label),
+            range: d3.schemeSet2.map(e => e.toString())
+          })(d.data.label)}/>
+      </Stat>
+      <Stat title="Occupation">
+        <Pie></Pie>
+      </Stat>
     </main>
-  }
-
-  componentDidMount() {
-    const width = 300, height = 300, margin = 40;
-
-    const radius = Math.min(width, height) / 2 - margin;
-    renderGenderStats(width, height, radius);
-    renderReligionStats(width, height, radius);
-    renderJobStats(width, height, margin);
   }
 }
