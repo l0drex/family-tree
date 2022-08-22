@@ -69,7 +69,7 @@ class TreeView extends Component<Props, State> {
   }
 
   componentDidMount() {
-    let svg = d3.select("#family-tree");
+    let svg = d3.select<SVGSVGElement, undefined>("#family-tree");
     this.mounted = true;
 
     const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
@@ -96,7 +96,8 @@ class TreeView extends Component<Props, State> {
         svg.node().style.cursor = "";
       })
       .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
-      .touchable(() => ('ontouchstart' in window) || window.TouchEvent);
+      .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent));
+    // @ts-ignore FIXME
     svg.select("rect").call(svgZoom);
 
 
@@ -118,7 +119,7 @@ class TreeView extends Component<Props, State> {
     let linkLayer = d3.select("#links");
 
     let personNode = nodesLayer.selectAll(".person")
-      .data(this.state.graph.nodes.filter(p => p.type === "person"))
+      .data(this.state.graph.nodes.filter(p => p.type === "person") as GraphPerson[])
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.graph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
