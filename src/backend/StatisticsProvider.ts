@@ -173,7 +173,6 @@ export function getNames(type: "First" | "Last") {
     else return names.filter(n => n !== "Dr.")[0]
   }).filter(n => n !== "?"))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 7)
 }
 
 export function getBirthDeathMonthOverYears(type: "Birth" | "Death") {

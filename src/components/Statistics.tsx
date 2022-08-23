@@ -3,7 +3,7 @@ import "./Statistics.css";
 import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
 import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie, LineRadial} from "@visx/shape";
-import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
+import {scaleBand, scaleLinear, scaleOrdinal, scaleTime, scaleLog} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
   getBirthPlace,
@@ -14,10 +14,11 @@ import {
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
-import {AxisRight, AxisLeft, AxisBottom} from "@visx/axis";
+import {AxisLeft, AxisBottom} from "@visx/axis";
 import {GridRadial, GridAngle} from "@visx/grid";
 import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
+import {Wordcloud} from "@visx/wordcloud";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -139,44 +140,49 @@ function LocationStats() {
 
 function NameStats(props: { nameType: "First" | "Last" }) {
   let data = getNames(props.nameType);
+  console.debug(data)
 
-  let nameScale = scaleBand({
+  const colors = scaleOrdinal({
     domain: data.map(d => d.label),
-    range: [0, height],
-    paddingInner: .2
+    range: d3.schemeSet2.map(c => c.toString())
   });
 
   return <Stat title={`${props.nameType} Names`}>
-    <BarGroupHorizontal
-      data={data}
-      keys={["value"]}
-      color={scaleOrdinal({
-        range: d3.schemeSet2.map(c => c.toString())
-      })}
+    <Wordcloud
+      height={height}
       width={width}
-      xScale={scaleLinear({
-        domain: [0, Math.max(...data.map(n => n.value))],
-        range: [0, width]
+      words={data.map(d => {
+        return {text: d.label, value: d.value}
       })}
-      y0={d => d.label}
-      y0Scale={nameScale}
-      y1Scale={scaleBand<string>({
-        domain: ["value"],
-        range: [0, nameScale.bandwidth()]
-      })}
-    />
-    <AxisRight
-      hideAxisLine={true}
-      hideTicks={true}
-      scale={nameScale}
-      left={-5}
-    ></AxisRight>
+      fontSize={d => scaleLog({
+        domain: [Math.min(...data.map(d => d.value)), Math.max(...data.map(d => d.value))],
+        range: [5, 30]
+      })(d.value)}
+      padding={2}
+      font={'Impact'}
+      spiral="rectangular"
+      rotate={0}
+    >
+      {cloudWords =>
+        cloudWords.map(w => (
+          <text
+            key={w.text}
+            style={{fill: colors(w.text)}}
+            textAnchor={'middle'}
+            transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+            fontSize={w.size}
+            fontFamily={w.font}
+          >
+            {w.text}
+          </text>
+        ))
+      }
+    </Wordcloud>
   </Stat>
 }
 
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   let data = getBirthDeathMonthOverYears(props.type);
-  console.debug(data)
   let angleScale = scaleLinear({
     domain: [0, 12],
     range: [0, Math.PI * 2]
