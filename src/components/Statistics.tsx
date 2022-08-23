@@ -80,6 +80,7 @@ function ReligionStats() {
       })(d.data.birthDecade)}
       y0={d => yScale(d)(d[0])}
       y1={d => yScale(d)(d[1])}
+      order="ascending"
     />
   </Stat>
 }
