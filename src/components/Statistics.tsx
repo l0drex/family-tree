@@ -5,7 +5,7 @@ import {baseUri} from "../backend/gedcomx-enums";
 import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie} from "@visx/shape";
 import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
 import {
-  getBirthPlace,
+  getBirthPlace, getFirstNames,
   getGenderPerGeneration, getLastNames,
   getOccupations,
   getReligionPerBirthYear
@@ -97,9 +97,8 @@ function OccupationStats() {
     domain: data.map(d => d.label),
     range: d3.schemeSet3.map(c => c.toString())
   });
-  let legend = <LegendOrdinal scale={colorScale}/>
 
-  return <Stat title="Occupation" legend={legend}>
+  return <Stat title="Occupation">
     <Pie
       data={data}
       outerRadius={radius}
@@ -122,8 +121,17 @@ function LocationStats() {
   </Stat>
 }
 
-function NameStats() {
-  let data = getLastNames();
+function NameStats(props: {nameType: "First" | "Last"}) {
+  let data;
+  switch (props.nameType) {
+    case "First":
+      data = getFirstNames()
+      break;
+    case "Last":
+      data = getLastNames();
+      break;
+  }
+
   console.debug(data)
   let nameScale = scaleBand({
     domain: data.map(d => d.label),
@@ -131,7 +139,7 @@ function NameStats() {
     paddingInner: .2
   });
 
-  return <Stat title="Last Names">
+  return <Stat title={`${props.nameType} Names`}>
     <BarGroupHorizontal
       data={data}
       keys={["value"]}
@@ -165,7 +173,8 @@ export default class Statistics extends Component<any, any> {
       <GenderStats/>
       <ReligionStats/>
       <OccupationStats/>
-      <NameStats/>
+      <NameStats nameType={"First"}/>
+      <NameStats nameType={"Last"}/>
     </main>
   }
 }

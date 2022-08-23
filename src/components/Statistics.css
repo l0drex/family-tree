@@ -1,16 +1,21 @@
 main#stats {
   padding: 1rem;
   display: grid;
-  grid-auto-flow: column;
-  justify-content: left;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: row dense;
+  justify-items: stretch;
   gap: 1rem;
 }
 
 #stats .graph {
   margin: 0;
-  height: max-content;
   border-radius: 1rem;
   padding: 1rem;
+}
+
+.graph svg {
+  display: block;
+  margin: auto;
 }
 
 #stats .graph h1:first-child {

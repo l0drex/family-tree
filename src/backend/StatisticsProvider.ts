@@ -151,6 +151,13 @@ export function getBirthPlace() {
 export function getLastNames() {
   return count(graphModel.persons.map(p =>
     p.getFullName().split(" ").pop()).filter(n => n !== "?"))
-    .sort((a,b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 7)
+}
+
+export function getFirstNames() {
+  return count(graphModel.persons.map(p =>
+    p.getFullName().split(" ").filter(n => n !== "Dr.")[0]).filter(n => n !== "?"))
+    .sort((a, b) => b.value - a.value)
     .slice(0, 7)
 }
