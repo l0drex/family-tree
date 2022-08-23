@@ -16,3 +16,9 @@ main#stats {
 #stats .graph h1:first-child {
   margin-top: 0;
 }
+
+#last-names svg tspan {
+  fill: white;
+  font-size: .8rem;
+  font-weight: bold;
+}

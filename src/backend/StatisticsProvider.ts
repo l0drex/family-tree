@@ -1,6 +1,7 @@
 import {graphModel} from "./ModelGraph";
-import {GenderTypes, PersonFactTypes} from "./gedcomx-enums";
+import {GenderTypes, NamePartTypes, PersonFactTypes} from "./gedcomx-enums";
 import {GeoPermissibleObjects} from "d3";
+import {NamePart} from "gedcomx-js";
 
 /**
  * Counts how many of each value is in the array
@@ -145,4 +146,11 @@ export function getBirthPlace() {
       }
     }
   });
+}
+
+export function getLastNames() {
+  return count(graphModel.persons.map(p =>
+    p.getFullName().split(" ").pop()).filter(n => n !== "?"))
+    .sort((a,b) => b.value - a.value)
+    .slice(0, 7)
 }

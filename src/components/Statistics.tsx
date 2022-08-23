@@ -2,17 +2,18 @@ import "./Statistics.css";
 
 import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
-import {AreaStack, BarStackHorizontal, Pie} from "@visx/shape";
+import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie} from "@visx/shape";
 import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
 import {
   getBirthPlace,
-  getGenderPerGeneration,
+  getGenderPerGeneration, getLastNames,
   getOccupations,
   getReligionPerBirthYear
 } from "../backend/StatisticsProvider";
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
+import {AxisRight} from "@visx/axis";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -43,8 +44,7 @@ function GenderStats() {
       xScale={scaleLinear<number>({
         domain: [0, Math.max(...data.map(d => Object.values(d.gender)
           .reduce((a, b) => a + b)))],
-        range: [0, width],
-        nice: true
+        range: [0, width]
       })}
       yScale={scaleBand<number>({
         domain: data.map(d => d.generation),
@@ -117,8 +117,45 @@ function LocationStats() {
   return <Stat title="Location">
     <NaturalEarth
       data={data}
-      center={[530,-50]}
+      center={[530, -50]}
     />
+  </Stat>
+}
+
+function NameStats() {
+  let data = getLastNames();
+  console.debug(data)
+  let nameScale = scaleBand({
+    domain: data.map(d => d.label),
+    range: [0, height],
+    paddingInner: .2
+  });
+
+  return <Stat title="Last Names">
+    <BarGroupHorizontal
+      data={data}
+      keys={["value"]}
+      color={scaleOrdinal({
+        range: d3.schemeSet2.map(c => c.toString())
+      })}
+      width={width}
+      xScale={scaleLinear({
+        domain: [0, Math.max(...data.map(n => n.value))],
+        range: [0, width]
+      })}
+      y0={d => d.label}
+      y0Scale={nameScale}
+      y1Scale={scaleBand<string>({
+        domain: ["value"],
+        range: [0, nameScale.bandwidth()]
+      })}
+    />
+    <AxisRight
+      hideAxisLine={true}
+      hideTicks={true}
+      scale={nameScale}
+      left={-5}
+    ></AxisRight>
   </Stat>
 }
 
@@ -128,6 +165,7 @@ export default class Statistics extends Component<any, any> {
       <GenderStats/>
       <ReligionStats/>
       <OccupationStats/>
+      <NameStats/>
     </main>
   }
 }
