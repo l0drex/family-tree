@@ -2,7 +2,7 @@ import "./Statistics.css";
 
 import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
-import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie, LineRadial} from "@visx/shape";
+import {AreaStack, BarStackHorizontal, Pie, LineRadial} from "@visx/shape";
 import {scaleBand, scaleLinear, scaleOrdinal, scaleTime, scaleLog} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
@@ -22,7 +22,6 @@ import {Wordcloud} from "@visx/wordcloud";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
-const labelColor = window.matchMedia("(prefers-color-scheme: dark)").matches ? "white" : "dark";
 
 function Stat(props: { title: string, legend?: ReactNode, children, width?: number }) {
   return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
