@@ -4,9 +4,15 @@ import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
 import {AreaStack, BarStackHorizontal, Pie} from "@visx/shape";
 import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
-import {getGenderPerGeneration, getOccupations, getReligionPerBirthYear} from "../backend/StatisticsProvider";
+import {
+  getBirthPlace,
+  getGenderPerGeneration,
+  getOccupations,
+  getReligionPerBirthYear
+} from "../backend/StatisticsProvider";
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
+import {NaturalEarth} from "@visx/geo";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -103,6 +109,17 @@ function OccupationStats() {
       fill={d => colorScale(d.data.label)}
     />
   </Stat>;
+}
+
+function LocationStats() {
+  let data = getBirthPlace();
+
+  return <Stat title="Location">
+    <NaturalEarth
+      data={data}
+      center={[530,-50]}
+    />
+  </Stat>
 }
 
 export default class Statistics extends Component<any, any> {

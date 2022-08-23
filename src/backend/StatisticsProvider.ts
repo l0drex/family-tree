@@ -1,5 +1,6 @@
 import {graphModel} from "./ModelGraph";
 import {GenderTypes, PersonFactTypes} from "./gedcomx-enums";
+import {GeoPermissibleObjects} from "d3";
 
 /**
  * Counts how many of each value is in the array
@@ -118,4 +119,30 @@ export function getOccupations() {
     }
     return occupation;
   })).filter(d => d.label !== "undefined")
+}
+
+export function getBirthPlace() {
+  let birthPlaces = count(graphModel.persons.map(p => {
+    let birthPlace;
+    try {
+      birthPlace = p.getFactsByType(PersonFactTypes.Birth)[0].getPlace().getOriginal();
+    } catch (e) {
+      return undefined;
+    }
+    return birthPlace;
+  }).filter(p => p !== undefined));
+
+  return birthPlaces.map<GeoPermissibleObjects>(p => {
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [0, 0]
+      },
+      properties: {
+        name: p.label,
+        count: p.value
+      }
+    }
+  });
 }
