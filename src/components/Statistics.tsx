@@ -2,8 +2,8 @@ import "./Statistics.css";
 
 import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
-import {AreaStack, BarStackHorizontal, Pie, LineRadial} from "@visx/shape";
-import {scaleBand, scaleLinear, scaleOrdinal, scaleTime, scaleLog} from "@visx/scale";
+import {Pie, LineRadial} from "@visx/shape";
+import {scaleLinear, scaleOrdinal, scaleLog} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
   getBirthPlace,
@@ -12,13 +12,13 @@ import {
   getReligionPerYear
 } from "../backend/StatisticsProvider";
 import * as d3 from "d3";
-import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
-import {AxisLeft, AxisBottom} from "@visx/axis";
 import {GridRadial, GridAngle} from "@visx/grid";
 import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
 import {Wordcloud} from "@visx/wordcloud";
+import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Tooltip, XYChart} from "@visx/xychart";
+import * as React from "react";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -37,38 +37,19 @@ function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
 
-  let colorScale = scaleOrdinal({
-    domain: keys,
-    range: d3.schemeSet1.map(c => c.toString())
-  });
-  let generationScale = scaleBand<number>({
-    domain: data.map(d => d.generation),
-    range: [0, height],
-    paddingInner: 0.1
-  });
+  // TODO reverse the generation order
 
-  let legend = <LegendOrdinal scale={colorScale} direction="row"/>
-
-  return <Stat title="Gender" legend={legend}>
-    <BarStackHorizontal
-      data={data}
-      keys={keys}
-      xScale={scaleLinear<number>({
-        domain: [0, Math.max(...data.map(d => Object.values(d.gender)
-          .reduce((a, b) => a + b)))],
-        range: [0, width]
-      })}
-      yScale={generationScale}
-      color={colorScale}
-      y={d => d.generation}
-      value={(d, key) => d.gender[baseUri + key] ?? 0}
-      left={width / 2}
-      offset="silhouette"/>
-    <AxisLeft
-      scale={generationScale}
-      left={60} hideAxisLine={true} hideTicks={true}
-      label={"Generation"}
-    />
+  return <Stat title="Gender">
+    <XYChart height={height} width={width}
+             xScale={{type: "linear"}} yScale={{type: "band"}}
+            margin={{top: 0, left: 45, bottom: 0, right: 0}}>
+      <BarStack offset="silhouette">
+        {keys.map(key => <BarSeries
+          data={data} dataKey={key} key={key}
+          xAccessor={d => d.gender[baseUri + key]} yAccessor={d => d.generation}/>)}
+      </BarStack>
+      <Axis orientation="left" label="Generation" hideAxisLine={true} hideTicks={true}/>
+    </XYChart>
   </Stat>
 }
 
@@ -76,34 +57,25 @@ function ReligionStats() {
   let data = getReligionPerYear();
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
-  let colorScale = scaleOrdinal({
-    domain: keys,
-    range: d3.schemeCategory10.map(c => c.toString())
-  });
-  let xScale = scaleTime({
-    domain: [data[0].birthDecade, data[data.length - 1].birthDecade],
-    range: [0, width * 2]
-  });
-  let legend = <LegendOrdinal scale={colorScale} direction="row"/>
 
-  let yScale = d => scaleLinear({
-    domain: [0, keysUnfiltered.map(k => d.data.religion[k] ?? 0).reduce((a, b) => a + b)],
-    range: [height - 25, 0]
-  });
-
-  return <Stat title="Religion" legend={legend} width={width * 2}>
-    <AreaStack
-      data={data}
-      keys={keys}
-      value={(d, key) => d.religion[key] ?? 0}
-      color={colorScale}
-      x={d => xScale(d.data.birthDecade)}
-      y0={d => yScale(d)(d[0])}
-      y1={d => yScale(d)(d[1])}
-      order="ascending"
-    />
-    <AxisBottom
-      scale={xScale} top={height - 25}/>
+  return <Stat title={"Religion"} width={width * 2}>
+    <XYChart height={height} width={width * 2}
+             xScale={{type: "time"}} yScale={{type: "linear"}}
+             margin={{top: 1, left: 15, right: 0, bottom: 25}}>
+      <AreaStack order="ascending">
+        {keys.map(key =>
+          <AreaSeries
+            data={data} key={key} dataKey={key}
+            xAccessor={d => d.birthDecade} yAccessor={d => d.religion[key]}/>
+        )}
+      </AreaStack>
+      <Axis orientation="bottom"/>
+      <Tooltip renderTooltip={({tooltipData, colorScale}) =>
+        tooltipData.nearestDatum.distance < 10 ? <div style={{color: colorScale(tooltipData.nearestDatum.key)}}>
+          {tooltipData.nearestDatum.key + ": " + (tooltipData.nearestDatum.datum as {religion}).religion[tooltipData.nearestDatum.key]}
+        </div> : null
+      }/>
+    </XYChart>
   </Stat>
 }
 
@@ -139,7 +111,6 @@ function LocationStats() {
 
 function NameStats(props: { nameType: "First" | "Last" }) {
   let data = getNames(props.nameType);
-  console.debug(data)
 
   const colors = scaleOrdinal({
     domain: data.map(d => d.label),
@@ -206,7 +177,9 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   </Stat>
 }
 
-export default class Statistics extends Component<any, any> {
+export default class Statistics extends Component
+  <any
+    , any> {
   render() {
     return <main id="stats">
       <GenderStats/>
