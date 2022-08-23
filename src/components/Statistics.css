@@ -2,7 +2,8 @@ main#stats {
   padding: 1rem;
   display: grid;
   grid-auto-flow: column;
-  justify-content: space-between;
+  justify-content: left;
+  gap: 1rem;
 }
 
 #stats .graph {

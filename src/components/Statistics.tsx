@@ -1,84 +1,36 @@
-import * as d3 from "d3";
 import "./Statistics.css";
 
-import {Component} from "react";
-import {GenderTypes, PersonFactTypes} from "../backend/gedcomx-enums";
-import {graphModel} from "../backend/ModelGraph";
-import {BarStackHorizontal, Pie} from "@visx/shape";
-import {scaleBand, scaleLinear, scaleOrdinal} from "@visx/scale";
+import {Component, ReactNode} from "react";
+import {baseUri} from "../backend/gedcomx-enums";
+import {AreaStack, BarStackHorizontal, Pie} from "@visx/shape";
+import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
+import {getGenderPerGeneration, getOccupations, getReligionPerBirthYear} from "../backend/StatisticsProvider";
+import * as d3 from "d3";
+import {LegendOrdinal} from "@visx/legend";
 
-/**
- * Counts how many of each value is in the array
- * @param array
- */
-function count(array: string[]): { label: string; value: number }[] {
-  let counter = {}
-  array.forEach(key => {
-    if (key in counter) {
-      counter[key]++;
-    } else {
-      counter[key] = 1;
-    }
-  });
-
-  return Object.keys(counter).map(k => {
-    return {
-      label: k,
-      value: counter[k]
-    }
-  });
-}
-
-const width = 200, height = 200, padding = 0;
+const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
 
-function Stat(props: { title: string, children }) {
+function Stat(props: { title: string, legend?: ReactNode, children }) {
   return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
     <h1>{props.title}</h1>
     <svg width={width} height={height}>
       {props.children}
     </svg>
+    {props.legend}
   </div>
-}
-
-function getGenderPerGeneration() {
-  let data: { [generation: string]: {[gender: string]: number} } = {};
-
-  graphModel.persons.forEach(p => {
-    let genFact = p.getFactsByType(PersonFactTypes.Generation)[0];
-    let generation;
-    try {
-      generation = genFact.getValue();
-    } catch (e) {
-      return;
-    }
-    if (!(generation in data)) {
-      data[generation] = {};
-    }
-
-    let gender = p.getGender().getType() ?? GenderTypes.Unknown;
-    if (gender in data[generation]) {
-      data[generation][gender]++;
-    } else {
-      data[generation][gender] = 1;
-    }
-  })
-
-  return Object.keys(data).map(key => {
-    return {
-      generation: key,
-      gender: data[key]
-    }
-  })
 }
 
 function GenderStats() {
   let data = getGenderPerGeneration();
-  console.debug(data)
+  let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
+  let colorScale = scaleOrdinal({
+    domain: keys,
+    range: d3.schemeSet1.map(c => c.toString())
+  });
+  let legend = <LegendOrdinal scale={colorScale}/>
 
-  let keys = [GenderTypes.Female, GenderTypes.Male, GenderTypes.Intersex];
-
-  return <Stat title="Gender">
+  return <Stat title="Gender" legend={legend}>
     <BarStackHorizontal
       data={data}
       keys={keys}
@@ -88,44 +40,55 @@ function GenderStats() {
         range: [0, width],
         nice: true
       })}
-      yScale={scaleBand<string>({
+      yScale={scaleBand<number>({
         domain: data.map(d => d.generation),
         range: [0, height],
-        paddingInner: 5
+        paddingInner: 0.1
       })}
-      color={scaleOrdinal({
-        domain: keys,
-        range: d3.schemeSet1.map(e => e.toString())
-      })}
+      color={colorScale}
       y={d => d.generation}
-      value={(d, key) => d.gender[key] ?? 0}
-      left={width/2}
-      offset="wiggle"/>
+      value={(d, key) => d.gender[baseUri + key] ?? 0}
+      left={width / 2}
+      offset="silhouette"/>
+  </Stat>
+}
+
+function ReligionStats() {
+  let data = getReligionPerBirthYear();
+  let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
+  let keys = keysUnfiltered.filter(r => r !== "?");
+  let colorScale = scaleOrdinal({
+    domain: keys,
+    range: d3.schemeCategory10.map(c => c.toString())
+  });
+  let legend = <LegendOrdinal scale={colorScale}/>
+
+  let yScale = d => scaleLinear({
+    domain: [0, keysUnfiltered.map(k => d.data.religion[k] ?? 0).reduce((a, b) => a + b)],
+    range: [height, 0]
+  });
+
+  return <Stat title="Religion" legend={legend}>
+    <AreaStack
+      data={data}
+      keys={keys}
+      value={(d, key) => d.religion[key] ?? 0}
+      color={colorScale}
+      x={d => scaleTime({
+        domain: [data[0].birthDecade, data[data.length - 1].birthDecade],
+        range: [0, width]
+      })(d.data.birthDecade)}
+      y0={d => yScale(d)(d[0])}
+      y1={d => yScale(d)(d[1])}
+    />
   </Stat>
 }
 
 export default class Statistics extends Component<any, any> {
   render() {
-    let religionData = count(graphModel.persons.map(p => {
-      let fact = p.getFactsByType(PersonFactTypes.Religion)[0];
-      if (fact === undefined) return undefined;
-      else return fact.getValue();
-    }));
-
     return <main id="stats">
       <GenderStats/>
-      <Stat title="Religion">
-        <Pie
-          data={religionData}
-          top={height / 2}
-          left={width / 2}
-          pieValue={d => d.value}
-          outerRadius={radius}
-          fill={d => scaleOrdinal<string, string>({
-            domain: religionData.map(d => d.label),
-            range: d3.schemeSet2.map(e => e.toString())
-          })(d.data.label)}/>
-      </Stat>
+      <ReligionStats/>
       <Stat title="Occupation">
         <Pie></Pie>
       </Stat>
