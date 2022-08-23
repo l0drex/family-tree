@@ -2,11 +2,12 @@ import "./Statistics.css";
 
 import {Component, ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
-import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie} from "@visx/shape";
+import {AreaStack, BarStackHorizontal, BarGroupHorizontal, Pie, LineRadial} from "@visx/shape";
 import {scaleBand, scaleLinear, scaleOrdinal, scaleTime} from "@visx/scale";
 import {
-  getBirthPlace, getFirstNames,
-  getGenderPerGeneration, getLastNames,
+  getBirthDeathMonthOverYears,
+  getBirthPlace,
+  getGenderPerGeneration, getNames,
   getOccupations,
   getReligionPerYear
 } from "../backend/StatisticsProvider";
@@ -14,6 +15,9 @@ import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
 import {AxisRight, AxisLeft} from "@visx/axis";
+import {GridRadial, GridAngle} from "@visx/grid";
+import {Group} from "@visx/group";
+import {curveLinearClosed} from "d3";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -127,16 +131,8 @@ function LocationStats() {
   </Stat>
 }
 
-function NameStats(props: {nameType: "First" | "Last"}) {
-  let data;
-  switch (props.nameType) {
-    case "First":
-      data = getFirstNames()
-      break;
-    case "Last":
-      data = getLastNames();
-      break;
-  }
+function NameStats(props: { nameType: "First" | "Last" }) {
+  let data = getNames(props.nameType);
 
   let nameScale = scaleBand({
     domain: data.map(d => d.label),
@@ -172,6 +168,33 @@ function NameStats(props: {nameType: "First" | "Last"}) {
   </Stat>
 }
 
+function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
+  let data = getBirthDeathMonthOverYears(props.type);
+  console.debug(data)
+  let angleScale = scaleLinear({
+    domain: [0, 12],
+    range: [0, Math.PI * 2]
+  })
+  let radiusScale = scaleLinear({
+    domain: [0, Math.max(...data)],
+    range: [0, radius]
+  })
+
+  return <Stat title={`${props.type} per Month`}>
+    <Group top={height / 2} left={width / 2}>
+      <GridRadial scale={radiusScale}/>
+      <GridAngle scale={angleScale} outerRadius={radius}/>
+      <LineRadial
+        data={data}
+        angle={(_, i) => angleScale(i) ?? 0}
+        radius={d => radiusScale(d) ?? 0}
+        stroke={d3.schemeSet1[4]}
+        curve={curveLinearClosed}
+      />
+    </Group>
+  </Stat>
+}
+
 export default class Statistics extends Component<any, any> {
   render() {
     return <main id="stats">
@@ -180,6 +203,8 @@ export default class Statistics extends Component<any, any> {
       <OccupationStats/>
       <NameStats nameType={"First"}/>
       <NameStats nameType={"Last"}/>
+      <BirthOverYearStats type={"Birth"}/>
+      <BirthOverYearStats type={"Death"}/>
     </main>
   }
 }

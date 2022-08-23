@@ -26,13 +26,13 @@ function count(array: string[]): { label: string; value: number }[] {
 }
 
 export function getGenderPerGeneration() {
-  let data: { [generation: string]: { [gender: string]: number } } = {};
+  let data: { [generation: number]: { [gender: string]: number } } = {};
 
   graphModel.persons.forEach(p => {
     let genFact = p.getFactsByType(PersonFactTypes.Generation)[0];
     let generation;
     try {
-      generation = genFact.getValue();
+      generation = Number(genFact.getValue());
     } catch (e) {
       if (e instanceof TypeError) {
         return;
@@ -55,7 +55,7 @@ export function getGenderPerGeneration() {
   return Object.keys(data).map(key => {
     return {
       generation: Number(key),
-      gender: data[key]
+      gender: data[key] as { [gender: string]: number }
     }
   })
 }
@@ -85,7 +85,7 @@ function getLifeSpanDecades(person: Person): [birthDecade: number, deathDecade: 
 }
 
 export function getReligionPerYear() {
-  let data: { [decade: string]: { [religion: string]: number } } = {};
+  let data: { [decade: number]: { [religion: string]: number } } = {};
 
   graphModel.persons.forEach(p => {
     let lifespan = getLifeSpanDecades(p);
@@ -166,16 +166,34 @@ export function getBirthPlace() {
   });
 }
 
-export function getLastNames() {
-  return count(graphModel.persons.map(p =>
-    p.getFullName().split(" ").pop()).filter(n => n !== "?"))
+export function getNames(type: "First" | "Last") {
+  return count(graphModel.persons.map(p => {
+    let names = p.getFullName().split(" ");
+    if (type === "Last") return names.pop()
+    else return names.filter(n => n !== "Dr.")[0]
+  }).filter(n => n !== "?"))
     .sort((a, b) => b.value - a.value)
     .slice(0, 7)
 }
 
-export function getFirstNames() {
-  return count(graphModel.persons.map(p =>
-    p.getFullName().split(" ").filter(n => n !== "Dr.")[0]).filter(n => n !== "?"))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 7)
+export function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
+  let data: number[] = [];
+
+  graphModel.persons.forEach(p => {
+    let birth;
+    try {
+      let birthFactDate = p.getFactsByType(type === "Birth" ? PersonFactTypes.Birth : PersonFactTypes.Death)[0].getDate();
+      // ignore if month is not defined
+      if (birthFactDate.getFormal().length < 8) return;
+      birth = birthFactDate.toDateObject();
+    } catch (e) {
+      if (e instanceof TypeError) return;
+      else throw e;
+    }
+    let month = birth.getMonth();
+    if (month in data) data[month]++;
+    else data[month] = 1;
+  })
+
+  return data;
 }
