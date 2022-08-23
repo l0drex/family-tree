@@ -167,12 +167,14 @@ export function getBirthPlace() {
 }
 
 export function getNames(type: "First" | "Last") {
-  return count(graphModel.persons.map(p => {
+  let data = count(graphModel.persons.map(p => {
     let names = p.getFullName().split(" ");
     if (type === "Last") return names.pop()
     else return names.filter(n => n !== "Dr.")[0]
   }).filter(n => n !== "?"))
-    .sort((a, b) => b.value - a.value)
+    .sort((a, b) => b.value - a.value);
+  return data
+    .splice(0, 30)
 }
 
 export function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
