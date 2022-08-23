@@ -268,7 +268,7 @@ declare module "gedcomx-js" {
 
     setFullText(fullText: string): NameForm
 
-    getParts(type: string): NamePart[]
+    getParts(type?: string): NamePart[]
 
     setParts(parts: NamePart[] | object[]): NameForm
 
