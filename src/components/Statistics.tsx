@@ -87,7 +87,6 @@ function ReligionStats() {
 
 function OccupationStats() {
   let data = getOccupations();
-  console.debug(data.length)
   let colorScale = scaleOrdinal({
     domain: data.map(d => d.label),
     range: d3.schemeSet3.map(c => c.toString())
