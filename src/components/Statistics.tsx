@@ -13,7 +13,7 @@ import {
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
-import {AxisRight} from "@visx/axis";
+import {AxisRight, AxisLeft} from "@visx/axis";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -37,6 +37,11 @@ function GenderStats() {
   });
   let legend = <LegendOrdinal scale={colorScale}/>
 
+  let generationScale = scaleBand<number>({
+    domain: data.map(d => d.generation),
+    range: [0, height],
+    paddingInner: 0.1
+  });
   return <Stat title="Gender" legend={legend}>
     <BarStackHorizontal
       data={data}
@@ -46,23 +51,24 @@ function GenderStats() {
           .reduce((a, b) => a + b)))],
         range: [0, width]
       })}
-      yScale={scaleBand<number>({
-        domain: data.map(d => d.generation),
-        range: [0, height],
-        paddingInner: 0.1
-      })}
+      yScale={generationScale}
       color={colorScale}
       y={d => d.generation}
       value={(d, key) => d.gender[baseUri + key] ?? 0}
       left={width / 2}
       offset="silhouette"/>
+    <AxisLeft
+      scale={generationScale}
+      left={60} hideAxisLine={true} hideTicks={true}
+      label={"Generation"}
+    />
   </Stat>
 }
 
 function ReligionStats() {
   let data = getReligionPerYear();
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
-  let keys = keysUnfiltered.filter(r => r !== "?");
+  let keys = keysUnfiltered.filter(r => r !== "");
   let colorScale = scaleOrdinal({
     domain: keys,
     range: d3.schemeCategory10.map(c => c.toString())

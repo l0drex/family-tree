@@ -1,7 +1,7 @@
 import {graphModel} from "./ModelGraph";
-import {GenderTypes, NamePartTypes, PersonFactTypes} from "./gedcomx-enums";
+import {GenderTypes, PersonFactTypes} from "./gedcomx-enums";
 import {GeoPermissibleObjects} from "d3";
-import {NamePart} from "gedcomx-js";
+import {Person} from "gedcomx-js";
 
 /**
  * Counts how many of each value is in the array
@@ -60,36 +60,44 @@ export function getGenderPerGeneration() {
   })
 }
 
+function getLifeSpanDecades(person: Person): [birthDecade: number, deathDecade: number] {
+  let birthFact = person.getFactsByType(PersonFactTypes.Birth)[0];
+  let deathFact = person.getFactsByType(PersonFactTypes.Death)[0];
+  let birthDecade: number;
+  let deathDecade: number;
+
+  try {
+    birthDecade = Math.floor(birthFact.getDate().toDateObject().getFullYear() / 10) * 10;
+    deathDecade = Math.floor(deathFact.getDate().toDateObject().getFullYear() / 10) * 10;
+  } catch (e) {
+    if (e instanceof TypeError) {
+      if (birthDecade === undefined) {
+        return;
+      }
+      // ends in this decade
+      deathDecade = Math.floor(new Date().getFullYear() / 10) * 10;
+    } else {
+      throw e;
+    }
+  }
+
+  return [birthDecade, deathDecade];
+}
+
 export function getReligionPerYear() {
   let data: { [decade: string]: { [religion: string]: number } } = {};
 
   graphModel.persons.forEach(p => {
-    let birthFact = p.getFactsByType(PersonFactTypes.Birth)[0];
-    let deathFact = p.getFactsByType(PersonFactTypes.Death)[0];
-    let birthDecade: number;
-    let deathDecade: number;
-
-    try {
-      birthDecade = Math.floor(birthFact.getDate().toDateObject().getFullYear() / 10) * 10;
-      deathDecade = Math.floor(deathFact.getDate().toDateObject().getFullYear() / 10) * 10;
-    } catch (e) {
-      if (e instanceof TypeError) {
-        if (birthDecade === undefined) {
-          return;
-        }
-        // ends in this decade
-        deathDecade = Math.floor(new Date().getFullYear() / 10) * 10;
-      } else {
-        throw e;
-      }
-    }
+    let lifespan = getLifeSpanDecades(p);
+    if (lifespan === undefined) return;
+    let birthDecade = lifespan[0], deathDecade = lifespan[1];
 
     let religion;
     try {
       religion = p.getFactsByType(PersonFactTypes.Religion)[0].getValue();
     } catch (e) {
       if (e instanceof TypeError) {
-        religion = "?";
+        religion = "";
       } else {
         throw e;
       }
