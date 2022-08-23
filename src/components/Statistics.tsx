@@ -14,18 +14,19 @@ import {
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
 import {NaturalEarth} from "@visx/geo";
-import {AxisRight, AxisLeft} from "@visx/axis";
+import {AxisRight, AxisLeft, AxisBottom} from "@visx/axis";
 import {GridRadial, GridAngle} from "@visx/grid";
 import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
+const labelColor = window.matchMedia("(prefers-color-scheme: dark)").matches ? "white" : "dark";
 
-function Stat(props: { title: string, legend?: ReactNode, children }) {
+function Stat(props: { title: string, legend?: ReactNode, children, width?: number }) {
   return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
     <h1>{props.title}</h1>
-    <svg width={width} height={height}>
+    <svg width={props.width ?? width} height={height}>
       {props.children}
     </svg>
     {props.legend}
@@ -35,17 +36,19 @@ function Stat(props: { title: string, legend?: ReactNode, children }) {
 function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
+
   let colorScale = scaleOrdinal({
     domain: keys,
     range: d3.schemeSet1.map(c => c.toString())
   });
-  let legend = <LegendOrdinal scale={colorScale}/>
-
   let generationScale = scaleBand<number>({
     domain: data.map(d => d.generation),
     range: [0, height],
     paddingInner: 0.1
   });
+
+  let legend = <LegendOrdinal scale={colorScale} direction="row"/>
+
   return <Stat title="Gender" legend={legend}>
     <BarStackHorizontal
       data={data}
@@ -77,27 +80,30 @@ function ReligionStats() {
     domain: keys,
     range: d3.schemeCategory10.map(c => c.toString())
   });
-  let legend = <LegendOrdinal scale={colorScale}/>
+  let xScale = scaleTime({
+    domain: [data[0].birthDecade, data[data.length - 1].birthDecade],
+    range: [0, width * 2]
+  });
+  let legend = <LegendOrdinal scale={colorScale} direction="row"/>
 
   let yScale = d => scaleLinear({
     domain: [0, keysUnfiltered.map(k => d.data.religion[k] ?? 0).reduce((a, b) => a + b)],
-    range: [height, 0]
+    range: [height - 25, 0]
   });
 
-  return <Stat title="Religion" legend={legend}>
+  return <Stat title="Religion" legend={legend} width={width * 2}>
     <AreaStack
       data={data}
       keys={keys}
       value={(d, key) => d.religion[key] ?? 0}
       color={colorScale}
-      x={d => scaleTime({
-        domain: [data[0].birthDecade, data[data.length - 1].birthDecade],
-        range: [0, width]
-      })(d.data.birthDecade)}
+      x={d => xScale(d.data.birthDecade)}
       y0={d => yScale(d)(d[0])}
       y1={d => yScale(d)(d[1])}
       order="ascending"
     />
+    <AxisBottom
+      scale={xScale} top={height - 25}/>
   </Stat>
 }
 

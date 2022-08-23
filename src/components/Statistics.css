@@ -15,9 +15,27 @@ main#stats {
 
 .graph svg {
   display: block;
-  margin: auto;
+  margin: auto auto .5rem;
 }
 
 #stats .graph h1:first-child {
   margin-top: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .visx-axis tspan {
+    fill: white;
+  }
+
+  .visx-axis line {
+    stroke: white;
+  }
+
+  path.visx-arc, line.visx-line {
+    stroke: gray;
+  }
+}
+
+#religion {
+  grid-column: span 2;
 }
