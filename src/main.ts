@@ -1,9 +1,9 @@
+import config from "./config";
+
 /**
  * Only show elements with the correct langauge
  * @param language the language to show, e.g. window.navigator.language
  */
-import config from "./config";
-
 export function localize(language) {
   // strip country-specific stuff
   language = language.slice(0, 2);
@@ -24,7 +24,7 @@ export function localize(language) {
  * @param translationObject {object}
  * @returns {string}
  */
-export function translationToString(translationObject) {
+export function translationToString(translationObject: {en: any, de?: any}) {
   if (!("en" in translationObject))
     console.error(`${translationObject} has no translation into english, the default language!`);
 
