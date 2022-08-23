@@ -8,7 +8,7 @@ import {
   getBirthPlace, getFirstNames,
   getGenderPerGeneration, getLastNames,
   getOccupations,
-  getReligionPerBirthYear
+  getReligionPerYear
 } from "../backend/StatisticsProvider";
 import * as d3 from "d3";
 import {LegendOrdinal} from "@visx/legend";
@@ -60,7 +60,7 @@ function GenderStats() {
 }
 
 function ReligionStats() {
-  let data = getReligionPerBirthYear();
+  let data = getReligionPerYear();
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "?");
   let colorScale = scaleOrdinal({
@@ -132,7 +132,6 @@ function NameStats(props: {nameType: "First" | "Last"}) {
       break;
   }
 
-  console.debug(data)
   let nameScale = scaleBand({
     domain: data.map(d => d.label),
     range: [0, height],

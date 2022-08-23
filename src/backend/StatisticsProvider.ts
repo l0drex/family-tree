@@ -60,24 +60,28 @@ export function getGenderPerGeneration() {
   })
 }
 
-export function getReligionPerBirthYear() {
-  let data: { [birthDecade: string]: { [religion: string]: number } } = {};
+export function getReligionPerYear() {
+  let data: { [decade: string]: { [religion: string]: number } } = {};
 
   graphModel.persons.forEach(p => {
     let birthFact = p.getFactsByType(PersonFactTypes.Birth)[0];
-    let birthDecade;
+    let deathFact = p.getFactsByType(PersonFactTypes.Death)[0];
+    let birthDecade: number;
+    let deathDecade: number;
 
     try {
-      birthDecade = birthFact.getDate().getFormal().substring(1, 4) + "0";
+      birthDecade = Math.floor(birthFact.getDate().toDateObject().getFullYear() / 10) * 10;
+      deathDecade = Math.floor(deathFact.getDate().toDateObject().getFullYear() / 10) * 10;
     } catch (e) {
       if (e instanceof TypeError) {
-        return;
+        if (birthDecade === undefined) {
+          return;
+        }
+        // ends in this decade
+        deathDecade = Math.floor(new Date().getFullYear() / 10) * 10;
       } else {
         throw e;
       }
-    }
-    if (!(birthDecade in data)) {
-      data[birthDecade] = {};
     }
 
     let religion;
@@ -91,19 +95,25 @@ export function getReligionPerBirthYear() {
       }
     }
 
-    if (religion in data[birthDecade]) {
-      data[birthDecade][religion]++;
-    } else {
-      data[birthDecade][religion] = 1;
-    }
-  })
+    for (let decade = birthDecade; decade <= deathDecade; decade += 10) {
+      if (!(decade in data)) data[decade] = {}
 
-  return Object.keys(data).map(key => {
-    return {
-      birthDecade: new Date(Number(key), 0),
-      religion: data[key]
+      if (religion in data[decade]) {
+        data[decade][religion]++;
+      } else {
+        data[decade][religion] = 1;
+      }
     }
   });
+
+  return Object.keys(data)
+    //.filter(key => Object.keys(data[key]).filter(r => r !== "?").length > 0)
+    .map(key => {
+      return {
+        birthDecade: new Date(Number(key), 0),
+        religion: data[key]
+      }
+    });
 }
 
 export function getOccupations() {
