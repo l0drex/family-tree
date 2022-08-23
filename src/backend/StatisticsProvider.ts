@@ -111,11 +111,11 @@ export function getOccupations() {
       occupation = p.getFactsByType(PersonFactTypes.Occupation)[0].getValue()
     } catch (e) {
       if (e instanceof TypeError) {
-        occupation = "?";
+        return;
       } else {
         throw e;
       }
     }
     return occupation;
-  }))
+  })).filter(d => d.label !== "undefined")
 }

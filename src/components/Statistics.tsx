@@ -84,14 +84,33 @@ function ReligionStats() {
   </Stat>
 }
 
+function OccupationStats() {
+  let data = getOccupations();
+  console.debug(data.length)
+  let colorScale = scaleOrdinal({
+    domain: data.map(d => d.label),
+    range: d3.schemeSet3.map(c => c.toString())
+  });
+  let legend = <LegendOrdinal scale={colorScale}/>
+
+  return <Stat title="Occupation" legend={legend}>
+    <Pie
+      data={data}
+      outerRadius={radius}
+      top={height / 2}
+      left={width / 2}
+      pieValue={d => d.value}
+      fill={d => colorScale(d.data.label)}
+    />
+  </Stat>;
+}
+
 export default class Statistics extends Component<any, any> {
   render() {
     return <main id="stats">
       <GenderStats/>
       <ReligionStats/>
-      <Stat title="Occupation">
-        <Pie></Pie>
-      </Stat>
+      <OccupationStats/>
     </main>
   }
 }
