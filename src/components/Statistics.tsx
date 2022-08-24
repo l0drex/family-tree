@@ -41,14 +41,19 @@ function GenderStats() {
 
   return <Stat title="Gender">
     <XYChart height={height} width={width}
-             xScale={{type: "linear"}} yScale={{type: "band"}}
-            margin={{top: 0, left: 45, bottom: 0, right: 0}}>
+             xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2}}
+             margin={{top: 0, left: 45, bottom: 0, right: 0}}>
       <BarStack offset="silhouette">
         {keys.map(key => <BarSeries
           data={data} dataKey={key} key={key}
-          xAccessor={d => d.gender[baseUri + key]} yAccessor={d => d.generation}/>)}
+          xAccessor={d => d.gender[baseUri + key]} yAccessor={d => d.generation}
+          colorAccessor={() => d3.schemeSet1[keys.indexOf(key)]}
+        />)}
       </BarStack>
       <Axis orientation="left" label="Generation" hideAxisLine={true} hideTicks={true}/>
+      <Tooltip renderTooltip={({tooltipData, colorScale}) =>
+        <div>{tooltipData.nearestDatum.key + ": "
+          + (tooltipData.nearestDatum.datum as {generation: number, gender}).gender[baseUri + tooltipData.nearestDatum.key]}</div>}/>
     </XYChart>
   </Stat>
 }
@@ -72,7 +77,7 @@ function ReligionStats() {
       <Axis orientation="bottom"/>
       <Tooltip renderTooltip={({tooltipData, colorScale}) =>
         tooltipData.nearestDatum.distance < 10 ? <div style={{color: colorScale(tooltipData.nearestDatum.key)}}>
-          {tooltipData.nearestDatum.key + ": " + (tooltipData.nearestDatum.datum as {religion}).religion[tooltipData.nearestDatum.key]}
+          {tooltipData.nearestDatum.key + ": " + (tooltipData.nearestDatum.datum as { religion }).religion[tooltipData.nearestDatum.key]}
         </div> : null
       }/>
     </XYChart>
