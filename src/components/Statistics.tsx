@@ -7,7 +7,7 @@ import {scaleLinear, scaleOrdinal, scaleLog} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
   getBirthPlace,
-  getGenderPerGeneration, getLifeExpectancyOverYears, getNames,
+  getGenderPerGeneration, getLifeExpectancyOverYears, getMarriageAge, getNames,
   getOccupations,
   getReligionPerYear
 } from "../backend/StatisticsProvider";
@@ -18,6 +18,8 @@ import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
 import {Wordcloud} from "@visx/wordcloud";
 import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Grid, GlyphSeries, Tooltip, XYChart} from "@visx/xychart";
+import {ViolinPlot} from "@visx/stats";
+import {AxisLeft} from "@visx/axis";
 import * as React from "react";
 
 const width = 200, height = 200;
@@ -87,7 +89,7 @@ function ReligionStats() {
 function OccupationStats() {
   let data = getOccupations();
   let colorScale = scaleOrdinal({
-    domain: data.map(d => d.label),
+    domain: data.map(d => d.value),
     range: d3.schemeSet3.map(c => c.toString())
   });
 
@@ -97,8 +99,8 @@ function OccupationStats() {
       outerRadius={radius}
       top={height / 2}
       left={width / 2}
-      pieValue={d => d.value}
-      fill={d => colorScale(d.data.label)}
+      pieValue={d => d.count}
+      fill={d => colorScale(d.data.value)}
     />
   </Stat>;
 }
@@ -118,7 +120,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
   let data = getNames(props.nameType);
 
   const colors = scaleOrdinal({
-    domain: data.map(d => d.label),
+    domain: data.map(d => d.value),
     range: d3.schemeSet2.map(c => c.toString())
   });
 
@@ -127,10 +129,10 @@ function NameStats(props: { nameType: "First" | "Last" }) {
       height={height}
       width={width}
       words={data.map(d => {
-        return {text: d.label, value: d.value}
+        return {text: d.value.toString(), value: d.count}
       })}
       fontSize={d => scaleLog({
-        domain: [Math.min(...data.map(d => d.value)), Math.max(...data.map(d => d.value))],
+        domain: [Math.min(...data.map(d => d.count)), Math.max(...data.map(d => d.count))],
         range: [5, 30]
       })(d.value)}
       padding={2}
@@ -184,7 +186,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 
 function LifeExpectancy() {
   let data = getLifeExpectancyOverYears();
-  console.debug(data)
+  //console.debug(data)
 
   return <Stat title="Life Expectancy" width={width * 2 + 60}>
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
@@ -196,6 +198,20 @@ function LifeExpectancy() {
       <Axis orientation={"bottom"}/>
       <Axis orientation={"left"}/>
     </XYChart>
+  </Stat>
+}
+
+function MarriageAge() {
+  let data = getMarriageAge();
+
+  let yScale = scaleLinear({
+    domain: [Math.min(...data.map(d => Number(d.value))), Math.max(...data.map(d => Number(d.value)))],
+    range: [height, 0]
+  })
+
+  return <Stat title={"Marriage Age"}>
+    <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
+    <AxisLeft scale={yScale} left={25}/>
   </Stat>
 }
 
@@ -212,6 +228,7 @@ export default class Statistics extends Component
       <BirthOverYearStats type={"Birth"}/>
       <BirthOverYearStats type={"Death"}/>
       <LifeExpectancy/>
+      <MarriageAge/>
     </main>
   }
 }

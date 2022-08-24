@@ -30,6 +30,7 @@
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@visx/visx": "^2.12.2",
+    "@visx/stats": "^2.10.0",
     "d3": "7.6.1",
     "gedcomx-js": "^2.8.0",
     "react": "^18.1.0",

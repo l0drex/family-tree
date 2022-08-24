@@ -7,7 +7,7 @@ import {Person} from "gedcomx-js";
  * Counts how many of each value is in the array
  * @param array
  */
-function count(array: string[]): { label: string; value: number }[] {
+function count(array: (string | number)[]): { value: string | number; count: number }[] {
   let counter = {}
   array.forEach(key => {
     if (key in counter) {
@@ -18,9 +18,12 @@ function count(array: string[]): { label: string; value: number }[] {
   });
 
   return Object.keys(counter).map(k => {
+    let key;
+    if (typeof array[0] === "number") key = Number(k);
+    else key = k;
     return {
-      label: k,
-      value: counter[k]
+      value: key,
+      count: counter[key]
     }
   });
 }
@@ -137,7 +140,7 @@ export function getOccupations() {
       }
     }
     return occupation;
-  })).filter(d => d.label !== "undefined")
+  })).filter(d => d.value !== "undefined")
 }
 
 export function getBirthPlace() {
@@ -159,8 +162,8 @@ export function getBirthPlace() {
         coordinates: [0, 0]
       },
       properties: {
-        name: p.label,
-        count: p.value
+        name: p.value,
+        count: p.count
       }
     }
   });
@@ -172,7 +175,7 @@ export function getNames(type: "First" | "Last") {
     if (type === "Last") return names.pop()
     else return names.filter(n => n !== "Dr.")[0]
   }).filter(n => n !== "?"))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => b.count - a.count);
   return data
     .splice(0, 30)
 }
@@ -220,4 +223,23 @@ export function getLifeExpectancyOverYears() {
   });
 
   return data;
+}
+
+export function getMarriageAge() {
+  let data: number[] = graphModel.persons.map(p => {
+    try {
+      let marriageFact = p.getFactsByType(PersonFactTypes.MaritalStatus)[0];
+      if (marriageFact.getValue() !== "single") {
+        return Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue())
+      }
+    } catch (e) {
+      if (!(e instanceof TypeError)) {throw e}
+    }
+
+    return -1;
+  }).filter(a => a > 0);
+
+  console.debug(Array.from(new Set(data)).sort());
+
+  return count(data);
 }
