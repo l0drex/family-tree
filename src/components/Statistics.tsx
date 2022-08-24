@@ -43,7 +43,7 @@ function GenderStats() {
 
   return <Stat title="Gender">
     <XYChart height={height} width={width}
-             xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2}}
+             xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}}>
       <BarStack offset="silhouette">
         {keys.map(key => <BarSeries
