@@ -36,6 +36,6 @@ main#stats {
   }
 }
 
-#religion {
+#religion, #life-expectancy {
   grid-column: span 2;
 }

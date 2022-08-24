@@ -7,7 +7,7 @@ import {scaleLinear, scaleOrdinal, scaleLog} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
   getBirthPlace,
-  getGenderPerGeneration, getNames,
+  getGenderPerGeneration, getLifeExpectancyOverYears, getNames,
   getOccupations,
   getReligionPerYear
 } from "../backend/StatisticsProvider";
@@ -17,7 +17,7 @@ import {GridRadial, GridAngle} from "@visx/grid";
 import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
 import {Wordcloud} from "@visx/wordcloud";
-import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Tooltip, XYChart} from "@visx/xychart";
+import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Grid, GlyphSeries, Tooltip, XYChart} from "@visx/xychart";
 import * as React from "react";
 
 const width = 200, height = 200;
@@ -51,9 +51,9 @@ function GenderStats() {
         />)}
       </BarStack>
       <Axis orientation="left" label="Generation" hideAxisLine={true} hideTicks={true}/>
-      <Tooltip renderTooltip={({tooltipData, colorScale}) =>
-        <div>{tooltipData.nearestDatum.key + ": "
-          + (tooltipData.nearestDatum.datum as {generation: number, gender}).gender[baseUri + tooltipData.nearestDatum.key]}</div>}/>
+      <Tooltip renderTooltip={({tooltipData}) =>
+        tooltipData.nearestDatum.key + ": "
+        + (tooltipData.nearestDatum.datum as { generation: number, gender }).gender[baseUri + tooltipData.nearestDatum.key]}/>
     </XYChart>
   </Stat>
 }
@@ -75,10 +75,10 @@ function ReligionStats() {
         )}
       </AreaStack>
       <Axis orientation="bottom"/>
-      <Tooltip renderTooltip={({tooltipData, colorScale}) =>
-        tooltipData.nearestDatum.distance < 10 ? <div style={{color: colorScale(tooltipData.nearestDatum.key)}}>
-          {tooltipData.nearestDatum.key + ": " + (tooltipData.nearestDatum.datum as { religion }).religion[tooltipData.nearestDatum.key]}
-        </div> : null
+      <Tooltip renderTooltip={({tooltipData}) =>
+        tooltipData.nearestDatum.distance < 10 ?
+          tooltipData.nearestDatum.key + ": "
+          + (tooltipData.nearestDatum.datum as { religion }).religion[tooltipData.nearestDatum.key] : null
       }/>
     </XYChart>
   </Stat>
@@ -167,7 +167,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     range: [0, radius]
   })
 
-  return <Stat title={`${props.type} per Month`}>
+  return <Stat title={`${props.type} Month`}>
     <Group top={height / 2} left={width / 2}>
       <GridRadial scale={radiusScale}/>
       <GridAngle scale={angleScale} outerRadius={radius}/>
@@ -179,6 +179,23 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
         curve={curveLinearClosed}
       />
     </Group>
+  </Stat>
+}
+
+function LifeExpectancy() {
+  let data = getLifeExpectancyOverYears();
+  console.debug(data)
+
+  return <Stat title="Life Expectancy" width={width * 2 + 60}>
+    <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
+             margin={{top: 5, left: 30, bottom: 25, right: 5}}>
+      <Grid/>
+      <GlyphSeries data={data} dataKey={"Line 1"} xAccessor={d => d.birth} yAccessor={d => d.age}/>
+      <Tooltip renderTooltip={({tooltipData}) =>
+        (tooltipData.nearestDatum.datum as {name}).name}/>
+      <Axis orientation={"bottom"}/>
+      <Axis orientation={"left"}/>
+    </XYChart>
   </Stat>
 }
 
@@ -194,6 +211,7 @@ export default class Statistics extends Component
       <NameStats nameType={"Last"}/>
       <BirthOverYearStats type={"Birth"}/>
       <BirthOverYearStats type={"Death"}/>
+      <LifeExpectancy/>
     </main>
   }
 }

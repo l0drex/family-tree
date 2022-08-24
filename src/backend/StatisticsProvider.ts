@@ -1,5 +1,5 @@
 import {graphModel} from "./ModelGraph";
-import {GenderTypes, PersonFactTypes} from "./gedcomx-enums";
+import {GenderTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
 import {GeoPermissibleObjects} from "d3";
 import {Person} from "gedcomx-js";
 
@@ -195,6 +195,29 @@ export function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
     if (month in data) data[month]++;
     else data[month] = 1;
   })
+
+  return data;
+}
+
+export function getLifeExpectancyOverYears() {
+  let data: {birth: Date, age: number, name: string}[] = [];
+
+  graphModel.persons.forEach(p => {
+    let birth, age, name;
+    try {
+      name = p.getFullName();
+      birth = p.getFactsByType(PersonFactTypes.Birth)[0].getDate().toDateObject();
+      let deathFact = p.getFactsByType(PersonFactTypes.Death)[0];
+      age = deathFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue();
+    } catch (e) {
+      if (e instanceof TypeError) {
+        return;
+      }
+      throw e;
+    }
+
+    data.push({birth: birth, age: age, name: name});
+  });
 
   return data;
 }
