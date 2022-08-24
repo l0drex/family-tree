@@ -21,13 +21,14 @@ import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Grid, GlyphSeries, Too
 import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
 import * as React from "react";
+import {Translation, translationToString} from "../main";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
 
-function Stat(props: { title: string, legend?: ReactNode, children, width?: number }) {
-  return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
-    <h1>{props.title}</h1>
+function Stat(props: { title: Translation, legend?: ReactNode, children, width?: number }) {
+  return <div id={props.title.en.toLowerCase().replace(" ", "-")} className={"graph"}>
+    <h1>{translationToString(props.title)}</h1>
     <svg width={props.width ?? width} height={height}>
       {props.children}
     </svg>
@@ -41,7 +42,10 @@ function GenderStats() {
 
   // TODO reverse the generation order
 
-  return <Stat title="Gender">
+  return <Stat title={{
+    en: "Gender",
+    de: "Geschlecht"
+  }}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}}>
@@ -65,7 +69,7 @@ function ReligionStats() {
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={"Religion"} width={width * 2}>
+  return <Stat title={{en: "Religion", de: "Religion"}} width={width * 2}>
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}}>
@@ -93,7 +97,7 @@ function OccupationStats() {
     range: d3.schemeSet3.map(c => c.toString())
   });
 
-  return <Stat title="Occupation">
+  return <Stat title={{en: "Occupation", de: "Beruf"}}>
     <Pie
       data={data}
       outerRadius={radius}
@@ -108,7 +112,7 @@ function OccupationStats() {
 function LocationStats() {
   let data = getBirthPlace();
 
-  return <Stat title="Location">
+  return <Stat title={{en: "Location"}}>
     <NaturalEarth
       data={data}
       center={[530, -50]}
@@ -124,7 +128,9 @@ function NameStats(props: { nameType: "First" | "Last" }) {
     range: d3.schemeSet2.map(c => c.toString())
   });
 
-  return <Stat title={`${props.nameType} Names`}>
+  return <Stat title={{
+    en: `${props.nameType} Names`,
+    de: (props.nameType === "First" ? "Vor" : "Nach") + "name"}}>
     <Wordcloud
       height={height}
       width={width}
@@ -169,7 +175,10 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     range: [0, radius]
   })
 
-  return <Stat title={`${props.type} Month`}>
+  return <Stat title={{
+    en: `${props.type} Month`,
+    de: (props.type === "Birth" ? "Geburts" : "Todes") + "monat"
+  }}>
     <Group top={height / 2} left={width / 2}>
       <GridRadial scale={radiusScale}/>
       <GridAngle scale={angleScale} outerRadius={radius}/>
@@ -188,7 +197,7 @@ function LifeExpectancy() {
   let data = getLifeExpectancyOverYears();
   //console.debug(data)
 
-  return <Stat title="Life Expectancy" width={width * 2 + 60}>
+  return <Stat title={{en: "Life Expectancy", de: "Lebenserwartung"}} width={width * 2 + 60}>
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 5, left: 30, bottom: 25, right: 5}}>
       <Grid/>
@@ -209,7 +218,7 @@ function MarriageAge() {
     range: [height, 0]
   })
 
-  return <Stat title={"Marriage Age"}>
+  return <Stat title={{en: "Marriage Age", de: "Heiratsalter"}}>
     <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
     <AxisLeft scale={yScale} left={25}/>
   </Stat>

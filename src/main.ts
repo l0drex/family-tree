@@ -18,13 +18,15 @@ export function localize(language) {
   }
 }
 
+export type Translation = {en: any, de?: any};
+
 /**
  * Returns the correct translation for an translationObject
  * The translationObject maps two-letter language strings to a message string.
  * @param translationObject {object}
  * @returns {string}
  */
-export function translationToString(translationObject: {en: any, de?: any}) {
+export function translationToString(translationObject: Translation) {
   if (!("en" in translationObject))
     console.error(`${translationObject} has no translation into english, the default language!`);
 
