@@ -230,7 +230,9 @@ export function getMarriageAge() {
     try {
       let marriageFact = p.getFactsByType(PersonFactTypes.MaritalStatus)[0];
       if (marriageFact.getValue() !== "single") {
-        return Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue())
+        let age = Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue())
+
+        return age;
       }
     } catch (e) {
       if (!(e instanceof TypeError)) {throw e}
@@ -239,7 +241,15 @@ export function getMarriageAge() {
     return -1;
   }).filter(a => a > 0);
 
-  console.debug(Array.from(new Set(data)).sort());
+  let counter = count(data);
 
-  return count(data);
+  let min = Math.min(...data);
+  let max = Math.max(...data);
+
+  for (let i = min; i < max; i++) {
+    let d = counter.some(d => d.value === i);
+    if (!d) {counter.push({value: i, count: 0})}
+  }
+
+  return counter.sort((a,b) => Number(a.value) - Number(b.value));
 }

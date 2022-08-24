@@ -22,6 +22,7 @@ import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
 import * as React from "react";
 import {Translation, translationToString} from "../main";
+import {Legend} from "@visx/visx";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -39,13 +40,15 @@ function Stat(props: { title: Translation, legend?: ReactNode, children, width?:
 function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
-
-  // TODO reverse the generation order
+  let legend =     <Legend.LegendOrdinal scale={scaleOrdinal({
+    domain: keys,
+    range: d3.schemeSet1.map(c => c.toString())
+  })} direction={"row"}/>
 
   return <Stat title={{
     en: "Gender",
     de: "Geschlecht"
-  }}>
+  }} legend={legend}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}}>
@@ -57,9 +60,6 @@ function GenderStats() {
         />)}
       </BarStack>
       <Axis orientation="left" label="Generation" hideAxisLine={true} hideTicks={true}/>
-      <Tooltip renderTooltip={({tooltipData}) =>
-        tooltipData.nearestDatum.key + ": "
-        + (tooltipData.nearestDatum.datum as { generation: number, gender }).gender[baseUri + tooltipData.nearestDatum.key]}/>
     </XYChart>
   </Stat>
 }
@@ -130,7 +130,8 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 
   return <Stat title={{
     en: `${props.nameType} Names`,
-    de: (props.nameType === "First" ? "Vor" : "Nach") + "name"}}>
+    de: (props.nameType === "First" ? "Vor" : "Nach") + "name"
+  }}>
     <Wordcloud
       height={height}
       width={width}
@@ -203,7 +204,7 @@ function LifeExpectancy() {
       <Grid/>
       <GlyphSeries data={data} dataKey={"Line 1"} xAccessor={d => d.birth} yAccessor={d => d.age}/>
       <Tooltip renderTooltip={({tooltipData}) =>
-        (tooltipData.nearestDatum.datum as {name}).name}/>
+        (tooltipData.nearestDatum.datum as { name }).name}/>
       <Axis orientation={"bottom"}/>
       <Axis orientation={"left"}/>
     </XYChart>
