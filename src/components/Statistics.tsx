@@ -13,7 +13,7 @@ import {
 } from "../backend/StatisticsProvider";
 import * as d3 from "d3";
 import {NaturalEarth} from "@visx/geo";
-import {GridRadial, GridAngle} from "@visx/grid";
+import {GridPolar} from "@visx/grid";
 import {Group} from "@visx/group";
 import {curveLinearClosed} from "d3";
 import {Wordcloud} from "@visx/wordcloud";
@@ -181,8 +181,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     de: (props.type === "Birth" ? "Geburts" : "Todes") + "monat"
   }}>
     <Group top={height / 2} left={width / 2}>
-      <GridRadial scale={radiusScale}/>
-      <GridAngle scale={angleScale} outerRadius={radius}/>
+      <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
       <LineRadial
         data={data}
         angle={(_, i) => angleScale(i) ?? 0}
