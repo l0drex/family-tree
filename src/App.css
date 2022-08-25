@@ -16,7 +16,7 @@
   justify-content: space-between;
   grid-template-columns: 1fr;
 
-  background: var(--background);
+  background: var(--background-lower);
   font-family: "Nunito", sans-serif;
 }
 
@@ -27,7 +27,7 @@
 
 main {
   grid-area: main;
-  background: var(--background-lower);
+  overflow: scroll;
 }
 
 main > * {
