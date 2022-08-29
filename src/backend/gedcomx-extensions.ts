@@ -1,7 +1,15 @@
 import * as GedcomX from "gedcomx-js";
 import {translationToString} from "../main";
 import config from "../config";
-import {baseUri, NameTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
+import {
+  baseUri,
+  GenderTypes,
+  NameTypes,
+  OccupationCategories,
+  PersonFactQualifiers,
+  PersonFactTypes
+} from "./gedcomx-enums";
+import {Fact, FamilyView, Name, NameForm, Person, PlaceReference, Qualifier, Relationship} from "gedcomx-js";
 
 // Person
 
@@ -13,7 +21,7 @@ export function getGeneration(person): number | undefined {
   return generationFacts[0].value
 }
 
-let referenceAge = {
+let referenceAge: {age: number, generation: number} = {
   age: undefined,
   generation: undefined
 };
@@ -107,8 +115,8 @@ function getOccupationEmoji(occupation: string, gender: string) {
   }
 }
 
-function extend(GedcomX) {
-  GedcomX.Person.prototype.getFullName = function (): string {
+function extend(GedcomXExtend: GedcomX) {
+  GedcomXExtend.Person.prototype.getFullName = function (this: Person): string {
     if (this.getNames().length < 1) {
       return "?";
     }
@@ -120,48 +128,48 @@ function extend(GedcomX) {
     ];
 
     // first name that is defined
-    let name = names.find(n => n !== undefined);
+    let name: Name = names.find(n => n !== undefined);
     if (name.getNameForms().length === 0) {
       return "?";
     }
     // name form that matches language, or if none matches return the first without lang
-    let nameForm = name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === config.browserLang);
+    let nameForm: NameForm = name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === config.browserLang);
     nameForm ??= name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === "");
     nameForm ??= name.getNameForms()[0];
     return nameForm.getFullText(true);
   }
 
-  GedcomX.Person.prototype.getBirthName = function (): string {
-    let name = this.getNames().find(name => name.type && name.type === NameTypes.BirthName)
+  GedcomXExtend.Person.prototype.getBirthName = function (this: Person): string {
+    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.BirthName)
     if (name) {
-      return name.nameForms[0].fullText;
+      return name.getNameForms()[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
-  GedcomX.Person.prototype.getMarriedName = function (): string {
-    let name = this.getNames().find(name => name.type && name.type === NameTypes.MarriedName)
+  GedcomXExtend.Person.prototype.getMarriedName = function (this: Person): string {
+    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.MarriedName)
     if (name) {
-      return name.nameForms[0].fullText;
+      return name.getNameForms()[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
-  GedcomX.Person.prototype.getAlsoKnownAs = function (): string {
-    let name = this.getNames().find(name => name.type && name.type === NameTypes.AlsoKnownAs)
+  GedcomXExtend.Person.prototype.getAlsoKnownAs = function (this: Person): string {
+    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.AlsoKnownAs)
     if (name) {
-      return name.nameForms[0].fullText;
+      return name.getNameForms()[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
-  GedcomX.Person.prototype.getNickname = function (): string {
-    let name = this.getNames().find(name => name.type && name.type === NameTypes.Nickname)
+  GedcomXExtend.Person.prototype.getNickname = function (this: Person): string {
+    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.Nickname)
     if (name) {
-      return name.nameForms[0].fullText;
+      return name.getNameForms()[0].getFullText(true);
     } else {
       return undefined;
     }
@@ -170,10 +178,10 @@ function extend(GedcomX) {
   /**
    * Calculates age today
    */
-  GedcomX.Person.prototype.getAgeToday = function (): number | undefined {
+  GedcomXExtend.Person.prototype.getAgeToday = function (this: Person): number | undefined {
     let birth = this.getFactsByType(PersonFactTypes.Birth)[0];
     // exact calculation not possible without birthdate
-    if (!birth || !birth.date || !birth.date.toDateObject()) {
+    if (!birth || !birth.getDate() || !birth.getDate().toDateObject()) {
       // guess the age based on the generation number
       if (referenceAge.age !== undefined && getGeneration(this) !== undefined) {
         return (referenceAge.generation - getGeneration(this)) * 25 + referenceAge.age;
@@ -181,39 +189,39 @@ function extend(GedcomX) {
       return undefined
     }
 
-    let birthDate = birth.date.toDateObject();
+    let birthDate = birth.getDate().toDateObject();
     let lastDate = new Date();
 
     // subtraction returns milliseconds, have to convert to year
     return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
   }
 
-  GedcomX.Person.prototype.getLiving = function (): boolean {
+  GedcomXExtend.Person.prototype.getLiving = function (this: Person): boolean {
     return this.getFactsByType(PersonFactTypes.Death).length === 0;
   }
 
-  GedcomX.Person.prototype.toString = function (): string {
+  GedcomXExtend.Person.prototype.toString = function (this: Person): string {
     return `${this.getFullName()} (#${this.getId()})`;
   }
 
 // Relationship
 
-  GedcomX.Relationship.prototype.getMembers = function (): GedcomX.ResourceReference[] {
+  GedcomXExtend.Relationship.prototype.getMembers = function (this: Relationship): GedcomX.ResourceReference[] {
     return [this.getPerson1(), this.getPerson2()]
   }
 
-  GedcomX.Relationship.prototype.toString = function (): string {
+  GedcomXExtend.Relationship.prototype.toString = function (this: Relationship): string {
     let type = "Relationship";
-    if (this.type) {
+    if (this.getType()) {
       type = this.getType().substring(baseUri.length);
     }
-    return `${type} of ${this.getPerson1().resource} and ${this.getPerson2().resource}`
+    return `${type} of ${this.getPerson1().getResource()} and ${this.getPerson2().getResource()}`
   }
 
 
 // Date
 
-  GedcomX.Date.prototype.toDateObject = function (): Date {
+  GedcomXExtend.Date.prototype.toDateObject = function (this: GedcomX.Date): Date {
     let dateString = this.getFormal();
     if (!dateString || !isNaN(Number(dateString.substring(0, 1)))) {
       return undefined;
@@ -240,9 +248,9 @@ function extend(GedcomX) {
     return date;
   }
 
-  GedcomX.Date.prototype.toString = function (): string {
-    if (!this.formal && this.original) {
-      return this.original;
+  GedcomXExtend.Date.prototype.toString = function (this: GedcomX.Date): string {
+    if (!this.getFormal() && this.getOriginal()) {
+      return this.getOriginal();
     }
 
     let dateObject = this.toDateObject();
@@ -252,7 +260,7 @@ function extend(GedcomX) {
 
     let options = {};
     options["year"] = "numeric";
-    switch (this.formal.length) {
+    switch (this.getFormal().length) {
       case 5:
         break;
       case 8:
@@ -268,33 +276,33 @@ function extend(GedcomX) {
     let date = dateObject.toLocaleDateString(config.browserLang, options);
 
     let time = "";
-    if (this.formal.length >= 14) {
+    if (this.getFormal().length >= 14) {
       options = {};
       options["hour"] = "2-digit";
 
-      if (this.formal.length >= 17) {
+      if (this.getFormal().length >= 17) {
         options["minute"] = "2-digit";
       }
-      if (this.formal.length >= 20) {
+      if (this.getFormal().length >= 20) {
         options["second"] = "2-digit";
       }
       time = dateObject.toLocaleTimeString(config.browserLang, options);
     }
 
     return translationToString({
-      en: `${this.formal.length >= 11 ? "on" : "in"} ${date}${time ? " at " + time : ""}`,
-      de: `${this.formal.length >= 11 ? "am" : "in"} ${date}${time ? " um " + time : ""}`
+      en: `${this.getFormal().length >= 11 ? "on" : "in"} ${date}${time ? " at " + time : ""}`,
+      de: `${this.getFormal().length >= 11 ? "am" : "in"} ${date}${time ? " um " + time : ""}`
     })
   }
 
 
 // Fact
 
-  GedcomX.Fact.prototype.toString = function (): string {
+  GedcomXExtend.Fact.prototype.toString = function (this: Fact): string {
     let string;
-    let value = this.value;
+    let value = this.getValue();
 
-    switch (this.type) {
+    switch (this.getType()) {
       case PersonFactTypes.Birth:
         string = translationToString({
           en: "born",
@@ -346,28 +354,28 @@ function extend(GedcomX) {
         });
         break;
       default:
-        string = this.type;
+        string = this.getType();
         break;
     }
 
     string += translationToString({
-      en: (value || value === 0 ? ` ${value}` : "") +
+      en: (value || value === "0" ? ` ${value}` : "") +
         (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
-        (this.place && this.place.toString() ? ` in ${this.place.toString()}` : ""),
+        (this.getPlace() && this.getPlace().toString() ? ` in ${this.getPlace().toString()}` : ""),
 
-      de: (value || value === 0 ? " " + value : "") +
+      de: (value || value === "0" ? " " + value : "") +
         (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
-        (this.place && this.place.toString() ? " in " + this.place.toString() : "")
+        (this.getPlace() && this.getPlace().toString() ? " in " + this.getPlace().toString() : "")
     });
 
-    if (this.qualifiers) {
-      string += " " + this.qualifiers.map(q => q.toString()).join(" ");
+    if (this.getQualifiers()) {
+      string += " " + this.getQualifiers().map(q => q.toString()).join(" ");
     }
 
     return string;
   }
 
-  GedcomX.Fact.prototype.getEmoji = function(this: Fact, gender?: string): string {
+  GedcomXExtend.Fact.prototype.getEmoji = function(this: Fact, gender?: string): string {
     const genderSpecifier = gender === GenderTypes.Female ? "♀" : (gender === GenderTypes.Male ? "♂" : "");
     switch (this.getType()) {
       case PersonFactTypes.Birth:
@@ -390,22 +398,22 @@ function extend(GedcomX) {
 
 // Qualifier
 
-  GedcomX.Qualifier.prototype.toString = function (): string {
+  GedcomXExtend.Qualifier.prototype.toString = function (this: Qualifier): string {
     let string;
-    switch (this.name) {
+    switch (this.getName()) {
       case PersonFactQualifiers.Age:
         string = translationToString({
-          en: `with ${this.value} years old`,
-          de: `mit ${this.value} Jahren`
+          en: `with ${this.getValue()} years old`,
+          de: `mit ${this.getValue()} Jahren`
         });
         break;
       case PersonFactQualifiers.Cause:
-        string = `(${this.value})`;
+        string = `(${this.getValue()})`;
         break;
       default:
-        string = this.name;
-        if (this.value) {
-          string += ": " + this.value;
+        string = this.getName();
+        if (this.getValue()) {
+          string += ": " + this.getValue();
         }
     }
 
@@ -415,26 +423,26 @@ function extend(GedcomX) {
 
 // PlaceRef
 
-  GedcomX.PlaceReference.prototype.toString = function (): string {
-    if (!this.original) {
+  GedcomXExtend.PlaceReference.prototype.toString = function (this: PlaceReference): string {
+    if (!this.getOriginal()) {
       return "";
     }
 
-    return this.original;
+    return this.getOriginal();
   }
 
 
 // FamilyView
 
-  GedcomX.FamilyView.prototype.getParents = function () {
+  GedcomXExtend.FamilyView.prototype.getParents = function (this: FamilyView) {
     return [this.getParent1(), this.getParent2()];
   }
 
-  GedcomX.FamilyView.prototype.getMembers = function () {
+  GedcomXExtend.FamilyView.prototype.getMembers = function (this: FamilyView) {
     return this.getChildren().concat(this.getParents());
   }
 
-  GedcomX.FamilyView.prototype.involvesPerson = function (person) {
+  GedcomXExtend.FamilyView.prototype.involvesPerson = function (this: FamilyView, person) {
     return !!this.getMembers().find(m => m.matches(person));
   }
 }
