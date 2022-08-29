@@ -31,6 +31,82 @@ export function setReferenceAge(age: number, generation: number, forceUpdate = f
   }
 }
 
+function getOccupationEmoji(occupation: string, gender: string) {
+  let symbol: string;
+  const genderSpecifier = (gender === GenderTypes.Female ? "‍♀️" : (gender === GenderTypes.Male ? "‍♂️️" : ""));
+
+  switch (occupation) {
+    case OccupationCategories.Doctor:
+      symbol = "⚕";
+      break;
+    case OccupationCategories.Student:
+      symbol = "🎓";
+      break;
+    case OccupationCategories.Teacher:
+      symbol = "🏫";
+      break;
+    case OccupationCategories.Judge:
+      symbol = "⚖";
+      break;
+    case OccupationCategories.Farmer:
+      symbol = "🌾";
+      break;
+    case OccupationCategories.Cook:
+      symbol = "🍳";
+      break;
+    case OccupationCategories.Mechanic:
+      symbol = "🔧";
+      break;
+    case OccupationCategories.FactoryWorker:
+      symbol = "🏭";
+      break;
+    case OccupationCategories.Scientist:
+      symbol = "🔬";
+      break;
+    case OccupationCategories.ITExpert:
+      symbol = "💻";
+      break;
+    case OccupationCategories.Singer:
+      symbol = "🎤";
+      break;
+    case OccupationCategories.Artist:
+      symbol = "🎨";
+      break;
+    case OccupationCategories.Pilot:
+      symbol = "✈";
+      break;
+    case OccupationCategories.Astronaut:
+      symbol = "🚀";
+      break;
+    case OccupationCategories.Firefighter:
+      symbol = "🚒";
+      break;
+    case OccupationCategories.Policeman:
+      return `👮‍${genderSpecifier}️`;
+    case OccupationCategories.Detective:
+      return `🕵️‍${genderSpecifier}️`;
+    case OccupationCategories.SecurityGuard:
+      return `💂️‍${genderSpecifier}️`;
+    case OccupationCategories.Ninja:
+      return "🥷";
+    case OccupationCategories.ConstructionWorker:
+      return `👷️‍${genderSpecifier}️`;
+    case OccupationCategories.King:
+      return gender === GenderTypes.Female ? "👸" : "🤴";
+    default:
+      symbol = "💼";
+  }
+
+  switch (gender) {
+    case GenderTypes.Male:
+      return `👨‍${symbol}️`;
+    case GenderTypes.Female:
+      return `👩‍${symbol}️`;
+    default:
+      return `🧑‍${symbol}️`;
+  }
+}
+
 function extend(GedcomX) {
   GedcomX.Person.prototype.getFullName = function (): string {
     if (this.getNames().length < 1) {
@@ -289,6 +365,26 @@ function extend(GedcomX) {
     }
 
     return string;
+  }
+
+  GedcomX.Fact.prototype.getEmoji = function(this: Fact, gender?: string): string {
+    const genderSpecifier = gender === GenderTypes.Female ? "♀" : (gender === GenderTypes.Male ? "♂" : "");
+    switch (this.getType()) {
+      case PersonFactTypes.Birth:
+        return "👶";
+      case PersonFactTypes.Generation:
+        return "🌳";
+      case PersonFactTypes.Religion:
+        return `🧎‍${genderSpecifier}️`;
+      case PersonFactTypes.MaritalStatus:
+        return gender === GenderTypes.Female ? "👰‍♀️" : (gender === GenderTypes.Male ? "🤵‍♂️" : "🤵");
+      case PersonFactTypes.Death:
+        return "⚰️";
+      case PersonFactTypes.Occupation:
+        return getOccupationEmoji(this.getValue(), gender);
+      default:
+        return "•";
+    }
   }
 
 

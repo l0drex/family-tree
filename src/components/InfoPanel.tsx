@@ -46,7 +46,7 @@ class InfoPanel extends Component<Props, null> {
             }
 
             return 0;
-          }).map(f => <li key={f.toString()}>{f.toString()}</li>)}
+          }).map(f => <li key={f.toString()} style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
       </aside>
     );

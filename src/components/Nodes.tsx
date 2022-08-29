@@ -16,7 +16,7 @@ export function Family(props) {
         <text x={-config.gridSize} y="4pt" className="marriageDate">
           {`💍 ${props.data.marriage}`}
         </text>}
-      <text y="4">{props.locked ? "🔒" : "➖"}</text>
+      <text y="4pt">{props.locked ? "🔒" : "➖"}</text>
       <title>{props.locked ? translationToString({
         en: "This family cannot be hidden.",
         de: "Diese Familie kann nicht ausgeblendet werden."
@@ -32,7 +32,7 @@ export function Etc(props) {
   return (
     <g className="etc" onClick={() => viewGraph.showFamily(props.data)}>
       <circle r={config.gridSize / 2}/>
-      <text y="5">➕</text>
+      <text y="4pt">➕</text>
     </g>
   );
 }
