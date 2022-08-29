@@ -115,7 +115,7 @@ function getOccupationEmoji(occupation: string, gender: string) {
   }
 }
 
-function extend(GedcomXExtend: GedcomX) {
+function extend(GedcomXExtend) {
   GedcomXExtend.Person.prototype.getFullName = function (this: Person): string {
     if (this.getNames().length < 1) {
       return "?";
@@ -140,7 +140,7 @@ function extend(GedcomXExtend: GedcomX) {
   }
 
   GedcomXExtend.Person.prototype.getBirthName = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.BirthName)
+    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.BirthName)
     if (name) {
       return name.getNameForms()[0].getFullText(true);
     } else {
@@ -149,7 +149,7 @@ function extend(GedcomXExtend: GedcomX) {
   }
 
   GedcomXExtend.Person.prototype.getMarriedName = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.MarriedName)
+    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.MarriedName)
     if (name) {
       return name.getNameForms()[0].getFullText(true);
     } else {
@@ -158,7 +158,7 @@ function extend(GedcomXExtend: GedcomX) {
   }
 
   GedcomXExtend.Person.prototype.getAlsoKnownAs = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.AlsoKnownAs)
+    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.AlsoKnownAs)
     if (name) {
       return name.getNameForms()[0].getFullText(true);
     } else {
@@ -167,7 +167,7 @@ function extend(GedcomXExtend: GedcomX) {
   }
 
   GedcomXExtend.Person.prototype.getNickname = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.type && name.type === NameTypes.Nickname)
+    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.Nickname)
     if (name) {
       return name.getNameForms()[0].getFullText(true);
     } else {
