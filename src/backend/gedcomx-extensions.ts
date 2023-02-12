@@ -291,7 +291,7 @@ function extend(GedcomXExtend) {
         (this.getPlace() && this.getPlace().toString() ? " in " + this.getPlace().toString() : "")
     });
 
-    if (this.getQualifiers()) {
+    if (this.getQualifiers() && this.getQualifiers().length > 0) {
       string += " " + this.getQualifiers().map(q => q.toString()).join(" ");
     }
 
