@@ -69,7 +69,7 @@ class TreeView extends Component<Props, State> {
   }
 
   componentDidMount() {
-    let svg = d3.select("#family-tree");
+    let svg = d3.select<SVGSVGElement, undefined>("#family-tree");
     this.mounted = true;
 
     const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
@@ -96,7 +96,8 @@ class TreeView extends Component<Props, State> {
         svg.node().style.cursor = "";
       })
       .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
-      .touchable(() => ('ontouchstart' in window) || window.TouchEvent);
+      .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent));
+    // @ts-ignore FIXME
     svg.select("rect").call(svgZoom);
 
 
@@ -118,7 +119,7 @@ class TreeView extends Component<Props, State> {
     let linkLayer = d3.select("#links");
 
     let personNode = nodesLayer.selectAll(".person")
-      .data(this.state.graph.nodes.filter(p => p.type === "person"))
+      .data(this.state.graph.nodes.filter(p => p.type === "person") as GraphPerson[])
     let partnerNode = nodesLayer.selectAll(".partnerNode")
       .data(this.state.graph.nodes.filter(node => node.type === "family"));
     let etcNode = nodesLayer.selectAll(".etc")
@@ -168,6 +169,7 @@ class TreeView extends Component<Props, State> {
           .style("background-color", (d: GraphPerson) => d.data.getLiving() ? genderColor(d.getGender()) : "var(--background-higher)")
           .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : genderColor(d.getGender()))
           .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid")
+          .style("color", (d: GraphPerson) => d.data.getLiving() && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
         personNode
           .select(".focused")
           .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);

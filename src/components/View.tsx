@@ -62,7 +62,8 @@ function ViewOptions() {
 }
 
 interface State {
-  activeView: ViewMode | string
+  activeView: ViewMode | string,
+  colorMode: ColorMode | string,
   viewGraph: ViewGraph
   focusId: string
   focusHidden: boolean
@@ -84,6 +85,7 @@ class View extends Component<any, State> {
       "View graph has no links!");
     this.state = {
       activeView: view,
+      colorMode: ColorMode.GENDER,
       viewGraph: viewGraph,
       focusId: focusId,
       focusHidden: false
@@ -95,7 +97,7 @@ class View extends Component<any, State> {
     root.classList.add("sidebar-visible");
 
     let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
-    colorSelector.addEventListener("change", () => this.onViewChanged.bind(this)(this.state.activeView));
+    colorSelector.addEventListener("change", e => this.onColorChanged.bind(this)((e.target as HTMLSelectElement).value));
 
     let viewSelector = document.querySelector<HTMLSelectElement>("#view-selector");
     viewSelector.addEventListener("change", e => this.onViewChanged.bind(this)((e.target as HTMLSelectElement).value));
@@ -121,14 +123,12 @@ class View extends Component<any, State> {
       throw new Error(`No person with id ${this.state.focusId} could be found`)
     }
 
-    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
-    const colorMode = colorSelector ? colorSelector.value : ColorMode.GENDER;
     return (
       <>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
           <ViewOptions/>
-          <TreeView colorMode={colorMode} focus={focus} focusHidden={this.state.focusHidden}
+          <TreeView colorMode={this.state.colorMode} focus={focus} focusHidden={this.state.focusHidden}
                     onRefocus={this.onRefocus.bind(this)}/>
         </main>
         <FamilyPath focus={focus}/>
@@ -136,14 +136,42 @@ class View extends Component<any, State> {
     );
   }
 
-  onViewChanged(view) {
+  onViewChanged(view: string | ViewMode) {
+    let url = new URL(window.location.href);
+    if (view === ViewMode.DEFAULT) {
+      url.searchParams.delete("view");
+    } else {
+      url.searchParams.set("view", view);
+    }
+    window.history.pushState({}, "", url.toString());
+
     this.setState({
       activeView: view,
       viewGraph: graphModel.buildViewGraph(this.state.focusId, view)
     });
   }
 
+  onColorChanged(colorMode: string | ColorMode) {
+    let url = new URL(window.location.href);
+    if (colorMode === ColorMode.GENDER) {
+      url.searchParams.delete("colorMode");
+    } else {
+      url.searchParams.set("colorMode", colorMode);
+    }
+    window.history.pushState({}, "", url.toString());
+
+    this.setState({
+      colorMode: colorMode
+    })
+  }
+
   onRefocus(newFocus: Person) {
+    let url = new URL(window.location.href);
+    url.hash =newFocus.getId();
+    window.history.pushState({}, "", url.toString())
+
+    window.history.pushState({}, "", url.toString());
+
     if (newFocus.getId() === this.state.focusId) {
       this.setState({
         focusHidden: !this.state.focusHidden

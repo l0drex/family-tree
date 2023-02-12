@@ -1,4 +1,5 @@
 import * as React from "react";
+import {ReactNode} from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
@@ -8,7 +9,6 @@ import Notification from "./components/Notification";
 import Uploader from "./components/Uploader";
 import View from "./components/View";
 import {graphModel, loadData} from "./backend/ModelGraph";
-import {ReactNode} from "react";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 interface State {

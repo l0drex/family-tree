@@ -3,7 +3,6 @@ import {Component} from "react";
 import SearchField from "./SearchField";
 import {Person} from "gedcomx-js";
 import {PersonFactTypes} from "../backend/gedcomx-enums";
-import {Link} from "react-router-dom";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -15,9 +14,6 @@ class InfoPanel extends Component<Props, null> {
     let person = this.props.person;
     return (
       <aside id="info-panel">
-        <Link to={`#${person.getId()}`}>
-          <pre className="id">{person.getId()}</pre>
-        </Link>
         <SearchField onRefocus={this.props.onRefocus} person={person}/>
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
@@ -50,7 +46,7 @@ class InfoPanel extends Component<Props, null> {
             }
 
             return 0;
-          }).map(f => <li key={f.toString()}>{f.toString()}</li>)}
+          }).map(f => <li key={f.toString()} style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
       </aside>
     );

@@ -5,12 +5,17 @@ aside {
   box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
 }
 
-aside h1, aside h2 {
+#info-panel {
+  overflow: scroll;
+}
+
+#info-panel h1, #info-panel h2 {
   text-align: center;
 }
 
 #info-panel h2 {
   font-weight: normal;
+  margin: .25em 0;
 }
 
 #info-panel form {
@@ -33,9 +38,7 @@ aside h1, aside h2 {
 
 #info-panel #factView {
   background: var(--background);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-right: 1rem;
+  padding: 1rem 1rem 1rem 2rem;
   border-radius: 1rem;
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
 }
