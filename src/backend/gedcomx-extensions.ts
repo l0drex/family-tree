@@ -5,7 +5,6 @@ import {
   baseUri,
   GenderTypes,
   NameTypes,
-  OccupationCategories,
   PersonFactQualifiers,
   PersonFactTypes
 } from "./gedcomx-enums";
