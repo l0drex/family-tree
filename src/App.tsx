@@ -19,7 +19,6 @@ interface State {
 class App extends React.Component<any, State> {
   constructor(props) {
     super(props);
-    new URL(window.location.href);
     let data = sessionStorage.getItem("familyData");
     if (data) {
       loadData(JSON.parse(data));
