@@ -130,7 +130,7 @@ class View extends Component<any, State> {
     return (
       <>
         <Header>
-          <SearchField person={focus} onRefocus={this.onRefocus.bind(this)}/>
+          <SearchField onRefocus={this.onRefocus.bind(this)}/>
         </Header>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>

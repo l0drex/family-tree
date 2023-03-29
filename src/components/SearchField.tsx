@@ -4,7 +4,6 @@ import {graphModel} from "../backend/ModelGraph";
 import {Person} from "gedcomx-js";
 
 interface Props {
-  person: Person,
   onRefocus: (newFocus: Person) => void
 }
 
