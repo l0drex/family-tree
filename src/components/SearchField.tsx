@@ -29,10 +29,9 @@ class SearchField extends Component<Props, State> {
           de: "Name:"
         })}</label>
         <input id="input-name" list="names" type="search" placeholder={translationToString({
-          en: "Name",
-          de: "Name"
-        })} spellCheck="false" className={this.state.hasError ? "error" : ""}
-               value={this.props.person.getFullName()}/>
+          en: "Search for a person",
+          de: "Nach einer Person suchen"
+        })} spellCheck="false" className={this.state.hasError ? "error" : ""} />
         <input className="emoji" type="submit" value="🔍" onInput={this.resetError}/>
         <datalist id="names">
           {

@@ -5,6 +5,8 @@ import {graphModel} from "../backend/ModelGraph";
 import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
+import Header from "./Header";
+import SearchField from "./SearchField";
 import * as React from "react";
 import FamilyPath from "./FamilyPath";
 import {Person} from "gedcomx-js";
@@ -125,6 +127,7 @@ class View extends Component<any, State> {
 
     return (
       <>
+      <Header> <SearchField person={focus} onRefocus={this.onRefocus.bind(this)}/> </Header>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
           <ViewOptions/>
