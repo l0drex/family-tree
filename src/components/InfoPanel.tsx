@@ -14,7 +14,7 @@ class InfoPanel extends Component<Props, null> {
     let person = this.props.person;
     return (
       <aside id="info-panel">
-        <SearchField onRefocus={this.props.onRefocus} person={person}/>
+        <h1 className="name">{person.getFullName()}</h1>
         {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
         {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
         {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}

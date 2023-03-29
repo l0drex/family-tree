@@ -32,14 +32,16 @@ class App extends React.Component<any, State> {
 
   render() {
     return <BrowserRouter basename={"family-tree"}>
-      <Header/>
         {this.state.notifications}
         <Routes>
           <Route path="/" element={
-            <main>
-              <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-              <NavigationTutorial/>
-            </main>
+            <>
+              <Header/>
+              <main>
+                <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
+                <NavigationTutorial/>
+              </main>
+            </>
           }/>
           <Route path="/view" element={<View/>}/>
         </Routes>
