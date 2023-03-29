@@ -116,13 +116,16 @@ meter {
   align-items: baseline;
   max-width: 100vw;
   overflow-x: auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 #view-all > * {
   margin-left: 1rem;
+  display: flex;
+  align-items: baseline;
 }
 
 #view-all div label {
   margin-right: .5rem;
+  white-space: nowrap;
 }
