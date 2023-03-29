@@ -129,7 +129,9 @@ class View extends Component<any, State> {
 
     return (
       <>
-      <Header> <SearchField person={focus} onRefocus={this.onRefocus.bind(this)}/> </Header>
+        <Header>
+          <SearchField person={focus} onRefocus={this.onRefocus.bind(this)}/>
+        </Header>
         {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
         <main>
           <ViewOptions/>
@@ -172,7 +174,7 @@ class View extends Component<any, State> {
 
   onRefocus(newFocus: Person) {
     let url = new URL(window.location.href);
-    url.hash =newFocus.getId();
+    url.hash = newFocus.getId();
     window.history.pushState({}, "", url.toString())
 
     window.history.pushState({}, "", url.toString());

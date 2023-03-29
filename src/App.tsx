@@ -3,13 +3,11 @@ import {ReactNode} from "react";
 import './App.css';
 import {localize} from "./main";
 import config from "./config";
-import Header from "./components/Header";
-import NavigationTutorial from "./components/NavigationTutorial";
 import Notification from "./components/Notification";
-import Uploader from "./components/Uploader";
 import View from "./components/View";
 import {graphModel, loadData} from "./backend/ModelGraph";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {Home} from "./components/Home";
 
 interface State {
   notifications: ReactNode[]
@@ -34,25 +32,10 @@ class App extends React.Component<any, State> {
     return <BrowserRouter basename={"family-tree"}>
         {this.state.notifications}
         <Routes>
-          <Route path="/" element={
-            <>
-              <Header/>
-              <main>
-                <Uploader onFileSelected={this.onFileSelected.bind(this)}/>
-                <NavigationTutorial/>
-              </main>
-            </>
-          }/>
+          <Route path="/" element={<Home/>}/>
           <Route path="/view" element={<View/>}/>
         </Routes>
     </BrowserRouter>
-  }
-
-  onFileSelected(fileContent) {
-    localStorage.setItem("familyData", fileContent);
-    let url = new URL(window.location.href);
-    url.pathname = "/family-tree/view";
-    window.location.href = url.href;
   }
 
   componentDidMount() {
