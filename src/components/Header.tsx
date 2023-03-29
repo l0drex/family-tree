@@ -1,7 +1,6 @@
 import './Header.css';
 import {Link} from 'react-router-dom';
 import {translationToString} from "../main";
-import SearchField from "./SearchField";
 
 function Header(props) {
   return (

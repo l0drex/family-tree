@@ -27,19 +27,30 @@ input[type=submit], button, .button {
   font-weight: bold;
   border-radius: 2.33rem;
   padding: .66rem 1rem;
+  margin-left: 1rem;
   border: none;
   text-decoration: none;
+  cursor: pointer;
+}
+
+.button {
+  display: inline-block;
+}
+
+.button:visited {
+  color: inherit;
 }
 
 .button.inline, button.inline {
   padding: .33rem 1rem;
 }
 
-.button.inactive, button.inactive {
+.button.inactive, button.inactive, input[type=submit].inactive {
   background: var(--background);
   color: var(--primary);
   font-weight: normal;
   border: solid var(--primary) 2pt;
+  cursor: not-allowed;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -108,8 +119,4 @@ input[type=search]:focus {
 .search input[type=submit]:hover {
   box-shadow: none;
   text-shadow: 0 0 1rem var(--primary);
-}
-
-button:hover, input[type=submit]:hover, input[type=file] {
-  cursor: pointer;
 }

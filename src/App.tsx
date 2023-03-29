@@ -49,8 +49,7 @@ class App extends React.Component<any, State> {
   }
 
   onFileSelected(fileContent) {
-    sessionStorage.setItem("familyData", fileContent);
-    loadData(JSON.parse(fileContent));
+    localStorage.setItem("familyData", fileContent);
     let url = new URL(window.location.href);
     url.pathname = "/family-tree/view";
     window.location.href = url.href;

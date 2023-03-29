@@ -1,6 +1,5 @@
 import './InfoPanel.css';
 import {Component} from "react";
-import SearchField from "./SearchField";
 import {Person} from "gedcomx-js";
 import {PersonFactTypes} from "../backend/gedcomx-enums";
 

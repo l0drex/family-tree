@@ -1,7 +1,7 @@
 import {Component} from "react";
 import {translationToString} from "../main";
 import "./View.css";
-import {graphModel} from "../backend/ModelGraph";
+import {graphModel, loadData} from "../backend/ModelGraph";
 import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
@@ -74,6 +74,8 @@ interface State {
 class View extends Component<any, State> {
   constructor(props) {
     super(props);
+
+    loadData(JSON.parse(localStorage.getItem("familyData")));
 
     let url = new URL(window.location.href);
     let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;

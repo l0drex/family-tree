@@ -3,15 +3,6 @@ import Form from "./Form";
 import * as React from "react";
 import {translationToString} from "../main";
 
-function UploadForm(props) {
-  return (
-    <Form submit={translationToString({
-      en: "Show family tree",
-      de: "Stammbaum anzeigen"
-    })} onSubmit={props.onSubmit}/>
-  );
-}
-
 class Uploader extends React.Component<any, any> {
   render() {
     return (
@@ -28,7 +19,10 @@ class Uploader extends React.Component<any, any> {
                 "Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen."
             })}
           </p>
-          <UploadForm onSubmit={this.props.onFileSelected}/>
+          <Form submit={translationToString({
+            en: "Open family tree",
+            de: "Stammbaum öffnen"
+          })} onSubmit={this.props.onFileSelected}/>
           <details>
             <summary><span className="emoji">🗒️</span> {translationToString({
               en: "From where do I get the data?",

@@ -37,7 +37,11 @@ class Form extends Component<any, any> {
           </div>
         </div>
 
-        <input type="submit" value={this.props.submit}/>
+        {localStorage.getItem("familyData") && <a className="button" href="/family-tree/view">{translationToString({
+          en: "Continue with last session",
+          de: "Mit letzter Sitzung fortfahren"
+        })}</a>}
+        <input className={this.state.file === "" ? "inactive" : ""} type="submit" value={this.props.submit}/>
       </form>
     );
   }
