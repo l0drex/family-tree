@@ -87,9 +87,9 @@ input[type=submit]:active, button:active, .button:not(select):active {
 }
 
 input[type=search] {
-  border: none;
-  border-bottom: solid white;
   border-radius: 0;
+  border: none;
+  border-bottom: solid white 2pt;
   background: none;
   color: white;
   padding: 0 .25rem;
