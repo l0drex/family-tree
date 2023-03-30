@@ -1,8 +1,8 @@
-import {Component} from "react";
+import {useEffect, useState} from "react";
 import {translationToString} from "../main";
 import "./View.css";
 import {graphModel, loadData} from "../backend/ModelGraph";
-import {ViewMode, ViewGraph, ColorMode} from "../backend/ViewGraph";
+import {ViewMode, ColorMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import Header from "./Header";
@@ -11,7 +11,7 @@ import * as React from "react";
 import {Person} from "gedcomx-js";
 
 
-function ViewOptions() {
+function ViewOptions(props) {
   return (
     <form id="view-all">
       <div>
@@ -19,7 +19,7 @@ function ViewOptions() {
           en: "Show:",
           de: "Zeige:"
         })}</label>
-        <select id="view-selector" className="button inline all" defaultValue={ViewMode.DEFAULT}>
+        <select id="view-selector" className="button inline all" defaultValue={props.view} onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{translationToString({
             en: "Default",
             de: "Standard"
@@ -49,7 +49,7 @@ function ViewOptions() {
           de: "Färbe nach:"
         })
         }</label>
-        <select id="color-selector" className="button inline all" defaultValue={ColorMode.GENDER}>
+        <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{translationToString({
             en: "Gender",
             de: "Geschlecht"
@@ -62,86 +62,42 @@ function ViewOptions() {
   );
 }
 
-interface State {
-  activeView: ViewMode | string,
-  colorMode: ColorMode | string,
-  viewGraph: ViewGraph
-  focusId: string
-  focusHidden: boolean
-}
+function View() {
+  loadData(JSON.parse(localStorage.getItem("familyData")));
+  let url = new URL(window.location.href);
 
-class View extends Component<any, State> {
-  constructor(props) {
-    super(props);
+  const [view, setView] = useState<ViewMode>((url.searchParams.get("view") as ViewMode) || ViewMode.DEFAULT);
+  const [colorMode, setColorMode] = useState<ColorMode>((url.searchParams.get("colorMode") as ColorMode) || ColorMode.GENDER);
+  const [focusId, setFocus] = useState(url.hash.substring(1));
+  const [focusHidden, hideFocus] = useState(false);
 
-    loadData(JSON.parse(localStorage.getItem("familyData")));
+  console.debug(`View: ${view}`);
+  console.debug(`ColorMode: ${colorMode}`)
 
-    let url = new URL(window.location.href);
-    let view: string = url.searchParams.get("view-all") || ViewMode.DEFAULT;
-    console.debug(`View: ${view}`);
-
-    let focusId = url.hash.substring(1);
-    let viewGraph = graphModel.buildViewGraph(focusId, ViewMode[view]);
-    console.assert(viewGraph.nodes.length > 0,
-      "View graph has no nodes!");
-    console.assert(viewGraph.links.length > 0,
-      "View graph has no links!");
-    this.state = {
-      activeView: view,
-      colorMode: ColorMode.GENDER,
-      viewGraph: viewGraph,
-      focusId: focusId,
-      focusHidden: false
-    }
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
     root.classList.add("sidebar-visible");
+  });
 
-    let colorSelector = document.querySelector<HTMLSelectElement>("#color-selector");
-    colorSelector.addEventListener("change", e => this.onColorChanged.bind(this)((e.target as HTMLSelectElement).value));
-
-    let viewSelector = document.querySelector<HTMLSelectElement>("#view-selector");
-    viewSelector.addEventListener("change", e => this.onViewChanged.bind(this)((e.target as HTMLSelectElement).value));
-  }
-
-  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+  useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
-    if (this.state.focusHidden) {
+    if (focusHidden) {
       root.classList.remove("sidebar-visible");
     } else {
       root.classList.add("sidebar-visible");
     }
-  }
+  }, [focusHidden])
 
-  render() {
-    let focus;
-    if (this.state.focusId) {
-      focus = graphModel.getPersonById(this.state.focusId);
-    } else {
-      focus = graphModel.persons[0];
-    }
-    if (!focus) {
-      throw new Error(`No person with id ${this.state.focusId} could be found`)
-    }
+  let viewGraph = graphModel.buildViewGraph(focusId, view);
+  useEffect(() => {
+    viewGraph = graphModel.buildViewGraph(focusId, view);
+  }, [focusId, view])
 
-    return (
-      <>
-        <Header>
-          <SearchField onRefocus={this.onRefocus.bind(this)}/>
-        </Header>
-        {!this.state.focusHidden && <InfoPanel person={focus} onRefocus={this.onRefocus.bind(this)}/>}
-        <main>
-          <ViewOptions/>
-          <TreeView colorMode={this.state.colorMode} focus={focus} focusHidden={this.state.focusHidden}
-                    onRefocus={this.onRefocus.bind(this)}/>
-        </main>
-      </>
-    );
-  }
+  let focus = graphModel.getPersonById(focusId) || graphModel.persons[0];
 
-  onViewChanged(view: string | ViewMode) {
+  function onViewChanged(e) {
+    let view = (e.target as HTMLSelectElement).value;
+
     let url = new URL(window.location.href);
     if (view === ViewMode.DEFAULT) {
       url.searchParams.delete("view");
@@ -150,13 +106,12 @@ class View extends Component<any, State> {
     }
     window.history.pushState({}, "", url.toString());
 
-    this.setState({
-      activeView: view,
-      viewGraph: graphModel.buildViewGraph(this.state.focusId, view)
-    });
+    setView(view as ViewMode);
   }
 
-  onColorChanged(colorMode: string | ColorMode) {
+  function onColorChanged(e) {
+    let colorMode = (e.target as HTMLSelectElement).value;
+
     let url = new URL(window.location.href);
     if (colorMode === ColorMode.GENDER) {
       url.searchParams.delete("colorMode");
@@ -165,30 +120,35 @@ class View extends Component<any, State> {
     }
     window.history.pushState({}, "", url.toString());
 
-    this.setState({
-      colorMode: colorMode
-    })
+    setColorMode(colorMode as ColorMode);
   }
 
-  onRefocus(newFocus: Person) {
+  function onRefocus(newFocus: Person) {
     let url = new URL(window.location.href);
     url.hash = newFocus.getId();
-    window.history.pushState({}, "", url.toString())
-
     window.history.pushState({}, "", url.toString());
 
-    if (newFocus.getId() === this.state.focusId) {
-      this.setState({
-        focusHidden: !this.state.focusHidden
-      })
+    if (newFocus.getId() === focusId) {
+      hideFocus(!focusHidden)
       return;
     }
-    this.setState({
-      focusHidden: false,
-      focusId: newFocus.getId(),
-      viewGraph: graphModel.buildViewGraph(newFocus.getId(), this.state.activeView)
-    });
+    hideFocus(false);
+    setFocus(newFocus.getId());
   }
+
+  return (
+    <>
+      <Header>
+        <SearchField onRefocus={onRefocus}/>
+      </Header>
+      {!focusHidden && <InfoPanel person={focus} onRefocus={onRefocus}/>}
+      <main>
+        <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
+        <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
+                  onRefocus={onRefocus} graph={viewGraph}/>
+      </main>
+    </>
+  );
 }
 
 export default View;

@@ -30,7 +30,7 @@ export function Family(props) {
 
 export function Etc(props) {
   return (
-    <g className="etc" onClick={() => viewGraph.showFamily(props.data)}>
+    <g className="etc" onClick={() => props.graph.showFamily(props.data)}>
       <circle r={config.gridSize / 2}/>
       <text y="4pt">➕</text>
     </g>
