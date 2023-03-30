@@ -60,7 +60,6 @@ main > * {
 }
 
 footer {
-  background: inherit;
   border-top: solid var(--foreground-secondary) .1rem;
   color: var(--foreground-secondary);
   text-align: left;
@@ -69,4 +68,8 @@ footer {
   width: 100%;
   display: flex;
   justify-content: space-between;
+}
+
+footer a {
+  color: var(--foreground-secondary);
 }

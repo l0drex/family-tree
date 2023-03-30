@@ -6,7 +6,7 @@ import config from "./config";
 import Notification from "./components/Notification";
 import View from "./components/View";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Home from "./components/Home";
+import {Home, Imprint} from "./components/Home";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
@@ -19,14 +19,17 @@ function App() {
       <Routes>
         <Route path="/" element={<Home/>}/>
         <Route path="/view" element={<View/>}/>
+        <Route path="/imprint" element={<Imprint/>}/>
       </Routes>
       <footer>
         {translationToString({
           en: <span>The source code is available on <a href={"https://github.com/l0drex/family-tree"}>Github</a>.</span>,
           de: <span>Der Quellcode ist auf <a href={"https://github.com/l0drex/family-tree"}>Github</a> verfügbar.</span>
         })}
-        <span>Impressum</span>
-        <span>Datenschutzerklärung</span>
+        <a href="/family-tree/imprint">{translationToString({
+          en: "Imprint & privacy policy",
+          de: "Impressum & Datenschutzerklärung"
+        })}</a>
       </footer>
     </BrowserRouter>
   } catch (error) {
