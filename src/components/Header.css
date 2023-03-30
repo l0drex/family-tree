@@ -21,6 +21,16 @@ header * {
   font-size: 2rem;
 }
 
+header div {
+  flex-grow: 2;
+}
+
 header > *:not(:last-child) {
   margin-right: 1rem;
+}
+
+.icon-only {
+  background: none;
+  padding: 0;
+  border: none;
 }

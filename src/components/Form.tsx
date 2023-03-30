@@ -38,7 +38,7 @@ function Form(props) {
   return (
     <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
       event.preventDefault();
-      parseFile(input.current.files[0]).then(props.onSubmit);
+      parseFile(input.current.files[0]).then(saveDataAndRedirect);
     }}>
       <div className="card-wrapper">
         <div
@@ -67,7 +67,7 @@ function Form(props) {
   );
 }
 
-async function parseFile(gedcomFile) {
+export async function parseFile(gedcomFile) {
   if (!gedcomFile) {
     throw new Error(translationToString({
       en: "No gedcom file selected",
@@ -88,6 +88,13 @@ async function parseFile(gedcomFile) {
     }
   }
   readerGedcom.readAsText(gedcomFile);
+}
+
+export function saveDataAndRedirect(fileContent) {
+  localStorage.setItem("familyData", fileContent);
+  let url = new URL(window.location.href);
+  url.pathname = "/family-tree/view";
+  window.location.href = url.href;
 }
 
 export default Form;
