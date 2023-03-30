@@ -1,9 +1,6 @@
 header {
-  padding: .75rem 1rem;
+  padding: .25rem 1rem;
   z-index: 1;
-}
-
-header {
   box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
   display: flex;
   align-items: center;
@@ -27,6 +24,11 @@ header div {
 
 header > *:not(:last-child) {
   margin-right: 1rem;
+}
+
+header input {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .icon-only {
