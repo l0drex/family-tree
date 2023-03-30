@@ -1,8 +1,7 @@
 aside {
   grid-area: sidebar;
-  background: rgba(70, 155, 24, 0.26);
+  background: var(--background-lower);
   padding: 1rem;
-  box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
 }
 
 #info-panel {

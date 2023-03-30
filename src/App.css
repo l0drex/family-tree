@@ -55,7 +55,7 @@ main > * {
     grid-template-areas:
       "header header"
       "sidebar main"
-      "sidebar footer";
+      "footer footer";
   }
 }
 
