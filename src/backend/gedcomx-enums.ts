@@ -88,4 +88,11 @@ export enum OccupationCategories {
   King = "King"
 }
 
+export enum KnownResourceTypes {
+  Collection = "http://gedcomx.org/Collection",
+  PhysicalArtifact ="http://gedcomx.org/PhysicalArtifact",
+  DigitalArtifact = "http://gedcomx.org/DigitalArtifact",
+  Record = "http://gedcomx.org/Record"
+}
+
 export const baseUri = "http://gedcomx.org/";
