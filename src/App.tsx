@@ -30,6 +30,10 @@ function App() {
           en: "Imprint & privacy policy",
           de: "Impressum & Datenschutzerklärung"
         })}</a>
+        <a href="https://github.com/l0drex/family-tree/issues/new">{translationToString({
+          en: "Report a problem",
+          de: "Ein Problem melden"
+        })}</a>
       </footer>
     </BrowserRouter>
   } catch (error) {
