@@ -72,8 +72,8 @@ function InfoPanel(props: Props) {
                           style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
 
-        {person.getNotes().map(note => {
-          return <article>
+        {person.getNotes().map((note, i) => {
+          return <article key={i}>
             <h1><span className={"emoji"}>📝</span> {note.getSubject() || translationToString({
               en: 'Note',
               de: 'Anmerkung'
@@ -83,7 +83,7 @@ function InfoPanel(props: Props) {
         })}
 
         {person.getSources().map(source => source.getDescription()).map(ref => {
-          return <article>
+          return <article key={ref}>
             <h1><span className="emoji">📚</span> {translationToString({
               en: "Source",
               de: "Quelle"
