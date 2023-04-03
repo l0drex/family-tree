@@ -161,15 +161,15 @@ declare module "gedcomx-js" {
 
     getCitations(): Citation[]
 
-    setCitations()
+    setCitations(citations: any[])
 
-    getMediaType()
+    getMediaType(): string
 
-    setMediaType()
+    setMediaType(mediaType: string)
 
     getAbout()
 
-    setAbout()
+    setAbout(about: string)
 
     getMediator()
 

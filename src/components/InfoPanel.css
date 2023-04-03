@@ -10,7 +10,6 @@ aside {
 
 #info-panel {
   overflow-y: scroll;
-  z-index: 0;
 }
 
 #info-panel h1, #info-panel h2 {
@@ -49,7 +48,7 @@ aside {
 
 #info-panel .main .gallery {
   padding: 0;
-  z-index: -2;
+  z-index: 0;
   position: relative;
   box-shadow: none;
 }
@@ -77,6 +76,7 @@ aside {
   white-space: nowrap;
   overflow: hidden;
   font-size: .75rem;
+  z-index: 1;
 }
 
 #info-panel #factView {

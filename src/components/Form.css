@@ -42,7 +42,7 @@ input[type=submit], button, .button {
 }
 
 .button.inline, button.inline {
-  padding: .33rem 1rem;
+  padding: .33em 1em;
 }
 
 .button.inactive, button.inactive, input[type=submit].inactive {

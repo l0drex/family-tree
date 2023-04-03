@@ -3,6 +3,7 @@ import {Person} from "gedcomx-js";
 import {PersonFactTypes} from "../backend/gedcomx-enums";
 import {translationToString} from "../main";
 import {graphModel} from "../backend/ModelGraph";
+import {useState} from "react";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -10,8 +11,13 @@ interface Props {
 }
 
 function InfoPanel(props: Props) {
+  const [imageIndex, scroll] = useState(0);
+
   let person = props.person;
   let images = getImages(person);
+
+  let src = images[imageIndex];
+  let credit = src.getCitations()[0].getValue();
 
   return (
     <aside id="info-panel">
@@ -22,17 +28,19 @@ function InfoPanel(props: Props) {
 
       <section className="main">
         <div className="gallery">
-          {images.map(src => {
-            let credit = src.getCitations()[0].getValue();
-
-            return <div>
+          {<div>
               <img src={src.getAbout()} alt={translationToString({
                 en: `Image of ${person.getFullName()}`,
                 de: `Bild von ${person.getFullName()}`
               })}/>
-              <span id="credits">© <a href={src.getAbout()}>{credit}</a></span>
-            </div>
-          })}
+              <span id="credits">
+                {images.length > 1 && <button className="inline" onClick={() =>
+                  scroll(i => Math.max(0, i -= 2 /* why 2?? */))}>⬅</button>}
+                © <a href={src.getAbout()}>{credit}</a>
+                {images.length > 1 && <button className="inline" onClick={() =>
+                  scroll(i => Math.min(images.length - 1, i += 2))}>➡</button>}
+              </span>
+            </div>}
         </div>
 
         <ul id="factView">
@@ -76,7 +84,11 @@ function getImages(person: Person) {
     let sourceDescription = graphModel.getSourceDescriptionById(ref.replace('#', ''));
     if (!sourceDescription) throw Error(`Could not find a source description with id ${ref}`);
     return sourceDescription;
-  })
+  }).filter(sourceDescription => {
+    let mediaType = sourceDescription.getMediaType();
+    if (!mediaType) return false;
+    return mediaType.split('/')[0] === 'image'
+  });
 }
 
 
