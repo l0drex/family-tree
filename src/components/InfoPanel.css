@@ -1,10 +1,15 @@
 aside {
   grid-area: sidebar;
-  padding: 1rem;
+}
+
+@media(orientation: landscape) {
+  aside {
+    margin-left: 1rem;
+  }
 }
 
 #info-panel {
-  overflow: scroll;
+  overflow-y: scroll;
   z-index: 0;
 }
 
@@ -14,18 +19,35 @@ aside {
 
 #info-panel h2 {
   font-weight: normal;
-  margin: .25em 0;
 }
 
-#info-panel > *:not(h1, h2) {
+#info-panel .main {
+  display: flex;
+  gap: 1rem;
+  flex-flow: column;
+  flex-wrap: wrap;
+}
+
+@media (orientation: portrait) {
+  #info-panel .main {
+    flex-flow: row;
+  }
+}
+
+#info-panel .main > *:not(h1, h2) {
   border-radius: 1rem;
   padding: 1rem;
+  margin: 0;
   box-sizing: border-box;
   background: var(--background);
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
 }
 
-#info-panel .gallery {
+#info-panel .main > * {
+  flex: 1 1 0;
+}
+
+#info-panel .main .gallery {
   padding: 0;
   z-index: -2;
   position: relative;

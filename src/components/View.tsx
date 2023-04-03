@@ -143,9 +143,11 @@ function View() {
       </Header>
       {!focusHidden && <InfoPanel person={focus} onRefocus={onRefocus}/>}
       <main>
-        <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
-        <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
-                  onRefocus={onRefocus} graph={viewGraph}/>
+        <div id="family-tree-container">
+          <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
+          <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
+                    onRefocus={onRefocus} graph={viewGraph}/>
+        </div>
       </main>
     </>
   );
