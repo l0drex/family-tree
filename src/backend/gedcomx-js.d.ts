@@ -159,7 +159,7 @@ declare module "gedcomx-js" {
 
     setResourceType()
 
-    getCitations()
+    getCitations(): Citation[]
 
     setCitations()
 
@@ -219,7 +219,7 @@ declare module "gedcomx-js" {
 
     setDescriptions()
 
-    getIdentifiers()
+    getIdentifiers(): Identifier[]
 
     setIdentifiers()
 
@@ -552,5 +552,25 @@ declare module "gedcomx-js" {
     getFamiliesAsChild(): FamilyView[]
 
     setFamiliesAsChild(families: FamilyView[]): DisplayProperties
+  }
+
+  export class Identifier {
+    getValue(): string
+
+    setValue(value: string)
+
+    getType(): string
+
+    setType(type: string)
+  }
+
+  export class Citation {
+    getValue(): string
+
+    setValue(value: string)
+
+    getLang(): string
+
+    setLang(lang: string)
   }
 }

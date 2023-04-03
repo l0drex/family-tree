@@ -30,6 +30,10 @@ class ModelGraph extends GedcomX.Root {
     return super.getPersonById(id);
   }
 
+  getSourceDescriptionById(id: string): GedcomX.SourceDescription {
+    return this.getSourceDescriptions().find(d => d.getId() === id);
+  }
+
   getPersonByName = (name: string): GedcomX.Person => {
     return this.persons.find(person => person.getFullName().toLowerCase().includes(name));
   }
