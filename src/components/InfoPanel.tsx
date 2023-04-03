@@ -73,12 +73,22 @@ function InfoPanel(props: Props) {
         </ul>
 
         {person.getNotes().map(note => {
-          return <article className="note">
-            {<h1><span className={"emoji"}>📝</span> {note.getSubject() || translationToString({
+          return <article>
+            <h1><span className={"emoji"}>📝</span> {note.getSubject() || translationToString({
               en: 'Note',
               de: 'Anmerkung'
-            })}</h1>}
+            })}</h1>
             <p>{note.getText()}</p>
+          </article>
+        })}
+
+        {person.getSources().map(source => source.getDescription()).map(ref => {
+          return <article>
+            <h1><span className="emoji">📚</span> {translationToString({
+              en: "Source",
+              de: "Quelle"
+            })}</h1>
+            <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()}</p>
           </article>
         })}
       </section>

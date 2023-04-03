@@ -119,11 +119,11 @@ declare module "gedcomx-js" {
 
     addNote(note: Note);
 
-    getSources();
+    getSources(): SourceReference[];
 
-    setSources(sources: []);
+    setSources(sources: SourceReference[]);
 
-    addSource(source);
+    addSource(source: SourceReference);
   }
 
   export class EvidenceReference extends ResourceReference {
@@ -183,9 +183,9 @@ declare module "gedcomx-js" {
 
     setAuthors()
 
-    getSources()
+    getSources(): SourceReference[]
 
-    setSources()
+    setSources(source : SourceReference[])
 
     getAnalysis()
 

@@ -87,10 +87,10 @@ aside {
   margin-bottom: .5rem;
 }
 
-#info-panel .note h1 {
+#info-panel article h1 {
   font-size: 1.5rem;
 }
 
-#info-panel .note :last-child {
+#info-panel article :last-child {
   margin-bottom: 0;
 }
