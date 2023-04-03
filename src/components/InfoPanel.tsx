@@ -11,6 +11,8 @@ interface Props {
 
 function InfoPanel(props: Props) {
   let person = props.person;
+  let images = getImages(person);
+
   return (
     <aside id="info-panel">
       <h1 className="name">{person.getFullName()}</h1>
@@ -18,10 +20,20 @@ function InfoPanel(props: Props) {
       {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
       {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}
 
-      <img src={graphModel.getSourceDescriptions().find(desc => desc.getId() === person.getMedia()[0].getId()).getAbout()} alt={translationToString({
-        en: `Image of ${person.getFullName()}`,
-        de: `Bild von ${person.getFullName()}`
-      })}/>
+      <div className="gallery">
+        {images.map(src => {
+          let credit = src.getCitations()[0].getValue();
+
+          return <div>
+            <img src={src.getAbout()} alt={translationToString({
+              en: `Image of ${person.getFullName()}`,
+              de: `Bild von ${person.getFullName()}`
+            })}/>
+            <span id="credits">©️ <a href={src.getAbout()}>{credit}</a></span>
+          </div>
+        })}
+      </div>
+
 
       <ul id="factView">
         {person.getFacts().sort((a, b) => {
@@ -55,6 +67,15 @@ function InfoPanel(props: Props) {
       </ul>
     </aside>
   );
+}
+
+function getImages(person: Person) {
+  let mediaRefs = person.getMedia().map(media => media.getDescription());
+  return mediaRefs.map(ref => {
+    let sourceDescription = graphModel.getSourceDescriptionById(ref.replace('#', ''));
+    if (!sourceDescription) throw Error(`Could not find a source description with id ${ref}`);
+    return sourceDescription;
+  })
 }
 
 
