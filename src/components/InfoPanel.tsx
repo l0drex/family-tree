@@ -17,7 +17,7 @@ function InfoPanel(props: Props) {
   let images = getImages(person);
 
   let src = images[imageIndex];
-  let credit = src.getCitations()[0].getValue();
+  let credit = src ? src.getCitations()[0].getValue() : "";
 
   return (
     <aside id="info-panel">
@@ -27,8 +27,7 @@ function InfoPanel(props: Props) {
       {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}
 
       <section className="main">
-        <div className="gallery">
-          {<div>
+          {src && <div className="gallery">
               <img src={src.getAbout()} alt={translationToString({
                 en: `Image of ${person.getFullName()}`,
                 de: `Bild von ${person.getFullName()}`
@@ -41,7 +40,6 @@ function InfoPanel(props: Props) {
                   scroll(i => Math.min(images.length - 1, i += 2))}>➡</button>}
               </span>
             </div>}
-        </div>
 
         <ul id="factView">
           {person.getFacts().sort((a, b) => {
@@ -73,6 +71,16 @@ function InfoPanel(props: Props) {
           }).map(f => <li key={f.toString()}
                           style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
+
+        {person.getNotes().map(note => {
+          return <article className="note">
+            {<h1><span className={"emoji"}>📝</span> {note.getSubject() || translationToString({
+              en: 'Note',
+              de: 'Anmerkung'
+            })}</h1>}
+            <p>{note.getText()}</p>
+          </article>
+        })}
       </section>
     </aside>
   );

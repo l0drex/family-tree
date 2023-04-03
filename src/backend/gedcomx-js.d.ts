@@ -113,11 +113,11 @@ declare module "gedcomx-js" {
 
     setLang(lang);
 
-    getNotes();
+    getNotes(): Note[];
 
-    setNotes(notes: []);
+    setNotes(notes: Note[]);
 
-    addNote(note);
+    addNote(note: Note);
 
     getSources();
 
@@ -199,9 +199,9 @@ declare module "gedcomx-js" {
 
     setTitles()
 
-    getNotes()
+    getNotes(): Note[]
 
-    setNotes()
+    setNotes(notes: Note[])
 
     getAttribution()
 
@@ -572,5 +572,23 @@ declare module "gedcomx-js" {
     getLang(): string
 
     setLang(lang: string)
+  }
+
+  export class Note {
+    getLang(): string
+
+    setLang(lang: string)
+
+    getSubject(): string
+
+    setSubject(subject: string)
+
+    getText(): string
+
+    setText(text: string)
+
+    getAttribution(): Attribution
+
+    setAttribution(attribution: Attribution)
   }
 }
