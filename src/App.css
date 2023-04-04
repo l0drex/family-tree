@@ -12,6 +12,13 @@
 
   background: var(--background-lower);
   font-family: "Nunito", sans-serif;
+
+  grid-template-areas:
+    "header"
+    "sidebar"
+    "main"
+    "footer";
+  grid-template-rows: auto auto 2fr auto;
 }
 
 #root > * {
@@ -33,16 +40,32 @@ main > :first-child {
   margin-top: 0;
 }
 
-@media (orientation: portrait) {
-  #root {
-    grid-template-areas:
-    "header"
-    "sidebar"
-    "main"
-    "footer";
-    grid-template-rows: auto auto 2fr auto;
-  }
+aside {
+  grid-area: sidebar;
+  max-height: 30vh;
+  padding: 0 1rem;
+}
 
+footer {
+  color: var(--foreground-secondary);
+  text-align: left;
+  grid-area: footer;
+  padding: .5rem 1rem;
+  padding-top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+footer a {
+  color: var(--foreground-secondary);
+}
+
+footer * {
+  margin: 0 auto;
+}
+
+@media (orientation: portrait) {
   @media (max-width: 749px) {
     #title {
       display: none;
@@ -75,35 +98,9 @@ main > :first-child {
   main {
     margin-right: 1rem;
   }
-}
 
-aside {
-  grid-area: sidebar;
-  max-height: 30vh;
-}
-
-@media(orientation: landscape) {
   aside {
-    margin-left: 1rem;
+    padding-right: 0;
     max-height: unset;
   }
-}
-
-footer {
-  color: var(--foreground-secondary);
-  text-align: left;
-  grid-area: footer;
-  padding: .5rem 1rem;
-  padding-top: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-footer a {
-  color: var(--foreground-secondary);
-}
-
-footer * {
-  margin: 0 auto;
 }

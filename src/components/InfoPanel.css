@@ -3,19 +3,23 @@
   overflow-x: hidden;
 }
 
-#info-panel :first-child {
+#names :first-child {
   margin-top: 0;
 }
 
-#info-panel > h1, #info-panel > h2 {
+#names > h1, #names > h2 {
   text-align: center;
 }
 
-#info-panel h2 {
+#names h2 {
   font-weight: normal;
 }
 
-#info-panel .main {
+#names :last-child {
+  margin-bottom: 0;
+}
+
+#info-panel {
   display: flex;
   gap: 1rem;
   flex-flow: row;
@@ -23,7 +27,11 @@
   flex-wrap: wrap;
 }
 
-#info-panel .main > *:not(h1, h2) {
+#info-panel #names {
+  flex-basis: 100%;
+}
+
+#info-panel > article {
   border-radius: 1rem;
   padding: 1rem;
   margin: 0;
@@ -33,11 +41,11 @@
   flex: 1 1 200px;
 }
 
-#info-panel .main > * {
+#info-panel > * {
   flex: 1 1 0;
 }
 
-#info-panel .main .gallery {
+#info-panel .gallery {
   padding: 0;
   z-index: 0;
   position: relative;
@@ -71,17 +79,26 @@
 }
 
 #info-panel #factView {
-  padding-left: 2rem;
+  padding-left: 1rem;
+}
+
+#factView {
+  margin: 0;
 }
 
 #factView li:not(:last-child) {
   margin-bottom: .5rem;
 }
 
-#info-panel article h1 {
+#info-panel * h1 {
   font-size: 1.5rem;
 }
 
 #info-panel article :last-child {
   margin-bottom: 0;
+}
+
+#confidence {
+  flex-grow: 3;
+  text-align: center;
 }
