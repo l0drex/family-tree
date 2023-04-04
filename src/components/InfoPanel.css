@@ -31,6 +31,16 @@
   flex-basis: 100%;
 }
 
+@media (orientation: landscape) {
+  #info-panel {
+    flex-flow: column;
+  }
+
+  #info-panel #names {
+    flex-basis: 0;
+  }
+}
+
 #info-panel > article {
   border-radius: 1rem;
   padding: 1rem;
