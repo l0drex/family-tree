@@ -52,6 +52,42 @@
     "hideFamilyHint": "Klicke, um diese Familie auszublenden.",
     "clickPersonHint": "Klicke für weitere Informationen"
   },
+  "gedcomX": {
+    "born": "geboren",
+    "generation": "Generation",
+    "single": "ledig",
+    "married": "verheiratet",
+    "religion": "Religion",
+    "worksAs": "arbeitet als",
+    "died": "verstorben",
+    "ageQualifier": "mit {0} Jahren",
+    "day": "am {0}",
+    "month": "im {0}",
+    "year": "{0}",
+    "time": "um {0}",
+    "place": "in {0}"
+  },
+  "searchField": {
+    "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
+    "searchLabel": "Name:",
+    "searchHint": "Nach einer Person suchen"
+  },
+  "viewOptions": {
+    "filter": {
+      "label": "Zeige:",
+      "default": "Standard",
+      "descendants": "Nachkommen",
+      "ancestors": "Vorfahren",
+      "living": "Lebende",
+      "all": "Alle"
+    },
+    "color": {
+      "label": "Färbe nach:",
+      "gender": "Geschlecht",
+      "surname": "Nachname",
+      "age": "Alter"
+    }
+  },
   "ctrl": "Strg",
   "linkContent": "hier"
 }

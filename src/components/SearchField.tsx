@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Person} from "gedcomx-js";
 
@@ -36,10 +36,7 @@ function SearchField(props: Props) {
       // if no person was found, throw error
       setHasError(!person);
       if (!person) {
-        window.alert(translationToString({
-          en: "No person with that name found!",
-          de: "Es konnte keine Person mit diesem Namen gefunden werden!"
-        }));
+        window.alert(strings.searchField.noPersonFound);
         return;
       }
 
@@ -58,14 +55,8 @@ function SearchField(props: Props) {
   return (
     <form id="name-form" className="name-form search"
           onSubmit={refocus}>
-      <label htmlFor="input-name" lang="en" className="sr-only">{translationToString({
-        en: "Name:",
-        de: "Name:"
-      })}</label>
-      <input id="input-name" list="names" type="search" placeholder={translationToString({
-        en: "Search for a person",
-        de: "Nach einer Person suchen"
-      })} spellCheck="false" className={hasError ? "error" : ""}/>
+      <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
+      <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" className={hasError ? "error" : ""}/>
       <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
       <datalist id="names">
         {

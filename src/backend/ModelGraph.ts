@@ -1,5 +1,4 @@
 import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
-import {translationToString} from "../main";
 import viewGraph, {ViewMode} from "./ViewGraph";
 import config from "../config";
 import {PersonFactTypes} from "./gedcomx-enums";
@@ -10,13 +9,7 @@ class ModelGraph extends GedcomX.Root {
   constructor(data) {
     super(data)
     if (!data || data.persons.length < 0 || data.relationships.length < 0) {
-      throw new Error(
-        translationToString({
-          en: "The calculated graph is empty!" +
-            "Please check if your files are empty. If not, please contact the administrator!",
-          de: "Der berechnete Graph ist leer!" +
-            " Prüfe bitte, ob die Dateien leer sind. Sollte dies nicht der Fall sein, kontaktiere bitte den Administrator!"
-        }));
+      throw new Error("The calculated graph is empty! Please check if your files are empty. If not, please file a bug report!");
     }
 
     console.log("Found", data.persons.length, "people");

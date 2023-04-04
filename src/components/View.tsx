@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import "./View.css";
 import {graphModel, loadData} from "../backend/ModelGraph";
 import {ViewMode, ColorMode} from "../backend/ViewGraph";
@@ -15,47 +15,22 @@ function ViewOptions(props) {
   return (
     <form id="view-all">
       <div>
-        <label htmlFor="view-selector">{translationToString({
-          en: "Show:",
-          de: "Zeige:"
-        })}</label>
+        <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
         <select id="view-selector" className="button inline all" defaultValue={props.view} onChange={props.onViewChanged}>
-          <option value={ViewMode.DEFAULT}>{translationToString({
-            en: "Default",
-            de: "Standard"
-          })}</option>
-          <option value={ViewMode.DESCENDANTS}>{translationToString({
-            en: "Descendants",
-            de: "Nachkommen"
-          })}</option>
-          <option value={ViewMode.ANCESTORS}>{translationToString({
-            en: "Ancestors",
-            de: "Vorfahren"
-          })}</option>
-          <option value={ViewMode.LIVING}>{translationToString({
-            en: "Living",
-            de: "Lebende"
-          })}</option>
-          <option value={ViewMode.ALL}>{translationToString({
-            en: "All",
-            de: "Alle"
-          })}</option>
+          <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
+          <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
+          <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
+          <option value={ViewMode.LIVING}>{strings.viewOptions.filter.living}</option>
+          <option value={ViewMode.ALL}>{strings.viewOptions.filter.all}</option>
         </select>
       </div>
 
       <div>
-        <label htmlFor="color-selector">{translationToString({
-          en: "Color by:",
-          de: "Färbe nach:"
-        })
-        }</label>
+        <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
         <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
-          <option value={ColorMode.GENDER}>{translationToString({
-            en: "Gender",
-            de: "Geschlecht"
-          })}</option>
-          <option value={ColorMode.NAME}>Nachname</option>
-          <option value={ColorMode.AGE}>Alter</option>
+          <option value={ColorMode.GENDER}>{strings.viewOptions.color.gender}</option>
+          <option value={ColorMode.NAME}>{strings.viewOptions.color.surname}</option>
+          <option value={ColorMode.AGE}>{strings.viewOptions.color.age}</option>
         </select>
       </div>
     </form>
