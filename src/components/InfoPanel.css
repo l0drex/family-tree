@@ -1,10 +1,31 @@
 #info-panel {
   overflow-y: scroll;
   overflow-x: hidden;
+  display: flex;
+  gap: 1rem;
+  flex-flow: row;
+  max-width: 100vw;
+  flex-wrap: wrap;
+}
+
+#info-panel > * {
+  flex: 1 1 0;
+}
+
+#names {
+  flex-basis: 100%;
 }
 
 #names :first-child {
   margin-top: 0;
+}
+
+#names :last-child {
+  margin-bottom: 0;
+}
+
+#info-panel h1 {
+  font-size: 1.5rem;
 }
 
 #names > h1, #names > h2 {
@@ -15,28 +36,12 @@
   font-weight: normal;
 }
 
-#names :last-child {
-  margin-bottom: 0;
-}
-
-#info-panel {
-  display: flex;
-  gap: 1rem;
-  flex-flow: row;
-  max-width: 100vw;
-  flex-wrap: wrap;
-}
-
-#info-panel #names {
-  flex-basis: 100%;
-}
-
 @media (orientation: landscape) {
   #info-panel {
     flex-flow: column;
   }
 
-  #info-panel #names {
+  #names {
     flex-basis: 0;
   }
 }
@@ -49,10 +54,6 @@
   background: var(--background);
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
   flex: 1 1 200px;
-}
-
-#info-panel > * {
-  flex: 1 1 0;
 }
 
 #info-panel .gallery {
@@ -98,10 +99,6 @@
 
 #factView li:not(:last-child) {
   margin-bottom: .5rem;
-}
-
-#info-panel * h1 {
-  font-size: 1.5rem;
 }
 
 #info-panel article :last-child {

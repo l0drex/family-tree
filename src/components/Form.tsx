@@ -1,5 +1,4 @@
 import './Form.css';
-import './FormInput.css';
 import * as React from "react";
 import {translationToString} from "../main";
 import {useState} from "react";
