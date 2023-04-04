@@ -65,7 +65,7 @@ function View() {
 
   let viewGraph = graphModel.buildViewGraph(focusId, view);
   useEffect(() => {
-    viewGraph = graphModel.buildViewGraph(focusId, view);
+    graphModel.buildViewGraph(focusId, view);
   }, [focusId, view])
 
   let focus = graphModel.getPersonById(focusId) || graphModel.persons[0];

@@ -31,11 +31,14 @@ function TreeView(props: Props) {
     setupCola();
     window.matchMedia("(prefers-color-scheme: dark)")
       .addEventListener("change", () => animateTree(props.graph, props.colorMode));
-  }, [])
+  }, [props.graph, props.colorMode])
+
+  const focusId = props.focus.getId();
+  const nodeLength = props.graph.nodes.length;
 
   useEffect(() => {
     animateTree(props.graph, props.colorMode);
-  }, [props.focus.getId(), props.graph.nodes.length, props.colorMode]);
+  }, [focusId, nodeLength, props.graph, props.colorMode]);
 
   console.assert(props.graph.nodes.length > 0,
     "View graph has no nodes!");
