@@ -40,11 +40,17 @@ main > :first-child {
     "sidebar"
     "main"
     "footer";
-    grid-template-rows: auto 1fr 2fr auto;
+    grid-template-rows: auto auto 2fr auto;
   }
 
-  #title {
-    display: none;
+  @media (max-width: 749px) {
+    #title {
+      display: none;
+    }
+
+    footer :not(.important) {
+      display: none;
+    }
   }
 }
 
@@ -71,11 +77,24 @@ main > :first-child {
   }
 }
 
+aside {
+  grid-area: sidebar;
+  max-height: 30vh;
+}
+
+@media(orientation: landscape) {
+  aside {
+    margin-left: 1rem;
+    max-height: unset;
+  }
+}
+
 footer {
   color: var(--foreground-secondary);
   text-align: left;
   grid-area: footer;
   padding: .5rem 1rem;
+  padding-top: 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -83,4 +102,8 @@ footer {
 
 footer a {
   color: var(--foreground-secondary);
+}
+
+footer * {
+  margin: 0 auto;
 }

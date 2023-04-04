@@ -1,15 +1,10 @@
-aside {
-  grid-area: sidebar;
-}
-
-@media(orientation: landscape) {
-  aside {
-    margin-left: 1rem;
-  }
-}
-
 #info-panel {
   overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+#info-panel :first-child {
+  margin-top: 0;
 }
 
 #info-panel > h1, #info-panel > h2 {
@@ -23,14 +18,9 @@ aside {
 #info-panel .main {
   display: flex;
   gap: 1rem;
-  flex-flow: column;
+  flex-flow: row;
+  max-width: 100vw;
   flex-wrap: wrap;
-}
-
-@media (orientation: portrait) {
-  #info-panel .main {
-    flex-flow: row;
-  }
 }
 
 #info-panel .main > *:not(h1, h2) {
@@ -40,6 +30,7 @@ aside {
   box-sizing: border-box;
   background: var(--background);
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
+  flex: 1 1 200px;
 }
 
 #info-panel .main > * {

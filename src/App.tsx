@@ -26,7 +26,7 @@ function App() {
           en: <span>The source code is available on <a href={"https://github.com/l0drex/family-tree"}>Github</a>.</span>,
           de: <span>Der Quellcode ist auf <a href={"https://github.com/l0drex/family-tree"}>Github</a> verfügbar.</span>
         })}
-        <a href="/family-tree/imprint">{translationToString({
+        <a href="/family-tree/imprint" className="important">{translationToString({
           en: "Imprint & privacy policy",
           de: "Impressum & Datenschutzerklärung"
         })}</a>

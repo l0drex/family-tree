@@ -28,9 +28,18 @@ function InfoPanel(props: Props) {
   return (
     <aside id="info-panel">
       <h1 className="name">{person.getFullName()}</h1>
-      {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
-      {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
-      {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}
+      {person.getMarriedName() && <h2 className="birth-name">{translationToString({
+        en: "born: ",
+        de: "geb.: "
+      }) + person.getBirthName()}</h2>}
+      {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{translationToString({
+        en: "aka ",
+        de: "alias "
+      }) + person.getAlsoKnownAs()}</h2>}
+      {person.getNickname() && <h2 className="nickname">{translationToString({
+        en: "Nickname: ",
+        de: "Spitzname: "
+      }) + person.getNickname()}</h2>}
 
       <section className="main">
           {src && <div className="gallery">
