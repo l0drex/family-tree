@@ -1,5 +1,5 @@
 import * as GedcomX from "gedcomx-js";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import config from "../config";
 import {
   baseUri,
@@ -212,10 +212,9 @@ function extend(GedcomXExtend) {
       time = dateObject.toLocaleTimeString(config.browserLang, options);
     }
 
-    return translationToString({
-      en: `${this.getFormal().length >= 11 ? "on" : "in"} ${date}${time ? " at " + time : ""}`,
-      de: `${this.getFormal().length >= 11 ? "am" : "in"} ${date}${time ? " um " + time : ""}`
-    })
+    const length = this.getFormal().length;
+
+    return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
   }
 
 
@@ -227,69 +226,39 @@ function extend(GedcomXExtend) {
 
     switch (this.getType()) {
       case PersonFactTypes.Birth:
-        string = translationToString({
-          en: "born",
-          de: "geboren"
-        });
+        string = strings.gedcomX.born;
         break;
       case PersonFactTypes.Generation:
-        string = translationToString({
-          en: "Generation",
-          de: "Generation"
-        });
+        string = strings.gedcomX.generation;
         break;
       case PersonFactTypes.MaritalStatus:
-        string = translationToString({
-          en: "",
-          de: ""
-        });
+        string = "";
         switch (value) {
           case "single":
-            value = translationToString({
-              en: "single",
-              de: "ledig"
-            });
+            value = strings.gedcomX.single;
             break;
           case "married":
-            value = translationToString({
-              en: "married",
-              de: "verheiratet"
-            });
+            value = strings.gedcomX.married;
             break;
         }
         break;
       case PersonFactTypes.Religion:
-        string = translationToString({
-          en: "Religion:",
-          de: "Religion:"
-        });
+        string = strings.gedcomX.religion;
         break;
       case PersonFactTypes.Occupation:
-        string = translationToString({
-          en: "works as",
-          de: "arbeitet als"
-        })
+        string = strings.gedcomX.worksAs;
         break;
       case PersonFactTypes.Death:
-        string = translationToString({
-          en: "died",
-          de: "verstorben"
-        });
+        string = strings.gedcomX.died;
         break;
       default:
         string = this.getType();
         break;
     }
 
-    string += translationToString({
-      en: (value || value === "0" ? ` ${value}` : "") +
-        (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
-        (this.getPlace() && this.getPlace().toString() ? ` in ${this.getPlace().toString()}` : ""),
-
-      de: (value || value === "0" ? " " + value : "") +
-        (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
-        (this.getPlace() && this.getPlace().toString() ? " in " + this.getPlace().toString() : "")
-    });
+    string += (value || value === "0" ? ` ${value}` : "") +
+      (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
+      (this.getPlace() && this.getPlace().toString() ? " " + strings.formatString(strings.gedcomX.place, this.getPlace().toString()) : "");
 
     if (this.getQualifiers() && this.getQualifiers().length > 0) {
       string += " " + this.getQualifiers().map(q => q.toString()).join(" ");
@@ -325,10 +294,7 @@ function extend(GedcomXExtend) {
     let string;
     switch (this.getName()) {
       case PersonFactQualifiers.Age:
-        string = translationToString({
-          en: `with ${this.getValue()} years old`,
-          de: `mit ${this.getValue()} Jahren`
-        });
+        string = strings.formatString(strings.gedcomX.ageQualifier, this.getValue());
         break;
       case PersonFactQualifiers.Cause:
         string = `(${this.getValue()})`;

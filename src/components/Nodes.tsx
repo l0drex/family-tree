@@ -1,5 +1,5 @@
 import config from "../config";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import viewGraph from "../backend/ViewGraph";
 import {GraphPerson} from "../backend/graph";
 
@@ -17,20 +17,14 @@ export function Family(props) {
           {`💍 ${props.data.marriage}`}
         </text>}
       <text y="4pt">{props.locked ? "🔒" : "➖"}</text>
-      <title>{props.locked ? translationToString({
-        en: "This family cannot be hidden.",
-        de: "Diese Familie kann nicht ausgeblendet werden."
-      }) : translationToString({
-        en: "Click to hide this family.",
-        de: "Klicke, um diese Familie auszublenden."
-      })}</title>
+      <title>{props.locked ? strings.nodes.lockedFamilyHint : strings.nodes.hideFamilyHint}</title>
     </g>
   );
 }
 
 export function Etc(props) {
   return (
-    <g className="etc" onClick={() => viewGraph.showFamily(props.data)}>
+    <g className="etc" onClick={() => props.graph.showFamily(props.data)}>
       <circle r={config.gridSize / 2}/>
       <text y="4pt">➕</text>
     </g>
@@ -45,10 +39,7 @@ export function Person(props) {
       x={graphPerson.x - graphPerson.width / 2} y={graphPerson.y - graphPerson.height / 2}
       width={graphPerson.width} height={graphPerson.height}
       onClick={() => props.onClick(graphPerson.data)}>
-      <div className={"bg" + (props.focused ? " focused" : "")} title={translationToString({
-        en: "Click to show more information",
-        de: "Klicke für weitere Informationen"
-      })}>
+      <div className={"bg" + (props.focused ? " focused" : "")} title={strings.nodes.clickPersonHint}>
         <p className="fullName">{graphPerson.getName()}</p>
       </div>
     </foreignObject>

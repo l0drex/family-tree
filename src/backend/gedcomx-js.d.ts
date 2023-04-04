@@ -19,16 +19,18 @@ declare module "gedcomx-js" {
   }
 
   export class Root extends ExtensibleData {
+    id: string
     lang: string
+    attribution: Attribution
     persons: Person[]
     relationships: Relationship[]
-    description: string
-    sourceDescriptions
+    sourceDescriptions: SourceDescription[]
     agents
-    events
-    documents
+    events: Event[]
+    documents: Document[]
     places
-    attribution
+    groups
+    description: string
 
     getPersons(): Person[]
 
@@ -57,6 +59,8 @@ declare module "gedcomx-js" {
     setRelationships(relationships: Relationship[] | object[]): Root
 
     addRelationship(relationship: Relationship | object): Root
+
+    getSourceDescriptions(): SourceDescription[]
   }
 
   export function GedcomX(json: any): Root;
@@ -109,17 +113,17 @@ declare module "gedcomx-js" {
 
     setLang(lang);
 
-    getNotes();
+    getNotes(): Note[];
 
-    setNotes(notes: []);
+    setNotes(notes: Note[]);
 
-    addNote(note);
+    addNote(note: Note);
 
-    getSources();
+    getSources(): SourceReference[];
 
-    setSources(sources: []);
+    setSources(sources: SourceReference[]);
 
-    addSource(source);
+    addSource(source: SourceReference);
   }
 
   export class EvidenceReference extends ResourceReference {
@@ -140,6 +144,100 @@ declare module "gedcomx-js" {
     getAttribution(): Attribution
 
     setAttribution(attribution: object | Attribution): SourceReference
+
+    getQualifiers()
+
+    setQualifiers(qualifiers: Qualifier[])
+  }
+
+  export class SourceDescription {
+    getId(): string
+
+    setId(id: string)
+
+    getResourceType()
+
+    setResourceType()
+
+    getCitations(): Citation[]
+
+    setCitations(citations: any[])
+
+    getMediaType(): string
+
+    setMediaType(mediaType: string)
+
+    getAbout()
+
+    setAbout(about: string)
+
+    getMediator()
+
+    setMediator()
+
+    getPublisher()
+
+    setPublisher()
+
+    getAuthors()
+
+    setAuthors()
+
+    getSources(): SourceReference[]
+
+    setSources(source : SourceReference[])
+
+    getAnalysis()
+
+    setAnalysis()
+
+    getComponentOf()
+
+    setComponentOf()
+
+    getTitles()
+
+    setTitles()
+
+    getNotes(): Note[]
+
+    setNotes(notes: Note[])
+
+    getAttribution()
+
+    setAttribution()
+
+    getRights()
+
+    setRights()
+
+    getCoverage()
+
+    setCoverage()
+
+    getDescriptions()
+
+    setDescriptions()
+
+    getIdentifiers(): Identifier[]
+
+    setIdentifiers()
+
+    getCreated()
+
+    setCreated()
+
+    getModified()
+
+    setModified()
+
+    getPublished()
+
+    setPublished()
+
+    getRepository()
+
+    setRepository()
   }
 
   export class Identifiers extends Base {
@@ -454,5 +552,43 @@ declare module "gedcomx-js" {
     getFamiliesAsChild(): FamilyView[]
 
     setFamiliesAsChild(families: FamilyView[]): DisplayProperties
+  }
+
+  export class Identifier {
+    getValue(): string
+
+    setValue(value: string)
+
+    getType(): string
+
+    setType(type: string)
+  }
+
+  export class Citation {
+    getValue(): string
+
+    setValue(value: string)
+
+    getLang(): string
+
+    setLang(lang: string)
+  }
+
+  export class Note {
+    getLang(): string
+
+    setLang(lang: string)
+
+    getSubject(): string
+
+    setSubject(subject: string)
+
+    getText(): string
+
+    setText(text: string)
+
+    getAttribution(): Attribution
+
+    setAttribution(attribution: Attribution)
   }
 }

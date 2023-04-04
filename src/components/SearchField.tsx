@@ -1,51 +1,16 @@
-import {Component} from "react";
-import {translationToString} from "../main";
+import {useEffect, useState} from "react";
+import {strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Person} from "gedcomx-js";
 
 interface Props {
-  person: Person,
   onRefocus: (newFocus: Person) => void
 }
 
-interface State {
-  hasError: boolean
-}
+function SearchField(props: Props) {
+  const [hasError, setHasError] = useState(false);
 
-class SearchField extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasError: false
-    }
-  }
-
-  render() {
-    return (
-      <form id="name-form" className="name-form search"
-            onSubmit={this.refocus.bind(this)}>
-        <label htmlFor="input-name" lang="en" className="sr-only">{translationToString({
-          en: "Name:",
-          de: "Name:"
-        })}</label>
-        <input id="input-name" list="names" type="search" placeholder={translationToString({
-          en: "Name",
-          de: "Name"
-        })} spellCheck="false" className={this.state.hasError ? "error" : ""}
-               value={this.props.person.getFullName()}/>
-        <input className="emoji" type="submit" value="🔍" onInput={this.resetError}/>
-        <datalist id="names">
-          {
-            graphModel.persons.map(p =>
-              <option value={p.getFullName()} key={p.getId()}>{p.getFullName()}</option>
-            )
-          }
-        </datalist>
-      </form>
-    );
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     // add keyboard shortcuts
     document.addEventListener("keydown", event => {
       switch (event.key) {
@@ -59,9 +24,9 @@ class SearchField extends Component<Props, State> {
           document.querySelector<HTMLElement>(":focus").blur();
       }
     });
-  }
+  }, []);
 
-  refocus(event) {
+  function refocus(event) {
     event.preventDefault();
     let name = document.querySelector<HTMLInputElement>("#input-name").value;
     if (name) {
@@ -69,26 +34,39 @@ class SearchField extends Component<Props, State> {
       let person = graphModel.getPersonByName(name.toLowerCase());
 
       // if no person was found, throw error
-      this.setState({hasError: !person});
+      setHasError(!person);
       if (!person) {
-        window.alert(translationToString({
-          en: "No person with that name found!",
-          de: "Es konnte keine Person mit diesem Namen gefunden werden!"
-        }));
+        window.alert(strings.searchField.noPersonFound);
         return;
       }
 
       console.log(`Assuming the person is ${person.getFullName()} with id ${person.getId()}`);
-      this.props.onRefocus(person);
+      props.onRefocus(person);
     }
   }
 
-  resetError() {
+  function resetError() {
     let name = document.querySelector<HTMLInputElement>("#input-name").value;
     if (!name) {
-      this.setState({hasError: false});
+      setHasError(false);
     }
   }
+
+  return (
+    <form id="name-form" className="name-form search"
+          onSubmit={refocus}>
+      <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
+      <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" className={hasError ? "error" : ""}/>
+      <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
+      <datalist id="names">
+        {
+          graphModel.persons.map(p =>
+            <option value={p.getFullName()} key={p.getId()}>{p.getFullName()}</option>
+          )
+        }
+      </datalist>
+    </form>
+  );
 }
 
 export default SearchField;
