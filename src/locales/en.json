@@ -36,6 +36,22 @@
       "title": "Imprint"
     }
   },
+  "infoPanel": {
+    "born": "born: {0}",
+    "aka": "aka {0}",
+    "nickname": "Nickname: {0}",
+    "personImageAlt": "Image of {0}.",
+    "note": "Note",
+    "source": "Source",
+    "noSourceDescriptionError": "Source description {0} could not be found",
+    "confidenceExplanation": "How much can the data be trusted",
+    "confidenceLabel": "Confidence: "
+  },
+  "nodes": {
+    "lockedFamilyHint": "This family cannot be hidden.",
+    "hideFamilyHint": "Click to hide this family.",
+    "clickPersonHint": "Click to show more information"
+  },
   "ctrl": "Ctrl",
   "linkContent": "here"
 }

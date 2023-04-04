@@ -36,6 +36,22 @@
       "title": "Impressum"
     }
   },
+  "infoPanel": {
+    "born": "geb.: {0}",
+    "aka": "alias {0}",
+    "nickname": "Spitzname: {0}",
+    "personImageAlt": "Bild von {0}.",
+    "note": "Anmerkung",
+    "source": "Quelle",
+    "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden",
+    "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
+    "confidenceLabel": "Zuversicht: "
+  },
+  "nodes": {
+    "lockedFamilyHint": "Diese Familie kann nicht ausgeblendet werden.",
+    "hideFamilyHint": "Klicke, um diese Familie auszublenden.",
+    "clickPersonHint": "Klicke für weitere Informationen"
+  },
   "ctrl": "Strg",
   "linkContent": "hier"
 }

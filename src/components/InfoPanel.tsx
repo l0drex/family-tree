@@ -1,7 +1,7 @@
 import './InfoPanel.css';
 import {Person} from "gedcomx-js";
 import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
 
@@ -38,28 +38,24 @@ function InfoPanel(props: Props) {
     <aside id="info-panel">
       <section className="title">
         <h1 className="name">{person.getFullName()}</h1>
-        {person.getMarriedName() && <h2 className="birth-name">{translationToString({
-          en: "born: ",
-          de: "geb.: "
-        }) + person.getBirthName()}</h2>}
-        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{translationToString({
-          en: "aka ",
-          de: "alias "
-        }) + person.getAlsoKnownAs()}</h2>}
-        {person.getNickname() && <h2 className="nickname">{translationToString({
-          en: "Nickname: ",
-          de: "Spitzname: "
-        }) + person.getNickname()}</h2>}
+        {person.getMarriedName() && <h2 className="birth-name">
+          {strings.formatString(strings.infoPanel.born, person.getBirthName())}
+        </h2>}
+        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">
+          {strings.formatString(strings.infoPanel.aka, person.getAlsoKnownAs())}
+        </h2>}
+        {person.getNickname() && <h2 className="nickname">
+          {strings.formatString(strings.infoPanel.nickname, person.getNickname())}
+        </h2>}
       </section>
 
       {images.length > 0 && <Gallery>
         {images.map(image => {
           let credit = image.getCitations()[0].getValue();
           return <div key={image.getId()}>
-            <img src={image.getAbout()} alt={translationToString({
-              en: `Image of ${person.getFullName()}`,
-              de: `Bild von ${person.getFullName()}`
-            })}/>
+            <img src={image.getAbout()}
+                 alt={strings.formatString(strings.infoPanel.personImageAlt, person.getFullName()) as string
+                   /* quick hack, dont know why this does not just return string */}/>
             <span className="credits">
               © <a href={image.getAbout()}>{credit}</a>
             </span>
@@ -102,37 +98,22 @@ function InfoPanel(props: Props) {
 
       {person.getNotes().map((note, i) => {
         return <article key={i}>
-          <h1><span className={"emoji"}>📝</span> {note.getSubject() || translationToString({
-            en: 'Note',
-            de: 'Anmerkung'
-          })}</h1>
+          <h1><span className={"emoji"}>📝</span> {note.getSubject() || strings.infoPanel.note}</h1>
           <p>{note.getText()}</p>
         </article>
       })}
 
       {person.getSources().map(source => source.getDescription()).map(ref => {
         return <article key={ref}>
-          <h1><span className="emoji">📚</span> {translationToString({
-            en: "Source",
-            de: "Quelle"
-          })}</h1>
+          <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
           <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
             graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
-          : translationToString({
-              en: <>Source description <code>{ref}</code> could not be found</>,
-              de: <>Source description <code>{ref}</code> konnte nicht gefunden werden</>
-            })}</p>
+          : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
         </article>
       })}
 
       {person.getConfidence() && <div id="confidence">
-        <span title={translationToString({
-          en: "How much can the data be trusted",
-          de: "Wie sehr kann den Daten vertraut werden"
-        })}>{translationToString({
-          en: "Confidence: ",
-          de: "Zuversicht: "
-        })}</span>
+        <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
         <meter value={confidence} max={3} low={2} high={2} optimum={3}>{person.getConfidence()}</meter>
       </div>}
     </aside>
