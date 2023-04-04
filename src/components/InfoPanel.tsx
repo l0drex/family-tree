@@ -3,7 +3,7 @@ import {Person} from "gedcomx-js";
 import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
 import {translationToString} from "../main";
 import {graphModel} from "../backend/ModelGraph";
-import {useState} from "react";
+import {Gallery} from "./Gallery";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -11,13 +11,8 @@ interface Props {
 }
 
 function InfoPanel(props: Props) {
-  const [imageIndex, scroll] = useState(0);
-
   let person = props.person;
   let images = getImages(person);
-
-  let src = images[imageIndex];
-  let credit = src ? src.getCitations()[0].getValue() : "";
 
   let confidence;
   if (person.getConfidence()) {
@@ -57,21 +52,20 @@ function InfoPanel(props: Props) {
         }) + person.getNickname()}</h2>}
       </section>
 
-      {src && <article className="gallery">
-        <div>
-          <img src={src.getAbout()} alt={translationToString({
-            en: `Image of ${person.getFullName()}`,
-            de: `Bild von ${person.getFullName()}`
-          })}/>
-          <span className="credits">
-              {images.length > 1 && <button className="inline" onClick={() =>
-                scroll(i => Math.max(0, i - 2 /* why 2?? */))}>⬅</button>}
-            © <a href={src.getAbout()}>{credit}</a>
-            {images.length > 1 && <button className="inline" onClick={() =>
-              scroll(i => Math.min(images.length - 1, i + 2))}>➡</button>}
+      {images.length > 0 && <Gallery>
+        {images.map(image => {
+          let credit = image.getCitations()[0].getValue();
+          return <div key={image.getId()}>
+            <img src={image.getAbout()} alt={translationToString({
+              en: `Image of ${person.getFullName()}`,
+              de: `Bild von ${person.getFullName()}`
+            })}/>
+            <span className="credits">
+              © <a href={image.getAbout()}>{credit}</a>
             </span>
-        </div>
-      </article>}
+          </div>
+        })}
+      </Gallery>}
 
       <article>
         <ul id="factView">
