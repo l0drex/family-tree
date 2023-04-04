@@ -122,7 +122,12 @@ function InfoPanel(props: Props) {
             en: "Source",
             de: "Quelle"
           })}</h1>
-          <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()}</p>
+          <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
+            graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
+          : translationToString({
+              en: <>Source description <code>{ref}</code> could not be found</>,
+              de: <>Source description <code>{ref}</code> konnte nicht gefunden werden</>
+            })}</p>
         </article>
       })}
 
