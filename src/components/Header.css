@@ -27,17 +27,3 @@ header input {
   margin: 0;
   font-size: 1.5rem;
 }
-
-.icon-only {
-  background: none;
-  padding: 0;
-  border: none;
-}
-
-#open-file button {
-  margin: 0;
-}
-
-#name-form input[type=submit] {
-  padding: 0;
-}

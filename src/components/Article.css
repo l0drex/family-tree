@@ -11,6 +11,18 @@ article h1 {
   padding-bottom: .75rem;
 }
 
+aside ul, aside ol {
+  padding-left: 1rem;
+}
+
+article :first-child {
+  margin-top: 0;
+}
+
+article :last-child {
+  margin-bottom: 0;
+}
+
 details {
   background: var(--background-lower);
   border-radius: .5rem;

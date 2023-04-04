@@ -1,4 +1,4 @@
-#info-panel {
+aside {
   overflow-y: scroll;
   overflow-x: hidden;
   display: flex;
@@ -6,47 +6,52 @@
   flex-flow: row;
   max-width: 100vw;
   flex-wrap: wrap;
+  grid-area: sidebar;
+  max-height: 30vh;
+  padding: 0 1rem;
 }
 
-#info-panel > * {
+aside > * {
   flex: 1 1 0;
 }
 
-#names {
+aside .title {
   flex-basis: 100%;
 }
 
-#names :first-child {
+aside .title :first-child {
   margin-top: 0;
 }
 
-#names :last-child {
+aside .title :last-child {
   margin-bottom: 0;
 }
 
-#info-panel h1 {
+aside h1, aside article h1 {
   font-size: 1.5rem;
 }
 
-#names > h1, #names > h2 {
+aside .title > h1, aside .title > h2 {
   text-align: center;
 }
 
-#names h2 {
+aside .title h2 {
   font-weight: normal;
 }
 
 @media (orientation: landscape) {
-  #info-panel {
+  aside {
     flex-flow: column;
+    padding-right: 0;
+    max-height: unset;
   }
 
-  #names {
+  aside .title {
     flex-basis: 0;
   }
 }
 
-#info-panel > article {
+aside > article {
   border-radius: 1rem;
   padding: 1rem;
   margin: 0;
@@ -56,14 +61,14 @@
   flex: 1 1 200px;
 }
 
-#info-panel .gallery {
+aside .gallery {
   padding: 0;
   z-index: 0;
   position: relative;
   box-shadow: none;
 }
 
-#info-panel .gallery div {
+aside .gallery div {
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
   border-radius: 1rem;
   z-index: 0;
@@ -78,7 +83,7 @@
   z-index: -1;
 }
 
-.gallery #credits {
+.gallery .credits {
   padding-top: .25rem;
   padding-bottom: .25rem;
   text-align: center;
@@ -89,23 +94,7 @@
   z-index: 1;
 }
 
-#info-panel #factView {
-  padding-left: 1rem;
-}
-
-#factView {
-  margin: 0;
-}
-
-#factView li:not(:last-child) {
-  margin-bottom: .5rem;
-}
-
-#info-panel article :last-child {
-  margin-bottom: 0;
-}
-
 #confidence {
-  flex-grow: 3;
+  flex-grow: 2;
   text-align: center;
 }

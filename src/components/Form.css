@@ -135,3 +135,10 @@ input[type=search]:focus {
 .file-upload *:not(:last-child) {
   margin-bottom: .5rem;
 }
+
+.icon-only {
+  background: none;
+  padding: 0;
+  border: none;
+  margin: 0;
+}

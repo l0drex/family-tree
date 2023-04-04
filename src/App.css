@@ -40,12 +40,6 @@ main > :first-child {
   margin-top: 0;
 }
 
-aside {
-  grid-area: sidebar;
-  max-height: 30vh;
-  padding: 0 1rem;
-}
-
 footer {
   color: var(--foreground-secondary);
   text-align: left;
@@ -63,6 +57,10 @@ footer a {
 
 footer * {
   margin: 0 auto;
+}
+
+li:not(:last-child) {
+  margin-bottom: .5rem;
 }
 
 @media (orientation: portrait) {
@@ -97,10 +95,5 @@ footer * {
 
   main {
     margin-right: 1rem;
-  }
-
-  aside {
-    padding-right: 0;
-    max-height: unset;
   }
 }

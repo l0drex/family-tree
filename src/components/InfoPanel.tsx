@@ -41,7 +41,7 @@ function InfoPanel(props: Props) {
 
   return (
     <aside id="info-panel">
-      <section id="names">
+      <section className="title">
         <h1 className="name">{person.getFullName()}</h1>
         {person.getMarriedName() && <h2 className="birth-name">{translationToString({
           en: "born: ",
@@ -63,7 +63,7 @@ function InfoPanel(props: Props) {
             en: `Image of ${person.getFullName()}`,
             de: `Bild von ${person.getFullName()}`
           })}/>
-          <span id="credits">
+          <span className="credits">
               {images.length > 1 && <button className="inline" onClick={() =>
                 scroll(i => Math.max(0, i - 2 /* why 2?? */))}>⬅</button>}
             © <a href={src.getAbout()}>{credit}</a>

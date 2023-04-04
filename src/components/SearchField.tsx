@@ -66,7 +66,7 @@ function SearchField(props: Props) {
         en: "Search for a person",
         de: "Nach einer Person suchen"
       })} spellCheck="false" className={hasError ? "error" : ""}/>
-      <input className="emoji" type="submit" value="🔍" onInput={resetError}/>
+      <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
       <datalist id="names">
         {
           graphModel.persons.map(p =>
