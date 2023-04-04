@@ -214,8 +214,7 @@ function extend(GedcomXExtend) {
 
     const length = this.getFormal().length;
 
-    return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}
-     ${time ? strings.formatString(strings.gedcomX.time, time) : ""}`;
+    return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
   }
 
 
