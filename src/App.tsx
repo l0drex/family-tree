@@ -1,7 +1,7 @@
 import * as React from "react";
 import {useEffect, useState} from "react";
 import './App.css';
-import {localize, translationToString} from "./main";
+import {localize, strings} from "./main";
 import config from "./config";
 import Notification from "./components/Notification";
 import View from "./components/View";
@@ -22,18 +22,15 @@ function App() {
         <Route path="/imprint" element={<Imprint/>}/>
       </Routes>
       <footer>
-        {translationToString({
-          en: <span>The source code is available on <a href={"https://github.com/l0drex/family-tree"}>Github</a>.</span>,
-          de: <span>Der Quellcode ist auf <a href={"https://github.com/l0drex/family-tree"}>Github</a> verfügbar.</span>
-        })}
-        <a href="/family-tree/imprint" className="important">{translationToString({
-          en: "Imprint & privacy policy",
-          de: "Impressum & Datenschutzerklärung"
-        })}</a>
-        <a href="https://github.com/l0drex/family-tree/issues/new">{translationToString({
-          en: "Report a problem",
-          de: "Ein Problem melden"
-        })}</a>
+        <span>
+          {strings.formatString(strings.footer.sourceCode, <a href={"https://github.com/l0drex/family-tree"}>Github</a>)}
+        </span>
+        <a href="/family-tree/imprint" className="important">
+          {strings.footer.imprint}
+        </a>
+        <a href="https://github.com/l0drex/family-tree/issues/new">
+          {strings.footer.bugReport}
+        </a>
       </footer>
     </BrowserRouter>
   } catch (error) {

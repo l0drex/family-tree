@@ -1,4 +1,12 @@
+import LocalizedStrings from "react-localization";
 import config from "./config";
+import * as en from "./locales/en.json";
+import * as de from "./locales/de.json";
+
+export let strings = new LocalizedStrings({
+  en: en,
+  de: de
+})
 
 /**
  * Only show elements with the correct langauge
@@ -23,6 +31,7 @@ export function localize(language) {
  * The translationObject maps two-letter language strings to a message string.
  * @param translationObject {object}
  * @returns {string}
+ * @deprecated
  */
 export function translationToString(translationObject: {en: any, de?: any}) {
   if (!("en" in translationObject))
