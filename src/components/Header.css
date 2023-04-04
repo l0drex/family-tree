@@ -7,6 +7,7 @@ header {
   background: var(--primary);
   color: white;
   grid-area: header;
+  gap: 1rem;
 }
 
 header ::selection {
@@ -22,13 +23,8 @@ header div {
   flex-grow: 2;
 }
 
-header > *:not(:last-child) {
-  margin-right: 1rem;
-}
-
 header input {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
   font-size: 1.5rem;
 }
 
@@ -36,4 +32,12 @@ header input {
   background: none;
   padding: 0;
   border: none;
+}
+
+#open-file button {
+  margin: 0;
+}
+
+#name-form input[type=submit] {
+  padding: 0;
 }
