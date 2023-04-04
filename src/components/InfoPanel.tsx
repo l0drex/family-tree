@@ -19,6 +19,12 @@ function InfoPanel(props: Props) {
   let src = images[imageIndex];
   let credit = src ? src.getCitations()[0].getValue() : "";
 
+  person.getEvidence()
+  person.getIdentifiers()
+  person.getAnalysis()
+  person.getAttribution()
+  person.getConfidence()
+
   return (
     <aside id="info-panel">
       <h1 className="name">{person.getFullName()}</h1>
@@ -28,6 +34,7 @@ function InfoPanel(props: Props) {
 
       <section className="main">
           {src && <div className="gallery">
+            <div>
               <img src={src.getAbout()} alt={translationToString({
                 en: `Image of ${person.getFullName()}`,
                 de: `Bild von ${person.getFullName()}`
@@ -39,7 +46,8 @@ function InfoPanel(props: Props) {
                 {images.length > 1 && <button className="inline" onClick={() =>
                   scroll(i => Math.min(images.length - 1, i += 2))}>➡</button>}
               </span>
-            </div>}
+            </div>
+          </div>}
 
         <ul id="factView">
           {person.getFacts().sort((a, b) => {
