@@ -50,10 +50,10 @@ function InfoPanel(props: Props) {
               })}/>
               <span id="credits">
                 {images.length > 1 && <button className="inline" onClick={() =>
-                  scroll(i => Math.max(0, i -= 2 /* why 2?? */))}>⬅</button>}
+                  scroll(i => Math.max(0, i - 2 /* why 2?? */))}>⬅</button>}
                 © <a href={src.getAbout()}>{credit}</a>
                 {images.length > 1 && <button className="inline" onClick={() =>
-                  scroll(i => Math.min(images.length - 1, i += 2))}>➡</button>}
+                  scroll(i => Math.min(images.length - 1, i + 2))}>➡</button>}
               </span>
             </div>
           </div>}
