@@ -1,6 +1,6 @@
 import * as React from "react";
 import Header from "./Header";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import Form from "./Form";
 import "./Article.css";
 
@@ -19,37 +19,17 @@ function Uploader() {
   root.classList.remove("sidebar-visible");
 
   return (
-    <Article title={translationToString({
-      en: "File-Upload",
-      de: "Datei-Upload"
-    })} emoji="📁">
+    <Article title={strings.home.uploadArticle.title} emoji="📁">
       <p>
-        {translationToString({
-          en: "Select the file with the button below. " +
-            "Then click the green button to view the family tree.",
-          de: "Wähle die Datei über den unteren Knopf aus. " +
-            "Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen."
-        })}
+        {strings.home.uploadArticle.content}
       </p>
-      <Form submit={translationToString({
-        en: "Open family tree",
-        de: "Stammbaum öffnen"
-      })}/>
+      <Form submit={strings.home.uploadArticle.openButton}/>
       <details>
-        <summary><span className="emoji">🗒️</span> {translationToString({
-          en: "From where do I get the data?",
-          de: "Woher bekomme ich die Daten?"
-        })}</summary>
+        <summary><span className="emoji">🗒️</span> {strings.home.uploadArticle.detailSummary}</summary>
         <p>
-          {translationToString({
-            en: <>The file must be a valid GedcomX file in json format,
-              as described <a
-                href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">here</a></>,
-            de: <>Die Datei muss eine gültige GedcomX Datei im json Format sein,
-              wie <a
-                href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">hier</a> beschrieben.</>
-          })}
-
+          {strings.formatString(strings.home.uploadArticle.detail,
+            <a href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">
+              {strings.linkContent}</a>)}
         </p>
       </details>
     </Article>
@@ -67,59 +47,25 @@ function Article(props) {
 
 
 function NavigationTutorial() {
-  return (
-    <>
-      <Article title={translationToString({
-        en: "Usage",
-        de: "Bedienung"
-      })} emoji="🖥">
-        {translationToString({
-          en: <p>
-            You can move the family tree with your mouse.While pressing <kbd>Ctrl</kbd>, you can zoom in and out
-            with your mouse wheel.
-            Select a person with your left mouse button to show their information.
-            Many people have a circle with "+" or "-" inside them, clicking on those displays their relatives.
-          </p>,
-          de: <p>
-            Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man <kbd>Strg</kbd> gedrückt, kann
-            man mit dem Mausrad rein- bzw. rauszoomen.
-            Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt.
-            An vielen Personen hängen Kreise, in denen "+" oder "-" steht. Klickt man auf diese, werden weitere
-            Verwandte ein- oder ausgeblendet.
-          </p>
-        })}
-      </Article>
-    </>
-  );
+  return <Article title={strings.home.navigationArticle.title} emoji="🖥">
+    {strings.formatString(strings.home.navigationArticle.content,
+      <kbd>{strings.ctrl}</kbd>)}
+  </Article>
 }
 
 export function Imprint() {
   return <>
     <Header/>
     <main>
-      <Article title={translationToString({
-        en: "Privacy Policy",
-        de: "Datenschutzerklärung"
-      })} emoji="🔐">
-        {translationToString({
-          en: <p>
-            All family tree data is processed locally only and stored in the browser's local storage.
-            The service is hosted on GitHub Pages, the corresponding privacy policy can be found
-            <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">here</a>.
-          </p>,
-          de: <p>
-            Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und im local Storage des Browsers gespeichert.
-            Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann
-            <a
-              href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement"> hier</a> aufgerufen
-            werden.
-          </p>
-        })}
+      <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
+        <p>
+          {strings.formatString(strings.imprint.privacyArticle.content,
+            <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
+              {strings.linkContent}
+            </a>)}
+        </p>
       </Article>
-      <Article title={translationToString({
-        en: "Imprint",
-        de: "Impressum"
-      })} emoji="📇">
+      <Article title={strings.imprint.imprintArticle.title} emoji="📇">
         <p>
           <address>
             Hoffmann, Lorenz <br/>

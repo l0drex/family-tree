@@ -3,5 +3,39 @@
     "sourceCode": "The source code is available on {0}.",
     "imprint": "Imprint & privacy policy",
     "bugReport": "Report a problem"
-  }
+  },
+  "form": {
+    "fileInputLabel": "Gedcom File",
+    "continueSession": "Continue with last session",
+    "noFileError": "No gedcom file selected",
+    "graphLoadingError": "The graph could not be loaded."
+  },
+  "header": {
+    "imageAlt": "A smiling tree.",
+    "title": "Family tree"
+  },
+  "home": {
+    "uploadArticle": {
+      "title": "File-Upload",
+      "content": "Select the file with the button below. Then click the green button to view the family tree.",
+      "openButton": "Open family tree",
+      "detailSummary": "From where do I get the data?",
+      "detail": "The file must be a valid GedcomX file in json format, as described {0}."
+    },
+    "navigationArticle": {
+      "title": "Usage",
+      "content": "You can move the family tree with your mouse.While pressing {0}, you can zoom in and out with your mouse wheel. Select a person with your left mouse button to show their information. Many people have a circle with \"+\" or \"-\" inside them, clicking on those displays their relatives."
+    }
+  },
+  "imprint": {
+    "privacyArticle": {
+      "title": "Privacy Policy",
+      "content": "All family tree data is processed locally only and stored in the browser's local storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
+    },
+    "imprintArticle": {
+      "title": "Imprint"
+    }
+  },
+  "ctrl": "Ctrl",
+  "linkContent": "here"
 }

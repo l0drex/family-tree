@@ -1,6 +1,6 @@
 import './Form.css';
 import * as React from "react";
-import {translationToString} from "../main";
+import {strings} from "../main";
 import {useState} from "react";
 
 function Form(props) {
@@ -47,20 +47,18 @@ function Form(props) {
           onDragEnter={checkDropAllowed} onDragOver={checkDropAllowed}
           onDrop={onDrop}
           onDragLeave={removeFocus} onDragEnd={removeFocus}>
-          <label htmlFor="gedcom-file">{translationToString({
-            en: "Gedcom File",
-            de: "Gedcom Datei"
-          })}</label>
+          <label htmlFor="gedcom-file">
+            {strings.form.fileInputLabel}
+          </label>
           <br/>
           <input type="file" id="gedcom-file" accept="application/json" onChange={(e) =>
-          setFile(e.target.files[0].name)} ref={input}/>
+            setFile(e.target.files[0].name)} ref={input}/>
         </div>
       </div>
 
-      {localStorage.getItem("familyData") && <a className="button" href="/family-tree/view">{translationToString({
-        en: "Continue with last session",
-        de: "Mit letzter Sitzung fortfahren"
-      })}</a>}
+      {localStorage.getItem("familyData") && <a className="button" href="/family-tree/view">
+        {strings.form.continueSession}
+      </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
     </form>
   );
@@ -68,10 +66,7 @@ function Form(props) {
 
 export async function parseFile(gedcomFile) {
   if (!gedcomFile) {
-    throw new Error(translationToString({
-      en: "No gedcom file selected",
-      de: "Keine Datei ausgewählt"
-    }))
+    throw new Error(strings.form.noFileError)
   }
 
   let readerGedcom = new FileReader();
@@ -80,10 +75,7 @@ export async function parseFile(gedcomFile) {
       localStorage.setItem("familyData", file.target.result);
       return file.target.result;
     } else {
-      throw new Error(translationToString({
-        en: "The graph could not be loaded.",
-        de: "Der Graph konnte nicht geladen werden."
-      }))
+      throw new Error(strings.form.graphLoadingError)
     }
   }
   readerGedcom.readAsText(gedcomFile);
