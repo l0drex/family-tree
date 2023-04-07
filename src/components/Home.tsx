@@ -48,8 +48,10 @@ function Article(props) {
 
 function NavigationTutorial() {
   return <Article title={strings.home.navigationArticle.title} emoji="🖥">
+  <p>
     {strings.formatString(strings.home.navigationArticle.content,
       <kbd>{strings.ctrl}</kbd>)}
+  </p>
   </Article>
 }
 
