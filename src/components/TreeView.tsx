@@ -27,14 +27,14 @@ function TreeView(props: Props) {
   props.graph.addEventListener("add", onGraphChanged);
   props.graph.addEventListener("remove", onGraphChanged);
 
+  const focusId = props.focus.getId();
+  const nodeLength = props.graph.nodes.length;
+
   useEffect(() => {
     setupCola();
     window.matchMedia("(prefers-color-scheme: dark)")
       .addEventListener("change", () => animateTree(props.graph, props.colorMode));
   }, [props.graph, props.colorMode])
-
-  const focusId = props.focus.getId();
-  const nodeLength = props.graph.nodes.length;
 
   useEffect(() => {
     animateTree(props.graph, props.colorMode);
@@ -44,11 +44,12 @@ function TreeView(props: Props) {
     "View graph has no nodes!");
   console.assert(props.graph.links.length > 0,
     "View graph has no links!");
+  let iterations = nodeLength < 100 ? 10 : 0;
   d3cola
     .flowLayout("x", config.gridSize * 5)
     .nodes(props.graph.nodes)
     .links(props.graph.links)
-    .start(10, 0, 10);
+    .start(iterations, 0, iterations);
 
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg">
@@ -73,7 +74,7 @@ function TreeView(props: Props) {
   );
 }
 
-function setupCola() {
+async function setupCola() {
   let svg = d3.select<SVGSVGElement, undefined>("#family-tree");
 
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
@@ -104,7 +105,7 @@ function setupCola() {
   svg.select<SVGElement>("rect").call(svgZoom);
 }
 
-function animateTree(graph: ViewGraph, colorMode: ColorMode) {
+async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
   d3cola
     .flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
     .symmetricDiffLinkLengths(config.gridSize)
