@@ -27,3 +27,12 @@ header input {
   margin: 0;
   font-size: 1.5rem;
 }
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+nav a {
+  text-decoration: none;
+}

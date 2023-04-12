@@ -18,6 +18,8 @@ function Header(props) {
         {props.children}
       </div>
       <nav>
+        <a href="/family-tree/view">🌳</a>
+        <a href="/family-tree/stats">📊</a>
         <form id="open-file">
           <input type="file" hidden ref={fileInput} accept="application/json"
                  onChange={() => parseFile(fileInput.current.files[0]).then(saveDataAndRedirect)}/>
