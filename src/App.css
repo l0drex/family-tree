@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
 
+:root {
+  background: var(--background-lower);
+  color: var(--foreground);
+  font-family: "Nunito", sans-serif;
+}
+
 #root {
   height: 100%;
   width: 100%;
@@ -9,9 +15,6 @@
   justify-content: space-between;
   grid-template-columns: 1fr;
   overflow: auto;
-
-  background: var(--background-lower);
-  font-family: "Nunito", sans-serif;
 
   grid-template-areas:
     "header"

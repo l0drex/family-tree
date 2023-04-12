@@ -26,7 +26,6 @@ html {
   --error-foreground: #c00;
   --error-background: #ffe1e6;
 
-  color: var(--foreground);
   height: 100vh;
   width: 100vw;
 }
