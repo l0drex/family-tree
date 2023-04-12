@@ -89,10 +89,7 @@ function setupCola() {
   let svgZoom = d3.zoom()
     .on("zoom", event => {
       if (event.sourceEvent && event.sourceEvent.type === "wheel") {
-        if (event.sourceEvent.wheelDelta < 0)
-          svg.node().style.cursor = "zoom-out";
-        else
-          svg.node().style.cursor = "zoom-in";
+          svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
       }
       svg.select("#vis").attr("transform", event.transform.toString());
     })
@@ -100,9 +97,11 @@ function setupCola() {
       svg.node().style.cursor = "";
     })
     .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
-    .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent));
-  // @ts-ignore FIXME
-  svg.select("rect").call(svgZoom);
+    .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent))
+    .wheelDelta(event => {
+      return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002);
+    });
+  svg.select<SVGElement>("rect").call(svgZoom);
 }
 
 function animateTree(graph: ViewGraph, colorMode: ColorMode) {
