@@ -88,6 +88,17 @@
       "age": "Age"
     }
   },
+  "statistics": {
+    "religion": "Religion",
+    "occupation": "Occupation",
+    "location": "Location",
+    "first_name": "first name",
+    "last_name": "last name",
+    "birth_month": "birth month",
+    "death_month": "death month",
+    "life_expectancy": "Life Expectancy",
+    "marriage_age": "Marriage age"
+  },
   "ctrl": "Ctrl",
   "linkContent": "here"
 }

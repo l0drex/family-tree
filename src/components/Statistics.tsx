@@ -1,35 +1,38 @@
 import "./Statistics.css";
 
-import {Component, ReactNode} from "react";
+import * as React from "react";
+import {ReactNode} from "react";
 import {baseUri} from "../backend/gedcomx-enums";
-import {Pie, LineRadial} from "@visx/shape";
-import {scaleLinear, scaleOrdinal, scaleLog} from "@visx/scale";
+import {LineRadial, Pie} from "@visx/shape";
+import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
   getBirthPlace,
-  getGenderPerGeneration, getLifeExpectancyOverYears, getMarriageAge, getNames,
+  getGenderPerGeneration,
+  getLifeExpectancyOverYears,
+  getMarriageAge,
+  getNames,
   getOccupations,
   getReligionPerYear
 } from "../backend/StatisticsProvider";
 import * as d3 from "d3";
+import {curveLinearClosed} from "d3";
 import {NaturalEarth} from "@visx/geo";
 import {GridPolar} from "@visx/grid";
 import {Group} from "@visx/group";
-import {curveLinearClosed} from "d3";
 import {Wordcloud} from "@visx/wordcloud";
-import {AreaSeries, AreaStack, Axis, BarStack, BarSeries, Grid, GlyphSeries, Tooltip, XYChart} from "@visx/xychart";
+import {AreaSeries, AreaStack, Axis, BarSeries, BarStack, GlyphSeries, Grid, Tooltip, XYChart} from "@visx/xychart";
 import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
-import * as React from "react";
-import {Translation, translationToString} from "../main";
+import {strings} from "../main";
 import {Legend} from "@visx/visx";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
 
-function Stat(props: { title: Translation, legend?: ReactNode, children, width?: number }) {
-  return <div id={props.title.en.toLowerCase().replace(" ", "-")} className={"graph"}>
-    <h1>{translationToString(props.title)}</h1>
+function Stat(props: { title: string, legend?: ReactNode, children, width?: number }) {
+  return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
+    <h1>{props.title}</h1>
     <svg width={props.width ?? width} height={height}>
       {props.children}
     </svg>
@@ -45,10 +48,7 @@ function GenderStats() {
     range: d3.schemeSet1.map(c => c.toString())
   })} direction={"row"}/>
 
-  return <Stat title={{
-    en: "Gender",
-    de: "Geschlecht"
-  }} legend={legend}>
+  return <Stat title={strings.viewOptions.color.gender} legend={legend}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}}>
@@ -69,7 +69,7 @@ function ReligionStats() {
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={{en: "Religion", de: "Religion"}} width={width * 2}>
+  return <Stat title={strings.statistics.religion} width={width * 2}>
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}}>
@@ -97,7 +97,7 @@ function OccupationStats() {
     range: d3.schemeSet3.map(c => c.toString())
   });
 
-  return <Stat title={{en: "Occupation", de: "Beruf"}}>
+  return <Stat title={strings.statistics.occupation}>
     <Pie
       data={data}
       outerRadius={radius}
@@ -112,7 +112,7 @@ function OccupationStats() {
 function LocationStats() {
   let data = getBirthPlace();
 
-  return <Stat title={{en: "Location"}}>
+  return <Stat title={strings.statistics.location}>
     <NaturalEarth
       data={data}
       center={[530, -50]}
@@ -128,10 +128,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
     range: d3.schemeSet2.map(c => c.toString())
   });
 
-  return <Stat title={{
-    en: `${props.nameType} Names`,
-    de: (props.nameType === "First" ? "Vor" : "Nach") + "name"
-  }}>
+  return <Stat title={props.nameType === "First" ? strings.statistics.first_name : strings.statistics.last_name}>
     <Wordcloud
       height={height}
       width={width}
@@ -176,10 +173,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     range: [0, radius]
   })
 
-  return <Stat title={{
-    en: `${props.type} Month`,
-    de: (props.type === "Birth" ? "Geburts" : "Todes") + "monat"
-  }}>
+  return <Stat title={props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month}>
     <Group top={height / 2} left={width / 2}>
       <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
       <LineRadial
@@ -197,7 +191,7 @@ function LifeExpectancy() {
   let data = getLifeExpectancyOverYears();
   //console.debug(data)
 
-  return <Stat title={{en: "Life Expectancy", de: "Lebenserwartung"}} width={width * 2 + 60}>
+  return <Stat title={strings.statistics.life_expectancy} width={width * 2 + 60}>
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 5, left: 30, bottom: 25, right: 5}}>
       <Grid/>
@@ -218,26 +212,22 @@ function MarriageAge() {
     range: [height, 0]
   })
 
-  return <Stat title={{en: "Marriage Age", de: "Heiratsalter"}}>
+  return <Stat title={strings.statistics.marriage_age}>
     <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
     <AxisLeft scale={yScale} left={25}/>
   </Stat>
 }
 
-export default class Statistics extends Component
-  <any
-    , any> {
-  render() {
-    return <main id="stats">
-      <GenderStats/>
-      <ReligionStats/>
-      <OccupationStats/>
-      <NameStats nameType={"First"}/>
-      <NameStats nameType={"Last"}/>
-      <BirthOverYearStats type={"Birth"}/>
-      <BirthOverYearStats type={"Death"}/>
-      <LifeExpectancy/>
-      <MarriageAge/>
-    </main>
-  }
+export default function Statistics() {
+  return <main id="stats">
+    <GenderStats/>
+    <ReligionStats/>
+    <OccupationStats/>
+    <NameStats nameType={"First"}/>
+    <NameStats nameType={"Last"}/>
+    <BirthOverYearStats type={"Birth"}/>
+    <BirthOverYearStats type={"Death"}/>
+    <LifeExpectancy/>
+    <MarriageAge/>
+  </main>
 }

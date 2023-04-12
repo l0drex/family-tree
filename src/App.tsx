@@ -4,6 +4,7 @@ import {strings} from "./main";
 import View from "./components/View";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {Home, Imprint} from "./components/Home";
+import Statistics from "./components/Statistics";
 
 function App() {
   return <BrowserRouter basename={"family-tree"}>
@@ -11,6 +12,7 @@ function App() {
       <Route path="/" element={<Home/>}/>
       <Route path="/view" element={<View/>}/>
       <Route path="/imprint" element={<Imprint/>}/>
+      <Route path="/stats" element={<Statistics/>}/>
     </Routes>
     <footer>
         <span>

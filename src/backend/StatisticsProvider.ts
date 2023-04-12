@@ -230,9 +230,7 @@ export function getMarriageAge() {
     try {
       let marriageFact = p.getFactsByType(PersonFactTypes.MaritalStatus)[0];
       if (marriageFact.getValue() !== "single") {
-        let age = Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue())
-
-        return age;
+        return Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue());
       }
     } catch (e) {
       if (!(e instanceof TypeError)) {throw e}
