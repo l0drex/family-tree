@@ -58,8 +58,6 @@ function View() {
     let root = document.querySelector<HTMLDivElement>("#root");
     if (focusHidden) {
       root.classList.remove("sidebar-visible");
-    } else {
-      root.classList.add("sidebar-visible");
     }
   }, [focusHidden])
 

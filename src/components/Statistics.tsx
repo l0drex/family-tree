@@ -255,7 +255,7 @@ export default function Statistics() {
   }
 
   return <>
-    <Header></Header>
+    <Header/>
     <main id="stats">
       <ConfidenceStats/>
       <GenderStats/>

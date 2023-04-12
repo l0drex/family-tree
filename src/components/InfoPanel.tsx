@@ -4,6 +4,7 @@ import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
 import {strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
+import Sidebar from "./Sidebar";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -35,7 +36,7 @@ function InfoPanel(props: Props) {
   person.getAttribution()
 
   return (
-    <aside id="info-panel">
+    <Sidebar id="info-panel">
       <section className="title">
         <h1 className="name">{person.getFullName()}</h1>
         {person.getMarriedName() && <h2 className="birth-name">
@@ -116,7 +117,7 @@ function InfoPanel(props: Props) {
         <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
         <meter value={confidence} max={3} low={2} high={2} optimum={3}>{person.getConfidence()}</meter>
       </div>}
-    </aside>
+    </Sidebar>
   );
 }
 
