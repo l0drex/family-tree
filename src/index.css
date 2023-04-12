@@ -232,10 +232,6 @@ body {
     --error-background: #710000;
   }
 
-  #root {
-    background: black;
-  }
-
   a {
     color: #8585ff;
   }
