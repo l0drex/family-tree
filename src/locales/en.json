@@ -280,6 +280,7 @@
       }
     },
     "gender": "Gender",
+    "confidence": "Confidence",
     "born": "born",
     "generation": "Generation",
     "single": "single",

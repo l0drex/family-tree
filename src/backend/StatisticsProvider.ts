@@ -1,5 +1,5 @@
 import {graphModel} from "./ModelGraph";
-import {GenderTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
+import {Confidence, GenderTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
 import {GeoPermissibleObjects} from "d3";
 import {Person} from "gedcomx-js";
 
@@ -250,4 +250,9 @@ export function getMarriageAge() {
   }
 
   return counter.sort((a,b) => Number(a.value) - Number(b.value));
+}
+
+export function getConfidence() {
+  let data: Confidence[] = graphModel.persons.map(p => p.getConfidence() as Confidence);
+  return count(data);
 }

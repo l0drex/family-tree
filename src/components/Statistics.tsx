@@ -2,12 +2,12 @@ import "./Statistics.css";
 
 import * as React from "react";
 import {ReactNode} from "react";
-import {baseUri} from "../backend/gedcomx-enums";
+import {baseUri, Confidence} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
 import {
   getBirthDeathMonthOverYears,
-  getBirthPlace,
+  getBirthPlace, getConfidence,
   getGenderPerGeneration,
   getLifeExpectancyOverYears,
   getMarriageAge,
@@ -100,7 +100,7 @@ function OccupationStats() {
   });
 
   return <Stat title={strings.gedcomX.types.fact.person.Occupation}>
-    <svg width={200} height={200}>
+    <svg width={width} height={height}>
       <Pie
         data={data}
         outerRadius={radius}
@@ -177,7 +177,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   })
 
   return <Stat title={props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month}>
-    <svg height={200} width={200}>
+    <svg height={height} width={width}>
       <Group top={height / 2} left={width / 2}>
         <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
         <LineRadial
@@ -218,9 +218,32 @@ function MarriageAge() {
   })
 
   return <Stat title={strings.statistics.marriageAge}>
-    <svg height={200} width={200}>
+    <svg height={height} width={width}>
       <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
       <AxisLeft scale={yScale} left={25}/>
+    </svg>
+  </Stat>
+}
+
+function ConfidenceStats() {
+  let data = getConfidence();
+  let colorScale = scaleOrdinal({
+    domain: [Confidence.Low, Confidence.Medium, Confidence.High],
+    range: d3.schemeRdYlGn[3].map(c => c.toString())
+  });
+
+  console.debug(data);
+
+  return <Stat title={strings.gedcomX.confidence}>
+    <svg width={width} height={height}>
+      <Pie
+        data={data}
+        outerRadius={radius}
+        top={height/2}
+        left={width/2}
+        pieValue={d => d.count}
+        fill={d => d.data.value === "null" ? "grey" : colorScale(d.data.value as Confidence)}
+      />
     </svg>
   </Stat>
 }
@@ -234,9 +257,9 @@ export default function Statistics() {
   return <>
     <Header></Header>
     <main id="stats">
+      <ConfidenceStats/>
       <GenderStats/>
       <ReligionStats/>
-      <OccupationStats/>
       <NameStats nameType={"First"}/>
       <NameStats nameType={"Last"}/>
       <BirthOverYearStats type={"Birth"}/>

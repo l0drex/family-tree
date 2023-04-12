@@ -280,6 +280,7 @@
       }
     },
     "gender": "Geschlecht",
+    "confidence": "Zuversicht",
     "born": "geboren",
     "generation": "Generation",
     "single": "ledig",
