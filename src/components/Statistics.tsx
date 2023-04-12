@@ -46,11 +46,11 @@ function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
-    domain: keys.map(k => strings.statistics[k]),
+    domain: keys.map(k => strings.gedcomX.types.gender[k]),
     range: d3.schemeSet1.map(c => c.toString())
   })} direction={"row"}/>
 
-  return <Stat title={strings.viewOptions.color.gender} legend={legend}>
+  return <Stat title={strings.gedcomX.gender} legend={legend}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}}>
@@ -61,7 +61,7 @@ function GenderStats() {
           colorAccessor={() => d3.schemeSet1[keys.indexOf(key)]}
         />)}
       </BarStack>
-      <Axis orientation="left" label={strings.statistics.generation} hideAxisLine={true} hideTicks={true}/>
+      <Axis orientation="left" label={strings.gedcomX.types.fact.person.GenerationNumber} hideAxisLine={true} hideTicks={true}/>
     </XYChart>
   </Stat>
 }
@@ -71,7 +71,7 @@ function ReligionStats() {
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={strings.statistics.religion} className="landscape">
+  return <Stat title={strings.gedcomX.types.fact.person.Religion} className="landscape">
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}}>
@@ -99,7 +99,7 @@ function OccupationStats() {
     range: d3.schemeSet3.map(c => c.toString())
   });
 
-  return <Stat title={strings.statistics.occupation}>
+  return <Stat title={strings.gedcomX.types.fact.person.Occupation}>
     <svg width={200} height={200}>
       <Pie
         data={data}
@@ -116,7 +116,7 @@ function OccupationStats() {
 function LocationStats() {
   let data = getBirthPlace();
 
-  return <Stat title={strings.statistics.location}>
+  return <Stat title={strings.gedcomX.types.fact.person.Heimat}>
     <NaturalEarth
       data={data}
       center={[530, -50]}
@@ -132,7 +132,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
     range: d3.schemeSet2.map(c => c.toString())
   });
 
-  return <Stat title={props.nameType === "First" ? strings.statistics.first_name : strings.statistics.last_name}>
+  return <Stat title={props.nameType === "First" ? strings.gedcomX.firstName : strings.gedcomX.types.namePart.Surname}>
     <Wordcloud
       height={height}
       width={width}
@@ -146,8 +146,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
       padding={2}
       font={'Impact'}
       spiral="rectangular"
-      rotate={0}
-    >
+      rotate={0}>
       {cloudWords =>
         cloudWords.map(w => (
           <text
@@ -197,7 +196,7 @@ function LifeExpectancy() {
   let data = getLifeExpectancyOverYears();
   //console.debug(data)
 
-  return <Stat title={strings.statistics.life_expectancy} className="landscape">
+  return <Stat title={strings.statistics.lifeExpectancy} className="landscape">
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 5, left: 30, bottom: 25, right: 5}}>
       <Grid/>
@@ -218,7 +217,7 @@ function MarriageAge() {
     range: [height, 0]
   })
 
-  return <Stat title={strings.statistics.marriage_age}>
+  return <Stat title={strings.statistics.marriageAge}>
     <svg height={200} width={200}>
       <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
       <AxisLeft scale={yScale} left={25}/>

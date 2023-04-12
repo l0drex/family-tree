@@ -28,9 +28,9 @@ function ViewOptions(props) {
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
         <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
-          <option value={ColorMode.GENDER}>{strings.viewOptions.color.gender}</option>
-          <option value={ColorMode.NAME}>{strings.viewOptions.color.surname}</option>
-          <option value={ColorMode.AGE}>{strings.viewOptions.color.age}</option>
+          <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
+          <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
+          <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
         </select>
       </div>
     </form>
