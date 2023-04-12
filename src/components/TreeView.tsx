@@ -100,6 +100,7 @@ async function setupCola() {
     .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
     .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent))
     .wheelDelta(event => {
+      // modified version of https://github.com/d3/d3-zoom#zoom_wheelDelta
       return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002);
     });
   svg.select<SVGElement>("rect").call(svgZoom);
