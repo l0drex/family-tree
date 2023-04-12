@@ -26,24 +26,26 @@ import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
 import {strings} from "../main";
 import {Legend} from "@visx/visx";
+import {graphModel, loadData} from "../backend/ModelGraph";
+import Header from "./Header";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
 
-function Stat(props: { title: string, legend?: ReactNode, children, width?: number }) {
-  return <div id={props.title.toLowerCase().replace(" ", "-")} className={"graph"}>
+function Stat(props: { title: string, legend?: ReactNode, className?: string, children }) {
+  return <article className={"graph " + props.className}>
     <h1>{props.title}</h1>
-    <svg width={props.width ?? width} height={height}>
+    <p>
       {props.children}
-    </svg>
+    </p>
     {props.legend}
-  </div>
+  </article>
 }
 
 function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
-  let legend =     <Legend.LegendOrdinal scale={scaleOrdinal({
+  let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
     domain: keys,
     range: d3.schemeSet1.map(c => c.toString())
   })} direction={"row"}/>
@@ -69,7 +71,7 @@ function ReligionStats() {
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={strings.statistics.religion} width={width * 2}>
+  return <Stat title={strings.statistics.religion} className="landscape">
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}}>
@@ -98,14 +100,16 @@ function OccupationStats() {
   });
 
   return <Stat title={strings.statistics.occupation}>
-    <Pie
-      data={data}
-      outerRadius={radius}
-      top={height / 2}
-      left={width / 2}
-      pieValue={d => d.count}
-      fill={d => colorScale(d.data.value)}
-    />
+    <svg width={200} height={200}>
+      <Pie
+        data={data}
+        outerRadius={radius}
+        top={height / 2}
+        left={width / 2}
+        pieValue={d => d.count}
+        fill={d => colorScale(d.data.value)}
+      />
+    </svg>
   </Stat>;
 }
 
@@ -174,16 +178,18 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   })
 
   return <Stat title={props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month}>
-    <Group top={height / 2} left={width / 2}>
-      <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
-      <LineRadial
-        data={data}
-        angle={(_, i) => angleScale(i) ?? 0}
-        radius={d => radiusScale(d) ?? 0}
-        stroke={d3.schemeSet1[4]}
-        curve={curveLinearClosed}
-      />
-    </Group>
+    <svg height={200} width={200}>
+      <Group top={height / 2} left={width / 2}>
+        <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
+        <LineRadial
+          data={data}
+          angle={(_, i) => angleScale(i) ?? 0}
+          radius={d => radiusScale(d) ?? 0}
+          stroke={d3.schemeSet1[4]}
+          curve={curveLinearClosed}
+        />
+      </Group>
+    </svg>
   </Stat>
 }
 
@@ -191,7 +197,7 @@ function LifeExpectancy() {
   let data = getLifeExpectancyOverYears();
   //console.debug(data)
 
-  return <Stat title={strings.statistics.life_expectancy} width={width * 2 + 60}>
+  return <Stat title={strings.statistics.life_expectancy} className="landscape">
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 5, left: 30, bottom: 25, right: 5}}>
       <Grid/>
@@ -213,21 +219,31 @@ function MarriageAge() {
   })
 
   return <Stat title={strings.statistics.marriage_age}>
-    <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
-    <AxisLeft scale={yScale} left={25}/>
+    <svg height={200} width={200}>
+      <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
+      <AxisLeft scale={yScale} left={25}/>
+    </svg>
   </Stat>
 }
 
 export default function Statistics() {
-  return <main id="stats">
-    <GenderStats/>
-    <ReligionStats/>
-    <OccupationStats/>
-    <NameStats nameType={"First"}/>
-    <NameStats nameType={"Last"}/>
-    <BirthOverYearStats type={"Birth"}/>
-    <BirthOverYearStats type={"Death"}/>
-    <LifeExpectancy/>
-    <MarriageAge/>
-  </main>
+  if (graphModel === undefined){
+    console.warn("Graph model is undefined, initializing from local storage");
+    loadData(JSON.parse(localStorage.getItem("familyData")))
+  }
+
+  return <>
+    <Header></Header>
+    <main id="stats">
+      <GenderStats/>
+      <ReligionStats/>
+      <OccupationStats/>
+      <NameStats nameType={"First"}/>
+      <NameStats nameType={"Last"}/>
+      <BirthOverYearStats type={"Birth"}/>
+      <BirthOverYearStats type={"Death"}/>
+      <LifeExpectancy/>
+      <MarriageAge/>
+    </main>
+  </>
 }
