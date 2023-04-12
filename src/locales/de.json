@@ -90,14 +90,18 @@
   },
   "statistics": {
     "religion": "Religion",
-    "occupation": "Occupation",
+    "occupation": "Beruf",
     "location": "Ort",
     "first_name": "Vorname",
     "last_name": "Nachname",
     "birth_month": "Geburtsmonat",
     "death_month": "Todesmonat",
     "life_expectancy": "Lebenserwartung",
-    "marriage_age": "Heiratsalter"
+    "marriage_age": "Heiratsalter",
+    "generation": "Generation",
+    "Male": "Männlich",
+    "Female": "Weiblich",
+    "Unknown": "Unbekannt"
   },
   "ctrl": "Strg",
   "linkContent": "hier"

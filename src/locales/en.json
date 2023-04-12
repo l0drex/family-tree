@@ -97,7 +97,11 @@
     "birth_month": "birth month",
     "death_month": "death month",
     "life_expectancy": "Life Expectancy",
-    "marriage_age": "Marriage age"
+    "marriage_age": "Marriage age",
+    "generation": "Generation",
+    "Male": "Male",
+    "Female": "Female",
+    "Unknown": "Unknown"
   },
   "ctrl": "Ctrl",
   "linkContent": "here"

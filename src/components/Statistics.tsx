@@ -46,7 +46,7 @@ function GenderStats() {
   let data = getGenderPerGeneration();
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
-    domain: keys,
+    domain: keys.map(k => strings.statistics[k]),
     range: d3.schemeSet1.map(c => c.toString())
   })} direction={"row"}/>
 
@@ -61,7 +61,7 @@ function GenderStats() {
           colorAccessor={() => d3.schemeSet1[keys.indexOf(key)]}
         />)}
       </BarStack>
-      <Axis orientation="left" label="Generation" hideAxisLine={true} hideTicks={true}/>
+      <Axis orientation="left" label={strings.statistics.generation} hideAxisLine={true} hideTicks={true}/>
     </XYChart>
   </Stat>
 }
