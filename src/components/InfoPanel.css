@@ -1,56 +1,120 @@
 aside {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  gap: 1rem;
+  flex-flow: row;
+  max-width: 100vw;
+  flex-wrap: wrap;
   grid-area: sidebar;
-  background: rgba(70, 155, 24, 0.26);
-  padding: 1rem;
-  box-shadow: 0 .25rem .25rem rgba(0, 0, 0, 0.33);
+  max-height: 30vh;
+  padding: 0 1rem;
 }
 
-aside h1, aside h2 {
+aside > * {
+  flex: 1 1 0;
+}
+
+aside .title {
+  flex-basis: 100%;
+}
+
+aside .title :first-child {
+  margin-top: 0;
+}
+
+aside .title :last-child {
+  margin-bottom: 0;
+}
+
+aside h1, aside article h1 {
+  font-size: 1.5rem;
+}
+
+aside .title > h1, aside .title > h2 {
   text-align: center;
 }
 
-#info-panel h2 {
+aside .title h2 {
   font-weight: normal;
 }
 
-#info-panel form {
-  margin: 0 auto;
-  width: fit-content;
+@media (orientation: landscape) {
+  aside {
+    flex-flow: column;
+    padding-right: 0;
+    max-height: unset;
+  }
+  
+  aside > * {
+    flex-grow: 0;
+  }
+
+  aside .title {
+    flex-basis: 0;
+  }
 }
 
-#info-panel input[type=search] {
-  color: var(--foreground);
-  border-bottom: solid transparent;
-  font-size: 2em;
-  font-weight: bold;
-  text-align: center;
-  transition: all .3s;
-}
-
-#info-panel input[type=search]:hover, #info-panel input[type=search]:focus {
-  border-bottom: solid var(--foreground);
-}
-
-#info-panel #factView {
-  background: var(--background);
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-right: 1rem;
+aside > article {
   border-radius: 1rem;
-  box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
-}
-
-#info-panel #factView li:not(:last-child) {
-  margin-bottom: .5rem;
-}
-
-.id::before {
-  content: "#";
-}
-
-.id {
-  color: var(--foreground-secondary);
-  text-align: right;
+  padding: 1rem;
   margin: 0;
-  float: right;
+  box-sizing: border-box;
+  background: var(--background);
+  box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
+  flex-basis: 200px;
+}
+
+article.gallery {
+  padding: 0;
+  z-index: 0;
+  position: relative;
+  box-shadow: none;
+}
+
+article.gallery div {
+  box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
+  border-radius: 1rem;
+  z-index: 0;
+}
+
+.gallery img {
+  width: 100%;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  position: relative;
+  /* z-index is needed for shadow  effect */
+  z-index: -1;
+}
+
+.credits {
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  text-align: center;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: .75rem;
+  z-index: 1;
+}
+
+.gallery .buttons {
+  position: absolute;
+  bottom: .5rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  justify-items: center;
+  padding: 0 1em;
+  box-sizing: border-box;
+}
+
+.gallery .buttons button {
+  margin: 0;
+  font-size: .75rem;
+}
+
+#confidence {
+  flex-grow: 2;
+  text-align: center;
 }

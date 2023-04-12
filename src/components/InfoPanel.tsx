@@ -1,24 +1,69 @@
 import './InfoPanel.css';
-import {Component} from "react";
-import SearchField from "./SearchField";
 import {Person} from "gedcomx-js";
-import {PersonFactTypes} from "../backend/gedcomx-enums";
+import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
+import {strings} from "../main";
+import {graphModel} from "../backend/ModelGraph";
+import {Gallery} from "./Gallery";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
   person: Person
 }
 
-class InfoPanel extends Component<Props, null> {
-  render() {
-    let person = this.props.person;
-    return (
-      <aside id="info-panel">
-        <SearchField onRefocus={this.props.onRefocus} person={person}/>
-        {person.getMarriedName() && <h2 className="birth-name">{person.getBirthName()}</h2>}
-        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">{person.getAlsoKnownAs()}</h2>}
-        {person.getNickname() && <h2 className="nickname">{person.getNickname()}</h2>}
+function InfoPanel(props: Props) {
+  let person = props.person;
+  let images = getImages(person);
 
+  let confidence;
+  if (person.getConfidence()) {
+    switch (person.getConfidence().substring(baseUri.length)) {
+      case "Low":
+        confidence = 1;
+        break;
+      case "Medium":
+        confidence = 2;
+        break;
+      case "High":
+        confidence = 3;
+        break;
+    }
+  }
+
+  person.getEvidence()
+  person.getIdentifiers()
+  person.getAnalysis()
+  person.getAttribution()
+
+  return (
+    <aside id="info-panel">
+      <section className="title">
+        <h1 className="name">{person.getFullName()}</h1>
+        {person.getMarriedName() && <h2 className="birth-name">
+          {strings.formatString(strings.infoPanel.born, person.getBirthName())}
+        </h2>}
+        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">
+          {strings.formatString(strings.infoPanel.aka, person.getAlsoKnownAs())}
+        </h2>}
+        {person.getNickname() && <h2 className="nickname">
+          {strings.formatString(strings.infoPanel.nickname, person.getNickname())}
+        </h2>}
+      </section>
+
+      {images.length > 0 && <Gallery>
+        {images.map(image => {
+          let credit = image.getCitations()[0].getValue();
+          return <div key={image.getId()}>
+            <img src={image.getAbout()}
+                 alt={strings.formatString(strings.infoPanel.personImageAlt, person.getFullName()) as string
+                   /* quick hack, dont know why this does not just return string */}/>
+            <span className="credits">
+              © <a href={image.getAbout()}>{credit}</a>
+            </span>
+          </div>
+        })}
+      </Gallery>}
+
+      <article>
         <ul id="factView">
           {person.getFacts().sort((a, b) => {
             // place birth at top, generation right below
@@ -46,11 +91,46 @@ class InfoPanel extends Component<Props, null> {
             }
 
             return 0;
-          }).map(f => <li key={f.toString()}>{f.toString()}</li>)}
+          }).map(f => <li key={f.toString()}
+                          style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
-      </aside>
-    );
-  }
+      </article>
+
+      {person.getNotes().map((note, i) => {
+        return <article key={i}>
+          <h1><span className={"emoji"}>📝</span> {note.getSubject() || strings.infoPanel.note}</h1>
+          <p>{note.getText()}</p>
+        </article>
+      })}
+
+      {person.getSources().map(source => source.getDescription()).map(ref => {
+        return <article key={ref}>
+          <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
+          <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
+            graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
+          : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
+        </article>
+      })}
+
+      {person.getConfidence() && <div id="confidence">
+        <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
+        <meter value={confidence} max={3} low={2} high={2} optimum={3}>{person.getConfidence()}</meter>
+      </div>}
+    </aside>
+  );
+}
+
+function getImages(person: Person) {
+  let mediaRefs = person.getMedia().map(media => media.getDescription());
+  return mediaRefs.map(ref => {
+    let sourceDescription = graphModel.getSourceDescriptionById(ref.replace('#', ''));
+    if (!sourceDescription) throw Error(`Could not find a source description with id ${ref}`);
+    return sourceDescription;
+  }).filter(sourceDescription => {
+    let mediaType = sourceDescription.getMediaType();
+    if (!mediaType) return false;
+    return mediaType.split('/')[0] === 'image'
+  });
 }
 
 

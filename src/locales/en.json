@@ -1,0 +1,93 @@
+{
+  "footer": {
+    "sourceCode": "The source code is available on {0}.",
+    "imprint": "Imprint & privacy policy",
+    "bugReport": "Report a problem"
+  },
+  "form": {
+    "fileInputLabel": "Gedcom File",
+    "continueSession": "Continue with last session",
+    "noFileError": "No gedcom file selected",
+    "graphLoadingError": "The graph could not be loaded."
+  },
+  "header": {
+    "imageAlt": "A smiling tree.",
+    "title": "Family tree"
+  },
+  "home": {
+    "uploadArticle": {
+      "title": "File-Upload",
+      "content": "Select the file with the button below. Then click the green button to view the family tree.",
+      "openButton": "Open family tree",
+      "detailSummary": "From where do I get the data?",
+      "detail": "The file must be a valid GedcomX file in json format, as described {0}."
+    },
+    "navigationArticle": {
+      "title": "Usage",
+      "content": "You can move the family tree with your mouse.While pressing {0}, you can zoom in and out with your mouse wheel. Select a person with your left mouse button to show their information. Many people have a circle with \"+\" or \"-\" inside them, clicking on those displays their relatives."
+    }
+  },
+  "imprint": {
+    "privacyArticle": {
+      "title": "Privacy Policy",
+      "content": "All family tree data is processed locally only and stored in the browser's local storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
+    },
+    "imprintArticle": {
+      "title": "Imprint"
+    }
+  },
+  "infoPanel": {
+    "born": "born: {0}",
+    "aka": "aka {0}",
+    "nickname": "Nickname: {0}",
+    "personImageAlt": "Image of {0}.",
+    "note": "Note",
+    "source": "Source",
+    "noSourceDescriptionError": "Source description {0} could not be found",
+    "confidenceExplanation": "How much can the data be trusted",
+    "confidenceLabel": "Confidence: "
+  },
+  "nodes": {
+    "lockedFamilyHint": "This family cannot be hidden.",
+    "hideFamilyHint": "Click to hide this family.",
+    "clickPersonHint": "Click to show more information"
+  },
+  "gedcomX": {
+    "born": "born",
+    "generation": "Generation",
+    "single": "single",
+    "married": "married",
+    "religion": "Religion",
+    "worksAs": "works as",
+    "died": "died",
+    "ageQualifier": "with {0} years old",
+    "day": "on {0}",
+    "month": "in {0}",
+    "year": "in {0}",
+    "time": "at {0}",
+    "place": "in {0}"
+  },
+  "searchField": {
+    "noPersonFound": "No person with that name found!",
+    "searchLabel": "Name:",
+    "searchHint": "Search for a person"
+  },
+  "viewOptions": {
+    "filter": {
+      "label": "Show:",
+      "default": "Default",
+      "descendants": "Descendants",
+      "ancestors": "Ancestors",
+      "living": "Living",
+      "all": "All"
+    },
+    "color": {
+      "label": "Color by:",
+      "gender": "Gender",
+      "surname": "Surname",
+      "age": "Age"
+    }
+  },
+  "ctrl": "Ctrl",
+  "linkContent": "here"
+}

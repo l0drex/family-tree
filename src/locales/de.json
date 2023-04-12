@@ -1,0 +1,93 @@
+{
+  "footer": {
+    "sourceCode": "Der Quellcode ist auf {0} verfügbar.",
+    "imprint": "Impressum & Datenschutzerklärung",
+    "bugReport": "Ein Problem melden"
+  },
+  "form": {
+    "fileInputLabel": "Gedcom Datei",
+    "continueSession": "Mit letzter Sitzung fortfahren",
+    "noFileError": "Keine Datei ausgewählt",
+    "graphLoadingError": "Der Graph konnte nicht geladen werden."
+  },
+  "header": {
+    "imageAlt": "Ein lächelnder Baum.",
+    "title": "Stammbaum"
+  },
+  "home": {
+    "uploadArticle": {
+      "title": "Datei-Upload",
+      "content": "Wähle die Datei über den unteren Knopf aus. Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.",
+      "openButton": "Stammbaum öffnen",
+      "detailSummary": "Woher bekomme ich die Daten?",
+      "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben."
+    },
+    "navigationArticle": {
+      "title": "Bedienung",
+      "content": "Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man {0} gedrückt, kann man mit dem Mausrad rein- bzw. rauszoomen. Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt. An vielen Personen hängen Kreise, in denen \"+\" oder \"-\" steht. Klickt man auf diese, werden weitere Verwandte ein- oder ausgeblendet."
+    }
+  },
+  "imprint": {
+    "privacyArticle": {
+      "title": "Datenschutzerklärung",
+      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und im local Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
+    },
+    "imprintArticle": {
+      "title": "Impressum"
+    }
+  },
+  "infoPanel": {
+    "born": "geb.: {0}",
+    "aka": "alias {0}",
+    "nickname": "Spitzname: {0}",
+    "personImageAlt": "Bild von {0}.",
+    "note": "Anmerkung",
+    "source": "Quelle",
+    "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden",
+    "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
+    "confidenceLabel": "Zuversicht: "
+  },
+  "nodes": {
+    "lockedFamilyHint": "Diese Familie kann nicht ausgeblendet werden.",
+    "hideFamilyHint": "Klicke, um diese Familie auszublenden.",
+    "clickPersonHint": "Klicke für weitere Informationen"
+  },
+  "gedcomX": {
+    "born": "geboren",
+    "generation": "Generation",
+    "single": "ledig",
+    "married": "verheiratet",
+    "religion": "Religion",
+    "worksAs": "arbeitet als",
+    "died": "verstorben",
+    "ageQualifier": "mit {0} Jahren",
+    "day": "am {0}",
+    "month": "im {0}",
+    "year": "{0}",
+    "time": "um {0}",
+    "place": "in {0}"
+  },
+  "searchField": {
+    "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
+    "searchLabel": "Name:",
+    "searchHint": "Nach einer Person suchen"
+  },
+  "viewOptions": {
+    "filter": {
+      "label": "Zeige:",
+      "default": "Standard",
+      "descendants": "Nachkommen",
+      "ancestors": "Vorfahren",
+      "living": "Lebende",
+      "all": "Alle"
+    },
+    "color": {
+      "label": "Färbe nach:",
+      "gender": "Geschlecht",
+      "surname": "Nachname",
+      "age": "Alter"
+    }
+  },
+  "ctrl": "Strg",
+  "linkContent": "hier"
+}

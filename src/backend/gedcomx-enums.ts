@@ -62,4 +62,37 @@ export enum RelationshipFactTypes {
   Marriage = "http://gedcomx.org/Marriage"
 }
 
+// not part of gedcomx spec
+export enum OccupationCategories {
+  Doctor = "Doctor",
+  Student = "Student",
+  Teacher = "Teacher",
+  Judge = "Judge",
+  Farmer = "Farmer",
+  Cook = "Cook",
+  Mechanic = "Mechanic",
+  FactoryWorker = "Factory Worker",
+  OfficeWorker = "Office Worker",
+  Scientist = "Scientist",
+  ITExpert = "IT Expert",
+  Singer = "Singer",
+  Artist = "Artist",
+  Pilot = "Pilot",
+  Astronaut = "Astronaut",
+  Firefighter = "Firefighter",
+  Policeman = "Policeman",
+  Detective = "Detective",
+  SecurityGuard = "SecurityGuard",
+  Ninja = "Ninja",
+  ConstructionWorker = "ConstructionWorker",
+  King = "King"
+}
+
+export enum KnownResourceTypes {
+  Collection = "http://gedcomx.org/Collection",
+  PhysicalArtifact ="http://gedcomx.org/PhysicalArtifact",
+  DigitalArtifact = "http://gedcomx.org/DigitalArtifact",
+  Record = "http://gedcomx.org/Record"
+}
+
 export const baseUri = "http://gedcomx.org/";

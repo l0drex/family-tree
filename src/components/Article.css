@@ -1,5 +1,4 @@
 article, .notification {
-  border-radius: .5rem;
   padding: .75rem 1rem;
   max-width: 50rem;
   width: 100%;
@@ -10,6 +9,18 @@ article h1 {
   margin: 0;
   border-bottom: solid 1px var(--lines);
   padding-bottom: .75rem;
+}
+
+aside ul, aside ol {
+  padding-left: 1rem;
+}
+
+article :first-child {
+  margin-top: 0;
+}
+
+article :last-child {
+  margin-bottom: 0;
 }
 
 details {
