@@ -2,6 +2,7 @@
 
 declare module "gedcomx-js" {
   export function enableRsExtensions();
+
   export function addExtensions(extensions: Function);
 
   export class Base {
@@ -83,17 +84,17 @@ declare module "gedcomx-js" {
 
     setContributor(contributor: object | ResourceReference): Attribution
 
-    getCreated(): GDate
+    getCreated(): Date
 
-    setCreated(date: GDate | Number): Attribution
+    setCreated(date: Date | Number): Attribution
 
     getCreator(): ResourceReference
 
     setCreator(creator: ResourceReference)
 
-    getModified(): GDate
+    getModified(): Date
 
-    setModified(date: GDate | Number): Attribution
+    setModified(date: Date | Number): Attribution
   }
 
   export class Conclusion extends ExtensibleData {
@@ -109,9 +110,9 @@ declare module "gedcomx-js" {
 
     setConfidence(confidence: string);
 
-    getLang();
+    getLang(): string;
 
-    setLang(lang);
+    setLang(lang: string);
 
     getNotes(): Note[];
 
@@ -157,9 +158,9 @@ declare module "gedcomx-js" {
 
     getResourceType()
 
-    setResourceType()
+    setResourceType(resourceType)
 
-    getCitations(): Citation[]
+    getCitations(): SourceCitation[]
 
     setCitations(citations: any[])
 
@@ -167,77 +168,83 @@ declare module "gedcomx-js" {
 
     setMediaType(mediaType: string)
 
-    getAbout()
+    getAbout(): string
 
     setAbout(about: string)
 
-    getMediator()
+    getMediator(): string
 
-    setMediator()
+    setMediator(mediator: string)
 
-    getPublisher()
+    getPublisher(): string
 
-    setPublisher()
+    setPublisher(publisher: string)
 
-    getAuthors()
+    getAuthors(): string[]
 
-    setAuthors()
+    setAuthors(authors: string[])
 
     getSources(): SourceReference[]
 
-    setSources(source : SourceReference[])
+    setSources(source: SourceReference[])
 
-    getAnalysis()
+    getAnalysis(): string
 
-    setAnalysis()
+    setAnalysis(analysis: string)
 
-    getComponentOf()
+    getComponentOf(): SourceReference
 
-    setComponentOf()
+    setComponentOf(componentOf: SourceReference)
 
-    getTitles()
+    getTitles(): TextValue[]
 
-    setTitles()
+    setTitles(titles: TextValue[])
+
+    addTitle(title: TextValue)
 
     getNotes(): Note[]
 
     setNotes(notes: Note[])
 
-    getAttribution()
+    addNote(note: Note)
 
-    setAttribution()
+    getAttribution(): Attribution
 
-    getRights()
+    setAttribution(attribution: Attribution)
 
-    setRights()
+    getRights(): string[]
+
+    setRights(rights: string[])
 
     getCoverage()
 
-    setCoverage()
+    setCoverage(coverage)
 
-    getDescriptions()
+    getDescriptions(): TextValue[]
 
-    setDescriptions()
+    setDescriptions(descriptions: TextValue[])
 
-    getIdentifiers(): Identifier[]
+    addDescription(description: TextValue)
 
-    setIdentifiers()
+    getIdentifiers(): Identifiers
 
-    getCreated()
+    setIdentifiers(identifiers: Identifiers)
 
-    setCreated()
+    getCreated(): number
 
-    getModified()
+    setCreated(created: number)
 
-    setModified()
+    getModified(): number
 
-    getPublished()
+    setModified(modified: number)
 
-    setPublished()
+    getPublished(): number
 
-    getRepository()
+    setPublished(published: number)
 
-    setRepository()
+    getRepository(): string
+
+    setRepository(repository: string)
   }
 
   export class Identifiers extends Base {
@@ -319,6 +326,7 @@ declare module "gedcomx-js" {
 
     // extensions
     toString(): string
+
     getEmoji(gender: string): string
   }
 
@@ -554,26 +562,6 @@ declare module "gedcomx-js" {
     setFamiliesAsChild(families: FamilyView[]): DisplayProperties
   }
 
-  export class Identifier {
-    getValue(): string
-
-    setValue(value: string)
-
-    getType(): string
-
-    setType(type: string)
-  }
-
-  export class Citation {
-    getValue(): string
-
-    setValue(value: string)
-
-    getLang(): string
-
-    setLang(lang: string)
-  }
-
   export class Note {
     getLang(): string
 
@@ -590,5 +578,75 @@ declare module "gedcomx-js" {
     getAttribution(): Attribution
 
     setAttribution(attribution: Attribution)
+  }
+
+  export class TextValue {
+    getLang(): string
+
+    setLang(lang: string)
+
+    getValue(): string
+
+    setValue(value: string): string
+  }
+
+  export class SourceCitation {
+    getLang(): string
+
+    setLang(lang: string)
+
+    getValue(): string
+
+    setValue(value: string): string
+  }
+
+  export class Agent {
+    getIdentifiers(): Identifiers
+
+    getNames(): TextValue[]
+
+    getHomepage(): ResourceReference
+
+    getOpenid(): ResourceReference
+
+    getAccounts(): OnlineAccount[]
+
+    getEmails(): ResourceReference[]
+
+    getPhones(): ResourceReference[]
+
+    getAddresses(): Address[]
+
+    getPerson(): ResourceReference
+  }
+
+  export class OnlineAccount {
+    getServiceHomepage(): ResourceReference
+
+    getAccountName(): string
+  }
+
+  export class Address {
+    getValue(): string
+
+    getCity(): string
+
+    getCountry(): string
+
+    getPostalCode(): string
+
+    getStateOrProvince(): string
+
+    getStreet(): string
+
+    getStreet2(): string
+
+    getStreet3(): string
+
+    getStreet4(): string
+
+    getStreet5(): string
+
+    getStreet6(): string
   }
 }
