@@ -24,14 +24,14 @@ class ModelGraph extends GedcomX.Root {
   }
 
   getSourceDescriptionById(id: string): GedcomX.SourceDescription {
-    return this.getSourceDescriptions().find(d => d.getId() === id);
+    return this.getSourceDescriptions().find(d => d.id === id);
   }
 
   getAgentById(id: string | GedcomX.ResourceReference): GedcomX.Agent {
     if (id instanceof GedcomX.ResourceReference) {
       id = id.getResource().substring(1);
     }
-    return this.agents.find(a => a.getId() === id);
+    return this.agents.find(a => (id as string) in a.getIdentifiers().getValues());
   }
 
   getPersonByName = (name: string): GedcomX.Person => {

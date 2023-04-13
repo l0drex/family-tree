@@ -26,11 +26,10 @@ declare module "gedcomx-js" {
     persons: Person[]
     relationships: Relationship[]
     sourceDescriptions: SourceDescription[]
-    agents
+    agents: Agent[]
     events: Event[]
     documents: Document[]
-    places
-    groups
+    places: PlaceDescription[]
     description: string
 
     getPersons(): Person[]
@@ -62,6 +61,8 @@ declare module "gedcomx-js" {
     addRelationship(relationship: Relationship | object): Root
 
     getSourceDescriptions(): SourceDescription[]
+
+    getPlaces(): PlaceDescription[]
   }
 
   export function GedcomX(json: any): Root;
@@ -152,9 +153,8 @@ declare module "gedcomx-js" {
   }
 
   export class SourceDescription {
-    getId(): string
-
-    setId(id: string)
+    // not defined in the lib, but part of the spec
+    id: string
 
     getResourceType()
 
@@ -175,14 +175,6 @@ declare module "gedcomx-js" {
     getMediator(): string
 
     setMediator(mediator: string)
-
-    getPublisher(): string
-
-    setPublisher(publisher: string)
-
-    getAuthors(): string[]
-
-    setAuthors(authors: string[])
 
     getSources(): SourceReference[]
 
@@ -238,17 +230,13 @@ declare module "gedcomx-js" {
 
     setModified(modified: number)
 
-    getPublished(): number
-
-    setPublished(published: number)
-
     getRepository(): string
 
     setRepository(repository: string)
   }
 
   export class Identifiers extends Base {
-    getValues(type: string): string[]
+    getValues(type?: string): string[]
 
     setValues(value: string, type: string)
 
@@ -457,7 +445,7 @@ declare module "gedcomx-js" {
     toGraphObject()
   }
 
-  export class Relationship {
+  export class Relationship extends Subject {
     getType(): string
 
     setType(type: string): Relationship
@@ -648,5 +636,51 @@ declare module "gedcomx-js" {
     getStreet5(): string
 
     getStreet6(): string
+  }
+
+  class Event extends Subject {
+    getType(): string
+
+    getDate(): Date
+
+    getPlace(): PlaceReference
+
+    getRoles(): EventRole[]
+  }
+
+  class Document extends Conclusion {
+    getType(): string
+
+    getExtracted(): boolean
+
+    getTextType(): string
+
+    getText(): string
+  }
+
+  class PlaceDescription extends Subject {
+    getNames(): TextValue[]
+
+    getType(): string
+
+    getPlace(): string
+
+    getJurisdiction(): string
+
+    getLatitude(): number
+
+    getLongitude(): number
+
+    getTemporalDescription(): GDate
+
+    getSpatialDescription(): string
+  }
+
+  class EventRole extends Conclusion {
+    getPerson(): ResourceReference
+
+    getType(): string
+
+    getDetails(): string
   }
 }

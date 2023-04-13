@@ -54,7 +54,7 @@ function InfoPanel(props: Props) {
       {images.length > 0 && <Gallery>
         {images.map(image => {
           let credit = image.getCitations()[0].getValue();
-          return <div key={image.getId()}>
+          return <div key={image.id}>
             <img src={image.getAbout()}
                  alt={strings.formatString(strings.infoPanel.personImageAlt, person.getFullName()) as string
                    /* quick hack, dont know why this does not just return string */}/>
