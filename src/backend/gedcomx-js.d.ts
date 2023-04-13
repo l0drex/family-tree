@@ -301,7 +301,7 @@ declare module "gedcomx-js" {
 
   export {GDate as Date};
 
-  export class Fact {
+  export class Fact extends Conclusion {
     getType(): string
 
     setType(type: string): Fact
