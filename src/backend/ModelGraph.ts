@@ -2,12 +2,21 @@ import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
 import viewGraph, {ViewMode} from "./ViewGraph";
 import config from "../config";
 import {PersonFactTypes} from "./gedcomx-enums";
+import {filterLang} from "../main";
 
 let lastViewGraphBuildParams: {id: string, view: ViewMode | string}
 
 class ModelGraph extends GedcomX.Root {
   constructor(data) {
     super(data)
+
+    // localize
+    this.persons = (this.persons ?? []).filter(filterLang);
+    this.relationships = (this.relationships ?? []).filter(filterLang);
+    this.events = (this.events ?? []).filter(filterLang);
+    this.documents = (this.documents ?? []).filter(filterLang);
+    this.places = (this.places ?? []).filter(filterLang);
+
     if (!data || data.persons.length < 0 || data.relationships.length < 0) {
       throw new Error("The calculated graph is empty! Please check if your files are empty. If not, please file a bug report!");
     }

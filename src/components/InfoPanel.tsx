@@ -67,7 +67,7 @@ function InfoPanel(props: Props) {
 
       <article>
         <ul id="factView">
-          {person.getFacts().sort((a, b) => {
+          {person.getFacts().filter(filterLang).sort((a, b) => {
             // place birth at top, generation right below
             if (a.getType() === PersonFactTypes.Birth) {
               return -1;

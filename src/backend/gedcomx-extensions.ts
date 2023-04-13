@@ -1,5 +1,5 @@
 import * as GedcomX from "gedcomx-js";
-import {strings} from "../main";
+import {filterLang, strings} from "../main";
 import config from "../config";
 import {
   baseUri,
@@ -47,7 +47,7 @@ function extend(GedcomXExtend) {
 
     let names = [
       this.getPreferredName(),
-      this.getNames().filter(n => n.getLang() === config.browserLang)[0],
+      this.getNames().filter(filterLang)[0],
       this.getNames()[0]
     ];
 
@@ -64,36 +64,36 @@ function extend(GedcomXExtend) {
   }
 
   GedcomXExtend.Person.prototype.getBirthName = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.BirthName)
+    let name: Name = this.getNames().filter(filterLang).find(name => name.getType() && name.getType() === NameTypes.BirthName)
     if (name) {
-      return name.getNameForms()[0].getFullText(true);
+      return name.getNameForms().filter(filterLang)[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
   GedcomXExtend.Person.prototype.getMarriedName = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.MarriedName)
+    let name: Name = this.getNames().filter(filterLang).find(name => name.getType() && name.getType() === NameTypes.MarriedName)
     if (name) {
-      return name.getNameForms()[0].getFullText(true);
+      return name.getNameForms().filter(filterLang)[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
   GedcomXExtend.Person.prototype.getAlsoKnownAs = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.AlsoKnownAs)
+    let name: Name = this.getNames().filter(filterLang).find(name => name.getType() && name.getType() === NameTypes.AlsoKnownAs)
     if (name) {
-      return name.getNameForms()[0].getFullText(true);
+      return name.getNameForms().filter(filterLang)[0].getFullText(true);
     } else {
       return undefined;
     }
   }
 
   GedcomXExtend.Person.prototype.getNickname = function (this: Person): string {
-    let name: Name = this.getNames().find(name => name.getType() && name.getType() === NameTypes.Nickname)
+    let name: Name = this.getNames().filter(filterLang).find(name => name.getType() && name.getType() === NameTypes.Nickname)
     if (name) {
-      return name.getNameForms()[0].getFullText(true);
+      return name.getNameForms().filter(filterLang)[0].getFullText(true);
     } else {
       return undefined;
     }
