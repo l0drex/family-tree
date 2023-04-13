@@ -9,18 +9,19 @@ import {
   PersonFactTypes
 } from "./gedcomx-enums";
 import {Fact, FamilyView, Name, NameForm, Person, PlaceReference, Qualifier, Relationship} from "gedcomx-js";
+import * as factEmojis from './factEmojies.json';
 
 // Person
 
 export function getGeneration(person): number | undefined {
-  let generationFacts = person.getFactsByType(PersonFactTypes.Generation);
+  let generationFacts = person.getFactsByType(PersonFactTypes.GenerationNumber);
   if (!generationFacts.length) {
     return undefined
   }
   return generationFacts[0].value
 }
 
-let referenceAge: {age: number, generation: number} = {
+let referenceAge: { age: number, generation: number } = {
   age: undefined,
   generation: undefined
 };
@@ -228,7 +229,7 @@ function extend(GedcomXExtend) {
       case PersonFactTypes.Birth:
         string = strings.gedcomX.born;
         break;
-      case PersonFactTypes.Generation:
+      case PersonFactTypes.GenerationNumber:
         string = strings.gedcomX.generation;
         break;
       case PersonFactTypes.MaritalStatus:
@@ -267,24 +268,13 @@ function extend(GedcomXExtend) {
     return string;
   }
 
-  GedcomXExtend.Fact.prototype.getEmoji = function(this: Fact, gender?: string): string {
+  GedcomXExtend.Fact.prototype.getEmoji = function (this: Fact, gender?: string): string {
     const genderSpecifier = gender === GenderTypes.Female ? "♀" : (gender === GenderTypes.Male ? "♂" : "");
-    switch (this.getType()) {
-      case PersonFactTypes.Birth:
-        return "👶";
-      case PersonFactTypes.Generation:
-        return "🌳";
-      case PersonFactTypes.Religion:
-        return `🧎‍${genderSpecifier}️`;
-      case PersonFactTypes.MaritalStatus:
-        return gender === GenderTypes.Female ? "👰‍♀️" : (gender === GenderTypes.Male ? "🤵‍♂️" : "🤵");
-      case PersonFactTypes.Death:
-        return "🪦";
-      case PersonFactTypes.Occupation:
-        return gender === GenderTypes.Male ? "👨‍💼" : (gender === GenderTypes.Female ? "👩‍💼" : "🧑‍💼");
-      default:
-        return "•";
+    const type = this.getType().substring(baseUri.length);
+    if (type in factEmojis) {
+      return factEmojis[type];
     }
+    return "•";
   }
 
 

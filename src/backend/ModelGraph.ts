@@ -195,12 +195,12 @@ class ModelGraph extends GedcomX.Root {
   private setAgeGen0 = (startPerson: GedcomX.Person) => {
     let personWithKnownAge = this.persons
       .filter(p => {
-        let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.Generation);
+        let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.GenerationNumber);
         if (generationStartFacts.length < 1) {
           return false;
         }
         let generationStart = generationStartFacts[0].getValue();
-        let generationPFacts = p.getFactsByType(PersonFactTypes.Generation)
+        let generationPFacts = p.getFactsByType(PersonFactTypes.GenerationNumber)
         if (generationPFacts.length < 1) {
           return false;
         }
@@ -215,7 +215,7 @@ class ModelGraph extends GedcomX.Root {
     }
     setReferenceAge(personWithKnownAge.getAgeToday(),
       // get generation from generation fact
-      Number(personWithKnownAge.getFactsByType(PersonFactTypes.Generation)[0].getValue()));
+      Number(personWithKnownAge.getFactsByType(PersonFactTypes.GenerationNumber)[0].getValue()));
   }
 
   private getAncestors(person: GedcomX.Person): GedcomX.Person[] {

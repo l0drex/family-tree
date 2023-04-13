@@ -72,9 +72,9 @@ function InfoPanel(props: Props) {
               return -1;
             } else if (b.getType() === PersonFactTypes.Birth) {
               return 1;
-            } else if (a.getType() === PersonFactTypes.Generation) {
+            } else if (a.getType() === PersonFactTypes.GenerationNumber) {
               return -1;
-            } else if (b.getType() === PersonFactTypes.Generation) {
+            } else if (b.getType() === PersonFactTypes.GenerationNumber) {
               return 1;
             }
 

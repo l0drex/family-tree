@@ -32,7 +32,7 @@ export function getGenderPerGeneration() {
   let data: { [generation: number]: { [gender: string]: number } } = {};
 
   graphModel.persons.forEach(p => {
-    let genFact = p.getFactsByType(PersonFactTypes.Generation)[0];
+    let genFact = p.getFactsByType(PersonFactTypes.GenerationNumber)[0];
     let generation;
     try {
       generation = Number(genFact.getValue());

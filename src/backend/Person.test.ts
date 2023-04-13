@@ -6,7 +6,7 @@ test("Age calculated correct", () => {
   setReferenceAge(0, 0);
   let person = new GedcomX.Person()
     .addFact(new GedcomX.Fact()
-      .setType(PersonFactTypes.Generation)
+      .setType(PersonFactTypes.GenerationNumber)
       .setValue(0));
   expect(person.getAgeToday()).toBe(0);
 
