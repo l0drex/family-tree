@@ -222,43 +222,16 @@ function extend(GedcomXExtend) {
 // Fact
 
   GedcomXExtend.Fact.prototype.toString = function (this: Fact): string {
-    let string;
     let value = this.getValue();
+    const type = this.getType();
+    let string = strings.gedcomX.types.fact.person[type.substring(baseUri.length)] ?? type;
 
-    switch (this.getType()) {
-      case PersonFactTypes.Birth:
-        string = strings.gedcomX.born;
-        break;
-      case PersonFactTypes.GenerationNumber:
-        string = strings.gedcomX.generation;
-        break;
-      case PersonFactTypes.MaritalStatus:
-        string = "";
-        switch (value) {
-          case "single":
-            value = strings.gedcomX.single;
-            break;
-          case "married":
-            value = strings.gedcomX.married;
-            break;
-        }
-        break;
-      case PersonFactTypes.Religion:
-        string = strings.gedcomX.religion;
-        break;
-      case PersonFactTypes.Occupation:
-        string = strings.gedcomX.worksAs;
-        break;
-      case PersonFactTypes.Death:
-        string = strings.gedcomX.died;
-        break;
-      default:
-        string = this.getType();
-        break;
+    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.maritalStatus) {
+      value = strings.gedcomX.maritalStatus[value];
     }
 
-    string += (value || value === "0" ? ` ${value}` : "") +
-      (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
+    string += ((value || value === "0") ? `: ${value}` : "");
+    string += (this.getDate() !== undefined ? ` ${this.getDate().toString()}` : "") +
       (this.getPlace() && this.getPlace().toString() ? " " + strings.formatString(strings.gedcomX.place, this.getPlace().toString()) : "");
 
     if (this.getQualifiers() && this.getQualifiers().length > 0) {

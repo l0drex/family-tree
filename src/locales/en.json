@@ -279,15 +279,15 @@
         "RootName": "RootName"
       }
     },
-    "gender": "Gender",
+    "maritalStatus": {
+      "Divorced": "divorced",
+      "Married": "married",
+      "Seperated": "seperated",
+      "Single": "single",
+      "Widowed": "widowed"
+    },
+    "gender": "Sex",
     "confidence": "Confidence",
-    "born": "born",
-    "generation": "Generation",
-    "single": "single",
-    "married": "married",
-    "religion": "Religion",
-    "worksAs": "works as",
-    "died": "died",
     "ageQualifier": "with {0} years old",
     "day": "on {0}",
     "month": "in {0}",

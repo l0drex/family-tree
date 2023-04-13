@@ -279,15 +279,15 @@
         "RootName": "Wurzelname"
       }
     },
+    "maritalStatus": {
+      "Divorced": "geschieden",
+      "Married": "verheiratet",
+      "Seperated": "getrennt",
+      "Single": "ledig",
+      "Widowed": "verwitwet"
+    },
     "gender": "Geschlecht",
     "confidence": "Zuversicht",
-    "born": "geboren",
-    "generation": "Generation",
-    "single": "ledig",
-    "married": "verheiratet",
-    "religion": "Religion",
-    "worksAs": "arbeitet als",
-    "died": "verstorben",
     "ageQualifier": "mit {0} Jahren",
     "day": "am {0}",
     "month": "im {0}",
