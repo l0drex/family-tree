@@ -32,14 +32,17 @@ main {
 }
 
 main > * {
-  background: var(--background);
   margin: 1rem auto 0;
   box-sizing: border-box;
-  border-radius: .5rem;
 }
 
 main > :first-child {
   margin-top: 0;
+}
+
+article {
+  border-radius: 1rem;
+  background: var(--background);
 }
 
 aside {
@@ -100,11 +103,8 @@ aside .title h2 {
 }
 
 aside > article {
-  border-radius: 1rem;
   padding: 1rem;
-  margin: 0;
   box-sizing: border-box;
-  background: var(--background);
   box-shadow: inset 0 .25rem .25rem rgba(0, 0, 0, .33);
   flex-basis: 200px;
 }

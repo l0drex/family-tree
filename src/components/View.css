@@ -3,6 +3,9 @@
   box-sizing: border-box;
   display: flex;
   flex-flow: column;
+  margin: 0;
+  max-width: none;
+  padding: 0;
 }
 
 #family-tree {
