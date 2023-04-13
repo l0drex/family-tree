@@ -45,7 +45,8 @@
     "source": "Source",
     "noSourceDescriptionError": "Source description {0} could not be found",
     "confidenceExplanation": "How much can the data be trusted",
-    "confidenceLabel": "Confidence: "
+    "confidenceLabel": "Confidence: ",
+    "attribution": "Created on {0} by {1}. Modified on {2} by {3}:"
   },
   "nodes": {
     "lockedFamilyHint": "This family cannot be hidden.",

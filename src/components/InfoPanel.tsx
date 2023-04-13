@@ -1,10 +1,11 @@
 import './InfoPanel.css';
 import {Person} from "gedcomx-js";
 import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
-import {strings} from "../main";
+import {filterLang, strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
 import Sidebar from "./Sidebar";
+import * as gedcomX from "gedcomx-js";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -97,11 +98,8 @@ function InfoPanel(props: Props) {
         </ul>
       </article>
 
-      {person.getNotes().map((note, i) => {
-        return <article key={i}>
-          <h1><span className={"emoji"}>📝</span> {note.getSubject() || strings.infoPanel.note}</h1>
-          <p>{note.getText()}</p>
-        </article>
+      {person.getNotes().filter(filterLang).map((note, i) => {
+        return <Note note={note} key={i} />
       })}
 
       {person.getSources().map(source => source.getDescription()).map(ref => {
@@ -119,6 +117,29 @@ function InfoPanel(props: Props) {
       </div>}
     </Sidebar>
   );
+}
+
+function Note(props: {note: gedcomX.Note}) {
+  return <article>
+    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.infoPanel.note}</h1>
+    <p>{props.note.getText()}</p>
+    {props.note.getAttribution() && <Attribution attribution={props.note.getAttribution()}/>}
+  </article>
+}
+
+/**
+ * @todo this is untested as I don't have data to do so. Please file a bug if you find something weird.
+ */
+function Attribution(props: {attribution: gedcomX.Attribution}) {
+  let created = props.attribution.getCreated().toString();
+  let creatorRef = props.attribution.getCreator();
+  let creator = graphModel.getAgentById(creatorRef).getNames().filter(filterLang)[0].getValue();
+  let modified = props.attribution.getModified().toString();
+  let contributorRef = props.attribution.getContributor();
+  let contributor = graphModel.getAgentById(contributorRef).getNames().filter(filterLang)[0].getValue();
+  let message = props.attribution.getChangeMessage();
+
+  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creator, modified, contributor)} {message}</cite>
 }
 
 function getImages(person: Person) {
