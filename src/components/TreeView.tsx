@@ -36,6 +36,9 @@ function TreeView(props: Props) {
       .addEventListener("change", () => animateTree(props.graph, props.colorMode));
   }, [props.graph, props.colorMode])
 
+  window.matchMedia("(orientation: landscape)")
+    .addEventListener("change", () => animateTree(props.graph, props.colorMode));
+
   useEffect(() => {
     animateTree(props.graph, props.colorMode);
   }, [focusId, nodeLength, props.graph, props.colorMode]);
@@ -104,11 +107,16 @@ async function setupCola() {
 }
 
 async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
+  const isLandscape = window.matchMedia("(orientation: landscape)").matches;
   let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
-    .flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
-    .symmetricDiffLinkLengths(config.gridSize)
-    .start(iterations, 0, iterations);
+    .symmetricDiffLinkLengths(config.gridSize);
+  if (isLandscape) {
+    d3cola.flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
+  } else {
+    d3cola.flowLayout("y", config.gridSize * 3)
+  }
+  d3cola.start(iterations, 0, iterations);
 
   let nodesLayer = d3.select("#nodes");
   let linkLayer = d3.select("#links");
@@ -186,35 +194,68 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
     .duration(300)
     .style("opacity", "1")
 
-  d3cola.on("tick", () => {
-    personNode
-      .attr("x", d => d.x - d.width / 2)
-      .attr("y", d => d.y - d.height / 2);
-    partnerNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-    etcNode
-      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+  if (isLandscape) {
+    d3cola.on("tick", () => {
+      personNode
+        .attr("x", d => d.x - d.width / 2)
+        .attr("y", d => d.y - d.height / 2);
+      partnerNode
+        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+      etcNode
+        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
 
-    link.attr("d", d => {
-      // 1 or -1
-      let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
-      let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
+      link.attr("d", d => {
+        // 1 or -1
+        let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
+        let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
 
-      if (d.target.type === "person") {
-        return `M${d.source.x},${d.source.y} ` +
-          `h${config.gridSize} ` +
-          `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
-          `V${d.target.y - (flip) * radius} ` +
-          `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
-          `H${d.target.x}`;
-      } else {
-        return `M${d.source.x} ${d.source.y} ` +
-          `H${d.target.x - radius} ` +
-          `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
-          `V${d.target.y}`;
-      }
+        if (d.target.type === "person") {
+          return `M${d.source.x},${d.source.y} ` +
+            `h${config.gridSize} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y - (flip) * radius} ` +
+            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `H${d.target.x}`;
+        } else {
+          return `M${d.source.x} ${d.source.y} ` +
+            `H${d.target.x - radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+            `V${d.target.y}`;
+        }
+      });
     });
-  });
+  } else {
+    d3cola.on("tick", () => {
+      personNode
+        .attr("x", d => d.x - d.width / 2)
+        .attr("y", d => d.y - d.height / 2);
+      partnerNode
+        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+      etcNode
+        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+
+      link.attr("d", d => {
+        // 1 or -1
+        let flip = -(Number((d.source.x - d.target.x) > 0) * 2 - 1);
+
+        let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
+
+        if (d.target.type === "person") {
+          return `M${d.source.x},${d.source.y} ` +
+            `v${config.gridSize} ` +
+            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${flip * radius} ${radius} ` +
+            `H${d.target.x - (flip) * radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
+            `V${d.target.y}`;
+        } else {
+          return `M${d.source.x} ${d.source.y} ` +
+            `H${d.target.x - flip * radius} ` +
+            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
+            `V${d.target.y}`;
+        }
+      });
+    });
+  }
 }
 
 
