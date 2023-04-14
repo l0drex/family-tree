@@ -242,7 +242,9 @@ function ConfidenceStats() {
         top={height/2}
         left={width/2}
         pieValue={d => d.count}
-        fill={d => d.data.value === "null" ? "grey" : colorScale(d.data.value as Confidence)}
+        fill={d => d.data.value === "null" ? "none" : colorScale(d.data.value as Confidence)}
+        stroke={"var(--background)"}
+        stroke-width={".2rem"}
       />
     </svg>
   </Stat>
