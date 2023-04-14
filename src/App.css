@@ -175,3 +175,19 @@ li:not(:last-child) {
     margin-right: 1rem;
   }
 }
+
+@media print {
+  #root.sidebar-visible {
+    gap: 0;
+  }
+
+  aside {
+    border: solid 1pt;
+  }
+
+  header, footer, #view-all {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+}

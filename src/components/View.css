@@ -82,6 +82,16 @@
   .person .focused {
     font-weight: bold;
   }
+
+  .partnerNode circle, .partnerNode :not(.marriageDate) {
+    visibility: hidden;
+  }
+
+  .etc, .partnerNode :not(.marriageDate) {
+    fill: var(--background);
+    stroke: var(--foreground-secondary);
+    border: var(--foreground-secondary);
+  }
 }
 
 /* Person node styles */
