@@ -44,12 +44,9 @@ function TreeView(props: Props) {
     "View graph has no nodes!");
   console.assert(props.graph.links.length > 0,
     "View graph has no links!");
-  let iterations = nodeLength < 100 ? 10 : 0;
   d3cola
-    .flowLayout("x", config.gridSize * 5)
     .nodes(props.graph.nodes)
-    .links(props.graph.links)
-    .start(iterations, 0, iterations);
+    .links(props.graph.links);
 
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg">
@@ -107,10 +104,11 @@ async function setupCola() {
 }
 
 async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
+  let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
     .flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
     .symmetricDiffLinkLengths(config.gridSize)
-    .start(15, 0, 10);
+    .start(iterations, 0, iterations);
 
   let nodesLayer = d3.select("#nodes");
   let linkLayer = d3.select("#links");
