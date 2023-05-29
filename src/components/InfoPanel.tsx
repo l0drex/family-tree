@@ -99,7 +99,7 @@ function InfoPanel(props: Props) {
       </article>
 
       {person.getNotes().filter(filterLang).map((note, i) => {
-        return <Note note={note} key={i} />
+        return <Note note={note} key={i}/>
       })}
 
       {person.getSources().map(source => source.getDescription()).map(ref => {
@@ -107,7 +107,7 @@ function InfoPanel(props: Props) {
           <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
           <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
             graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
-          : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
+            : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
         </article>
       })}
 
@@ -119,7 +119,7 @@ function InfoPanel(props: Props) {
   );
 }
 
-function Note(props: {note: gedcomX.Note}) {
+function Note(props: { note: gedcomX.Note }) {
   return <article>
     <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.infoPanel.note}</h1>
     <p>{props.note.getText()}</p>
@@ -130,7 +130,7 @@ function Note(props: {note: gedcomX.Note}) {
 /**
  * @todo this is untested as I don't have data to do so. Please file a bug if you find something weird.
  */
-function Attribution(props: {attribution: gedcomX.Attribution}) {
+function Attribution(props: { attribution: gedcomX.Attribution }) {
   let created = props.attribution.getCreated().toString();
   let creatorRef = props.attribution.getCreator();
   let creator = graphModel.getAgentById(creatorRef).getNames().filter(filterLang)[0].getValue();
