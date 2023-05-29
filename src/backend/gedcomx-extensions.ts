@@ -3,7 +3,6 @@ import {filterLang, strings} from "../main";
 import config from "../config";
 import {
   baseUri,
-  GenderTypes,
   NameTypes,
   PersonFactQualifiers,
   PersonFactTypes
@@ -242,7 +241,6 @@ function extend(GedcomXExtend) {
   }
 
   GedcomXExtend.Fact.prototype.getEmoji = function (this: Fact, gender?: string): string {
-    const genderSpecifier = gender === GenderTypes.Female ? "♀" : (gender === GenderTypes.Male ? "♂" : "");
     const type = this.getType().substring(baseUri.length);
     if (type in factEmojis) {
       return factEmojis[type];

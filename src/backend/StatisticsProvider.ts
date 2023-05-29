@@ -134,7 +134,7 @@ export function getOccupations() {
       occupation = p.getFactsByType(PersonFactTypes.Occupation)[0].getValue()
     } catch (e) {
       if (e instanceof TypeError) {
-        return;
+        return undefined;
       } else {
         throw e;
       }

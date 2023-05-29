@@ -92,6 +92,9 @@ function ReligionStats() {
   </Stat>
 }
 
+// todo make these usable
+
+// eslint-disable-next-line
 function OccupationStats() {
   let data = getOccupations();
   let colorScale = scaleOrdinal({
@@ -113,6 +116,7 @@ function OccupationStats() {
   </Stat>;
 }
 
+// eslint-disable-next-line
 function LocationStats() {
   let data = getBirthPlace();
 
