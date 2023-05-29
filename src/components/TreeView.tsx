@@ -60,9 +60,9 @@ function TreeView(props: Props) {
             <path className="link" key={i}/>)}
         </g>
         <g id="nodes">
-          {props.graph.nodes.filter(n => n.type === "family").map((r, i) =>
+          {props.graph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
             <Family data={r} key={i}
-                    locked={(r as GraphFamily).involvesPerson(props.graph.startPerson.data.getId())}/>)}
+                    locked={r.involvesPerson(props.graph.startPerson.data.getId())}/>)}
           {props.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
             <Etc key={i} data={r} graph={props.graph}/>)}
           {props.graph.nodes.filter(n => n.type === "person").map((p, i) =>

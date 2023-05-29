@@ -1,9 +1,9 @@
 import config from "../config";
 import {strings} from "../main";
 import viewGraph from "../backend/ViewGraph";
-import {GraphPerson} from "../backend/graph";
+import {GraphFamily, GraphPerson} from "../backend/graph";
 
-export function Family(props) {
+export function Family(props: {locked: boolean, data: GraphFamily}) {
   return (
     <g className={"partnerNode" + (props.locked ? " locked" : "")} onClick={() => {
       if (props.locked) {
