@@ -1,9 +1,11 @@
 import './InfoPanel.css';
 import {Person} from "gedcomx-js";
-import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
-import {strings} from "../main";
+import {baseUri, PersonFactTypes, RelationshipTypes} from "../backend/gedcomx-enums";
+import {filterLang, strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
+import Sidebar from "./Sidebar";
+import * as gedcomX from "gedcomx-js";
 
 interface Props {
   onRefocus: (newFocus: Person) => void,
@@ -29,13 +31,36 @@ function InfoPanel(props: Props) {
     }
   }
 
-  person.getEvidence()
-  person.getIdentifiers()
-  person.getAnalysis()
-  person.getAttribution()
+  let parentChild = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.ParentChild);
+  let parents = parentChild.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let children = parentChild.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let partner = graphModel.relationships
+    .filter(r => r.getType() === RelationshipTypes.Couple && r.involvesPerson(person))
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let godparentRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.Godparent);
+  let godparents = godparentRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let godchildren = godparentRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let slaveRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.EnslavedBy);
+  let enslavedBy = slaveRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let slaves = slaveRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  // todo:
+  // person.getEvidence()
+  // person.getIdentifiers()
+  // person.getAnalysis()
+  // person.getAttribution()
 
   return (
-    <aside id="info-panel">
+    <Sidebar id="info-panel">
       <section className="title">
         <h1 className="name">{person.getFullName()}</h1>
         {person.getMarriedName() && <h2 className="birth-name">
@@ -52,7 +77,7 @@ function InfoPanel(props: Props) {
       {images.length > 0 && <Gallery>
         {images.map(image => {
           let credit = image.getCitations()[0].getValue();
-          return <div key={image.getId()}>
+          return <div key={image.id}>
             <img src={image.getAbout()}
                  alt={strings.formatString(strings.infoPanel.personImageAlt, person.getFullName()) as string
                    /* quick hack, dont know why this does not just return string */}/>
@@ -65,15 +90,15 @@ function InfoPanel(props: Props) {
 
       <article>
         <ul id="factView">
-          {person.getFacts().sort((a, b) => {
+          {person.getFacts().filter(filterLang).sort((a, b) => {
             // place birth at top, generation right below
             if (a.getType() === PersonFactTypes.Birth) {
               return -1;
             } else if (b.getType() === PersonFactTypes.Birth) {
               return 1;
-            } else if (a.getType() === PersonFactTypes.Generation) {
+            } else if (a.getType() === PersonFactTypes.GenerationNumber) {
               return -1;
-            } else if (b.getType() === PersonFactTypes.Generation) {
+            } else if (b.getType() === PersonFactTypes.GenerationNumber) {
               return 1;
             }
 
@@ -92,15 +117,61 @@ function InfoPanel(props: Props) {
 
             return 0;
           }).map(f => <li key={f.toString()}
-                          style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
+                          style={{listStyleType: `"${f.getEmoji()} "`}}>{f.toString()}</li>)}
         </ul>
       </article>
 
-      {person.getNotes().map((note, i) => {
-        return <article key={i}>
-          <h1><span className={"emoji"}>📝</span> {note.getSubject() || strings.infoPanel.note}</h1>
-          <p>{note.getText()}</p>
-        </article>
+      {parents.length > 0 && <article>
+        <h1>👪 {strings.infoPanel.parents}</h1>
+        <ul>
+          {parents.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {children.length > 0 && <article>
+        <h1>🍼 {strings.infoPanel.children}</h1>
+        <ul>
+          {children.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {partner.length > 0 && <article>
+        <h1>❤️ {strings.infoPanel.partner}</h1>
+        <ul>
+          {partner.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {godparents.length > 0 && <article>
+        <h1>⛅ {strings.infoPanel.godparents}</h1>
+        <ul>
+          {godparents.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {godchildren.length > 0 && <article>
+        <h1>⛅ {strings.infoPanel.godchildren}</h1>
+        <ul>
+          {godchildren.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {enslavedBy.length > 0 && <article>
+        <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
+        <ul>
+          {enslavedBy.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {slaves.length > 0 && <article>
+        <h1>⛓️ {strings.infoPanel.slaves}</h1>
+        <ul>
+          {slaves.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {person.getNotes().filter(filterLang).map((note, i) => {
+        return <Note note={note} key={i}/>
       })}
 
       {person.getSources().map(source => source.getDescription()).map(ref => {
@@ -108,7 +179,7 @@ function InfoPanel(props: Props) {
           <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
           <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
             graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
-          : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
+            : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
         </article>
       })}
 
@@ -116,8 +187,31 @@ function InfoPanel(props: Props) {
         <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
         <meter value={confidence} max={3} low={2} high={2} optimum={3}>{person.getConfidence()}</meter>
       </div>}
-    </aside>
+    </Sidebar>
   );
+}
+
+function Note(props: { note: gedcomX.Note }) {
+  return <article>
+    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.infoPanel.note}</h1>
+    <p>{props.note.getText()}</p>
+    {props.note.getAttribution() && <Attribution attribution={props.note.getAttribution()}/>}
+  </article>
+}
+
+/**
+ * @todo this is untested as I don't have data to do so. Please file a bug if you find something weird.
+ */
+function Attribution(props: { attribution: gedcomX.Attribution }) {
+  let created = props.attribution.getCreated().toString();
+  let creatorRef = props.attribution.getCreator();
+  let creator = graphModel.getAgentById(creatorRef).getNames().filter(filterLang)[0].getValue();
+  let modified = props.attribution.getModified().toString();
+  let contributorRef = props.attribution.getContributor();
+  let contributor = graphModel.getAgentById(contributorRef).getNames().filter(filterLang)[0].getValue();
+  let message = props.attribution.getChangeMessage();
+
+  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creator, modified, contributor)} {message}</cite>
 }
 
 function getImages(person: Person) {

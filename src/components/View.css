@@ -3,6 +3,9 @@
   box-sizing: border-box;
   display: flex;
   flex-flow: column;
+  margin: 0;
+  max-width: none;
+  padding: 0;
 }
 
 #family-tree {
@@ -78,6 +81,16 @@
 
   .person .focused {
     font-weight: bold;
+  }
+
+  .partnerNode circle, .partnerNode :not(.marriageDate) {
+    visibility: hidden;
+  }
+
+  .etc, .partnerNode :not(.marriageDate) {
+    fill: var(--background);
+    stroke: var(--foreground-secondary);
+    border: var(--foreground-secondary);
   }
 }
 

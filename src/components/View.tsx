@@ -28,9 +28,9 @@ function ViewOptions(props) {
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
         <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
-          <option value={ColorMode.GENDER}>{strings.viewOptions.color.gender}</option>
-          <option value={ColorMode.NAME}>{strings.viewOptions.color.surname}</option>
-          <option value={ColorMode.AGE}>{strings.viewOptions.color.age}</option>
+          <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
+          <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
+          <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
         </select>
       </div>
     </form>
@@ -58,8 +58,6 @@ function View() {
     let root = document.querySelector<HTMLDivElement>("#root");
     if (focusHidden) {
       root.classList.remove("sidebar-visible");
-    } else {
-      root.classList.add("sidebar-visible");
     }
   }, [focusHidden])
 
@@ -118,11 +116,11 @@ function View() {
       </Header>
       {!focusHidden && <InfoPanel person={focus} onRefocus={onRefocus}/>}
       <main>
-        <div id="family-tree-container">
+        <article id="family-tree-container">
           <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
           <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
                     onRefocus={onRefocus} graph={viewGraph}/>
-        </div>
+        </article>
       </main>
     </>
   );

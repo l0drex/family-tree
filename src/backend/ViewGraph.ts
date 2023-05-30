@@ -1,5 +1,5 @@
 import {GraphFamily, GraphObject, GraphPerson} from "./graph";
-import {PersonFactTypes} from "./gedcomx-enums";
+import {RelationshipFactTypes} from "./gedcomx-enums";
 import {graphModel} from "./ModelGraph";
 import GedcomX from "./gedcomx-extensions";
 
@@ -209,14 +209,32 @@ export class ViewGraph implements EventTarget {
       console.debug("Adding new family to view", family, this.nodes.filter(n => n.type === "family"))
       graphFamily = new GraphFamily(family);
 
-      // try to add a marriage date
-      let marriageFacts = graphModel.getPersonById(family.getParent1()).getFactsByType(PersonFactTypes.MaritalStatus);
-      if (marriageFacts.length > 0) {
-        (graphFamily as GraphFamily).marriage = marriageFacts[0].getDate();
+      let date = this.getMarriageDate(family);
+      if (date !== undefined) {
+        (graphFamily as GraphFamily).marriage = date;
       }
     }
 
     return graphFamily as GraphFamily;
+  }
+
+  private getMarriageDate(family: GedcomX.FamilyView): GedcomX.Date | undefined {
+    // find the correct couple relationship
+    let couples1 = graphModel.getPersonsCoupleRelationships(graphModel.getPersonById(family.getParent1()));
+    let couples2 = graphModel.getPersonsCoupleRelationships(graphModel.getPersonById(family.getParent2()));
+    let couple = couples1.find(c => couples2.includes(c));
+
+    let facts = couple.getFacts();
+    if (facts.length <= 0) {
+      return;
+    }
+
+    let marriageFact = facts.find(f => f.getType() === RelationshipFactTypes.Marriage);
+    if (marriageFact === undefined) {
+      return;
+    }
+
+    return marriageFact.getDate();
   }
 
   dispatchEvent(event: Event): boolean {

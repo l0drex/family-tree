@@ -2,12 +2,21 @@ import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
 import viewGraph, {ViewMode} from "./ViewGraph";
 import config from "../config";
 import {PersonFactTypes} from "./gedcomx-enums";
+import {filterLang} from "../main";
 
 let lastViewGraphBuildParams: {id: string, view: ViewMode | string}
 
 class ModelGraph extends GedcomX.Root {
   constructor(data) {
     super(data)
+
+    // localize
+    this.persons = (this.persons ?? []).filter(filterLang);
+    this.relationships = (this.relationships ?? []).filter(filterLang);
+    this.events = (this.events ?? []).filter(filterLang);
+    this.documents = (this.documents ?? []).filter(filterLang);
+    this.places = (this.places ?? []).filter(filterLang);
+
     if (!data || data.persons.length < 0 || data.relationships.length < 0) {
       throw new Error("The calculated graph is empty! Please check if your files are empty. If not, please file a bug report!");
     }
@@ -24,7 +33,14 @@ class ModelGraph extends GedcomX.Root {
   }
 
   getSourceDescriptionById(id: string): GedcomX.SourceDescription {
-    return this.getSourceDescriptions().find(d => d.getId() === id);
+    return this.getSourceDescriptions().find(d => d.id === id);
+  }
+
+  getAgentById(id: string | GedcomX.ResourceReference): GedcomX.Agent {
+    if (id instanceof GedcomX.ResourceReference) {
+      id = id.getResource().substring(1);
+    }
+    return this.agents.find(a => (id as string) in a.getIdentifiers().getValues());
   }
 
   getPersonByName = (name: string): GedcomX.Person => {
@@ -195,12 +211,12 @@ class ModelGraph extends GedcomX.Root {
   private setAgeGen0 = (startPerson: GedcomX.Person) => {
     let personWithKnownAge = this.persons
       .filter(p => {
-        let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.Generation);
+        let generationStartFacts = startPerson.getFactsByType(PersonFactTypes.GenerationNumber);
         if (generationStartFacts.length < 1) {
           return false;
         }
         let generationStart = generationStartFacts[0].getValue();
-        let generationPFacts = p.getFactsByType(PersonFactTypes.Generation)
+        let generationPFacts = p.getFactsByType(PersonFactTypes.GenerationNumber)
         if (generationPFacts.length < 1) {
           return false;
         }
@@ -215,7 +231,7 @@ class ModelGraph extends GedcomX.Root {
     }
     setReferenceAge(personWithKnownAge.getAgeToday(),
       // get generation from generation fact
-      Number(personWithKnownAge.getFactsByType(PersonFactTypes.Generation)[0].getValue()));
+      Number(personWithKnownAge.getFactsByType(PersonFactTypes.GenerationNumber)[0].getValue()));
   }
 
   private getAncestors(person: GedcomX.Person): GedcomX.Person[] {
