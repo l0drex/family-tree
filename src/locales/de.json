@@ -46,7 +46,14 @@
     "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden",
     "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
     "confidenceLabel": "Zuversicht: ",
-    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:"
+    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:",
+    "children": "Kinder",
+    "parents": "Eltern",
+    "partner": "Partner",
+    "godparents": "Paten",
+    "godchildren": "Patenkinder",
+    "enslavedBy": "Versklavt von",
+    "slaves": "Sklaven"
   },
   "nodes": {
     "lockedFamilyHint": "Diese Familie kann nicht ausgeblendet werden.",

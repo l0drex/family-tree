@@ -1,6 +1,6 @@
 import './InfoPanel.css';
 import {Person} from "gedcomx-js";
-import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
+import {baseUri, PersonFactTypes, RelationshipTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
@@ -31,10 +31,33 @@ function InfoPanel(props: Props) {
     }
   }
 
-  person.getEvidence()
-  person.getIdentifiers()
-  person.getAnalysis()
-  person.getAttribution()
+  let parentChild = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.ParentChild);
+  let parents = parentChild.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let children = parentChild.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let partner = graphModel.relationships
+    .filter(r => r.getType() === RelationshipTypes.Couple && r.involvesPerson(person))
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let godparentRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.Godparent);
+  let godparents = godparentRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let godchildren = godparentRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  let slaveRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.EnslavedBy);
+  let enslavedBy = slaveRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  let slaves = slaveRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
+    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+
+  // todo:
+  // person.getEvidence()
+  // person.getIdentifiers()
+  // person.getAnalysis()
+  // person.getAttribution()
 
   return (
     <Sidebar id="info-panel">
@@ -97,6 +120,55 @@ function InfoPanel(props: Props) {
                           style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
         </ul>
       </article>
+
+      {parents.length > 0 && <article>
+        <h1>👪 {strings.infoPanel.parents}</h1>
+        <ul>
+          {parents.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {children.length > 0 && <article>
+        <h1>🍼 {strings.infoPanel.children}</h1>
+        <ul>
+          {children.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {partner.length > 0 && <article>
+        <h1>❤️ {strings.infoPanel.partner}</h1>
+        <ul>
+          {partner.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {godparents.length > 0 && <article>
+        <h1>⛅ {strings.infoPanel.godparents}</h1>
+        <ul>
+          {godparents.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {godchildren.length > 0 && <article>
+        <h1>⛅ {strings.infoPanel.godchildren}</h1>
+        <ul>
+          {godchildren.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {enslavedBy.length > 0 && <article>
+        <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
+        <ul>
+          {enslavedBy.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
+
+      {slaves.length > 0 && <article>
+        <h1>⛓️ {strings.infoPanel.slaves}</h1>
+        <ul>
+          {slaves.map(p => <li>{p.getFullName()}</li>)}
+        </ul>
+      </article>}
 
       {person.getNotes().filter(filterLang).map((note, i) => {
         return <Note note={note} key={i}/>

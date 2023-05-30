@@ -46,7 +46,14 @@
     "noSourceDescriptionError": "Source description {0} could not be found",
     "confidenceExplanation": "How much can the data be trusted",
     "confidenceLabel": "Confidence: ",
-    "attribution": "Created on {0} by {1}. Modified on {2} by {3}:"
+    "attribution": "Created on {0} by {1}. Modified on {2} by {3}:",
+    "children": "Children",
+    "parents": "Parents",
+    "partner": "Partner",
+    "godparents": "Godparents",
+    "godchildren": "Godchildren",
+    "enslavedBy": "Enslaved by",
+    "slaves": "Slaves"
   },
   "nodes": {
     "lockedFamilyHint": "This family cannot be hidden.",
