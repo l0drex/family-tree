@@ -117,7 +117,7 @@ function InfoPanel(props: Props) {
 
             return 0;
           }).map(f => <li key={f.toString()}
-                          style={{listStyleType: `"${f.getEmoji(person.getGender().getType())} "`}}>{f.toString()}</li>)}
+                          style={{listStyleType: `"${f.getEmoji()} "`}}>{f.toString()}</li>)}
         </ul>
       </article>
 

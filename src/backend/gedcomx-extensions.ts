@@ -7,7 +7,19 @@ import {
   PersonFactQualifiers,
   PersonFactTypes
 } from "./gedcomx-enums";
-import {Fact, FamilyView, Name, NameForm, Person, PlaceReference, Qualifier, Relationship} from "gedcomx-js";
+import {
+  Conclusion,
+  Fact,
+  FamilyView,
+  Name,
+  NameForm,
+  Note,
+  Person,
+  PlaceReference,
+  Qualifier,
+  Relationship, SourceCitation,
+  TextValue
+} from "gedcomx-js";
 import * as factEmojis from './factEmojies.json';
 
 // Person
@@ -44,20 +56,22 @@ function extend(GedcomXExtend) {
       return "?";
     }
 
+    // like filterLang, but without entries that don't include a language
+    let filterPureLang = (data: Note | TextValue | SourceCitation | Conclusion | NameForm) => data.getLang() === strings.getLanguage();
+
     let names = [
       this.getPreferredName(),
-      this.getNames().filter(filterLang)[0],
+      this.getNames().filter(filterPureLang)[0],
       this.getNames()[0]
     ];
 
     // first name that is defined
     let name: Name = names.find(n => n !== undefined);
-    if (name.getNameForms().length === 0) {
+    if (!name || name.getNameForms().length === 0) {
       return "?";
     }
     // name form that matches language, or if none matches return the first without lang
-    let nameForm: NameForm = name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === config.browserLang);
-    nameForm ??= name.getNameForms().find((nf: GedcomX.NameForm) => nf.getLang() === "");
+    let nameForm: NameForm = name.getNameForms().find(filterPureLang);
     nameForm ??= name.getNameForms()[0];
     return nameForm.getFullText(true);
   }
@@ -240,7 +254,7 @@ function extend(GedcomXExtend) {
     return string;
   }
 
-  GedcomXExtend.Fact.prototype.getEmoji = function (this: Fact, gender?: string): string {
+  GedcomXExtend.Fact.prototype.getEmoji = function (this: Fact): string {
     const type = this.getType().substring(baseUri.length);
     if (type in factEmojis) {
       return factEmojis[type];

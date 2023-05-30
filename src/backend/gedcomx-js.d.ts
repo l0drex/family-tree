@@ -315,7 +315,7 @@ declare module "gedcomx-js" {
     // extensions
     toString(): string
 
-    getEmoji(gender: string): string
+    getEmoji(): string
   }
 
   export class Qualifier extends Base {

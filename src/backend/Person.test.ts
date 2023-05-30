@@ -1,6 +1,6 @@
 import GedcomX, {setReferenceAge} from "./gedcomx-extensions";
-import config from "../config";
 import {PersonFactTypes} from "./gedcomx-enums";
+import {strings} from "../main";
 
 test("Age calculated correct", () => {
   setReferenceAge(0, 0);
@@ -41,9 +41,11 @@ test("get full name returns the correct name", () => {
     .addNameForm(new GedcomX.NameForm().setFullText("Maximilian Mustermann")))
   expect(person.getFullName()).toBe("Maximilian Mustermann");
 
-  config.browserLang = "en";
+
+  strings.setLanguage("en");
+
   person.addName(new GedcomX.Name()
-    .setLang("en")
+    .setLang(strings.getLanguage())
     .addNameForm(new GedcomX.NameForm().setFullText("John Doe")));
   expect(person.getFullName()).toBe("John Doe");
 

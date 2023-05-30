@@ -13,5 +13,5 @@ export let strings = new LocalizedStrings({
  * @param object gedcomX object with a language
  */
 export function filterLang(object: Note | TextValue | SourceCitation | Conclusion | NameForm) {
-  return [strings.getLanguage(), "", null].includes(object.getLang());
+  return [strings.getLanguage(), "", null, undefined].includes(object.getLang());
 }
