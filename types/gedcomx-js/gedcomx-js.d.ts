@@ -1,8 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
 declare module "gedcomx-js" {
-  import {DocumentTypes} from "./gedcomx-enums";
-
   export function enableRsExtensions();
 
   export function addExtensions(extensions: Function);
@@ -363,24 +361,22 @@ declare module "gedcomx-js" {
   }
 
   // Dates are defined as GDate, but exported as Date
-  class GDate extends ExtensibleData {
+  export interface Date extends ExtensibleData {
     original: string
     formal: string
 
     getOriginal(): string
 
-    setOriginal(original: string): GDate
+    setOriginal(original: string): Date
 
     getFormal(): string
 
-    setFormal(formal: string): GDate
+    setFormal(formal: string): Date
   }
-
-  export {GDate as Date};
 
   export class Fact extends Conclusion {
     type: string
-    date: GDate
+    date: Date
     place: PlaceReference
     value: string
     qualifiers: Qualifier[]
@@ -389,9 +385,9 @@ declare module "gedcomx-js" {
 
     setType(type: string): Fact
 
-    getDate(): GDate
+    getDate(): Date
 
-    setDate(date: GDate | object): Fact
+    setDate(date: Date | object): Fact
 
     getPlace(): PlaceReference
 
@@ -476,27 +472,22 @@ declare module "gedcomx-js" {
 
   export class Name extends Conclusion {
     type: string
-    date: GDate
+    date: Date
     nameForms: NameForm[]
 
     getType(): string
 
     setType(type: string): Name
 
-    getDate(): GDate
+    getDate(): Date
 
-    setDate(date: GDate): Name
+    setDate(date: Date): Name
 
     getNameForms(): NameForm[]
 
     setNameForms(nameForms: NameForm[] | object[]): Name
 
     addNameForm(nameForm: NameForm | object): Name
-
-    // todo only if extension is enabled
-    getPreferred(): boolean
-
-    setPreferred(preferred: boolean): Name
   }
 
   export class Person extends Subject {
@@ -530,18 +521,6 @@ declare module "gedcomx-js" {
     getFactsByType(type: string): Fact[]
 
     addFact(fact: Fact | object): Person
-
-    // todo only if extension is enabled
-
-    getLiving(): boolean
-
-    setLiving(living: boolean): Person
-
-    getDisplay(): DisplayProperties
-
-    setDisplay(display: DisplayProperties): Person
-
-    getPreferredName(): Name
   }
 
   export class Relationship extends Subject {
@@ -876,85 +855,5 @@ declare module "gedcomx-js" {
     getTemporal(): Date
 
     setTemporal(temporal: Date): Coverage
-  }
-
-
-  // todo only if extension is enabled
-  export class FamilyView extends Base {
-    getParent1(): ResourceReference
-
-    setParent1(parent1: ResourceReference): FamilyView
-
-    getParent2(): ResourceReference
-
-    setParent2(parent2: ResourceReference): FamilyView
-
-    getChildren(): ResourceReference[]
-
-    setChildren(children: ResourceReference[]): FamilyView
-
-    addChild(child: ResourceReference): FamilyView
-
-
-    // extensions
-    involvesPerson(person: ResourceReference | string): boolean
-
-    getParents(): ResourceReference[]
-
-    getMembers(): ResourceReference[]
-  }
-
-  export class DisplayProperties extends Base {
-    getName(): string
-
-    setName(name: string): DisplayProperties
-
-    getGender(): string
-
-    setGender(gender: string): DisplayProperties
-
-    getLifespan(): string
-
-    setLifespan(lifespan: string): DisplayProperties
-
-    getBirthDate(): string
-
-    setBirthDate(birthDate: string): DisplayProperties
-
-    getBirthPlace(): string
-
-    setBirthPlace(birthPlace: string): DisplayProperties
-
-    getDeathDate(): string
-
-    setDeathDate(deathDate: string): DisplayProperties
-
-    getDeathPlace(): string
-
-    setDeathPlace(deathPlace: string): DisplayProperties
-
-    getMarriageDate(): string
-
-    setMarriageDate(marriageDate: string): DisplayProperties
-
-    getMarriagePlace(): string
-
-    setMarriagePlace(marriagePlace: string): DisplayProperties
-
-    getAscendancyNumber(): string
-
-    setAscendancyNumber(ascendancyNumber: string): DisplayProperties
-
-    getDescendancyNumber(): string
-
-    setDescendancyNumber(descendancyNumber: string): DisplayProperties
-
-    getFamiliesAsParent(): FamilyView[]
-
-    setFamiliesAsParent(families: FamilyView[]): DisplayProperties
-
-    getFamiliesAsChild(): FamilyView[]
-
-    setFamiliesAsChild(families: FamilyView[]): DisplayProperties
   }
 }
