@@ -104,7 +104,7 @@ declare module "gedcomx-js" {
     setAttribution(attribution: Attribution): Root
   }
 
-  export function GedcomX(json: any): Root;
+  export default function GedcomX(json: any): Root;
 
   export class ResourceReference extends Base {
     resource: string
@@ -360,8 +360,7 @@ declare module "gedcomx-js" {
     setType(gender: string): Gender
   }
 
-  // Dates are defined as GDate, but exported as Date
-  export interface Date extends ExtensibleData {
+  export class Date extends ExtensibleData {
     original: string
     formal: string
 
@@ -417,7 +416,7 @@ declare module "gedcomx-js" {
     setValue(value: string): Qualifier
   }
 
-  export class PlaceReference {
+  export class PlaceReference extends ExtensibleData {
     original: string
     description: string
 
@@ -675,7 +674,7 @@ declare module "gedcomx-js" {
     setAccountName(accountName: string): OnlineAccount
   }
 
-  export class Address {
+  export class Address extends ExtensibleData {
     value: string
     city: string
     country: string
