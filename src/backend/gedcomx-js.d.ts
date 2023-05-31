@@ -1,28 +1,33 @@
 // noinspection JSUnusedGlobalSymbols
 
 declare module "gedcomx-js" {
+  import {DocumentTypes} from "./gedcomx-enums";
+
   export function enableRsExtensions();
 
   export function addExtensions(extensions: Function);
 
   export class Base {
-    constructor(json?: any);
+    constructor(json?: object);
 
     init(json: any): Base;
 
-    isInstance(obj: object): boolean;
+    static isInstance(obj: object): boolean;
+
+    toJSON(): object
   }
 
   export class ExtensibleData extends Base {
+    id: string
+
     getId(): string;
 
     setId(id: string): ExtensibleData;
   }
 
   export class Root extends ExtensibleData {
-    id: string
     lang: string
-    attribution: Attribution
+    description: string
     persons: Person[]
     relationships: Relationship[]
     sourceDescriptions: SourceDescription[]
@@ -30,13 +35,21 @@ declare module "gedcomx-js" {
     events: Event[]
     documents: Document[]
     places: PlaceDescription[]
-    description: string
+    attribution: Attribution
 
-    getPersons(): Person[]
+    getLang(): string
+
+    setLang(lang: string): Root
+
+    getDescription(): string
+
+    setDescription(description: string): Root
+
+    getPersons(): Person[] | object[]
 
     setPersons(persons: Person[] | object[]): Root
 
-    addPerson(person: Person): Root
+    addPerson(person: Person | object): Root
 
     getPersonById(id: string | number): Person
 
@@ -62,12 +75,42 @@ declare module "gedcomx-js" {
 
     getSourceDescriptions(): SourceDescription[]
 
+    setSourceDescriptions(sourceDescriptions: SourceDescription[] | object[]): Root
+
+    addSourceDescription(sourceDescription: SourceDescription | object): Root
+
+    getAgents(): Agent[]
+
+    setAgents(agents: Agent[] | object[]): Root
+
+    getEvents(): Event[]
+
+    setEvents(events: Event[] | object[]): Root
+
+    addEvent(event: Event | object): Root
+
+    getDocuments(): Document[]
+
+    setDocuments(documents: Document[]): Root
+
+    addDocument(document: Document): Root
+
     getPlaces(): PlaceDescription[]
+
+    setPlaces(places: PlaceDescription[]): Root
+
+    addPlace(place: PlaceDescription): Root
+
+    getAttribution(): Attribution
+
+    setAttribution(attribution: Attribution): Root
   }
 
   export function GedcomX(json: any): Root;
 
   export class ResourceReference extends Base {
+    resource: string
+
     getResource(): string
 
     setResource(uri: string): ResourceReference
@@ -77,6 +120,12 @@ declare module "gedcomx-js" {
 
 
   export class Attribution extends ExtensibleData {
+    changeMessage: string
+    contributor: ResourceReference
+    created: Date
+    creator: ResourceReference
+    modified: Date
+
     getChangeMessage(): string
 
     setChangeMessage(changeMessage: string): Attribution
@@ -99,6 +148,13 @@ declare module "gedcomx-js" {
   }
 
   export class Conclusion extends ExtensibleData {
+    lang: string
+    confidence: string
+    analysis: ResourceReference
+    attribution: Attribution
+    sources: SourceReference[]
+    notes: Note[]
+
     getAttribution(): Attribution;
 
     setAttribution(attribution: Attribution);
@@ -129,12 +185,18 @@ declare module "gedcomx-js" {
   }
 
   export class EvidenceReference extends ResourceReference {
+    attribution: Attribution
+
     getAttribution(): Attribution
 
-    setAttribution(attribution: Attribution): EvidenceReference
+    setAttribution(attribution: object | Attribution): EvidenceReference
   }
 
   export class SourceReference extends ExtensibleData {
+    description: string
+    descriptionId: string
+    attribution: Attribution
+
     getDescription(): string
 
     setDescription(description: string): SourceReference
@@ -146,104 +208,131 @@ declare module "gedcomx-js" {
     getAttribution(): Attribution
 
     setAttribution(attribution: object | Attribution): SourceReference
-
-    getQualifiers()
-
-    setQualifiers(qualifiers: Qualifier[])
   }
 
-  export class SourceDescription {
-    // not defined in the lib, but part of the spec
-    id: string
+  export class SourceDescription extends ExtensibleData {
+    resourceType: string
+    citations: SourceCitation
+    mediaType: string
+    about: string
+    mediator: ResourceReference
+    sources
+    analysis
+    componentOf
+    titles
+    notes
+    attribution
+    rights
+    coverage
+    descriptions
+    identifiers
+    created
+    modified
+    repository
 
-    getResourceType()
+    getResourceType(): string
 
-    setResourceType(resourceType)
+    setResourceType(resourceType: string): SourceDescription
 
     getCitations(): SourceCitation[]
 
-    setCitations(citations: any[])
+    setCitations(citations: SourceCitation[] | object[]): SourceDescription
+
+    addCitation(citation: SourceCitation | object)
 
     getMediaType(): string
 
-    setMediaType(mediaType: string)
+    setMediaType(mediaType: string): SourceDescription
 
     getAbout(): string
 
-    setAbout(about: string)
+    setAbout(about: string): SourceDescription
 
-    getMediator(): string
+    getMediator(): ResourceReference
 
-    setMediator(mediator: string)
+    setMediator(mediator: ResourceReference): SourceDescription
 
     getSources(): SourceReference[]
 
-    setSources(source: SourceReference[])
+    setSources(sources: SourceReference[] | object[]): SourceDescription
+
+    addSource(source: SourceReference): SourceDescription
 
     getAnalysis(): string
 
-    setAnalysis(analysis: string)
+    setAnalysis(analysis: string): SourceDescription
 
     getComponentOf(): SourceReference
 
-    setComponentOf(componentOf: SourceReference)
+    setComponentOf(componentOf: SourceReference): SourceDescription
 
     getTitles(): TextValue[]
 
-    setTitles(titles: TextValue[])
+    setTitles(titles: TextValue[] | object[]): SourceDescription
 
-    addTitle(title: TextValue)
+    addTitle(title: TextValue | object): SourceDescription
 
     getNotes(): Note[]
 
-    setNotes(notes: Note[])
+    setNotes(notes: Note[] | object[]): SourceDescription
 
-    addNote(note: Note)
+    addNote(note: Note | object): SourceDescription
 
     getAttribution(): Attribution
 
-    setAttribution(attribution: Attribution)
+    setAttribution(attribution: Attribution | object): SourceDescription
 
-    getRights(): string[]
+    getRights(): ResourceReference[]
 
-    setRights(rights: string[])
+    setRights(rights: ResourceReference[] | object[]): SourceDescription
 
-    getCoverage()
+    addRight(right: ResourceReference | object): SourceDescription
 
-    setCoverage(coverage)
+    getCoverage(): Coverage
+
+    setCoverage(coverage: Coverage[] | object[]): SourceDescription
+
+    addCoverage(coverage: Coverage): SourceDescription
 
     getDescriptions(): TextValue[]
 
-    setDescriptions(descriptions: TextValue[])
+    setDescriptions(descriptions: TextValue[] | object[]): SourceDescription
 
-    addDescription(description: TextValue)
+    addDescription(description: TextValue | object): SourceDescription
 
     getIdentifiers(): Identifiers
 
-    setIdentifiers(identifiers: Identifiers)
+    setIdentifiers(identifiers: Identifiers): SourceDescription
 
     getCreated(): number
 
-    setCreated(created: number)
+    setCreated(created: number): SourceDescription
 
     getModified(): number
 
-    setModified(modified: number)
+    setModified(modified: number): SourceDescription
 
-    getRepository(): string
+    getRepository(): ResourceReference
 
-    setRepository(repository: string)
+    setRepository(repository: ResourceReference): SourceDescription
   }
 
   export class Identifiers extends Base {
+    identifiers: object
+
     getValues(type?: string): string[]
 
-    setValues(value: string, type: string)
+    setValues(values: string[], type?: string)
 
-    addValue(value: string, type: string)
+    addValue(value: string, type?: string)
   }
 
   export class Subject extends Conclusion {
+    extracted: boolean
+    evidence: EvidenceReference[]
+    identifiers
+    media
+
     isExtracted(): boolean;
 
     setExtracted(extracted: boolean): Subject;
@@ -266,6 +355,8 @@ declare module "gedcomx-js" {
   }
 
   export class Gender extends Conclusion {
+    type: string
+
     getType(): string
 
     setType(gender: string): Gender
@@ -273,23 +364,27 @@ declare module "gedcomx-js" {
 
   // Dates are defined as GDate, but exported as Date
   class GDate extends ExtensibleData {
+    original: string
+    formal: string
+
     getOriginal(): string
 
-    setOriginal(original: string)
+    setOriginal(original: string): GDate
 
     getFormal(): string
 
-    setFormal(formal: string)
-
-    // extensions
-    toDateObject(): Date
-
-    toString(): string
+    setFormal(formal: string): GDate
   }
 
   export {GDate as Date};
 
   export class Fact extends Conclusion {
+    type: string
+    date: GDate
+    place: PlaceReference
+    value: string
+    qualifiers: Qualifier[]
+
     getType(): string
 
     setType(type: string): Fact
@@ -308,17 +403,15 @@ declare module "gedcomx-js" {
 
     getQualifiers(): Qualifier[]
 
-    setQualifiers(qualifiers: Qualifier[]): Fact
+    setQualifiers(qualifiers: Qualifier[] | object[]): Fact
 
-    addQualifier(qualifier: Qualifier): Fact
-
-    // extensions
-    toString(): string
-
-    getEmoji(): string
+    addQualifier(qualifier: Qualifier | object): Fact
   }
 
   export class Qualifier extends Base {
+    name: string
+    value: string
+
     getName(): string
 
     setName(name: string): Qualifier
@@ -329,6 +422,9 @@ declare module "gedcomx-js" {
   }
 
   export class PlaceReference {
+    original: string
+    description: string
+
     getOriginal(): string
 
     setOriginal(original: string): PlaceReference
@@ -339,6 +435,10 @@ declare module "gedcomx-js" {
   }
 
   export class NamePart extends ExtensibleData {
+    type: string
+    value: string
+    qualifiers: Qualifier[]
+
     getType(): string
 
     setType(type: string): NamePart
@@ -349,17 +449,21 @@ declare module "gedcomx-js" {
 
     getQualifiers(): Qualifier[]
 
-    setQualifiers(qualifiers: Qualifier[]): NamePart
+    setQualifiers(qualifiers: Qualifier[] | object[]): NamePart
 
-    addQualifier(qualifier: Qualifier): NamePart
+    addQualifier(qualifier: Qualifier | object): NamePart
   }
 
   export class NameForm extends ExtensibleData {
+    lang: string
+    fullText: string
+    parts: NamePart[]
+
     getLang(): string
 
     setLang(lang: string): NameForm
 
-    getFullText(calculateIfMissing: Boolean)
+    getFullText(calculateIfMissing: Boolean): string
 
     setFullText(fullText: string): NameForm
 
@@ -371,6 +475,10 @@ declare module "gedcomx-js" {
   }
 
   export class Name extends Conclusion {
+    type: string
+    date: GDate
+    nameForms: NameForm[]
+
     getType(): string
 
     setType(type: string): Name
@@ -381,23 +489,29 @@ declare module "gedcomx-js" {
 
     getNameForms(): NameForm[]
 
-    setNameForms(nameForms: NameForm[]): Name
+    setNameForms(nameForms: NameForm[] | object[]): Name
 
-    addNameForm(nameForm: NameForm): Name
+    addNameForm(nameForm: NameForm | object): Name
 
+    // todo only if extension is enabled
     getPreferred(): boolean
 
     setPreferred(preferred: boolean): Name
   }
 
   export class Person extends Subject {
+    private: boolean
+    gender: Gender
+    names: Name[]
+    facts: Fact[]
+
     getPrivate(): boolean
 
     setPrivate(isPrivate: boolean): Person
 
     getGender(): Gender
 
-    setGender(gender: Gender)
+    setGender(gender: Gender): Person
 
     isMale(): boolean
 
@@ -405,19 +519,19 @@ declare module "gedcomx-js" {
 
     getNames(): Name[]
 
-    setNames(names: Name[]): Person
+    setNames(names: Name[] | object[]): Person
 
     addName(name: NameForm | object): Person
 
     getFacts(): Fact[]
 
-    setFacts(facts: Fact[] | object[])
+    setFacts(facts: Fact[] | object[]): Person
 
     getFactsByType(type: string): Fact[]
 
     addFact(fact: Fact | object): Person
 
-    // official extensions
+    // todo only if extension is enabled
 
     getLiving(): boolean
 
@@ -428,24 +542,14 @@ declare module "gedcomx-js" {
     setDisplay(display: DisplayProperties): Person
 
     getPreferredName(): Name
-
-    // extensions
-    getFullName(): string
-
-    getMarriedName(): string
-
-    getBirthName(): string
-
-    getAlsoKnownAs(): string
-
-    getNickname(): string
-
-    getAgeToday(): number | undefined
-
-    toGraphObject()
   }
 
   export class Relationship extends Subject {
+    type: string
+    person1: ResourceReference
+    person2: ResourceReference
+    facts: Fact[]
+
     getType(): string
 
     setType(type: string): Relationship
@@ -458,20 +562,324 @@ declare module "gedcomx-js" {
 
     setPerson2(person2: ResourceReference): Relationship
 
-    getFacts(): Fact[]
-
-    setFacts(facts: Fact[]): Relationship
-
-    addFact(fact: Fact): Relationship
-
     involvesPerson(person: Person | string): boolean
 
     getOtherPerson(person: Person | string): ResourceReference
+
+    getFacts(): Fact[]
+
+    setFacts(facts: Fact[] | object[]): Relationship
+
+    addFact(fact: Fact | object): Relationship
 
     // extensions
     getMembers(): ResourceReference[]
   }
 
+  export class Note extends ExtensibleData {
+    lang: string
+    subject: string
+    text: string
+    attribution: Attribution
+
+    getLang(): string
+
+    setLang(lang: string): Note
+
+    getSubject(): string
+
+    setSubject(subject: string): Note
+
+    getText(): string
+
+    setText(text: string): Note
+
+    getAttribution(): Attribution
+
+    setAttribution(attribution: Attribution | object)
+  }
+
+  export class TextValue extends Base {
+    lang: string
+    value: string
+
+    getLang(): string
+
+    setLang(lang: string): TextValue
+
+    getValue(): string
+
+    setValue(value: string): TextValue
+  }
+
+  export class SourceCitation extends ExtensibleData {
+    lang: string
+    value: string
+
+    getLang(): string
+
+    setLang(lang: string): SourceCitation
+
+    getValue(): string
+
+    setValue(value: string): SourceCitation
+  }
+
+  export class Agent extends ExtensibleData {
+    identifiers: Identifiers
+    names: TextValue[]
+    homepage: ResourceReference
+    openid: ResourceReference
+    accounts: OnlineAccount[]
+    emails: ResourceReference[]
+    phones: ResourceReference[]
+    addresses: Address[]
+    person: ResourceReference
+
+    getIdentifiers(): Identifiers
+
+    setIdentifiers(identifiers: Identifiers): Agent
+
+    getNames(): TextValue[]
+
+    setNames(names: TextValue[] | object[]): Agent
+
+    addName(name: TextValue): Agent
+
+    getHomepage(): ResourceReference
+
+    setHomepage(homepage: ResourceReference): Agent
+
+    getOpenid(): ResourceReference
+
+    setOpenid(openid: ResourceReference): Agent
+
+    getAccounts(): OnlineAccount[]
+
+    setAccounts(accounts: OnlineAccount[] | object[]): Agent
+
+    addAccount(account: OnlineAccount | object): Agent
+
+    getEmails(): ResourceReference[]
+
+    setEmails(emails: ResourceReference[] | object[]): Agent
+
+    addEmail(email: ResourceReference): Agent
+
+    getPhones(): ResourceReference[]
+
+    setPhones(phones: ResourceReference[]): Agent
+
+    addPhone(phone: ResourceReference): Agent
+
+    getAddresses(): Address[]
+
+    setAddresses(addresses: Address[] | object[]): Agent
+
+    addAddress(address: Address | object): Agent
+
+    getPerson(): ResourceReference
+
+    setPerson(person: ResourceReference): Agent
+  }
+
+  export class OnlineAccount extends ExtensibleData {
+    serviceHomepage: ResourceReference
+    accountName: string
+
+    getServiceHomepage(): ResourceReference
+
+    setServiceHomepage(serviceHomepage: ResourceReference): OnlineAccount
+
+    getAccountName(): string
+
+    setAccountName(accountName: string): OnlineAccount
+  }
+
+  export class Address {
+    value: string
+    city: string
+    country: string
+    postalCode: string
+    stateOrProvince: string
+    street: string
+    street2: string
+    street3: string
+    street4: string
+    street5: string
+    street6: string
+
+    getValue(): string
+
+    setValue(value: string): Address
+
+    getCity(): string
+
+    setCity(city: string): Address
+
+    getCountry(): string
+
+    setCountry(country: string): Address
+
+    getPostalCode(): string
+
+    setPostalCode(postalCode: string): Address
+
+    getStateOrProvince(): string
+
+    setStateOrProvince(stateOrProvince: string): Address
+
+    getStreet(): string
+
+    setStreet(street: string): Address
+
+    getStreet2(): string
+
+    setStreet2(street2: string): Address
+
+    getStreet3(): string
+
+    setStreet3(street3: string): Address
+
+    getStreet4(): string
+
+    setStreet4(street4: string): Address
+
+    getStreet5(): string
+
+    setStreet5(street5: string): Address
+
+    getStreet6(): string
+
+    setStreet6(street6: string): Address
+  }
+
+  class Event extends Subject {
+    type: string
+    date: Date
+    place: PlaceReference
+    roles: EventRole[]
+
+    getType(): string
+
+    setType(type: string): Event
+
+    getDate(): Date
+
+    setDate(date: Date): Event
+
+    getPlace(): PlaceReference
+
+    setPlace(place: PlaceReference): Event
+
+    getRoles(): EventRole[]
+
+    setRoles(roles: EventRole[] | object[]): Event
+
+    addRole(role: EventRole | object): Event
+  }
+
+  class Document extends Conclusion {
+    type: string
+    extracted: string
+    textType: string
+    text: string
+
+    getType(): string
+
+    setType(type: string): Document
+
+    getExtracted(): boolean
+
+    setExtracted(extracted: boolean): Document
+
+    getTextType(): string
+
+    setTextType(textType: string): Document
+
+    getText(): string
+
+    setText(text: string): Document
+  }
+
+  class PlaceDescription extends Subject {
+    type: string
+    names: TextValue[]
+    place: ResourceReference
+    jurisdiction: ResourceReference
+    latitude: number
+    longitude: number
+    temporalDescription: Date
+    spatialDescription: ResourceReference
+
+    getType(): string
+
+    setType(type: string): PlaceDescription
+
+    getNames(): TextValue[]
+
+    setNames(names: TextValue | object[]): PlaceDescription
+
+    addName(name: TextValue | object): PlaceDescription
+
+    getPlace(): ResourceReference
+
+    setPlace(place: PlaceDescription | object): PlaceDescription
+
+    getJurisdiction(): ResourceReference
+
+    setJurisdiction(jurisdiction: ResourceReference): PlaceDescription
+
+    getLatitude(): number
+
+    setLatitude(latitude: number): PlaceDescription
+
+    getLongitude(): number
+
+    setLongitude(longitude: number): PlaceDescription
+
+    getTemporalDescription(): Date
+
+    setTemporalDescription(date: Date): PlaceDescription
+
+    getSpatialDescription(): ResourceReference
+
+    setSpatialDescription(spatial: ResourceReference): PlaceDescription
+  }
+
+  class EventRole extends Conclusion {
+    person: ResourceReference
+    type: string
+    details: string
+
+    getPerson(): ResourceReference
+
+    setPerson(person: ResourceReference): EventRole
+
+    getType(): string
+
+    setType(type: string): EventRole
+
+    getDetails(): string
+
+    setDetails(details: string): EventRole
+  }
+
+  class Coverage extends ExtensibleData {
+    spatial: PlaceReference
+    temporal: Date
+
+    getSpatial(): PlaceReference
+
+    setSpatial(spatial: PlaceReference): Coverage
+
+    getTemporal(): Date
+
+    setTemporal(temporal: Date): Coverage
+  }
+
+
+  // todo only if extension is enabled
   export class FamilyView extends Base {
     getParent1(): ResourceReference
 
@@ -548,139 +956,5 @@ declare module "gedcomx-js" {
     getFamiliesAsChild(): FamilyView[]
 
     setFamiliesAsChild(families: FamilyView[]): DisplayProperties
-  }
-
-  export class Note {
-    getLang(): string
-
-    setLang(lang: string)
-
-    getSubject(): string
-
-    setSubject(subject: string)
-
-    getText(): string
-
-    setText(text: string)
-
-    getAttribution(): Attribution
-
-    setAttribution(attribution: Attribution)
-  }
-
-  export class TextValue {
-    getLang(): string
-
-    setLang(lang: string)
-
-    getValue(): string
-
-    setValue(value: string): string
-  }
-
-  export class SourceCitation {
-    getLang(): string
-
-    setLang(lang: string)
-
-    getValue(): string
-
-    setValue(value: string): string
-  }
-
-  export class Agent {
-    getIdentifiers(): Identifiers
-
-    getNames(): TextValue[]
-
-    getHomepage(): ResourceReference
-
-    getOpenid(): ResourceReference
-
-    getAccounts(): OnlineAccount[]
-
-    getEmails(): ResourceReference[]
-
-    getPhones(): ResourceReference[]
-
-    getAddresses(): Address[]
-
-    getPerson(): ResourceReference
-  }
-
-  export class OnlineAccount {
-    getServiceHomepage(): ResourceReference
-
-    getAccountName(): string
-  }
-
-  export class Address {
-    getValue(): string
-
-    getCity(): string
-
-    getCountry(): string
-
-    getPostalCode(): string
-
-    getStateOrProvince(): string
-
-    getStreet(): string
-
-    getStreet2(): string
-
-    getStreet3(): string
-
-    getStreet4(): string
-
-    getStreet5(): string
-
-    getStreet6(): string
-  }
-
-  class Event extends Subject {
-    getType(): string
-
-    getDate(): Date
-
-    getPlace(): PlaceReference
-
-    getRoles(): EventRole[]
-  }
-
-  class Document extends Conclusion {
-    getType(): string
-
-    getExtracted(): boolean
-
-    getTextType(): string
-
-    getText(): string
-  }
-
-  class PlaceDescription extends Subject {
-    getNames(): TextValue[]
-
-    getType(): string
-
-    getPlace(): string
-
-    getJurisdiction(): string
-
-    getLatitude(): number
-
-    getLongitude(): number
-
-    getTemporalDescription(): GDate
-
-    getSpatialDescription(): string
-  }
-
-  class EventRole extends Conclusion {
-    getPerson(): ResourceReference
-
-    getType(): string
-
-    getDetails(): string
   }
 }
