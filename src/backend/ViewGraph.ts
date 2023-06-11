@@ -77,7 +77,7 @@ export class ViewGraph implements EventTarget {
       hideAll = true;
     }
 
-    if (this.nodes.filter(n => n.type === "person").length > config.maxElements) {
+    if (this.nodes.filter(n => n instanceof GraphPerson).length > config.maxElements) {
       console.warn("Not all elements are shown. Graph would become too slow.")
       families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
     }

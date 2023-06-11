@@ -65,7 +65,7 @@ function TreeView(props: Props) {
                     locked={r.involvesPerson(props.graph.startPerson.data)}/>)}
           {props.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
             <Etc key={i} data={r} graph={props.graph}/>)}
-          {props.graph.nodes.filter(n => n.type === "person").map((p, i) =>
+          {props.graph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
             <Person data={p} onClick={props.onRefocus} key={i}
                     focused={!props.focusHidden && (p as GraphPerson).data.getId() === props.focus.getId()}/>)}
         </g>
@@ -112,7 +112,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
   d3cola
     .symmetricDiffLinkLengths(config.gridSize);
   if (isLandscape) {
-    d3cola.flowLayout("x", d => d.target.type === "person" ? config.gridSize * 5 : config.gridSize * 3.5)
+    d3cola.flowLayout("x", d => d.target instanceof GraphPerson ? config.gridSize * 5 : config.gridSize * 3.5)
   } else {
     d3cola.flowLayout("y", config.gridSize * 3)
   }
@@ -122,7 +122,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
   let linkLayer = d3.select("#links");
 
   let personNode = nodesLayer.selectAll(".person")
-    .data(graph.nodes.filter(p => p.type === "person") as GraphPerson[])
+    .data(graph.nodes.filter(p => p instanceof GraphPerson) as GraphPerson[])
   let partnerNode = nodesLayer.selectAll(".partnerNode")
     .data(graph.nodes.filter(node => node.type === "family"));
   let etcNode = nodesLayer.selectAll(".etc")
@@ -136,7 +136,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
   const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
   switch (colorMode) {
     case ColorMode.NAME: {
-      let last_names = graph.nodes.filter(n => n.type === "person")
+      let last_names = graph.nodes.filter(n => n instanceof GraphPerson)
         .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
       last_names = Array.from(new Set(last_names));
       const nameColor = d3.scaleOrdinal(last_names, d3.schemeSet3)
@@ -209,7 +209,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
         let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
         let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
 
-        if (d.target.type === "person") {
+        if (d.target instanceof GraphPerson) {
           return `M${d.source.x},${d.source.y} ` +
             `h${config.gridSize} ` +
             `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
@@ -240,7 +240,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
 
         let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
 
-        if (d.target.type === "person") {
+        if (d.target instanceof GraphPerson) {
           return `M${d.source.x},${d.source.y} ` +
             `v${config.gridSize} ` +
             `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${flip * radius} ${radius} ` +
