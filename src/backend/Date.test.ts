@@ -1,8 +1,8 @@
-import GedcomX from "./gedcomx-extensions";
 import config from "../config";
+import {GDate} from "./gedcomx-extensions";
 
 test("toDateObject works", () => {
-  let gDate = new GedcomX.Date();
+  let gDate = new GDate();
   let date = gDate.toDateObject();
   expect(date).toBeUndefined();
 
@@ -49,7 +49,7 @@ test("toDateObject works", () => {
 test("toString works", () => {
   config.browserLang = "en";
 
-  let date = new GedcomX.Date();
+  let date = new GDate();
   expect(date.toString()).toBe("")
 
   date.setFormal("+2022")

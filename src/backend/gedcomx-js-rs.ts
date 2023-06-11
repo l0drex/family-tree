@@ -1,4 +1,6 @@
-import {Base, ResourceReference} from "gedcomx-js";
+// noinspection JSUnusedGlobalSymbols
+
+import * as GedcomX from "gedcomx-js";
 
 declare module "gedcomx-js" {
   export interface Conclusion {
@@ -252,3 +254,5 @@ declare module "gedcomx-js" {
     getVersion(): string
   }
 }
+
+GedcomX.enableRsExtensions();

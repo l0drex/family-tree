@@ -116,7 +116,6 @@ declare module "gedcomx-js" {
     matches(resource: Base | string): boolean
   }
 
-
   export class Attribution extends ExtensibleData {
     changeMessage: string
     contributor: ResourceReference
@@ -487,6 +486,9 @@ declare module "gedcomx-js" {
     setNameForms(nameForms: NameForm[] | object[]): Name
 
     addNameForm(nameForm: NameForm | object): Name
+
+    // todo hotfix
+    getPreferred(): boolean
   }
 
   export class Person extends Subject {
@@ -549,9 +551,6 @@ declare module "gedcomx-js" {
     setFacts(facts: Fact[] | object[]): Relationship
 
     addFact(fact: Fact | object): Relationship
-
-    // extensions
-    getMembers(): ResourceReference[]
   }
 
   export class Note extends ExtensibleData {
