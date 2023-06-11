@@ -1,7 +1,7 @@
 import "./Statistics.css";
 
 import * as React from "react";
-import {ReactNode} from "react";
+import {ReactNode, useEffect} from "react";
 import {baseUri, Confidence} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
@@ -26,8 +26,9 @@ import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
 import {strings} from "../main";
 import {Legend} from "@visx/visx";
-import {graphModel, loadData} from "../backend/ModelGraph";
 import Header from "./Header";
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../backend/db";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -43,7 +44,7 @@ function Stat(props: { title: string, legend?: ReactNode, className?: string, ch
 }
 
 function GenderStats() {
-  let data = getGenderPerGeneration();
+  const data = useLiveQuery(getGenderPerGeneration)
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
     domain: keys.map(k => strings.gedcomX.types.gender[k]),
@@ -67,7 +68,7 @@ function GenderStats() {
 }
 
 function ReligionStats() {
-  let data = getReligionPerYear();
+  let data = useLiveQuery(getReligionPerYear);
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
@@ -96,7 +97,7 @@ function ReligionStats() {
 
 // eslint-disable-next-line
 function OccupationStats() {
-  let data = getOccupations();
+  let data = useLiveQuery(getOccupations);
   let colorScale = scaleOrdinal({
     domain: data.map(d => d.value),
     range: d3.schemeSet3.map(c => c.toString())
@@ -118,7 +119,7 @@ function OccupationStats() {
 
 // eslint-disable-next-line
 function LocationStats() {
-  let data = getBirthPlace();
+  let data = useLiveQuery(getBirthPlace);
 
   return <Stat title={strings.gedcomX.types.fact.person.Heimat}>
     <NaturalEarth
@@ -129,7 +130,7 @@ function LocationStats() {
 }
 
 function NameStats(props: { nameType: "First" | "Last" }) {
-  let data = getNames(props.nameType);
+  let data = useLiveQuery(async () => getNames(props.nameType), [props.nameType]);
 
   const colors = scaleOrdinal({
     domain: data.map(d => d.value),
@@ -170,7 +171,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 }
 
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
-  let data = getBirthDeathMonthOverYears(props.type);
+  let data = useLiveQuery(async () => getBirthDeathMonthOverYears(props.type), [props.type]);
   let angleScale = scaleLinear({
     domain: [0, 12],
     range: [0, Math.PI * 2]
@@ -197,7 +198,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 }
 
 function LifeExpectancy() {
-  let data = getLifeExpectancyOverYears();
+  let data = useLiveQuery(getLifeExpectancyOverYears);
   //console.debug(data)
 
   return <Stat title={strings.statistics.lifeExpectancy} className="landscape">
@@ -214,7 +215,7 @@ function LifeExpectancy() {
 }
 
 function MarriageAge() {
-  let data = getMarriageAge();
+  let data = useLiveQuery(getMarriageAge);
 
   let yScale = scaleLinear({
     domain: [Math.min(...data.map(d => Number(d.value))), Math.max(...data.map(d => Number(d.value)))],
@@ -230,7 +231,7 @@ function MarriageAge() {
 }
 
 function ConfidenceStats() {
-  let data = getConfidence();
+  let data = useLiveQuery(getConfidence);
   let colorScale = scaleOrdinal({
     domain: [Confidence.Low, Confidence.Medium, Confidence.High],
     range: d3.schemeRdYlGn[3].map(c => c.toString())
@@ -255,9 +256,9 @@ function ConfidenceStats() {
 }
 
 export default function Statistics() {
-  if (graphModel === undefined){
+  if (db.persons === undefined){
     console.warn("Graph model is undefined, initializing from local storage");
-    loadData(JSON.parse(localStorage.getItem("familyData")))
+    db.load(JSON.parse(localStorage.getItem("familyData")))
   }
 
   return <>

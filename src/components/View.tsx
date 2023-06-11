@@ -1,14 +1,15 @@
 import {useEffect, useState} from "react";
 import {strings} from "../main";
 import "./View.css";
-import {graphModel, loadData} from "../backend/ModelGraph";
-import {ViewMode, ColorMode} from "../backend/ViewGraph";
+import {ViewMode, ColorMode, ViewGraph} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import Header from "./Header";
 import SearchField from "./SearchField";
 import * as React from "react";
-import {Person} from "gedcomx-js";
+import {db} from "../backend/db";
+import {useLiveQuery} from "dexie-react-hooks";
+import {Person} from "../backend/gedcomx-extensions";
 
 
 function ViewOptions(props) {
@@ -16,7 +17,8 @@ function ViewOptions(props) {
     <form id="view-all">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <select id="view-selector" className="button inline all" defaultValue={props.view} onChange={props.onViewChanged}>
+        <select id="view-selector" className="button inline all" defaultValue={props.view}
+                onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
           <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
@@ -27,7 +29,8 @@ function ViewOptions(props) {
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
+        <select id="color-selector" className="button inline all" defaultValue={props.colorMode}
+                onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
@@ -38,7 +41,6 @@ function ViewOptions(props) {
 }
 
 function View() {
-  loadData(JSON.parse(localStorage.getItem("familyData")));
   let url = new URL(window.location.href);
 
   const [view, setView] = useState<ViewMode>((url.searchParams.get("view") as ViewMode) || ViewMode.DEFAULT);
@@ -61,12 +63,16 @@ function View() {
     }
   }, [focusHidden])
 
-  let viewGraph = graphModel.buildViewGraph(focusId, view);
+  let viewGraph = new ViewGraph();
   useEffect(() => {
-    graphModel.buildViewGraph(focusId, view);
+    viewGraph.load(focusId, view);
   }, [focusId, view])
 
-  let focus = graphModel.getPersonById(focusId) || graphModel.persons[0];
+  const focus = useLiveQuery(async () => {
+    return db.personWithId(focusId)
+      .catch(() => db.persons.toCollection().first()
+        .then(p => new Person(p.toJSON())))
+  }, [])
 
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
@@ -114,12 +120,12 @@ function View() {
       <Header>
         <SearchField onRefocus={onRefocus}/>
       </Header>
-      {!focusHidden && <InfoPanel person={focus} onRefocus={onRefocus}/>}
+      {!focusHidden && focus && <InfoPanel person={focus} onRefocus={onRefocus}/>}
       <main>
         <article id="family-tree-container">
           <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
-          <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
-                    onRefocus={onRefocus} graph={viewGraph}/>
+          {focus && <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
+                              onRefocus={onRefocus} graph={viewGraph}/>}
         </article>
       </main>
     </>

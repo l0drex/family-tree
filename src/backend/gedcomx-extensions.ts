@@ -112,6 +112,10 @@ export class Person extends GedcomX.Person {
     return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
   }
 
+  getFacts(): Fact[] {
+    return super.getFacts().map(f => new Fact(f.toJSON()));
+  }
+
   toString() {
     return `${this.fullName} (#${this.id})`;
   }

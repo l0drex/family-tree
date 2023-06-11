@@ -48,7 +48,7 @@ export class ViewGraph implements EventTarget {
   }
 
   async load(startId: string, activeView: ViewMode | string) {
-    if (lastViewGraphBuildParams !== undefined) {
+    if (false && lastViewGraphBuildParams !== undefined) {
       if (lastViewGraphBuildParams.id === startId && lastViewGraphBuildParams.view === activeView) {
         throw Error("Unnecessary viewgraph build!");
       }
@@ -58,8 +58,9 @@ export class ViewGraph implements EventTarget {
       view: activeView
     }
 
-    let startPerson = (await db.personWithId(startId));
-    startPerson ??= (await db.persons.toCollection().first()) as Person;
+    let startPerson = (await db.personWithId(startId)
+      .catch(() => db.persons.toCollection().first()
+        .then(p => p as Person)));
     console.info("Starting graph with", startPerson.fullName);
 
     this.startPerson = startPerson;

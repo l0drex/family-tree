@@ -62,7 +62,7 @@ function TreeView(props: Props) {
         <g id="nodes">
           {props.graph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
             <Family data={r} key={i}
-                    locked={r.involvesPerson(props.graph.startPerson.data.getId())}/>)}
+                    locked={r.involvesPerson(props.graph.startPerson.data)}/>)}
           {props.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
             <Etc key={i} data={r} graph={props.graph}/>)}
           {props.graph.nodes.filter(n => n.type === "person").map((p, i) =>
@@ -155,14 +155,14 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
         .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))
       personNode
         .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.getLiving() ? ageColor(d.data.getAgeToday()) : "var(background-higher)")
+        .style("background-color", (d: GraphPerson) => d.data.getLiving() ? ageColor(d.data.getAgeAt(new Date())) : "var(background-higher)")
         .style("color", (d: GraphPerson) =>
-          (d.data.getAgeToday() < 70 && d.data.getLiving()) ? "var(--background)" : "var(--foreground)")
-        .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : ageColor(d.data.getAgeToday()))
+          (d.data.getAgeAt(new Date()) < 70 && d.data.getLiving()) ? "var(--background)" : "var(--foreground)")
+        .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : ageColor(d.data.getAgeAt(new Date())))
         .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid");
       personNode
         .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeToday())}`);
+        .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeAt(new Date()))}`);
       break;
     }
     case ColorMode.GENDER: {

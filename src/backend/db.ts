@@ -1,4 +1,4 @@
-import Dexie, {Table} from 'dexie';
+import Dexie, {PromiseExtended, Table} from 'dexie';
 import {
   IGedcomX,
   IGroup
@@ -21,7 +21,7 @@ export class FamilyDB extends Dexie {
   constructor() {
     super('familyData');
     this.version(1).stores({
-      persons: '++, &id, lang, *names',
+      persons: '++, &id, lang',
       relationships: '++, &id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
       sourceDescriptions: '++, &id, mediaType',
       agents: '++, &id',
@@ -34,20 +34,32 @@ export class FamilyDB extends Dexie {
     this.relationships.mapToClass(Relationship)
   }
 
-  load(data: IGedcomX) {
+  async load(data: IGedcomX) {
     let root = new GedcomX.Root(data);
+    let promises: PromiseExtended[] = [
+      this.persons.clear(),
+      this.relationships.clear(),
+      this.sourceDescriptions.clear(),
+      this.agents.clear(),
+      this.events.clear(),
+      this.documents.clear(),
+      this.places.clear(),
+      this.groups.clear()
+    ];
 
-    if (data.persons) this.persons.bulkAdd(root.persons);
-    if (data.relationships) this.relationships.bulkAdd(root.relationships);
-    if (data.sourceDescriptions) this.sourceDescriptions.bulkAdd(root.sourceDescriptions);
-    if (data.agents) this.agents.bulkAdd(root.agents);
-    if (data.events) this.events.bulkAdd(root.events);
-    if (data.documents) this.documents.bulkAdd(root.documents);
-    if (data.places) this.places.bulkAdd(root.places);
-    if (data.groups) this.groups.bulkAdd(data.groups);
+    if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
+    if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
+    if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions));
+    if (data.agents) promises.push(this.agents.bulkAdd(root.agents));
+    if (data.events) promises.push(this.events.bulkAdd(root.events));
+    if (data.documents) promises.push(this.documents.bulkAdd(root.documents));
+    if (data.places) promises.push(this.places.bulkAdd(root.places));
+    if (data.groups) promises.push(this.groups.bulkAdd(data.groups));
 
     console.log(`Found ${data.persons.length} people`);
     console.log(`Found ${data.relationships.length} relationships`);
+
+    return Promise.all(promises);
   }
 
   get couples() {
@@ -59,9 +71,31 @@ export class FamilyDB extends Dexie {
   }
 
   async personWithId(id: string | ResourceReference) {
-    id = toResource(id);
+    try {
+      id = toResource(id).resource.substring(1);
+    } catch (e) {
+      return Promise.reject(id);
+    }
 
-    return this.persons.where("id").equals(id.resource.substring(1)).first().then(p => p as Person);
+    return this.persons.where("id").equals(id).first().then(p => p as Person);
+  }
+
+  async personWithName(name: string) {
+    return this.persons.toArray()
+      .then(persons =>
+        persons.map(p => new Person(p.toJSON())).find(p => p.fullName === name))
+  }
+
+  async sourceDescriptionWithId(id: string | ResourceReference) {
+    id = toResource(id).resource.substring(1);
+
+    return this.sourceDescriptions.where("id").equals(id).first();
+  }
+
+  async agentWithId(id: string | ResourceReference) {
+    id = toResource(id).resource.substring(1);
+
+    return this.agents.where({"id": id}).first();
   }
 
   async getCoupleRelationsOf(person: ResourceReference | string): Promise<GedcomX.Relationship[]> {
@@ -75,25 +109,80 @@ export class FamilyDB extends Dexie {
   }
 
   async getChildrenOf(person: ResourceReference | string) {
-    if (typeof person === "string"){
-      if (!person.startsWith("#")) person = "#" + person;
-    } else person = (person as ResourceReference).resource;
+    person = toResource(person);
 
     return this.relationships.where({
       "type": RelationshipTypes.ParentChild,
-      "person1.resource": person
+      "person1.resource": person.resource
     }).toArray()
       .then(rs =>
         rs.map(r => new GedcomX.ResourceReference(r.person2)));
   }
 
   async getParentsOf(person: ResourceReference | string) {
+    person = toResource(person);
+
     return this.relationships.where({
       "type": RelationshipTypes.ParentChild,
-      "person2.resource": (person instanceof ResourceReference) ? person.resource : ("#" + person)
+      "person2.resource": person.resource
     })
       .toArray()
       .then(rs => rs.map(r => new GedcomX.ResourceReference(r.person1)));
+  }
+
+  async getPartnerOf(person: ResourceReference | string) {
+    let personResource = toResource(person);
+
+    return this.relationships.where({
+      "type": RelationshipTypes.Couple
+    }).filter(r => r.involvesPerson(personResource.resource))
+      .toArray()
+      .then(rs => rs.map(r =>
+        new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource))))
+  }
+
+  async getGodparentsOf(person: ResourceReference | string) {
+    person = toResource(person);
+
+    return this.relationships.where({
+      "type": RelationshipTypes.Godparent,
+      "person2.resource": person.resource
+    })
+      .toArray()
+      .then(rs => rs.map(r => new GedcomX.ResourceReference(r.person1)));
+  }
+
+  async getGodchildrenOf(person: ResourceReference | string) {
+    person = toResource(person);
+
+    return this.relationships.where({
+      "type": RelationshipTypes.Godparent,
+      "person1.resource": person.resource
+    }).toArray()
+      .then(rs =>
+        rs.map(r => new GedcomX.ResourceReference(r.person2)));
+  }
+
+  async getEnslavers(person: ResourceReference | string) {
+    person = toResource(person);
+
+    return this.relationships.where({
+      "type": RelationshipTypes.EnslavedBy,
+      "person1.resource": person.resource
+    }).toArray()
+      .then(rs =>
+        rs.map(r => new GedcomX.ResourceReference(r.person2)));
+  }
+
+  async getSlaves(person: ResourceReference | string) {
+    person = toResource(person);
+
+    return this.relationships.where({
+      "type": RelationshipTypes.EnslavedBy,
+      "person1.resource": person.resource
+    }).toArray()
+      .then(rs =>
+        rs.map(r => new GedcomX.ResourceReference(r.person2)));
   }
 
   async getFamiliesAsParent(person: GedcomX.Person): Promise<GedcomX.FamilyView[]> {
@@ -223,12 +312,13 @@ export class FamilyDB extends Dexie {
 }
 
 function toResource(resource: ResourceReference | string): ResourceReference {
-  if (typeof resource  === "undefined") throw new Error("resource is undefined!")
+  if (resource === undefined || resource === null) throw new Error("resource is undefined!")
 
   if (resource instanceof ResourceReference) return resource;
   if (typeof resource === "object") return new ResourceReference(resource);
 
   if (typeof resource === "string") {
+    if (resource.length === 0) throw new Error("resource is empty")
     if (!resource.startsWith("#")) resource = "#" + resource;
     return new ResourceReference().setResource(resource);
   }

@@ -15,8 +15,11 @@ test("loads data", async () => {
 });
 
 test("finds person", async () => {
-  await expect(db.persons.where("id").equals("1").first()).resolves.toBeInstanceOf(GedcomX.Person);
-  await expect(db.persons.where("id").equals("13").first()).resolves.toBeInstanceOf(GedcomX.Person);
+  await expect(db.personWithId("1")).resolves.toBeInstanceOf(GedcomX.Person);
+  await expect(db.personWithId("13")).resolves.toBeInstanceOf(GedcomX.Person);
+
+  await expect(db.personWithId(undefined)).rejects.toBe(undefined);
+  await expect(db.personWithId("")).rejects.toBe("");
 })
 
 test("finds children", async () => {
