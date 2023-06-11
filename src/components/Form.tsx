@@ -1,12 +1,23 @@
 import './Form.css';
 import * as React from "react";
 import {strings} from "../main";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {db} from "../backend/db";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
   const [file, setFile] = useState("");
+  const [hasData, setHasData] = useState(false);
+
+  useEffect(() => {
+    let familyData = localStorage.getItem("familyData");
+    if (familyData) {
+      db.load(JSON.parse(familyData)).then(() => setHasData(true));
+      localStorage.removeItem("familyData");
+    }
+
+    // todo check if there is data in the db
+  })
 
   let input = React.createRef<HTMLInputElement>();
 
@@ -57,7 +68,7 @@ function Form(props) {
         </div>
       </div>
 
-      {localStorage.getItem("familyData") && <a className="button" href="/family-tree/view">
+      {hasData && <a className="button" href="/family-tree/view">
         {strings.form.continueSession}
       </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
@@ -84,9 +95,6 @@ export async function parseFile(gedcomFile) {
 }
 
 export function saveDataAndRedirect(fileContent) {
-  // remove data from previous versions
-  localStorage.removeItem("familyData");
-
   console.debug(fileContent)
 
   db.load(JSON.parse(fileContent))

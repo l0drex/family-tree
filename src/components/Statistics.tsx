@@ -256,11 +256,6 @@ function ConfidenceStats() {
 }
 
 export default function Statistics() {
-  if (db.persons === undefined){
-    console.warn("Graph model is undefined, initializing from local storage");
-    db.load(JSON.parse(localStorage.getItem("familyData")))
-  }
-
   return <>
     <Header/>
     <main id="stats">
