@@ -1,7 +1,7 @@
 import "./Statistics.css";
 
 import * as React from "react";
-import {ReactNode, useEffect} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {baseUri, Confidence} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
@@ -24,11 +24,11 @@ import {Wordcloud} from "@visx/wordcloud";
 import {AreaSeries, AreaStack, Axis, BarSeries, BarStack, GlyphSeries, Grid, Tooltip, XYChart} from "@visx/xychart";
 import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
-import {strings} from "../main";
+import {hasData, strings} from "../main";
 import {Legend} from "@visx/visx";
 import Header from "./Header";
 import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../backend/db";
+import NoData from "./NoData";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -256,8 +256,15 @@ function ConfidenceStats() {
 }
 
 export default function Statistics() {
+  const [dataExists, setDataExists] = useState(false);
+
+  useEffect(() => {
+    hasData().then(value => setDataExists(value));
+  });
+
   return <>
     <Header/>
+    {dataExists ?
     <main id="stats">
       <ConfidenceStats/>
       <GenderStats/>
@@ -268,6 +275,6 @@ export default function Statistics() {
       <BirthOverYearStats type={"Death"}/>
       <LifeExpectancy/>
       <MarriageAge/>
-    </main>
+    </main> : <NoData/>}
   </>
 }

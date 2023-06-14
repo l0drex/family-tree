@@ -113,7 +113,7 @@ export class Person extends GedcomX.Person {
   }
 
   getFacts(): Fact[] {
-    return super.getFacts().map(f => new Fact(f.toJSON()));
+    return super.getFacts().map(f => new Fact((f instanceof GedcomX.Fact) ? f.toJSON() : f));
   }
 
   toString() {

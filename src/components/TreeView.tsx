@@ -1,78 +1,109 @@
 import {Etc, Family, Person} from "./Nodes";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
 import * as GedcomX from "gedcomx-js";
-import {ColorMode, ViewGraph} from "../backend/ViewGraph";
+import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
 
 let d3cola = cola.d3adaptor(d3);
 
+enum LoadingState {
+  NOT_STARTED,
+  LOADING,
+  FINISHED
+}
+
 interface Props {
-  focus: GedcomX.Person
+  focusId: string
   focusHidden: boolean
   onRefocus: (newFocus: GedcomX.Person) => void
   colorMode: ColorMode,
-  graph: ViewGraph
+  viewMode: ViewMode
 }
 
 function TreeView(props: Props) {
-  const [, updateGraph] = useState(props.graph.nodes.length);
+  const [viewGraphState, setViewGraphState] = useState(LoadingState.NOT_STARTED);
+  const [isDarkColorscheme, setIsDarkColorscheme] = useState(window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
 
-  function onGraphChanged() {
-      updateGraph(props.graph.nodes.length);
+  const viewGraph = useMemo(() => {
+    setViewGraphState(LoadingState.LOADING);
+
+    let viewGraph = new ViewGraph();
+    viewGraph.load(props.focusId, props.viewMode).then(() => {
+      setViewGraphState(LoadingState.FINISHED);
+
+      console.assert(viewGraph.nodes.length > 0,
+        "View graph has no nodes!");
+      console.assert(viewGraph.links.length > 0,
+        "View graph has no links!");
+    });
+
+    return viewGraph;
+  }, [props.focusId, props.viewMode]);
+
+  function onEtcClicked(family: GraphFamily) {
+    setViewGraphState(LoadingState.LOADING);
+    viewGraph.showFamily(family)
+      .then(() => setViewGraphState(LoadingState.FINISHED));
   }
 
-  props.graph.addEventListener("add", onGraphChanged);
-  props.graph.addEventListener("remove", onGraphChanged);
-
-  const focusId = props.focus.getId();
-  const nodeLength = props.graph.nodes.length;
+  function onFamilyClicked(family: GraphFamily) {
+    setViewGraphState(LoadingState.LOADING);
+    viewGraph.hideFamily(family)
+      .then(() => setViewGraphState(LoadingState.FINISHED));
+  }
 
   useEffect(() => {
     setupCola();
-    window.matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", () => animateTree(props.graph, props.colorMode));
-  }, [props.graph, props.colorMode])
+  }, [])
+
+  window.matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", e => setIsDarkColorscheme(e.matches));
 
   window.matchMedia("(orientation: landscape)")
-    .addEventListener("change", () => animateTree(props.graph, props.colorMode));
+    .addEventListener("change", (e) => setIsLandscape(e.matches));
 
   useEffect(() => {
-    animateTree(props.graph, props.colorMode);
-  }, [focusId, nodeLength, props.graph, props.colorMode]);
+    if (viewGraphState !== LoadingState.FINISHED) return;
 
-  console.assert(props.graph.nodes.length > 0,
-    "View graph has no nodes!");
-  console.assert(props.graph.links.length > 0,
-    "View graph has no links!");
-  d3cola
-    .nodes(props.graph.nodes)
-    .links(props.graph.links);
+    d3cola
+      .nodes(viewGraph.nodes)
+      .links(viewGraph.links);
+    animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
+  }, [viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
+
+  let currentTransform = "";
+  if (svgZoom) {
+    let svg = d3.select<SVGElement, undefined>("#family-tree");
+    currentTransform = d3.zoomTransform(svg.select<SVGRectElement>("rect").node()).toString();
+  }
 
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg">
       <rect id='background' width='100%' height='100%'/>
-      <g id="vis">
+      {viewGraphState === LoadingState.FINISHED && <g id="vis" transform={currentTransform}>
         <g id="links">
-          {props.graph.links.map((l, i) =>
+          {viewGraph.links.map((l, i) =>
             <path className="link" key={i}/>)}
         </g>
         <g id="nodes">
-          {props.graph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
-            <Family data={r} key={i}
-                    locked={r.involvesPerson(props.graph.startPerson.data)}/>)}
-          {props.graph.nodes.filter(n => n.type === "etc").map((r, i) =>
-            <Etc key={i} data={r} graph={props.graph}/>)}
-          {props.graph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
-            <Person data={p} onClick={props.onRefocus} key={i}
-                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === props.focus.getId()}/>)}
+          {viewGraph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
+            <Family data={r} key={i} locked={r.involvesPerson(viewGraph.startPerson.data)} onClicked={onFamilyClicked}/>)}
+          {viewGraph.nodes.filter(n => n.type === "etc").map((r, i) =>
+            <Etc key={i} onClick={onEtcClicked} family={r as GraphFamily}/>)}
+          {viewGraph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
+            <Person data={p as GraphPerson} onClick={props.onRefocus} key={i}
+                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === props.focusId}/>)}
         </g>
-      </g>
+      </g>}
     </svg>
   );
 }
+
+let svgZoom;
 
 async function setupCola() {
   let svg = d3.select<SVGSVGElement, undefined>("#family-tree");
@@ -87,10 +118,10 @@ async function setupCola() {
    - Zoom with Ctrl + wheel
    - Move with wheel (shift changes the axes)
   */
-  let svgZoom = d3.zoom()
+  svgZoom = d3.zoom()
     .on("zoom", event => {
       if (event.sourceEvent && event.sourceEvent.type === "wheel") {
-          svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
+        svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
       }
       svg.select("#vis").attr("transform", event.transform.toString());
     })
@@ -106,8 +137,7 @@ async function setupCola() {
   svg.select<SVGElement>("rect").call(svgZoom);
 }
 
-async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
-  const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: boolean, darkMode: boolean) {
   let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
     .symmetricDiffLinkLengths(config.gridSize);
@@ -133,7 +163,6 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
   // reset style
   personNode.select(".bg").attr("style", null);
 
-  const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
   switch (colorMode) {
     case ColorMode.NAME: {
       let last_names = graph.nodes.filter(n => n instanceof GraphPerson)
@@ -155,11 +184,11 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
         .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))
       personNode
         .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.getLiving() ? ageColor(d.data.getAgeAt(new Date())) : "var(background-higher)")
+        .style("background-color", (d: GraphPerson) => d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "var(background-higher)")
         .style("color", (d: GraphPerson) =>
-          (d.data.getAgeAt(new Date()) < 70 && d.data.getLiving()) ? "var(--background)" : "var(--foreground)")
-        .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : ageColor(d.data.getAgeAt(new Date())))
-        .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid");
+          (d.data.getAgeAt(new Date()) < 70 && d.data.isLiving) ? "var(--background)" : "var(--foreground)")
+        .style("border-color", (d: GraphPerson) => d.data.isLiving ? "var(--background-higher)" : ageColor(d.data.getAgeAt(new Date())))
+        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "" : "solid");
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeAt(new Date()))}`);
@@ -169,10 +198,10 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode) {
       const genderColor = d3.scaleOrdinal(["female", "male", "intersex", "unknown"], d3.schemeSet1);
       personNode
         .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.getLiving() ? genderColor(d.getGender()) : "var(--background-higher)")
-        .style("border-color", (d: GraphPerson) => d.data.getLiving() ? "var(--background-higher)" : genderColor(d.getGender()))
-        .style("border-style", (d: GraphPerson) => d.data.getLiving() ? "" : "solid")
-        .style("color", (d: GraphPerson) => d.data.getLiving() && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
+        .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "var(--background-higher)")
+        .style("border-color", (d: GraphPerson) => d.data.isLiving ? "var(--background-higher)" : genderColor(d.getGender()))
+        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "" : "solid")
+        .style("color", (d: GraphPerson) => d.data.isLiving && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);

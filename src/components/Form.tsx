@@ -1,23 +1,21 @@
 import './Form.css';
 import * as React from "react";
-import {strings} from "../main";
+import {hasData, strings} from "../main";
 import {useEffect, useState} from "react";
 import {db} from "../backend/db";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
   const [file, setFile] = useState("");
-  const [hasData, setHasData] = useState(false);
+  const [dataExists, setDataExists] = useState(false);
 
   useEffect(() => {
     let familyData = localStorage.getItem("familyData");
     if (familyData) {
-      db.load(JSON.parse(familyData)).then(() => setHasData(true));
+      db.load(JSON.parse(familyData)).then(() => setDataExists(true));
       localStorage.removeItem("familyData");
-    }
-
-    // todo check if there is data in the db
-  })
+    } else hasData().then(setDataExists);
+  }, [])
 
   let input = React.createRef<HTMLInputElement>();
 
@@ -68,7 +66,7 @@ function Form(props) {
         </div>
       </div>
 
-      {hasData && <a className="button" href="/family-tree/view">
+      {dataExists && <a className="button" href="/family-tree/view">
         {strings.form.continueSession}
       </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
@@ -81,13 +79,13 @@ export async function parseFile(gedcomFile) {
     return Promise.reject(new Error(strings.form.noFileError));
   }
 
-  return new Promise((reject, resolve) => {
+  return new Promise<string>((resolve, reject) => {
     let readerGedcom = new FileReader();
     readerGedcom.onload = (file) => {
       if (typeof file.target.result === "string") {
         resolve(file.target.result);
       } else {
-        throw new Error(strings.form.graphLoadingError)
+        reject(new Error(strings.form.graphLoadingError))
       }
     }
     readerGedcom.readAsText(gedcomFile);
@@ -95,9 +93,11 @@ export async function parseFile(gedcomFile) {
 }
 
 export function saveDataAndRedirect(fileContent) {
-  console.debug(fileContent)
+  let data = JSON.parse(fileContent);
 
-  db.load(JSON.parse(fileContent))
+  if (typeof data !== "object") throw new Error("Data type is invalid!")
+
+  db.load(data)
     .then(() => {
       let url = new URL(window.location.href);
       url.pathname = "/family-tree/view";

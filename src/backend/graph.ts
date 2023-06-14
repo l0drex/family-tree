@@ -1,7 +1,7 @@
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import * as cola from "webcola";
-import {baseUri, GenderTypes} from "./gedcomx-enums";
+import {baseUri, GenderTypes, PersonFactTypes} from "./gedcomx-enums";
 import {FamilyView, Person} from "./gedcomx-extensions";
 
 type PersonType = "person";
@@ -17,8 +17,8 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
   data: Person
   width = config.gridSize * 5
   height = config.gridSize / 2 * 2.25
-  x: number;
-  y: number;
+  x: number = 0;
+  y: number = 0;
 
   constructor(person: GedcomX.Person) {
     let customPerson: Person;
@@ -58,8 +58,8 @@ export class GraphFamily extends FamilyView implements GraphObject {
   width = config.margin * 2
   height = config.margin * 2
   marriage
-  x: number;
-  y: number;
+  x: number = 0;
+  y: number = 0;
 
   toString = () => {
     return `Family of ${this.getParent1().getResource()} and ${this.getParent2().getResource()}`

@@ -36,16 +36,8 @@ export class FamilyDB extends Dexie {
 
   async load(data: IGedcomX) {
     let root = new GedcomX.Root(data);
-    let promises: PromiseExtended[] = [
-      this.persons.clear(),
-      this.relationships.clear(),
-      this.sourceDescriptions.clear(),
-      this.agents.clear(),
-      this.events.clear(),
-      this.documents.clear(),
-      this.places.clear(),
-      this.groups.clear()
-    ];
+    await this.clear();
+    let promises: PromiseExtended[] = [];
 
     if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
     if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
@@ -58,6 +50,23 @@ export class FamilyDB extends Dexie {
 
     console.log(`Found ${data.persons.length} people`);
     console.log(`Found ${data.relationships.length} relationships`);
+
+    return Promise.all(promises)
+      // make sure database is clean
+      .catch(e => this.clear().then(() => Promise.reject(e)));
+  }
+
+  private async clear() {
+    let promises: PromiseExtended[] = [
+      this.persons.toCollection().delete(),
+      this.relationships.toCollection().delete(),
+      this.sourceDescriptions.toCollection().delete(),
+      this.agents.toCollection().delete(),
+      this.events.toCollection().delete(),
+      this.documents.toCollection().delete(),
+      this.places.toCollection().delete(),
+      this.groups.toCollection().delete()
+    ];
 
     return Promise.all(promises);
   }
@@ -134,11 +143,12 @@ export class FamilyDB extends Dexie {
     let personResource = toResource(person);
 
     return this.relationships.where({
-      "type": RelationshipTypes.Couple
-    }).filter(r => r.involvesPerson(personResource.resource))
+      "person1.resource": personResource.resource
+    }).or("person2.resource").equals(personResource.resource)
+      .and(r => r.type === RelationshipTypes.Couple)
       .toArray()
-      .then(rs => rs.map(r =>
-        new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource))))
+      .then(rs => rs.map(r => new Relationship(r.toJSON()))
+        .map(r => new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource))))
   }
 
   async getGodparentsOf(person: ResourceReference | string) {

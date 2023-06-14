@@ -1,12 +1,12 @@
+import * as React from "react";
 import {useEffect, useState} from "react";
-import {strings} from "../main";
+import {getUrlOption, strings} from "../main";
 import "./View.css";
-import {ViewMode, ColorMode, ViewGraph} from "../backend/ViewGraph";
+import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import Header from "./Header";
 import SearchField from "./SearchField";
-import * as React from "react";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {Person} from "../backend/gedcomx-extensions";
@@ -43,13 +43,10 @@ function ViewOptions(props) {
 function View() {
   let url = new URL(window.location.href);
 
-  const [view, setView] = useState<ViewMode>((url.searchParams.get("view") as ViewMode) || ViewMode.DEFAULT);
-  const [colorMode, setColorMode] = useState<ColorMode>((url.searchParams.get("colorMode") as ColorMode) || ColorMode.GENDER);
+  const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
+  const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
   const [focusId, setFocus] = useState(url.hash.substring(1));
   const [focusHidden, hideFocus] = useState(false);
-
-  console.debug(`View: ${view}`);
-  console.debug(`ColorMode: ${colorMode}`)
 
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
@@ -62,11 +59,6 @@ function View() {
       root.classList.remove("sidebar-visible");
     }
   }, [focusHidden])
-
-  let viewGraph = new ViewGraph();
-  useEffect(() => {
-    viewGraph.load(focusId, view);
-  }, [focusId, view])
 
   const focus = useLiveQuery(async () => {
     return db.personWithId(focusId)
@@ -85,7 +77,7 @@ function View() {
     }
     window.history.pushState({}, "", url.toString());
 
-    setView(view as ViewMode);
+    setViewMode(view as ViewMode);
   }
 
   function onColorChanged(e) {
@@ -123,9 +115,10 @@ function View() {
       {!focusHidden && focus && <InfoPanel person={focus} onRefocus={onRefocus}/>}
       <main>
         <article id="family-tree-container">
-          <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
-          {focus && <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
-                              onRefocus={onRefocus} graph={viewGraph}/>}
+          <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}
+                       onColorChanged={onColorChanged}/>
+          <TreeView colorMode={colorMode} focusId={focusId} focusHidden={focusHidden}
+                                        onRefocus={onRefocus} viewMode={viewMode}/>
         </article>
       </main>
     </>

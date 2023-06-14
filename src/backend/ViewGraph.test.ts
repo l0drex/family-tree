@@ -1,10 +1,12 @@
 import * as data from "./test-data.json";
 import "fake-indexeddb/auto";
 import {db} from "./db";
-import viewGraph, {ViewGraph, ViewMode} from "./ViewGraph";
+import {ViewGraph, ViewMode} from "./ViewGraph";
 import * as GedcomX from "gedcomx-js";
 
-db.load(data);
+beforeAll(async () => {
+  return db.load(data);
+})
 
 test.each([
   [ViewMode.DEFAULT, 2],  // 2 * couples + parent-child / 2
@@ -13,7 +15,7 @@ test.each([
   [ViewMode.ANCESTORS, 4]
 ])("Finds families: %s", async (viewMode: ViewMode, numberOfFamilies) => {
   let viewGraph = new ViewGraph();
-  const startPerson = (await db.personWithId("1"));
+  const startPerson = await db.personWithId("1");
   let families = await viewGraph.getFamilyViews(viewMode, startPerson);
 
   expect(families).toHaveLength(numberOfFamilies);
@@ -63,7 +65,9 @@ test.each([
 })
 
 test("shows family", async () => {
+  let viewGraph = new ViewGraph();
   viewGraph.reset();
+
   const startPerson = await db.personWithId("10");
   viewGraph.startPerson = startPerson;
 
@@ -80,7 +84,9 @@ test("shows family", async () => {
 });
 
 test("hides family", async () => {
+  let viewGraph = new ViewGraph();
   viewGraph.reset();
+
   const startPerson = await db.personWithId("10");
   viewGraph.startPerson = startPerson;
 
@@ -90,4 +96,17 @@ test("hides family", async () => {
 
   expect(viewGraph.nodes.length).toBe(2);
   expect(viewGraph.links.length).toBe(1);
+})
+
+test("no unnecessary recalculations", async() => {
+  let viewGraph = new ViewGraph();
+  viewGraph.reset();
+
+  await viewGraph.load("1", ViewMode.DEFAULT);
+  expect(viewGraph.nodes.length).toBe(11);
+  expect(viewGraph.links.length).toBe(10);
+
+  await viewGraph.load("1", ViewMode.DEFAULT);
+  expect(viewGraph.nodes.length).toBe(11);
+  expect(viewGraph.links.length).toBe(10);
 })

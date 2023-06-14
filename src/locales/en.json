@@ -329,6 +329,10 @@
     "lifeExpectancy": "Life Expectancy",
     "marriageAge": "Marriage age"
   },
+  "errors": {
+    "title": "Whoops, something went wrong",
+    "no_data": "We couldn't find any data. Please make sure to select a file over {0}."
+  },
   "ctrl": "Ctrl",
   "linkContent": "here"
 }

@@ -22,8 +22,6 @@ export enum ColorMode {
 
 type eventTypes = "remove" | "add";
 
-let lastViewGraphBuildParams: { id: string, view: ViewMode | string }
-
 export class ViewGraph implements EventTarget {
   nodes: GraphObject[] = []
   links: { source: GraphObject, target: GraphObject }[]
@@ -34,6 +32,8 @@ export class ViewGraph implements EventTarget {
     "add": new Set(),
     "remove": new Set()
   }
+  startId: string
+  viewMode: ViewMode
 
   set startPerson(startPerson: GedcomX.Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
@@ -47,16 +47,11 @@ export class ViewGraph implements EventTarget {
     return this.startPersonValue
   }
 
-  async load(startId: string, activeView: ViewMode | string) {
-    if (false && lastViewGraphBuildParams !== undefined) {
-      if (lastViewGraphBuildParams.id === startId && lastViewGraphBuildParams.view === activeView) {
-        throw Error("Unnecessary viewgraph build!");
-      }
-    }
-    lastViewGraphBuildParams = {
-      id: startId,
-      view: activeView
-    }
+  async load(startId: string, viewMode: ViewMode) {
+    console.debug(`Building viewgraph for ${startId} in mode ${viewMode}`)
+    this.reset();
+    this.startId = startId;
+    this.viewMode = viewMode;
 
     let startPerson = (await db.personWithId(startId)
       .catch(() => db.persons.toCollection().first()
@@ -65,9 +60,8 @@ export class ViewGraph implements EventTarget {
 
     this.startPerson = startPerson;
     db.setAgeGen0(startPerson);
-    this.reset();
 
-    let families: FamilyView[] = await this.getFamilyViews(activeView, startPerson);
+    let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
 
     let hideAll = false;
     if (families.length <= 0) {
@@ -88,8 +82,6 @@ export class ViewGraph implements EventTarget {
       await this.showFamily(f);
       if (hideAll) await this.hideFamily(f);
     }
-
-    console.groupEnd();
   }
 
   async getFamilyViews(activeView: ViewMode | string, startPerson: Person): Promise<FamilyView[]> {
@@ -139,6 +131,8 @@ export class ViewGraph implements EventTarget {
       }
     }
 
+    console.groupEnd();
+
     let families = await Promise.all(promises)
       .then(families => families.flat(1)
         .map(f => new FamilyView(f.toJSON())));
@@ -146,9 +140,11 @@ export class ViewGraph implements EventTarget {
     return unique(families);
   }
 
-  reset = () => {
+  reset() {
     this.nodes = [];
     this.links = [];
+    delete this.startId;
+    delete this.viewMode;
   }
 
   /**
@@ -385,7 +381,3 @@ export class ViewGraph implements EventTarget {
     this.eventListeners[type].delete(callback);
   }
 }
-
-let viewGraph = new ViewGraph();
-
-export default viewGraph;

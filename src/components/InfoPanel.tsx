@@ -56,7 +56,7 @@ function InfoPanel(props: Props) {
   }, [person.id])
 
   const godchildren = useLiveQuery(async () => {
-    return db.getChildrenOf(person.id).then(children =>
+    return db.getGodchildrenOf(person.id).then(children =>
       Promise.all(children.map(r => db.personWithId(r))));
   }, [person.id])
 
@@ -96,7 +96,7 @@ function InfoPanel(props: Props) {
         </h2>}
       </section>
 
-      {images.length > 0 && <Gallery>
+      {images && images.length > 0 && <Gallery>
         {images.map(image => {
           let credit = image.getCitations()[0].getValue();
           return <div key={image.id}>
@@ -143,52 +143,52 @@ function InfoPanel(props: Props) {
         </ul>
       </article>
 
-      {parents.length > 0 && <article>
+      {parents && parents.length > 0 && <article>
         <h1>👪 {strings.infoPanel.parents}</h1>
         <ul>
-          {parents?.map(p => <li>{p.fullName}</li>)}
+          {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {children.length > 0 && <article>
+      {children && children.length > 0 && <article>
         <h1>🍼 {strings.infoPanel.children}</h1>
         <ul>
-          {children.map(p => <li>{p.fullName}</li>)}
+          {children.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {partner.length > 0 && <article>
+      {partner && partner.length > 0 && <article>
         <h1>❤️ {strings.infoPanel.partner}</h1>
         <ul>
-          {partner.map(p => <li>{p.fullName}</li>)}
+          {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {godparents.length > 0 && <article>
+      {godparents && godparents.length > 0 && <article>
         <h1>⛅ {strings.infoPanel.godparents}</h1>
         <ul>
-          {godparents.map(p => <li>{p.fullName}</li>)}
+          {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {godchildren.length > 0 && <article>
+      {godchildren && godchildren.length > 0 && <article>
         <h1>⛅ {strings.infoPanel.godchildren}</h1>
         <ul>
-          {godchildren.map(p => <li>{p.fullName}</li>)}
+          {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {enslavedBy.length > 0 && <article>
+      {enslavedBy && enslavedBy.length > 0 && <article>
         <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
         <ul>
-          {enslavedBy.map(p => <li>{p.fullName}</li>)}
+          {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {slaves.length > 0 && <article>
+      {slaves && slaves.length > 0 && <article>
         <h1>⛓️ {strings.infoPanel.slaves}</h1>
         <ul>
-          {slaves.map(p => <li>{p.fullName}</li>)}
+          {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
@@ -196,7 +196,7 @@ function InfoPanel(props: Props) {
         return <Note note={note} key={i}/>
       })}
 
-      {sourceDescriptions.map(description => {
+      {sourceDescriptions && sourceDescriptions.map(description => {
         return <article key={description.id}>
           <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
           <p>{description.getCitations()[0].getValue()}</p>
