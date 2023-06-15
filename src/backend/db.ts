@@ -151,7 +151,7 @@ export class FamilyDB extends Dexie {
       .and(r => r.type === RelationshipTypes.Couple)
       .toArray()
       .then(rs => rs.map(r => new Relationship(r))
-        .map(r => new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource))))
+        .map(r => new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource.substring(1)))))
   }
 
   async getGodparentsOf(person: ResourceReference | string) {
