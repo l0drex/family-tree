@@ -5,7 +5,9 @@ import * as GedcomX from "gedcomx-js";
 import {FamilyView} from "./gedcomx-extensions";
 import {unique} from "../main";
 
-db.load(data);
+beforeAll(async () => {
+  return db.load(data);
+})
 
 test("loads data", async () => {
   await expect(db.persons.count()).resolves.toBe(16 + 1);  // persons + unknown persons

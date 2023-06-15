@@ -105,15 +105,21 @@ export class Person extends GedcomX.Person {
       return undefined
     }
 
-    let birthDate = new GDate(birth.date).toDateObject();
-    let lastDate = new Date();
+    let birthGDate = new GDate(birth.date);
+    let birthDate = birthGDate.toDateObject();
 
     // subtraction returns milliseconds, have to convert to year
-    return Math.floor((lastDate.getTime() - birthDate.getTime()) / 31536000000);
+    return Math.floor((date.getTime() - birthDate.getTime()) / 31536000000);
+  }
+
+  setFacts(facts: Fact[] | object[]): Person {
+    facts = facts.map(f => f instanceof Fact ? f : new Fact(f));
+    super.setFacts(facts);
+    return this;
   }
 
   getFacts(): Fact[] {
-    return super.getFacts().map(f => new Fact((f instanceof GedcomX.Fact) ? f.toJSON() : f));
+    return super.getFacts() as Fact[];
   }
 
   toString() {
@@ -211,7 +217,23 @@ export class GDate extends GedcomX.Date {
 }
 
 export class Fact extends GedcomX.Fact {
-  toString() {
+  setDate(date: Date | object): Fact {
+    super.setDate(new GDate(date));
+    return this;
+  }
+
+  setPlace(place: PlaceReference | object): Fact {
+    super.setPlace(new PlaceReference(place));
+    return this;
+  }
+
+  setQualifiers(qualifiers: Qualifier[] | object[]): Fact {
+    qualifiers ??= [];
+    super.setQualifiers(qualifiers.map(q => new Qualifier(q)));
+    return this;
+  }
+
+  toString(): string {
     let value = this.value;
     const type = this.type;
     let string = strings.gedcomX.types.fact.person[type.substring(baseUri.length)] ?? type;
@@ -231,7 +253,7 @@ export class Fact extends GedcomX.Fact {
     return string;
   }
 
-  get emoji() {
+  get emoji(): string {
     const type = this.type.substring(baseUri.length);
     if (type in factEmojis) {
       return factEmojis[type];

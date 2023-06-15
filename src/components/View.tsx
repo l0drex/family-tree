@@ -62,8 +62,8 @@ function View() {
 
   const focus = useLiveQuery(async () => {
     return db.personWithId(focusId)
-      .catch(() => db.persons.toCollection().first()
-        .then(p => new Person(p.toJSON())))
+      .catch(() => db.persons.toCollection().first())
+      .then(p => new Person(p));
   }, [])
 
   function onViewChanged(e) {

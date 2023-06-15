@@ -1,5 +1,5 @@
 import './InfoPanel.css';
-import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
+import {Confidence, PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {Gallery} from "./Gallery";
 import Sidebar from "./Sidebar";
@@ -21,18 +21,19 @@ function InfoPanel(props: Props) {
   }, [person.id])
 
   let confidence;
-  if (person.getConfidence()) {
-    switch (person.getConfidence().substring(baseUri.length)) {
-      case "Low":
-        confidence = 1;
-        break;
-      case "Medium":
-        confidence = 2;
-        break;
-      case "High":
-        confidence = 3;
-        break;
-    }
+  switch (person.confidence) {
+    case Confidence.Low:
+      confidence = 1;
+      break;
+    case Confidence.Medium:
+      confidence = 2;
+      break;
+    case Confidence.High:
+      confidence = 3;
+      break;
+    default:
+      confidence = undefined;
+      break;
   }
 
   const parents = useLiveQuery(async () => {
@@ -112,34 +113,38 @@ function InfoPanel(props: Props) {
 
       <article>
         <ul id="factView">
-          {person.getFacts().filter(filterLang).sort((a, b) => {
-            // place birth at top, generation right below
-            if (a.getType() === PersonFactTypes.Birth) {
-              return -1;
-            } else if (b.getType() === PersonFactTypes.Birth) {
-              return 1;
-            } else if (a.getType() === PersonFactTypes.GenerationNumber) {
-              return -1;
-            } else if (b.getType() === PersonFactTypes.GenerationNumber) {
-              return 1;
-            }
-
-            if (a.getDate() && !b.getDate()) {
-              return 1;
-            } else if (!a.getDate() && b.getDate()) {
-              return -1;
-            }
-            if (a.getDate() && b.getDate()) {
-              let aDate = new GDate(a.date).toDateObject();
-              let bDate = new GDate(b.date).toDateObject();
-              if (aDate && bDate) {
-                return aDate.getMilliseconds() - bDate.getMilliseconds();
+          {person.getFacts()
+            .filter(filterLang)
+            .sort((a, b) => {
+              // place birth at top, generation right below
+              if (a.getType() === PersonFactTypes.Birth) {
+                return -1;
+              } else if (b.getType() === PersonFactTypes.Birth) {
+                return 1;
+              } else if (a.getType() === PersonFactTypes.GenerationNumber) {
+                return -1;
+              } else if (b.getType() === PersonFactTypes.GenerationNumber) {
+                return 1;
               }
-            }
 
-            return 0;
-          }).map(f => <li key={f.toString()}
-                          style={{listStyleType: `"${f.emoji} "`}}>{f.toString()}</li>)}
+              if (a.getDate() && !b.getDate()) {
+                return 1;
+              } else if (!a.getDate() && b.getDate()) {
+                return -1;
+              }
+              if (a.getDate() && b.getDate()) {
+                let aDate = new GDate(a.date).toDateObject();
+                let bDate = new GDate(b.date).toDateObject();
+                if (aDate && bDate) {
+                  return aDate.getMilliseconds() - bDate.getMilliseconds();
+                }
+              }
+
+              return 0;
+            })
+            .map((f, i) => <li key={i} style={{listStyleType: `"${f.emoji} "`}}>
+              {f.toString()}
+            </li>)}
         </ul>
       </article>
 
@@ -238,7 +243,7 @@ function Attribution(props: { attribution: gedcomX.Attribution }) {
 
 async function getImages(person: Person) {
   let mediaRefs = person.getMedia().map(media => media.getDescription());
-  const sourceDescriptions = await Promise.all(mediaRefs.map(r => db.sourceDescriptionWithId(r)));
+  const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
 
   return sourceDescriptions.filter(sourceDescription => {
     let mediaType = sourceDescription.getMediaType();

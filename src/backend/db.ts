@@ -30,8 +30,6 @@ export class FamilyDB extends Dexie {
       places: '++, &id, lang',
       groups: '++, &id, lang'
     });
-    this.persons.mapToClass(Person)
-    this.relationships.mapToClass(Relationship)
   }
 
   async load(data: IGedcomX) {
@@ -86,7 +84,7 @@ export class FamilyDB extends Dexie {
       return Promise.reject(id);
     }
 
-    return this.persons.where("id").equals(id).first().then(p => p as Person);
+    return this.persons.where("id").equals(id).first().then(p => new Person(p));
   }
 
   async personWithName(name: string) {
@@ -96,9 +94,14 @@ export class FamilyDB extends Dexie {
   }
 
   async sourceDescriptionWithId(id: string | ResourceReference) {
-    id = toResource(id).resource.substring(1);
+    try {
+      id = toResource(id).resource.substring(1);
+    } catch (e) {
+      return Promise.reject(id);
+    }
 
-    return this.sourceDescriptions.where("id").equals(id).first();
+    return this.sourceDescriptions.where("id").equals(id).first()
+      .then(sd => new GedcomX.SourceDescription(sd));
   }
 
   async agentWithId(id: string | ResourceReference) {
@@ -147,7 +150,7 @@ export class FamilyDB extends Dexie {
     }).or("person2.resource").equals(personResource.resource)
       .and(r => r.type === RelationshipTypes.Couple)
       .toArray()
-      .then(rs => rs.map(r => new Relationship(r.toJSON()))
+      .then(rs => rs.map(r => new Relationship(r))
         .map(r => new GedcomX.ResourceReference(r.getOtherPerson(personResource.resource))))
   }
 
@@ -195,9 +198,9 @@ export class FamilyDB extends Dexie {
         rs.map(r => new GedcomX.ResourceReference(r.person2)));
   }
 
-  async getFamiliesAsParent(person: GedcomX.Person): Promise<GedcomX.FamilyView[]> {
-    if (person.getDisplay() && person.getDisplay().getFamiliesAsParent().length > 0) {
-      return person.getDisplay().getFamiliesAsParent();
+  async getFamiliesAsParent(person: Person): Promise<GedcomX.FamilyView[]> {
+    if (person.display && person.display.familiesAsParent.length > 0) {
+      return person.display.familiesAsParent;
     }
 
     let couples = await this.couples
@@ -214,20 +217,20 @@ export class FamilyDB extends Dexie {
     }
 
     //console.debug(`Families where ${person} is a parent:`, families);
-    if (!(person.getDisplay())) {
+    if (!(person.display)) {
       person.setDisplay(new GedcomX.DisplayProperties())
     }
-    person.getDisplay().setFamiliesAsParent(families);
+    person.display.setFamiliesAsParent(families);
 
     return families;
   }
 
   async getFamiliesAsChild(person: GedcomX.Person): Promise<GedcomX.FamilyView[]> {
-    if (person.getDisplay() && person.getDisplay().getFamiliesAsChild().length > 0) {
-      return person.getDisplay().getFamiliesAsChild();
+    if (person.display && person.display.familiesAsChild.length > 0) {
+      return person.display.familiesAsChild;
     }
 
-    let parentRelations = await this.getParentsOf(person.getId())
+    let parentRelations = await this.getParentsOf(person.id)
       .then(parents => parents.map(p => p.resource))
       .then(parents => {
         return this.couples
@@ -269,7 +272,7 @@ export class FamilyDB extends Dexie {
 
   async setAgeGen0(startPerson: Person) {
     let personWithKnownAge = (await this.persons.toArray())
-      .map(p => new Person(p.toJSON()))
+      .map(p => new Person(p))
       .find(p => {
         let generationStart = startPerson.generation;
         if (!generationStart) {
@@ -290,7 +293,7 @@ export class FamilyDB extends Dexie {
     }
     setReferenceAge(personWithKnownAge.getAgeAt(new Date()),
       // get generation from generation fact
-      Number(personWithKnownAge.getFactsByType(PersonFactTypes.GenerationNumber)[0].getValue()));
+      Number(personWithKnownAge.getFactsByType(PersonFactTypes.GenerationNumber)[0].value));
   }
 
   async getAncestors(person: GedcomX.ResourceReference | string): Promise<GedcomX.ResourceReference[]> {

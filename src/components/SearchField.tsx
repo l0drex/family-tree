@@ -55,7 +55,7 @@ function SearchField(props: Props) {
   }
 
   const persons = useLiveQuery(async () => {
-    return db.persons.toArray().then(persons => persons.map(p => new Person(p.toJSON())))
+    return db.persons.toArray().then(persons => persons.map(p => new Person(p)))
   })
 
   return (

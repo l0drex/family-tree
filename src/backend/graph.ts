@@ -30,7 +30,7 @@ export class GraphPerson extends GedcomX.DisplayProperties implements GraphObjec
 
     super({
       name: customPerson.fullName,
-      gender: readableGender(person.getGender()),
+      gender: readableGender(person.gender),
       ascendancyNumber: customPerson.generation
     });
     this.data = customPerson;

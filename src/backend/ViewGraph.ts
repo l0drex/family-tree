@@ -55,11 +55,11 @@ export class ViewGraph implements EventTarget {
 
     let startPerson = (await db.personWithId(startId)
       .catch(() => db.persons.toCollection().first()
-        .then(p => p as Person)));
+        .then(p => new Person(p))));
     console.info("Starting graph with", startPerson.fullName);
 
     this.startPerson = startPerson;
-    db.setAgeGen0(startPerson);
+    // todo db.setAgeGen0(startPerson);
 
     let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
 
@@ -90,14 +90,18 @@ export class ViewGraph implements EventTarget {
     switch (activeView) {
       case ViewMode.ALL:
         console.groupCollapsed("Showing full graph");
-        await db.persons.toArray().then(persons => persons.forEach(p => {
-          promises.push(db.getFamiliesAsChild(p));
-          promises.push(db.getFamiliesAsParent(p));
-        }));
+        await db.persons.toArray().then(persons => persons
+          .map(p => new Person(p))
+          .forEach(p => {
+            promises.push(db.getFamiliesAsChild(p));
+            promises.push(db.getFamiliesAsParent(p));
+          }));
         break;
       case ViewMode.LIVING: {
         console.groupCollapsed(`Showing all living relatives`);
-        await db.persons.toArray().then(persons => persons.filter(p => p.getLiving())
+        await db.persons.toArray().then(persons => persons
+          .map(p => new Person(p))
+          .filter(p => p.isLiving)
           .forEach(p => {
             promises.push(db.getFamiliesAsChild(p));
             promises.push(db.getFamiliesAsParent(p));
