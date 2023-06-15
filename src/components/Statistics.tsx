@@ -29,6 +29,7 @@ import {Legend} from "@visx/visx";
 import Header from "./Header";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
+import {Loading} from "./Loading";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -44,7 +45,12 @@ function Stat(props: { title: string, legend?: ReactNode, className?: string, ch
 }
 
 function GenderStats() {
-  const data = useLiveQuery(getGenderPerGeneration)
+  const data = useLiveQuery(getGenderPerGeneration);
+
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
+
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
     domain: keys.map(k => strings.gedcomX.types.gender[k]),
@@ -69,6 +75,10 @@ function GenderStats() {
 
 function ReligionStats() {
   let data = useLiveQuery(getReligionPerYear);
+  if (!data) return <Stat title={strings.gedcomX.types.fact.person.Religion}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
+
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
@@ -131,6 +141,9 @@ function LocationStats() {
 
 function NameStats(props: { nameType: "First" | "Last" }) {
   let data = useLiveQuery(async () => getNames(props.nameType), [props.nameType]);
+  if (!data) return <Stat title={strings.gedcomX.firstName}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
 
   const colors = scaleOrdinal({
     domain: data.map(d => d.value),
@@ -172,6 +185,10 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   let data = useLiveQuery(async () => getBirthDeathMonthOverYears(props.type), [props.type]);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
+
   let angleScale = scaleLinear({
     domain: [0, 12],
     range: [0, Math.PI * 2]
@@ -199,6 +216,9 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 
 function LifeExpectancy() {
   let data = useLiveQuery(getLifeExpectancyOverYears);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
   //console.debug(data)
 
   return <Stat title={strings.statistics.lifeExpectancy} className="landscape">
@@ -216,6 +236,9 @@ function LifeExpectancy() {
 
 function MarriageAge() {
   let data = useLiveQuery(getMarriageAge);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
 
   let yScale = scaleLinear({
     domain: [Math.min(...data.map(d => Number(d.value))), Math.max(...data.map(d => Number(d.value)))],
@@ -232,6 +255,10 @@ function MarriageAge() {
 
 function ConfidenceStats() {
   let data = useLiveQuery(getConfidence);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={"Loading stat"} value={.5}/>
+  </Stat>
+
   let colorScale = scaleOrdinal({
     domain: [Confidence.Low, Confidence.Medium, Confidence.High],
     range: d3.schemeRdYlGn[3].map(c => c.toString())

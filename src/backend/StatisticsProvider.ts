@@ -34,6 +34,7 @@ export async function getGenderPerGeneration() {
     let data: { [generation: number]: { [gender: string]: number } } = {};
 
     persons.forEach(p => {
+      p = new Person(p);
       let genFact = p.getFactsByType(PersonFactTypes.GenerationNumber)[0];
       let generation;
       try {
@@ -95,6 +96,7 @@ export async function getReligionPerYear() {
     let data: { [decade: number]: { [religion: string]: number } } = {};
 
     persons.forEach(p => {
+      p = new Person(p);
       let lifespan = getLifeSpanDecades(p);
       if (lifespan === undefined) return;
       let birthDecade = lifespan[0], deathDecade = lifespan[1];
@@ -123,7 +125,6 @@ export async function getReligionPerYear() {
 
     return data
   }).then(data => Object.keys(data)
-    //.filter(key => Object.keys(data[key]).filter(r => r !== "?").length > 0)
     .map(key => {
       return {
         birthDecade: new Date(Number(key), 0),
@@ -181,7 +182,7 @@ export async function getNames(type: "First" | "Last") {
   let data = await db.persons.toArray().then(persons =>
     count(
       persons
-        .map(p => new Person(p.toJSON()))
+        .map(p => new Person(p))
         .map(p => {
           let names = p.fullName.split(" ");
           if (type === "Last") return names.pop()
@@ -219,7 +220,7 @@ export async function getLifeExpectancyOverYears() {
   let data: { birth: Date, age: number, name: string }[] = [];
 
   await db.persons.toArray().then(persons => persons
-    .map(p => new Person(p.toJSON()))
+    .map(p => new Person(p))
     .forEach(p => {
       let birth, age, name;
       try {
@@ -273,6 +274,6 @@ export async function getMarriageAge() {
 }
 
 export async function getConfidence() {
-  let data: Confidence[] = await db.persons.toArray().then(persons => persons.map(p => p.getConfidence() as Confidence));
+  let data: Confidence[] = await db.persons.toArray().then(persons => persons.map(p => p.confidence as Confidence));
   return count(data);
 }
