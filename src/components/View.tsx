@@ -64,7 +64,7 @@ function View() {
     return db.personWithId(focusId)
       .catch(() => db.persons.toCollection().first())
       .then(p => new Person(p));
-  }, [])
+  }, [focusId])
 
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
@@ -113,7 +113,7 @@ function View() {
       <Header>
         <SearchField onRefocus={onRefocus}/>
       </Header>
-      {!focusHidden && focus && <InfoPanel person={focus} onRefocus={onRefocus}/>}
+      {!focusHidden && focus && <InfoPanel person={focus} />}
       <main>
         <article id="family-tree-container">
           <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}

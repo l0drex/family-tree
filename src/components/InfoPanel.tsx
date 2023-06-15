@@ -9,7 +9,6 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
 
 interface Props {
-  onRefocus: (newFocus: Person) => void,
   person: Person
 }
 
