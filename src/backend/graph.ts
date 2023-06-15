@@ -1,7 +1,7 @@
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import * as cola from "webcola";
-import {baseUri, GenderTypes, PersonFactTypes} from "./gedcomx-enums";
+import {baseUri, GenderTypes} from "./gedcomx-enums";
 import {FamilyView, Person} from "./gedcomx-extensions";
 
 type PersonType = "person";
