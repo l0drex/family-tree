@@ -21,8 +21,14 @@
   "repository": "https://github.com/l0drex/family-tree",
   "private": true,
   "dependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-syntax-flow": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@react-spring/web": "^9.7.2",
+    "@testing-library/dom": "^9.3.1",
     "@visx/axis": "^3.1.0",
     "@visx/geo": "^3.0.0",
+    "@visx/react-spring": "^3.1.0",
     "@visx/shape": "^3.0.0",
     "@visx/stats": "^3.0.0",
     "@visx/visx": "^3.1.2",
@@ -64,6 +70,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
