@@ -34,6 +34,7 @@ export class ViewGraph implements EventTarget {
   }
   startId: string
   viewMode: ViewMode
+  loading: Promise<void>
 
   set startPerson(startPerson: GedcomX.Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
@@ -48,7 +49,16 @@ export class ViewGraph implements EventTarget {
   }
 
   async load(startId: string, viewMode: ViewMode) {
-    console.debug(`Building viewgraph for ${startId} in mode ${viewMode}`)
+    // make sure we are not loading in parallel
+    if (this.loading) await this.loading;
+    // skip loading if nothing changed
+    if (this.startId !== startId || this.viewMode !== viewMode) this.loading = this.loadContent(startId, viewMode);
+
+    return this.loading;
+  }
+
+  private async loadContent(startId: string, viewMode: ViewMode) {
+    console.group(`Building viewgraph for ${startId} in mode ${viewMode}`)
     this.reset();
     this.startId = startId;
     this.viewMode = viewMode;
@@ -56,7 +66,6 @@ export class ViewGraph implements EventTarget {
     let startPerson = (await db.personWithId(startId)
       .catch(() => db.persons.toCollection().first()
         .then(p => new Person(p))));
-    console.info("Starting graph with", startPerson.fullName);
 
     this.startPerson = startPerson;
     // todo db.setAgeGen0(startPerson);
@@ -82,6 +91,8 @@ export class ViewGraph implements EventTarget {
       await this.showFamily(f);
       if (hideAll) await this.hideFamily(f);
     }
+
+    console.groupEnd();
   }
 
   async getFamilyViews(activeView: ViewMode | string, startPerson: Person): Promise<FamilyView[]> {
@@ -89,7 +100,6 @@ export class ViewGraph implements EventTarget {
 
     switch (activeView) {
       case ViewMode.ALL:
-        console.groupCollapsed("Showing full graph");
         await db.persons.toArray().then(persons => persons
           .map(p => new Person(p))
           .forEach(p => {
@@ -98,7 +108,6 @@ export class ViewGraph implements EventTarget {
           }));
         break;
       case ViewMode.LIVING: {
-        console.groupCollapsed(`Showing all living relatives`);
         await db.persons.toArray().then(persons => persons
           .map(p => new Person(p))
           .filter(p => p.isLiving)
@@ -109,7 +118,6 @@ export class ViewGraph implements EventTarget {
         break;
       }
       case ViewMode.ANCESTORS:
-        console.groupCollapsed(`Showing all ancestors of ${startPerson.fullName}`);
         promises.push(db.getAncestors(startPerson.id)
           .then(ancestors => Promise.all(
             ancestors
@@ -119,7 +127,6 @@ export class ViewGraph implements EventTarget {
           ).then(newFam => newFam.flat(1))));
         break;
       case ViewMode.DESCENDANTS:
-        console.groupCollapsed(`Showing all descendants of ${startPerson.fullName}`);
         promises.push(db.getDescendants(startPerson.id)
           .then(descendants => Promise.all(
             descendants
@@ -129,13 +136,10 @@ export class ViewGraph implements EventTarget {
           ).then(newFam => newFam.flat(1))));
         break;
       default: {
-        console.group("Showing explorable graph");
         promises.push(db.getFamiliesAsParent(startPerson));
         promises.push(db.getFamiliesAsChild(startPerson));
       }
     }
-
-    console.groupEnd();
 
     let families = await Promise.all(promises)
       .then(families => families.flat(1)
