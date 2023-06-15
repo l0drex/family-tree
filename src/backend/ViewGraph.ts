@@ -82,7 +82,7 @@ export class ViewGraph implements EventTarget {
 
     this.startPerson = startPerson;
     this.progress = .1;
-    // todo db.setAgeGen0(startPerson);
+    db.setAgeGen0(startPerson);
 
     let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
 
