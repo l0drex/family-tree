@@ -81,6 +81,12 @@ test("shows family", async () => {
 
   expect(viewGraph.nodes.length).toBe(5);
   expect(viewGraph.links.length).toBe(4);
+
+  await viewGraph.load("9", ViewMode.DEFAULT);
+  await viewGraph.showFamily(family);
+
+  expect(viewGraph.nodes.length).toBe(11);
+  expect(viewGraph.links.length).toBe(10);
 });
 
 test("hides family", async () => {
@@ -96,15 +102,18 @@ test("hides family", async () => {
 
   expect(viewGraph.nodes.length).toBe(2);
   expect(viewGraph.links.length).toBe(1);
+
+  await viewGraph.load("9", ViewMode.DEFAULT);
+  await viewGraph.showFamily(family);
+  await viewGraph.hideFamily(family);
+
+  expect(viewGraph.nodes.length).toBe(9);
+  expect(viewGraph.links.length).toBe(8);
 })
 
-test("no unnecessary recalculations", async() => {
+test("no unnecessary recalculations", async () => {
   let viewGraph = new ViewGraph();
   viewGraph.reset();
-
-  await viewGraph.load("1", ViewMode.DEFAULT);
-  expect(viewGraph.nodes.length).toBe(11);
-  expect(viewGraph.links.length).toBe(10);
 
   await viewGraph.load("1", ViewMode.DEFAULT);
   expect(viewGraph.nodes.length).toBe(11);

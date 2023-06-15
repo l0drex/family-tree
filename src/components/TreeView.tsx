@@ -39,10 +39,6 @@ function TreeView(props: Props) {
         "View graph has no nodes!");
       console.assert(viewGraph.links.length > 0,
         "View graph has no links!");
-
-      d3cola
-        .nodes(viewGraph.nodes)
-        .links(viewGraph.links);
     });
 
     return viewGraph;
@@ -72,10 +68,12 @@ function TreeView(props: Props) {
 
   useEffect(() => {
     if (viewGraphState !== LoadingState.FINISHED) {
-      d3cola.on("tick", () => {})
       return;
     }
 
+    d3cola
+      .nodes(viewGraph.nodes)
+      .links(viewGraph.links);
     animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
   }, [viewGraph, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
 

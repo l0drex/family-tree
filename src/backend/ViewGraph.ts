@@ -177,21 +177,17 @@ export class ViewGraph implements EventTarget {
   }
 
   async hideFamily(family: GraphFamily | GedcomX.FamilyView) {
-    console.log(family)
     // force typescript to recognize the type
     let graphFamily = await this.getGraphFamily(family);
-
-    console.groupCollapsed("Hiding family:", family.toString());
+    console.groupCollapsed("Hiding family:", graphFamily);
 
     // find all leaves, e.g. all nodes who are not connected to other families
     let leaves = graphFamily.members
-      .filter(m => m.getResource().substring(1) !== this.startPerson.data.getId());
+      .filter(m => m.resource.substring(1) !== this.startPerson.data.id);
     let leavePersons: GraphPerson[] = [];
     for (let p of leaves) {
       let person = await this.getGraphPerson(p);
-      leavePersons.push(person)
-    }
-    leavePersons.filter(person => {
+
       // check if the node is connected to two families
       let linksToFamilies = this.links.filter(link => {
         let nodes = [link.source, link.target];
@@ -204,9 +200,11 @@ export class ViewGraph implements EventTarget {
       });
       console.debug("Found", linksToFamilies.length, "connections to other families for", person.data.fullName,
         linksToFamilies);
-      return linksToFamilies.length <= 1;
-    });
-    console.debug("Removing the following people:", leaves.map(l => l.toString()));
+      let isLeave = linksToFamilies.length <= 1;
+
+      if (isLeave) leavePersons.push(person)
+    }
+    console.debug("Removing the following people:", leavePersons.map(l => l.toString()));
 
     // remove nodes from the graph
     for (const node of this.nodes.filter(n => this.isVisible(n))) {
@@ -218,11 +216,11 @@ export class ViewGraph implements EventTarget {
           break;
         case "etc":
           let members = (node as GraphFamily).members;
-          let visibleMembers = [];
+          let visibleMembers: GraphPerson[] = [];
           for (let member of members) {
             visibleMembers.push(await this.getGraphPerson(member))
           }
-          if (visibleMembers.filter(p => !leaves.includes(p) && this.isVisible(p)).length === 0) {
+          if (visibleMembers.filter(p => !leavePersons.includes(p) && this.isVisible(p)).length === 0) {
             this.hideNode(node);
           }
           break;
@@ -243,10 +241,10 @@ export class ViewGraph implements EventTarget {
     this.links = this.links.filter(link => {
       let included = false;
       if (link.source instanceof GraphPerson) {
-        included ||= leaves.map(l => l.resource.substring(1)).includes(link.source.data.id);
+        included ||= leavePersons.map(l => l.data.id).includes(link.source.data.id);
       }
       if (link.target instanceof GraphPerson) {
-        included ||= leaves.map(l => l.resource.substring(1)).includes(link.target.data.id);
+        included ||= leavePersons.map(l => l.data.id).includes(link.target.data.id);
       }
       return !included;
     });
