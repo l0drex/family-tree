@@ -6,6 +6,8 @@ import * as cola from "webcola";
 import * as GedcomX from "gedcomx-js";
 import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
+import {Loading} from "./Loading";
+import {strings} from "../main";
 
 let d3cola = cola.d3adaptor(d3);
 
@@ -27,11 +29,14 @@ function TreeView(props: Props) {
   const [viewGraphState, setViewGraphState] = useState(LoadingState.NOT_STARTED);
   const [isDarkColorscheme, setIsDarkColorscheme] = useState(window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
+  const [viewGraphProgress, setProgress] = useState(0);
 
+  // todo fixme: changing view mode causes errors
   const viewGraph = useMemo(() => {
     setViewGraphState(LoadingState.LOADING);
 
     let viewGraph = new ViewGraph();
+    viewGraph.addEventListener("progress", (e: CustomEvent) => setProgress(e.detail))
     viewGraph.load(props.focusId, props.viewMode).then(() => {
       setViewGraphState(LoadingState.FINISHED);
 
@@ -56,10 +61,6 @@ function TreeView(props: Props) {
       .then(() => setViewGraphState(LoadingState.FINISHED));
   }
 
-  useEffect(() => {
-    setupCola();
-  }, [])
-
   window.matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", e => setIsDarkColorscheme(e.matches));
 
@@ -68,39 +69,49 @@ function TreeView(props: Props) {
 
   useEffect(() => {
     if (viewGraphState !== LoadingState.FINISHED) {
+      d3cola.on("tick", () => {});
       return;
     }
-
-    d3cola
-      .nodes(viewGraph.nodes)
-      .links(viewGraph.links);
-    animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
+    setupCola().then(() => {
+      d3cola
+        .nodes(viewGraph.nodes)
+        .links(viewGraph.links);
+      animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
+    });
   }, [viewGraph, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
 
   let currentTransform = "";
   if (svgZoom) {
     let svg = d3.select<SVGElement, undefined>("#family-tree");
-    currentTransform = d3.zoomTransform(svg.select<SVGRectElement>("rect").node()).toString();
+    let rect = svg.select<SVGRectElement>("rect").node();
+    if (rect) {
+      currentTransform = d3.zoomTransform(rect).toString();
+    }
+  }
+
+  if (viewGraphState !== LoadingState.FINISHED) {
+    return <Loading text={strings.loading.familyTree} value={viewGraphProgress}/>
   }
 
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg">
       <rect id='background' width='100%' height='100%'/>
-      {viewGraphState === LoadingState.FINISHED && <g id="vis" transform={currentTransform}>
+      <g id="vis" transform={currentTransform}>
         <g id="links">
           {viewGraph.links.map((l, i) =>
             <path className="link" key={i}/>)}
         </g>
         <g id="nodes">
           {viewGraph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
-            <Family data={r} key={i} locked={r.involvesPerson(viewGraph.startPerson.data)} onClicked={onFamilyClicked}/>)}
+            <Family data={r} key={i} locked={r.involvesPerson(viewGraph.startPerson.data)}
+                    onClicked={onFamilyClicked}/>)}
           {viewGraph.nodes.filter(n => n.type === "etc").map((r, i) =>
             <Etc key={i} onClick={onEtcClicked} family={r as GraphFamily}/>)}
           {viewGraph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
             <Person data={p as GraphPerson} onClick={props.onRefocus} key={i}
                     focused={!props.focusHidden && (p as GraphPerson).data.getId() === props.focusId}/>)}
         </g>
-      </g>}
+      </g>
     </svg>
   );
 }

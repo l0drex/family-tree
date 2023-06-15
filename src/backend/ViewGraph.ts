@@ -20,7 +20,7 @@ export enum ColorMode {
   NAME = "name"
 }
 
-type eventTypes = "remove" | "add";
+type eventTypes = "remove" | "add" | "progress";
 
 export class ViewGraph implements EventTarget {
   nodes: GraphObject[] = []
@@ -30,11 +30,24 @@ export class ViewGraph implements EventTarget {
     [key: string]: Set<EventListenerOrEventListenerObject>
   } = {
     "add": new Set(),
-    "remove": new Set()
+    "remove": new Set(),
+    "progress": new Set()
   }
   startId: string
   viewMode: ViewMode
-  loading: Promise<void>
+  private loading: Promise<void>
+  private _progress: number
+
+  get progress() {
+    return this._progress
+  }
+
+  set progress(value: number) {
+    this._progress = value;
+    this.dispatchEvent(new CustomEvent("progress", {
+      detail: value
+    }))
+  }
 
   set startPerson(startPerson: GedcomX.Person | GraphPerson) {
     if (startPerson instanceof GraphPerson) {
@@ -68,6 +81,7 @@ export class ViewGraph implements EventTarget {
         .then(p => new Person(p))));
 
     this.startPerson = startPerson;
+    this.progress = .1;
     // todo db.setAgeGen0(startPerson);
 
     let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
@@ -79,6 +93,7 @@ export class ViewGraph implements EventTarget {
       families = await this.getFamilyViews(ViewMode.DEFAULT, startPerson);
       hideAll = true;
     }
+    this.progress = .5;
 
     if (this.nodes.filter(n => n instanceof GraphPerson).length > config.maxElements) {
       console.warn("Not all elements are shown. Graph would become too slow.")
@@ -90,7 +105,9 @@ export class ViewGraph implements EventTarget {
       if (f === undefined) throw new Error("family is undefined");
       await this.showFamily(f);
       if (hideAll) await this.hideFamily(f);
+      this.progress += .5/families.length;
     }
+    this.progress = 1;
 
     console.groupEnd();
   }
@@ -141,6 +158,8 @@ export class ViewGraph implements EventTarget {
       }
     }
 
+    this.progress += .1;
+
     let families = await Promise.all(promises)
       .then(families => families.flat(1)
         .map(f => new FamilyView(f.toJSON())));
@@ -153,6 +172,7 @@ export class ViewGraph implements EventTarget {
     this.links = [];
     delete this.startId;
     delete this.viewMode;
+    this.progress = 0;
   }
 
   /**
