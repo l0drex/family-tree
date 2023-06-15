@@ -95,14 +95,15 @@ function View() {
   }
 
   function onRefocus(newFocus: Person) {
-    let url = new URL(window.location.href);
-    url.hash = newFocus.getId();
-    window.history.pushState({}, "", url.toString());
-
     if (newFocus.getId() === focusId) {
       hideFocus(!focusHidden)
       return;
     }
+
+    let url = new URL(window.location.href);
+    url.hash = newFocus.getId();
+    window.history.pushState({}, "", url.toString());
+
     hideFocus(false);
     setFocus(newFocus.getId());
   }

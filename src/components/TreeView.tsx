@@ -39,6 +39,10 @@ function TreeView(props: Props) {
         "View graph has no nodes!");
       console.assert(viewGraph.links.length > 0,
         "View graph has no links!");
+
+      d3cola
+        .nodes(viewGraph.nodes)
+        .links(viewGraph.links);
     });
 
     return viewGraph;
@@ -67,13 +71,13 @@ function TreeView(props: Props) {
     .addEventListener("change", (e) => setIsLandscape(e.matches));
 
   useEffect(() => {
-    if (viewGraphState !== LoadingState.FINISHED) return;
+    if (viewGraphState !== LoadingState.FINISHED) {
+      d3cola.on("tick", () => {})
+      return;
+    }
 
-    d3cola
-      .nodes(viewGraph.nodes)
-      .links(viewGraph.links);
     animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
-  }, [viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
+  }, [viewGraph, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
 
   let currentTransform = "";
   if (svgZoom) {
@@ -223,15 +227,19 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
     .duration(300)
     .style("opacity", "1")
 
+  function updateNodes() {
+    personNode
+      .attr("x", d => d.x - d.width / 2)
+      .attr("y", d => d.y - d.height / 2);
+    partnerNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+    etcNode
+      .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+  }
+
   if (isLandscape) {
     d3cola.on("tick", () => {
-      personNode
-        .attr("x", d => d.x - d.width / 2)
-        .attr("y", d => d.y - d.height / 2);
-      partnerNode
-        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-      etcNode
-        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+      updateNodes();
 
       link.attr("d", d => {
         // 1 or -1
@@ -255,13 +263,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
     });
   } else {
     d3cola.on("tick", () => {
-      personNode
-        .attr("x", d => d.x - d.width / 2)
-        .attr("y", d => d.y - d.height / 2);
-      partnerNode
-        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
-      etcNode
-        .attr("transform", d => "translate(" + d.x + "," + d.y + ")");
+      updateNodes();
 
       link.attr("d", d => {
         // 1 or -1
