@@ -10,6 +10,7 @@ import {GraphFamily, GraphPerson} from "../backend/graph";
 import {Loading} from "./Loading";
 import {strings} from "../main";
 import {FocusPersonContext} from "./View";
+import {Confidence} from "../backend/gedcomx-enums";
 
 const d3cola = cola.d3adaptor(d3);
 
@@ -160,7 +161,6 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
   } else {
     d3cola.flowLayout("y", config.gridSize * 3)
   }
-  // todo this is a problem
   d3cola.start(iterations, 0, iterations);
 
   let nodesLayer = d3.select("#nodes");
@@ -221,6 +221,13 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
       break;
+    }
+    case ColorMode.CONFIDENCE: {
+      const confidenceColor = d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High], d3.schemeRdYlGn[3]);
+      personNode
+        .select(".bg")
+        .style("background-color", d => confidenceColor(d.data.getConfidence() as Confidence))
+        .style("color", d => d.data.getConfidence() as Confidence === Confidence.Medium ? "black" : "")
     }
   }
 

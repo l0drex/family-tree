@@ -17,7 +17,8 @@ export enum ViewMode {
 export enum ColorMode {
   GENDER = "gender",
   AGE = "age",
-  NAME = "name"
+  NAME = "name",
+  CONFIDENCE = "confidence"
 }
 
 type eventTypes = "remove" | "add" | "progress";

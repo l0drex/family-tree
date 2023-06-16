@@ -37,6 +37,7 @@ function ViewOptions(props) {
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
+          <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.confidence}</option>
         </select>
       </div>
 
