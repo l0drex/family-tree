@@ -2,8 +2,6 @@ import * as React from "react";
 import './Header.css';
 import {Link} from 'react-router-dom';
 import {strings} from "../main";
-import {parseFile} from "./Form";
-import {saveDataAndRedirect} from "./Form";
 
 function Header(props) {
   return (
