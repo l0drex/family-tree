@@ -7,8 +7,6 @@ import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import Header from "./Header";
 import SearchField from "./SearchField";
-import {db} from "../backend/db";
-import {useLiveQuery} from "dexie-react-hooks";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 

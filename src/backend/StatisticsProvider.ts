@@ -1,7 +1,6 @@
 import {Confidence, GenderTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
 import {GeoPermissibleObjects} from "d3";
-import * as GedcomX from "gedcomx-js";
-import {GDate, Person} from "./gedcomx-extensions";
+import {Person} from "./gedcomx-extensions";
 import {db} from "./db";
 
 /**
