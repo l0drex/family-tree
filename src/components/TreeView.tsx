@@ -40,6 +40,10 @@ function TreeView(props: Props) {
     let viewGraph = new ViewGraph();
     viewGraph.addEventListener("progress", (e: CustomEvent) => setProgress(e.detail))
     viewGraph.load(startPerson, props.viewMode).then(() => {
+      // set nodes and links here to avoid weird async issues with cola
+      d3cola
+        .nodes(viewGraph.nodes)
+        .links(viewGraph.links)
       setViewGraphState(LoadingState.FINISHED);
 
       console.assert(viewGraph.nodes.length > 0,
@@ -150,9 +154,7 @@ async function setupCola() {
 async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: boolean, darkMode: boolean) {
   let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
-    .symmetricDiffLinkLengths(config.gridSize)
-    .nodes(graph.nodes)
-    .links(graph.links);
+    .symmetricDiffLinkLengths(config.gridSize);
   if (isLandscape) {
     d3cola.flowLayout("x", d => d.target instanceof GraphPerson ? config.gridSize * 5 : config.gridSize * 3.5)
   } else {
