@@ -3,6 +3,7 @@ import "fake-indexeddb/auto";
 import {db} from "./db";
 import {ViewGraph, ViewMode} from "./ViewGraph";
 import * as GedcomX from "gedcomx-js";
+import {Person} from "./gedcomx-extensions";
 
 beforeAll(async () => {
   return db.load(data);
@@ -47,7 +48,8 @@ test.each([
   [ViewMode.ANCESTORS, 12 + 6, 17]
 ])("Builds view graph: %s", async (viewMode: ViewMode, nodes: number, links: number) => {
   let viewGraph = new ViewGraph();
-  await viewGraph.load("1", viewMode);
+  let person = await db.personWithId("1").then(p => new Person(p));
+  await viewGraph.load(person, viewMode);
   expect(viewGraph.nodes.length).toBe(nodes);
   expect(viewGraph.links.length).toBe(links);
 })
@@ -59,7 +61,8 @@ test.each([
   [ViewMode.DESCENDANTS, "7", 2, 1]
 ])("Build in edge case: %s", async (viewMode: ViewMode, id: string, nodes: number, links: number) => {
   let viewGraph = new ViewGraph();
-  await viewGraph.load(id, viewMode);
+  let person = await db.personWithId(id).then(p => new Person(p));
+  await viewGraph.load(person, viewMode);
   expect(viewGraph.nodes.length).toBe(nodes);
   expect(viewGraph.links.length).toBe(links);
 })
@@ -82,7 +85,8 @@ test("shows family", async () => {
   expect(viewGraph.nodes.length).toBe(5);
   expect(viewGraph.links.length).toBe(4);
 
-  await viewGraph.load("9", ViewMode.DEFAULT);
+  let person = await db.personWithId("9").then(p => new Person(p));
+  await viewGraph.load(person, ViewMode.DEFAULT);
   await viewGraph.showFamily(family);
 
   expect(viewGraph.nodes.length).toBe(11);
@@ -102,8 +106,9 @@ test("hides family", async () => {
 
   expect(viewGraph.nodes.length).toBe(2);
   expect(viewGraph.links.length).toBe(1);
+  let person = await db.personWithId("9").then(p => new Person(p));
 
-  await viewGraph.load("9", ViewMode.DEFAULT);
+  await viewGraph.load(person, ViewMode.DEFAULT);
   await viewGraph.showFamily(family);
   await viewGraph.hideFamily(family);
 
@@ -115,7 +120,9 @@ test("no unnecessary recalculations", async () => {
   let viewGraph = new ViewGraph();
   viewGraph.reset();
 
-  await viewGraph.load("1", ViewMode.DEFAULT);
+  let person = await db.personWithId("1").then(p => new Person(p));
+
+  await viewGraph.load(person, ViewMode.DEFAULT);
   expect(viewGraph.nodes.length).toBe(11);
   expect(viewGraph.links.length).toBe(10);
 })

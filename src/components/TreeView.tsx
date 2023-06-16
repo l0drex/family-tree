@@ -1,15 +1,17 @@
 import {Etc, Family, Person} from "./Nodes";
-import {useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useMemo, useState} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import * as cola from "webcola";
+import {EventType} from "webcola";
 import * as GedcomX from "gedcomx-js";
 import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
 import {Loading} from "./Loading";
 import {strings} from "../main";
+import {FocusPersonContext} from "./View";
 
-let d3cola = cola.d3adaptor(d3);
+const d3cola = cola.d3adaptor(d3);
 
 enum LoadingState {
   NOT_STARTED,
@@ -18,7 +20,6 @@ enum LoadingState {
 }
 
 interface Props {
-  focusId: string
   focusHidden: boolean
   onRefocus: (newFocus: GedcomX.Person) => void
   colorMode: ColorMode,
@@ -30,26 +31,26 @@ function TreeView(props: Props) {
   const [isDarkColorscheme, setIsDarkColorscheme] = useState(window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
   const [viewGraphProgress, setProgress] = useState(0);
-  const [focusId, setFocus] = useState(props.focusId);
+  const startPerson = useContext(FocusPersonContext);
 
   // todo fixme: changing view mode causes errors
   const viewGraph = useMemo(() => {
+    if (startPerson === null) return;
     setViewGraphState(LoadingState.LOADING);
 
     let viewGraph = new ViewGraph();
     viewGraph.addEventListener("progress", (e: CustomEvent) => setProgress(e.detail))
-    viewGraph.load(props.focusId, props.viewMode).then(() => {
+    viewGraph.load(startPerson, props.viewMode).then(() => {
       setViewGraphState(LoadingState.FINISHED);
 
       console.assert(viewGraph.nodes.length > 0,
         "View graph has no nodes!");
       console.assert(viewGraph.links.length > 0,
         "View graph has no links!");
-      setFocus(viewGraph.startPerson.data.id);
     });
 
     return viewGraph;
-  }, [props.focusId, props.viewMode]);
+  }, [startPerson, props.viewMode]);
 
   function onEtcClicked(family: GraphFamily) {
     setViewGraphState(LoadingState.LOADING);
@@ -70,17 +71,11 @@ function TreeView(props: Props) {
     .addEventListener("change", (e) => setIsLandscape(e.matches));
 
   useEffect(() => {
-    if (viewGraphState !== LoadingState.FINISHED) {
-      d3cola.on("tick", () => {});
+    if (viewGraphState !== LoadingState.FINISHED || startPerson === null) {
       return;
     }
-    setupCola().then(() => {
-      d3cola
-        .nodes(viewGraph.nodes)
-        .links(viewGraph.links);
-      animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme);
-    });
-  }, [viewGraph, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
+    setupCola().then(() => animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme));
+  }, [viewGraph, startPerson, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
 
   let currentTransform = "";
   if (svgZoom) {
@@ -111,7 +106,7 @@ function TreeView(props: Props) {
             <Etc key={i} onClick={onEtcClicked} family={r as GraphFamily}/>)}
           {viewGraph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
             <Person data={p as GraphPerson} onClick={props.onRefocus} key={i}
-                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === focusId}/>)}
+                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === startPerson.id}/>)}
         </g>
       </g>
     </svg>
@@ -155,7 +150,9 @@ async function setupCola() {
 async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: boolean, darkMode: boolean) {
   let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
-    .symmetricDiffLinkLengths(config.gridSize);
+    .symmetricDiffLinkLengths(config.gridSize)
+    .nodes(graph.nodes)
+    .links(graph.links);
   if (isLandscape) {
     d3cola.flowLayout("x", d => d.target instanceof GraphPerson ? config.gridSize * 5 : config.gridSize * 3.5)
   } else {
@@ -249,7 +246,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
   }
 
   if (isLandscape) {
-    d3cola.on("tick", () => {
+    d3cola.on(EventType.tick, () => {
       updateNodes();
 
       link.attr("d", d => {
@@ -279,7 +276,6 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
       link.attr("d", d => {
         // 1 or -1
         let flip = -(Number((d.source.x - d.target.x) > 0) * 2 - 1);
-
         let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
 
         if (d.target instanceof GraphPerson) {

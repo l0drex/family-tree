@@ -7,17 +7,11 @@ import * as gedcomX from "gedcomx-js";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
+import {useContext} from "react";
+import {FocusPersonContext} from "./View";
 
-interface Props {
-  personId: string
-}
-
-function InfoPanel(props: Props) {
-  const person = useLiveQuery(async () => {
-    return db.personWithId(props.personId)
-      .catch(() => db.persons.toCollection().first())
-      .then(p => new Person(p));
-  }, [props.personId])
+function InfoPanel() {
+  const person = useContext(FocusPersonContext);
 
   const images = useLiveQuery(async () => {
     if (person) return getImages(person);

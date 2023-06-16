@@ -1,6 +1,7 @@
 import config from "../config";
 import {strings} from "../main";
 import {GraphFamily, GraphPerson} from "../backend/graph";
+import {Person as PersonClass} from "../backend/gedcomx-extensions";
 
 export function Family(props: {locked: boolean, data: GraphFamily, onClicked: (a: GraphFamily) => void}) {
   return (
@@ -30,7 +31,7 @@ export function Etc(props: {onClick: Function, family: GraphFamily}) {
   );
 }
 
-export function Person(props: {data: GraphPerson, onClick, focused: boolean}) {
+export function Person(props: {data: GraphPerson, onClick: (person: PersonClass) => void, focused: boolean}) {
   let graphPerson: GraphPerson = props.data;
   return (
     <foreignObject

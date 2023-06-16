@@ -61,24 +61,21 @@ export class ViewGraph implements EventTarget {
     return this.startPersonValue
   }
 
-  async load(startId: string, viewMode: ViewMode) {
+  async load(startPerson: Person, viewMode: ViewMode) {
     // make sure we are not loading in parallel
-    if (this.loading) await this.loading;
-    // skip loading if nothing changed
-    if (this.startId !== startId || this.viewMode !== viewMode) this.loading = this.loadContent(startId, viewMode);
+    if (!this.loading) this.loading = this.loadContent(startPerson, viewMode)
+      .then(() => {
+        this.loading = null;
+      });
 
     return this.loading;
   }
 
-  private async loadContent(startId: string, viewMode: ViewMode) {
-    console.group(`Building viewgraph for ${startId} in mode ${viewMode}`)
+  private async loadContent(startPerson: Person, viewMode: ViewMode) {
+    console.group(`Building viewgraph for ${startPerson} in mode ${viewMode}`)
     this.reset();
-    this.startId = startId;
+    this.startId = startPerson.id;
     this.viewMode = viewMode;
-
-    let startPerson = (await db.personWithId(startId)
-      .catch(() => db.persons.toCollection().first()
-        .then(p => new Person(p))));
 
     this.startPerson = startPerson;
     this.progress = .1;

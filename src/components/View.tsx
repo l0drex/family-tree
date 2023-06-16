@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useEffect, useState} from "react";
+import {createContext, useEffect, useState} from "react";
 import {getUrlOption, strings} from "../main";
 import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
@@ -9,7 +9,9 @@ import Header from "./Header";
 import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
+import {db} from "../backend/db";
 
+export const FocusPersonContext = createContext<Person>(null);
 
 function ViewOptions(props) {
   let fileInput = React.createRef<HTMLInputElement>();
@@ -52,22 +54,25 @@ function ViewOptions(props) {
 }
 
 function View() {
-  let url = new URL(window.location.href);
-
   const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
   const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
-  const [focusId, setFocus] = useState(url.hash.substring(1));
+  const [focusPerson, setFocus] = useState<Person>(null);
   const [focusHidden, hideFocus] = useState(false);
 
   useEffect(() => {
-    let root = document.querySelector<HTMLDivElement>("#root");
-    root.classList.add("sidebar-visible");
-  });
+    let url = new URL(window.location.href);
+    let id = url.hash.substring(1);
+    db.personWithId(id)
+      .catch(() => db.persons.toCollection().first().then(p => new Person(p)))
+      .then(p => setFocus(p));
+  }, []);
 
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
     if (focusHidden) {
       root.classList.remove("sidebar-visible");
+    } else {
+      root.classList.add("sidebar-visible");
     }
   }, [focusHidden])
 
@@ -100,7 +105,7 @@ function View() {
   }
 
   function onRefocus(newFocus: Person) {
-    if (newFocus.getId() === focusId) {
+    if (newFocus.getId() === focusPerson.getId()) {
       hideFocus(!focusHidden)
       return;
     }
@@ -110,7 +115,7 @@ function View() {
     window.history.pushState({}, "", url.toString());
 
     hideFocus(false);
-    setFocus(newFocus.getId());
+    setFocus(newFocus);
   }
 
   return (
@@ -118,13 +123,17 @@ function View() {
       <Header>
         <SearchField onRefocus={onRefocus}/>
       </Header>
-      {!focusHidden && <InfoPanel personId={focusId} />}
+      <FocusPersonContext.Provider value={focusPerson}>
+        {!focusHidden && <InfoPanel />}
+      </FocusPersonContext.Provider>
       <main>
         <article id="family-tree-container">
           <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
-          <TreeView colorMode={colorMode} focusId={focusId} focusHidden={focusHidden}
-                                        onRefocus={onRefocus} viewMode={viewMode}/>
+          <FocusPersonContext.Provider value={focusPerson}>
+            <TreeView colorMode={colorMode} focusHidden={focusHidden}
+                      onRefocus={onRefocus} viewMode={viewMode}/>
+          </FocusPersonContext.Provider>
         </article>
       </main>
     </>
