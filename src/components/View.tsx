@@ -60,12 +60,6 @@ function View() {
     }
   }, [focusHidden])
 
-  const focus = useLiveQuery(async () => {
-    return db.personWithId(focusId)
-      .catch(() => db.persons.toCollection().first())
-      .then(p => new Person(p));
-  }, [focusId])
-
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
 
@@ -113,7 +107,7 @@ function View() {
       <Header>
         <SearchField onRefocus={onRefocus}/>
       </Header>
-      {!focusHidden && focus && <InfoPanel person={focus} />}
+      {!focusHidden && <InfoPanel personId={focusId} />}
       <main>
         <article id="family-tree-container">
           <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}

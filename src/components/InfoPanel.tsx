@@ -9,77 +9,103 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
 
 interface Props {
-  person: Person
+  personId: string
 }
 
 function InfoPanel(props: Props) {
-  let person = props.person;
+  const person = useLiveQuery(async () => {
+    return db.personWithId(props.personId)
+      .catch(() => db.persons.toCollection().first())
+      .then(p => new Person(p));
+  }, [props.personId])
 
   const images = useLiveQuery(async () => {
-    return getImages(person);
-  }, [person.id])
+    if (person) return getImages(person);
+  }, [person])
 
   let confidence;
-  switch (person.confidence) {
-    case Confidence.Low:
-      confidence = 1;
-      break;
-    case Confidence.Medium:
-      confidence = 2;
-      break;
-    case Confidence.High:
-      confidence = 3;
-      break;
-    default:
-      confidence = undefined;
-      break;
+  if (person) {
+    switch (person.confidence) {
+      case Confidence.Low:
+        confidence = 1;
+        break;
+      case Confidence.Medium:
+        confidence = 2;
+        break;
+      case Confidence.High:
+        confidence = 3;
+        break;
+      default:
+        confidence = undefined;
+        break;
+    }
   }
 
   const parents = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getParentsOf(person.id).then(parents =>
       Promise.all(parents.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const children = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getChildrenOf(person.id).then(children =>
       Promise.all(children.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const partner = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getPartnerOf(person.id).then(partner =>
       Promise.all(partner.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const godparents = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getGodparentsOf(person.id).then(parents =>
       Promise.all(parents.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const godchildren = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getGodchildrenOf(person.id).then(children =>
       Promise.all(children.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const enslavedBy = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getEnslavers(person.id).then(children =>
       Promise.all(children.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const slaves = useLiveQuery(async () => {
+    if (!person) return;
+
     return db.getSlaves(person.id).then(children =>
       Promise.all(children.map(r => db.personWithId(r))));
-  }, [person.id])
+  }, [person])
 
   const sourceDescriptions = useLiveQuery(async () => {
+    if (!person) return;
+
     return Promise.all(person.getSources()
       .map(s => db.sourceDescriptionWithId(s.getDescription())))
-  })
+  }, [person])
 
   // todo:
   // person.getEvidence()
   // person.getIdentifiers()
   // person.getAnalysis()
   // person.getAttribution()
+
+  if (!person) {
+    return <aside id={"info-panel"}></aside>
+  }
 
   return (
     <Sidebar id="info-panel">
