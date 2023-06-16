@@ -167,54 +167,57 @@ function InfoPanel() {
         </ul>
       </article>
 
-      {parents && parents.length > 0 && <article>
-        <h1>👪 {strings.infoPanel.parents}</h1>
-        <ul>
-          {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+      <details>
+        <summary>{strings.infoPanel.relationships}</summary>
+        {parents && parents.length > 0 && <article>
+          <h1>👪 {strings.infoPanel.parents}</h1>
+          <ul>
+            {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {children && children.length > 0 && <article>
-        <h1>🍼 {strings.infoPanel.children}</h1>
-        <ul>
-          {children.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {children && children.length > 0 && <article>
+          <h1>🍼 {strings.infoPanel.children}</h1>
+          <ul>
+            {children.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {partner && partner.length > 0 && <article>
-        <h1>❤️ {strings.infoPanel.partner}</h1>
-        <ul>
-          {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {partner && partner.length > 0 && <article>
+          <h1>❤️ {strings.infoPanel.partner}</h1>
+          <ul>
+            {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {godparents && godparents.length > 0 && <article>
-        <h1>⛅ {strings.infoPanel.godparents}</h1>
-        <ul>
-          {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {godparents && godparents.length > 0 && <article>
+          <h1>⛅ {strings.infoPanel.godparents}</h1>
+          <ul>
+            {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {godchildren && godchildren.length > 0 && <article>
-        <h1>⛅ {strings.infoPanel.godchildren}</h1>
-        <ul>
-          {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {godchildren && godchildren.length > 0 && <article>
+          <h1>⛅ {strings.infoPanel.godchildren}</h1>
+          <ul>
+            {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {enslavedBy && enslavedBy.length > 0 && <article>
-        <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
-        <ul>
-          {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {enslavedBy && enslavedBy.length > 0 && <article>
+          <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
+          <ul>
+            {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
 
-      {slaves && slaves.length > 0 && <article>
-        <h1>⛓️ {strings.infoPanel.slaves}</h1>
-        <ul>
-          {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
-        </ul>
-      </article>}
+        {slaves && slaves.length > 0 && <article>
+          <h1>⛓️ {strings.infoPanel.slaves}</h1>
+          <ul>
+            {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
+          </ul>
+        </article>}
+      </details>
 
       {person.getNotes().filter(filterLang).map((note, i) => {
         return <Note note={note} key={i}/>

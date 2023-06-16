@@ -47,6 +47,7 @@
     "confidenceExplanation": "How much can the data be trusted",
     "confidenceLabel": "Confidence: ",
     "attribution": "Created on {0} by {1}. Modified on {2} by {3}:",
+    "relationships": "Relationships",
     "children": "Children",
     "parents": "Parents",
     "partner": "Partner",

@@ -47,6 +47,7 @@
     "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
     "confidenceLabel": "Zuversicht: ",
     "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:",
+    "relationships": "Verbundene Personen",
     "children": "Kinder",
     "parents": "Eltern",
     "partner": "Partner",
