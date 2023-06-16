@@ -37,9 +37,9 @@ const radius = Math.min(width, height) / 2;
 function Stat(props: { title: string, legend?: ReactNode, className?: string, children }) {
   return <article className={"graph " + props.className}>
     <h1>{props.title}</h1>
-    <p>
+    <div>
       {props.children}
-    </p>
+    </div>
     {props.legend}
   </article>
 }
@@ -276,7 +276,7 @@ function ConfidenceStats() {
         pieValue={d => d.count}
         fill={d => d.data.value === "null" ? "none" : colorScale(d.data.value as Confidence)}
         stroke={"var(--background)"}
-        stroke-width={".2rem"}
+        strokeWidth={".2rem"}
       />
     </svg>
   </Stat>

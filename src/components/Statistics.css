@@ -17,6 +17,10 @@ main#stats {
   margin: auto auto .5rem;
 }
 
+article .visx-legend {
+  flex-wrap: wrap;
+}
+
 @media (prefers-color-scheme: dark) {
   .visx-axis tspan {
     fill: white;
