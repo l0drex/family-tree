@@ -67,15 +67,15 @@ export async function getGenderPerGeneration() {
   }));
 }
 
-function getLifeSpanDecades(person: GedcomX.Person): [birthDecade: number, deathDecade: number] {
+function getLifeSpanDecades(person: Person): [birthDecade: number, deathDecade: number] {
   let birthFact = person.getFactsByType(PersonFactTypes.Birth)[0];
   let deathFact = person.getFactsByType(PersonFactTypes.Death)[0];
   let birthDecade: number;
   let deathDecade: number;
 
   try {
-    birthDecade = Math.floor(new GDate(birthFact.date.toJSON()).toDateObject().getFullYear() / 10) * 10;
-    deathDecade = Math.floor(new GDate(deathFact.date.toJSON()).toDateObject().getFullYear() / 10) * 10;
+    birthDecade = Math.floor(birthFact.getDate().toDateObject().getFullYear() / 10) * 10;
+    deathDecade = Math.floor(deathFact.getDate().toDateObject().getFullYear() / 10) * 10;
   } catch (e) {
     if (e instanceof TypeError) {
       if (birthDecade === undefined) {
@@ -95,33 +95,34 @@ export async function getReligionPerYear() {
   return db.persons.toArray().then(persons => {
     let data: { [decade: number]: { [religion: string]: number } } = {};
 
-    persons.forEach(p => {
-      p = new Person(p);
-      let lifespan = getLifeSpanDecades(p);
-      if (lifespan === undefined) return;
-      let birthDecade = lifespan[0], deathDecade = lifespan[1];
+    persons
+      .map(p => new Person(p))
+      .forEach(p => {
+        let lifespan = getLifeSpanDecades(p);
+        if (lifespan === undefined) return;
+        let birthDecade = lifespan[0], deathDecade = lifespan[1];
 
-      let religion;
-      try {
-        religion = p.getFactsByType(PersonFactTypes.Religion)[0].getValue();
-      } catch (e) {
-        if (e instanceof TypeError) {
-          religion = "";
-        } else {
-          throw e;
+        let religion;
+        try {
+          religion = p.getFactsByType(PersonFactTypes.Religion)[0].getValue();
+        } catch (e) {
+          if (e instanceof TypeError) {
+            religion = "";
+          } else {
+            throw e;
+          }
         }
-      }
 
-      for (let decade = birthDecade; decade <= deathDecade; decade += 10) {
-        if (!(decade in data)) data[decade] = {}
+        for (let decade = birthDecade; decade <= deathDecade; decade += 10) {
+          if (!(decade in data)) data[decade] = {}
 
-        if (religion in data[decade]) {
-          data[decade][religion]++;
-        } else {
-          data[decade][religion] = 1;
+          if (religion in data[decade]) {
+            data[decade][religion]++;
+          } else {
+            data[decade][religion] = 1;
+          }
         }
-      }
-    });
+      });
 
     return data
   }).then(data => Object.keys(data)
@@ -197,21 +198,23 @@ export async function getNames(type: "First" | "Last") {
 export async function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
   let data: number[] = [];
 
-  await db.persons.toArray().then(persons => persons.forEach(p => {
-    let birth;
-    try {
-      let birthFactDate = p.getFactsByType(type === "Birth" ? PersonFactTypes.Birth : PersonFactTypes.Death)[0].getDate();
-      // ignore if month is not defined
-      if (birthFactDate.getFormal().length < 8) return;
-      birth = new GDate(birthFactDate.toJSON()).toDateObject();
-    } catch (e) {
-      if (e instanceof TypeError) return;
-      else throw e;
-    }
-    let month = birth.getMonth();
-    if (month in data) data[month]++;
-    else data[month] = 1;
-  }));
+  await db.persons.toArray().then(persons => persons
+    .map(p => new Person(p))
+    .forEach(p => {
+      let birth;
+      try {
+        let date = p.getFactsByType(type === "Birth" ? PersonFactTypes.Birth : PersonFactTypes.Death)[0].getDate();
+        // ignore if month is not defined
+        if (date.getFormal().length < 8) return;
+        birth = date.toDateObject();
+      } catch (e) {
+        if (e instanceof TypeError) return;
+        else throw e;
+      }
+      let month = birth.getMonth();
+      if (month in data) data[month]++;
+      else data[month] = 1;
+    }));
 
   return data;
 }
@@ -225,7 +228,7 @@ export async function getLifeExpectancyOverYears() {
       let birth, age, name;
       try {
         name = p.fullName;
-        birth = new GDate(p.getFactsByType(PersonFactTypes.Birth)[0].getDate().toJSON()).toDateObject();
+        birth = p.getFactsByType(PersonFactTypes.Birth)[0].getDate().toDateObject();
         let deathFact = p.getFactsByType(PersonFactTypes.Death)[0];
         age = deathFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue();
       } catch (e) {
@@ -243,20 +246,20 @@ export async function getLifeExpectancyOverYears() {
 
 export async function getMarriageAge() {
   let data: number[] = await db.persons.toArray().then(persons => persons
+    .map(p => new Person(p))
     .map(p => {
       try {
-        let marriageFact = p.getFactsByType(PersonFactTypes.MaritalStatus)[0];
-        if (marriageFact.getValue() !== "single") {
-          return Number(marriageFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue());
-        }
+        return p.getFactsByType(PersonFactTypes.MaritalStatus)
+          .filter(f => f.getValue() !== "single")
+          .map(f => Number(f.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue()));
       } catch (e) {
         if (!(e instanceof TypeError)) {
           throw e
         }
       }
 
-      return -1;
-    }).filter(a => a > 0));
+      return [];
+    }).flat(1).filter(a => a >= 0));
 
   let counter = count(data);
 

@@ -122,6 +122,10 @@ export class Person extends GedcomX.Person {
     return super.getFacts() as Fact[];
   }
 
+  getFactsByType(type: string): Fact[] {
+    return super.getFactsByType(type) as Fact[];
+  }
+
   toString() {
     return `${this.fullName} (#${this.id})`;
   }
@@ -220,6 +224,10 @@ export class Fact extends GedcomX.Fact {
   setDate(date: Date | object): Fact {
     super.setDate(new GDate(date));
     return this;
+  }
+
+  getDate(): GDate {
+    return super.getDate() as GDate;
   }
 
   setPlace(place: PlaceReference | object): Fact {
