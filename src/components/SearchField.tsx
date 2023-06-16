@@ -4,6 +4,7 @@ import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import * as GedcomX from "gedcomx-js";
 import {Person} from "../backend/gedcomx-extensions";
+import "./Form.css";
 
 interface Props {
   onRefocus: (newFocus: GedcomX.Person) => void

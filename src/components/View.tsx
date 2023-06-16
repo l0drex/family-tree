@@ -10,9 +10,12 @@ import SearchField from "./SearchField";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {Person} from "../backend/gedcomx-extensions";
+import {parseFile, saveDataAndRedirect} from "./Form";
 
 
 function ViewOptions(props) {
+  let fileInput = React.createRef<HTMLInputElement>();
+
   return (
     <form id="view-all">
       <div>
@@ -35,6 +38,16 @@ function ViewOptions(props) {
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
         </select>
+      </div>
+
+      <div id="file-buttons">
+        <input type="file" hidden ref={fileInput} accept="application/json"
+               onChange={() => parseFile(fileInput.current.files[0]).then(saveDataAndRedirect)}/>
+        <button className="icon-only" onClick={e => {
+          e.preventDefault();
+          fileInput.current.click();
+        }}>📁
+        </button>
       </div>
     </form>
   );

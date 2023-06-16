@@ -84,6 +84,8 @@ input[type=submit]:active, button:active, .button:not(select):active {
 .search {
   display: flex;
   align-items: center;
+  max-width: 30rem;
+  margin: auto;
 }
 
 input[type=search] {
