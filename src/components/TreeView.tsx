@@ -33,7 +33,6 @@ function TreeView(props: Props) {
   const [viewGraphProgress, setProgress] = useState(0);
   const startPerson = useContext(FocusPersonContext);
 
-  // todo fixme: changing view mode causes errors
   const viewGraph = useMemo(() => {
     if (startPerson === null) return;
     setViewGraphState(LoadingState.LOADING);
@@ -52,6 +51,14 @@ function TreeView(props: Props) {
     return viewGraph;
   }, [startPerson, props.viewMode]);
 
+  useEffect(() => {
+    if (viewGraphState !== LoadingState.FINISHED) {
+      return;
+    }
+    setupCola()
+      .then(() => animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme));
+  }, [viewGraph, viewGraphState, props.colorMode, isLandscape, isDarkColorscheme]);
+
   function onEtcClicked(family: GraphFamily) {
     setViewGraphState(LoadingState.LOADING);
     viewGraph.showFamily(family)
@@ -69,13 +76,6 @@ function TreeView(props: Props) {
 
   window.matchMedia("(orientation: landscape)")
     .addEventListener("change", (e) => setIsLandscape(e.matches));
-
-  useEffect(() => {
-    if (viewGraphState !== LoadingState.FINISHED || startPerson === null) {
-      return;
-    }
-    setupCola().then(() => animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme));
-  }, [viewGraph, startPerson, viewGraphState, props.colorMode, isDarkColorscheme, isLandscape]);
 
   let currentTransform = "";
   if (svgZoom) {
@@ -158,6 +158,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
   } else {
     d3cola.flowLayout("y", config.gridSize * 3)
   }
+  // todo this is a problem
   d3cola.start(iterations, 0, iterations);
 
   let nodesLayer = d3.select("#nodes");
