@@ -48,7 +48,7 @@ function GenderStats() {
   const data = useLiveQuery(getGenderPerGeneration);
 
   if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
@@ -76,7 +76,7 @@ function GenderStats() {
 function ReligionStats() {
   let data = useLiveQuery(getReligionPerYear);
   if (!data) return <Stat title={strings.gedcomX.types.fact.person.Religion}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
@@ -142,7 +142,7 @@ function LocationStats() {
 function NameStats(props: { nameType: "First" | "Last" }) {
   let data = useLiveQuery(async () => getNames(props.nameType), [props.nameType]);
   if (!data) return <Stat title={strings.gedcomX.firstName}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   const colors = scaleOrdinal({
@@ -186,7 +186,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   let data = useLiveQuery(async () => getBirthDeathMonthOverYears(props.type), [props.type]);
   if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   let angleScale = scaleLinear({
@@ -217,7 +217,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 function LifeExpectancy() {
   let data = useLiveQuery(getLifeExpectancyOverYears);
   if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
   //console.debug(data)
 
@@ -237,7 +237,7 @@ function LifeExpectancy() {
 function MarriageAge() {
   let data = useLiveQuery(getMarriageAge);
   if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   let yScale = scaleLinear({
@@ -256,7 +256,7 @@ function MarriageAge() {
 function ConfidenceStats() {
   let data = useLiveQuery(getConfidence);
   if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic} value={.5}/>
+    <Loading text={strings.loading.statistic}/>
   </Stat>
 
   let colorScale = scaleOrdinal({
