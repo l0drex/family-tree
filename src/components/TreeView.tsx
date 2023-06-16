@@ -30,6 +30,7 @@ function TreeView(props: Props) {
   const [isDarkColorscheme, setIsDarkColorscheme] = useState(window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
   const [viewGraphProgress, setProgress] = useState(0);
+  const [focusId, setFocus] = useState(props.focusId);
 
   // todo fixme: changing view mode causes errors
   const viewGraph = useMemo(() => {
@@ -44,6 +45,7 @@ function TreeView(props: Props) {
         "View graph has no nodes!");
       console.assert(viewGraph.links.length > 0,
         "View graph has no links!");
+      setFocus(viewGraph.startPerson.data.id);
     });
 
     return viewGraph;
@@ -109,7 +111,7 @@ function TreeView(props: Props) {
             <Etc key={i} onClick={onEtcClicked} family={r as GraphFamily}/>)}
           {viewGraph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
             <Person data={p as GraphPerson} onClick={props.onRefocus} key={i}
-                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === props.focusId}/>)}
+                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === focusId}/>)}
         </g>
       </g>
     </svg>
