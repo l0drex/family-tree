@@ -100,7 +100,7 @@ export function saveDataAndRedirect(fileContent) {
   db.load(data)
     .then(() => {
       let url = new URL(window.location.href);
-      url.pathname = "/family-tree/view";
+      url.pathname = "/family-tree/persons";
       window.location.href = url.href;
     });
 }

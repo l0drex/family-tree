@@ -140,6 +140,50 @@ li:not(:last-child) {
   margin-bottom: .5rem;
 }
 
+ul.clickable, ol.clickable {
+  padding: 0;
+}
+
+ul.clickable li {
+  list-style: none;
+  padding: .5rem;
+  border-radius: .5rem;
+}
+
+ul.clickable li:hover {
+  background: var(--background-lower);
+}
+
+.center {
+  display: block;
+  margin: 0 auto;
+  border-radius: 1rem;
+}
+
+p.misc {
+  color: var(--foreground-secondary);
+}
+
+video, audio {
+  width: inherit;
+}
+
+figure {
+  margin: 1rem auto;
+  overflow: auto;
+  white-space: pre-line;
+  max-height: 30rem;
+}
+
+object {
+  max-width: 100%;
+}
+
+object[type="application/pdf"], object[type^="video"] {
+  width: 100%;
+  height: 30rem;
+}
+
 @media (orientation: portrait) {
   @media (max-width: 749px) {
     #title {

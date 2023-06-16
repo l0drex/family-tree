@@ -330,6 +330,9 @@
     "lifeExpectancy": "Lebenserwartung",
     "marriageAge": "Heiratsalter"
   },
+  "sourceDescriptions": {
+    "coverage": "Abdeckung"
+  },
   "loading": {
     "familyTree": "Lade Stammbaum",
     "statistic": "Berechne Statistik"

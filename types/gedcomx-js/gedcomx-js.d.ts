@@ -285,7 +285,7 @@ declare module "gedcomx-js" {
 
     addRight(right: ResourceReference | object): SourceDescription
 
-    getCoverage(): Coverage
+    getCoverage(): Coverage[]
 
     setCoverage(coverage: Coverage[] | object[]): SourceDescription
 

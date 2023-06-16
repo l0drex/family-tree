@@ -11,7 +11,7 @@ article h1 {
   padding-bottom: .75rem;
 }
 
-article > div {
+article > div, article > section {
   padding: .5rem 0;
 }
 

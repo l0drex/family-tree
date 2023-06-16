@@ -3,7 +3,7 @@ import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
 import config from "../config";
 import {
-  baseUri,
+  baseUri, KnownResourceTypes,
   NameTypes,
   PersonFactQualifiers,
   PersonFactTypes
@@ -319,6 +319,28 @@ export class FamilyView extends GedcomX.FamilyView implements Equals {
     let parentEqual = parentResources.includes(family.parent1.resource) &&
       parentResources.includes(family.parent2.resource);
     return parentEqual;
+  }
+}
+
+export class SourceDescription extends GedcomX.SourceDescription {
+  get title() {
+    if (this.getTitles().length > 0) return this.getTitles()[0];
+    return this.getCitations()[0].getValue();
+  }
+
+  get emoji() {
+    switch (this.getResourceType()) {
+      case KnownResourceTypes.Collection:
+        return "📚";
+      case KnownResourceTypes.PhysicalArtifact:
+        return "📖";
+      case KnownResourceTypes.DigitalArtifact:
+        return "💿";
+      case KnownResourceTypes.Record:
+        return "📜";
+    }
+
+    return "📖";
   }
 }
 

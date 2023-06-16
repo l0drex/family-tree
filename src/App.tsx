@@ -1,16 +1,18 @@
 import * as React from "react";
 import './App.css';
 import {strings} from "./main";
-import View from "./components/View";
+import Persons from "./components/Persons";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {Home, Imprint} from "./components/Home";
 import Statistics from "./components/Statistics";
+import {SourceDescriptions} from "./components/SourceDescriptions";
 
 function App() {
   return <BrowserRouter basename={"family-tree"}>
     <Routes>
       <Route path="/" element={<Home/>}/>
-      <Route path="/view" element={<View/>}/>
+      <Route path="/persons" element={<Persons/>}/>
+      <Route path="/sources" element={<SourceDescriptions/>}/>
       <Route path="/imprint" element={<Imprint/>}/>
       <Route path="/stats" element={<Statistics/>}/>
     </Routes>

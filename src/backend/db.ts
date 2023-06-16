@@ -4,7 +4,7 @@ import {
   IGroup
 } from "./gedcomx-types";
 import * as GedcomX from "gedcomx-js";
-import {Person, Relationship, setReferenceAge} from "./gedcomx-extensions";
+import {Person, Relationship, setReferenceAge, SourceDescription} from "./gedcomx-extensions";
 import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
 import {ResourceReference} from "gedcomx-js";
 
@@ -101,7 +101,7 @@ export class FamilyDB extends Dexie {
     }
 
     return this.sourceDescriptions.where("id").equals(id).first()
-      .then(sd => new GedcomX.SourceDescription(sd));
+      .then(sd => new SourceDescription(sd));
   }
 
   async agentWithId(id: string | ResourceReference) {

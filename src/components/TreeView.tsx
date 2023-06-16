@@ -9,7 +9,7 @@ import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
 import {Loading} from "./Loading";
 import {strings} from "../main";
-import {FocusPersonContext} from "./View";
+import {FocusPersonContext} from "./Persons";
 import {Confidence} from "../backend/gedcomx-enums";
 
 const d3cola = cola.d3adaptor(d3);

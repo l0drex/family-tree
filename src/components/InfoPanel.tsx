@@ -3,12 +3,12 @@ import {Confidence, PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {Gallery} from "./Gallery";
 import Sidebar from "./Sidebar";
-import * as gedcomX from "gedcomx-js";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
-import {FocusPersonContext} from "./View";
+import {FocusPersonContext} from "./Persons";
+import {Note, SourceReference} from "./GedcomXComponents";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
@@ -84,13 +84,6 @@ function InfoPanel() {
       Promise.all(children.map(r => db.personWithId(r))));
   }, [person])
 
-  const sourceDescriptions = useLiveQuery(async () => {
-    if (!person) return;
-
-    return Promise.all(person.getSources()
-      .map(s => db.sourceDescriptionWithId(s.getDescription())))
-  }, [person])
-
   // todo:
   // person.getEvidence()
   // person.getIdentifiers()
@@ -121,8 +114,7 @@ function InfoPanel() {
           let credit = image.getCitations()[0].getValue();
           return <div key={image.id}>
             <img src={image.getAbout()}
-                 alt={strings.formatString(strings.infoPanel.personImageAlt, person.fullName) as string
-                   /* quick hack, dont know why this does not just return string */}/>
+                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}/>
             <span className="credits">
               © <a href={image.getAbout()}>{credit}</a>
             </span>
@@ -223,11 +215,8 @@ function InfoPanel() {
         return <Note note={note} key={i}/>
       })}
 
-      {sourceDescriptions && sourceDescriptions.map(description => {
-        return <article key={description.id}>
-          <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
-          <p>{description.getCitations()[0].getValue()}</p>
-        </article>
+      {person.getSources().length > 0 && person.getSources().map((reference, i) => {
+        return <SourceReference key={i} reference={reference}/>
       })}
 
       {person.getConfidence() && <div id="confidence">
@@ -236,31 +225,6 @@ function InfoPanel() {
       </div>}
     </Sidebar>
   );
-}
-
-function Note(props: { note: gedcomX.Note }) {
-  return <article>
-    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.infoPanel.note}</h1>
-    <p>{props.note.getText()}</p>
-    {props.note.getAttribution() && <Attribution attribution={props.note.getAttribution()}/>}
-  </article>
-}
-
-/**
- * @todo this is untested as I don't have data to do so. Please file a bug if you find something weird.
- */
-function Attribution(props: { attribution: gedcomX.Attribution }) {
-  let created = props.attribution.getCreated().toString();
-  let creatorRef = props.attribution.getCreator();
-  const creator = useLiveQuery(async () => db.agentWithId(creatorRef), [creatorRef]);
-  let creatorName = creator.getNames().filter(filterLang)[0].getValue();
-  let modified = props.attribution.getModified().toString();
-  let contributorRef = props.attribution.getContributor();
-  const contributor = useLiveQuery(async () => db.agentWithId(contributorRef), [contributorRef]);
-  let contributorName = contributor.getNames().filter(filterLang)[0].getValue();
-  let message = props.attribution.getChangeMessage();
-
-  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creatorName, modified, contributorName)} {message}</cite>
 }
 
 async function getImages(person: Person) {

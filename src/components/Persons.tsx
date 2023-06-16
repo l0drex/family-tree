@@ -54,7 +54,7 @@ function ViewOptions(props) {
   );
 }
 
-function View() {
+function Persons() {
   const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
   const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
   const [focusPerson, setFocus] = useState<Person>(null);
@@ -141,4 +141,4 @@ function View() {
   );
 }
 
-export default View;
+export default Persons;

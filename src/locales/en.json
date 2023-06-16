@@ -330,6 +330,9 @@
     "lifeExpectancy": "Life Expectancy",
     "marriageAge": "Marriage age"
   },
+  "sourceDescriptions": {
+    "coverage": "Coverage"
+  },
   "loading": {
     "familyTree": "Loading family tree",
     "statistic": "Calculating statistic"

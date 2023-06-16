@@ -14,8 +14,9 @@ function Header(props) {
         {props.children}
       </div>
       <nav>
-        <a href="/family-tree/view">🌳</a>
+        <a href="/family-tree/persons">🌳</a>
         <a href="/family-tree/stats">📊</a>
+        <a href="/family-tree/sources">📚</a>
       </nav>
     </header>
   );
