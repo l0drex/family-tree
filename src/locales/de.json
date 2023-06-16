@@ -330,7 +330,8 @@
     "marriageAge": "Heiratsalter"
   },
   "loading": {
-    "familyTree": "Lade Stammbaum"
+    "familyTree": "Lade Stammbaum",
+    "statistic": "Berechne Statistik"
   },
   "errors": {
     "title": "Uups, etwas ist schief gelaufen",

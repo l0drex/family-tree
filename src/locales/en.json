@@ -330,7 +330,8 @@
     "marriageAge": "Marriage age"
   },
   "loading": {
-    "familyTree": "Loading family tree"
+    "familyTree": "Loading family tree",
+    "statistic": "Calculating statistic"
   },
   "errors": {
     "title": "Whoops, something went wrong",
