@@ -150,7 +150,7 @@ export class Relationship extends GedcomX.Relationship {
 export class GDate extends GedcomX.Date {
   toDateObject() {
     let dateString = this.formal;
-    if (!dateString || !isNaN(Number(dateString.substring(0, 1)))) {
+    if (!dateString) {
       return undefined;
     }
 
@@ -160,7 +160,7 @@ export class GDate extends GedcomX.Date {
         // add minutes if only hour is given to prevent undefined return
         dateString += ":00"
       }
-      dateString += "Z";
+      if (!dateString.endsWith("Z")) dateString += "Z";
     }
     if (dateString[0] === "+") {
       // should be ok, but isn't
@@ -182,7 +182,7 @@ export class GDate extends GedcomX.Date {
 
     let dateObject = this.toDateObject();
     if (!dateObject) {
-      return "";
+      return this.formal;
     }
 
     let options = {};
@@ -223,8 +223,9 @@ export class GDate extends GedcomX.Date {
 }
 
 export class Fact extends GedcomX.Fact {
-  setDate(date: Date | object): Fact {
-    super.setDate(new GDate(date));
+  setDate(date: GedcomX.Date | object): Fact {
+    if (date && !(date instanceof GDate)) date = new GDate(date);
+    super.setDate(date);
     return this;
   }
 
@@ -232,7 +233,8 @@ export class Fact extends GedcomX.Fact {
     return super.getDate() as GDate;
   }
 
-  setPlace(place: PlaceReference | object): Fact {
+  setPlace(place: GedcomX.PlaceReference | object): Fact {
+    if (place && !(place instanceof PlaceReference)) place = new PlaceReference(place);
     super.setPlace(new PlaceReference(place));
     return this;
   }
@@ -253,8 +255,8 @@ export class Fact extends GedcomX.Fact {
     }
 
     string += ((value || value === "0") ? `: ${value}` : "");
-    string += (this.date !== undefined ? ` ${this.date.toString()}` : "") +
-      (this.place && this.place.toString() ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
+    string += (this.date ? ` ${this.date}` : "") +
+      (this.place ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
 
     if (this.qualifiers && this.qualifiers.length > 0) {
       string += " " + this.qualifiers.map(q => q.toString()).join(" ");
@@ -355,6 +357,7 @@ export class Document extends GedcomX.Document {
   get isExtracted(): boolean {
     return Boolean(this.getExtracted());
   }
+
   // todo get attribution from containing data set
 
   get emoji(): string {
