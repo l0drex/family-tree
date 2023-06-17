@@ -124,7 +124,8 @@ export function Document(props: { document: DocumentClass }) {
     <article>
       <h1><span className={"emoji"}>📄</span> Document</h1>
       {props.document.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
-      {props.document.isPlainText && props.document.getText()}
+      {props.document.getConfidence() && <Confidence confidence={props.document.getConfidence()}/>}
+      {props.document.isPlainText && <p>{props.document.getText()}</p>}
       {props.document.getAttribution() && <Attribution attribution={props.document.getAttribution()}/>}
     </article>
     {props.document.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
