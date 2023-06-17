@@ -104,7 +104,7 @@ function InfoPanel() {
         })}
       </Gallery>}
 
-      <article>
+      {person.facts && <article>
         <ul id="factView">
           {person.getFacts()
             .filter(filterLang)
@@ -139,7 +139,7 @@ function InfoPanel() {
               {f.toString()}
             </li>)}
         </ul>
-      </article>
+      </article>}
 
       <details>
         <summary>{strings.infoPanel.relationships}</summary>
