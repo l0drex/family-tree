@@ -81,6 +81,8 @@ declare module "gedcomx-js" {
 
     setAgents(agents: Agent[] | object[]): Root
 
+    addAgent(agent: Agent | object): Root
+
     getEvents(): Event[]
 
     setEvents(events: Event[] | object[]): Root
