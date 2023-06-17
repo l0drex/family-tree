@@ -121,9 +121,9 @@ declare module "gedcomx-js" {
   export class Attribution extends ExtensibleData {
     changeMessage: string
     contributor: ResourceReference
-    created: Date
+    created
     creator: ResourceReference
-    modified: Date
+    modified
 
     getChangeMessage(): string
 
@@ -133,17 +133,17 @@ declare module "gedcomx-js" {
 
     setContributor(contributor: object | ResourceReference): Attribution
 
-    getCreated(): Date
+    getCreated()
 
-    setCreated(date: Date | Number): Attribution
+    setCreated(date: number): Attribution
 
     getCreator(): ResourceReference
 
-    setCreator(creator: ResourceReference)
+    setCreator(creator: ResourceReference): Attribution
 
-    getModified(): Date
+    getModified()
 
-    setModified(date: Date | Number): Attribution
+    setModified(date: number): Attribution
   }
 
   export class Conclusion extends ExtensibleData {
@@ -733,7 +733,7 @@ declare module "gedcomx-js" {
     setStreet6(street6: string): Address
   }
 
-  class Event extends Subject {
+  export class Event extends Subject {
     type: string
     date: Date
     place: PlaceReference
@@ -758,7 +758,7 @@ declare module "gedcomx-js" {
     addRole(role: EventRole | object): Event
   }
 
-  class Document extends Conclusion {
+  export class Document extends Conclusion {
     type: string
     extracted: string
     textType: string
@@ -781,7 +781,7 @@ declare module "gedcomx-js" {
     setText(text: string): Document
   }
 
-  class PlaceDescription extends Subject {
+  export class PlaceDescription extends Subject {
     type: string
     names: TextValue[]
     place: ResourceReference
@@ -826,7 +826,7 @@ declare module "gedcomx-js" {
     setSpatialDescription(spatial: ResourceReference): PlaceDescription
   }
 
-  class EventRole extends Conclusion {
+  export class EventRole extends Conclusion {
     person: ResourceReference
     type: string
     details: string
@@ -844,7 +844,7 @@ declare module "gedcomx-js" {
     setDetails(details: string): EventRole
   }
 
-  class Coverage extends ExtensibleData {
+  export class Coverage extends ExtensibleData {
     spatial: PlaceReference
     temporal: Date
 

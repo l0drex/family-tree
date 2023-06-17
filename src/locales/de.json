@@ -313,8 +313,16 @@
     "place": "in {0}",
     "firstName": "Vorname",
     "note": "Anmerkung",
-    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:"
+    "attribution": {
+      "created": "Erstellt",
+      "modified": "Geändert"
+    },
+    "coverage": {
+      "spatial": "räumlich",
+      "temporal": "zeitlich"
+    }
   },
+  "byPerson": "von {0}",
   "searchField": {
     "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
     "searchLabel": "Name:",

@@ -184,42 +184,43 @@ export class GDate extends GedcomX.Date {
     if (!dateObject) {
       return this.formal;
     }
-
-    let options = {};
-    options["year"] = "numeric";
-    switch (this.formal.length) {
-      case 5:
-        break;
-      case 8:
-        // year and month are known
-        options["month"] = "long";
-        break;
-      default:
-        // full date is known
-        options["month"] = "2-digit";
-        options["day"] = "2-digit";
-        break;
-    }
-    let date = dateObject.toLocaleDateString(config.browserLang, options);
-
-    let time = "";
-    if (this.formal.length >= 14) {
-      options = {};
-      options["hour"] = "2-digit";
-
-      if (this.formal.length >= 17) {
-        options["minute"] = "2-digit";
-      }
-      if (this.formal.length >= 20) {
-        options["second"] = "2-digit";
-      }
-      time = dateObject.toLocaleTimeString(config.browserLang, options);
-    }
-
-    const length = this.formal.length;
-
-    return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
+    else return formatJDate(dateObject, this.formal.length);
   }
+}
+
+export function formatJDate(dateObject: Date, length: number) {
+  let options = {};
+  options["year"] = "numeric";
+  switch (length) {
+    case 5:
+      break;
+    case 8:
+      // year and month are known
+      options["month"] = "long";
+      break;
+    default:
+      // full date is known
+      options["month"] = "2-digit";
+      options["day"] = "2-digit";
+      break;
+  }
+  let date = dateObject.toLocaleDateString(config.browserLang, options);
+
+  let time = "";
+  if (length >= 14) {
+    options = {};
+    options["hour"] = "2-digit";
+
+    if (length >= 17) {
+      options["minute"] = "2-digit";
+    }
+    if (length >= 20) {
+      options["second"] = "2-digit";
+    }
+    time = dateObject.toLocaleTimeString(config.browserLang, options);
+  }
+
+  return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
 }
 
 export class Fact extends GedcomX.Fact {

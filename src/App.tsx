@@ -9,6 +9,7 @@ import {SourceDescriptions} from "./components/SourceDescriptions";
 import {Documents} from "./components/Documents";
 
 function App() {
+  // todo: places, agents
   return <BrowserRouter basename={"family-tree"}>
     <Routes>
       <Route path="/" element={<Home/>}/>
