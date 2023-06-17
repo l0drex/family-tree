@@ -20,7 +20,8 @@
       "content": "Select the file with the button below. Then click the green button to view the family tree.",
       "openButton": "Open family tree",
       "detailSummary": "From where do I get the data?",
-      "detail": "The file must be a valid GedcomX file in json format, as described {0}."
+      "detail": "The file must be a valid GedcomX file in json format, as described {0}.",
+      "tryItOut": "Try it now!"
     },
     "navigationArticle": {
       "title": "Usage",

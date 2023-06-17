@@ -20,7 +20,8 @@
       "content": "Wähle die Datei über den unteren Knopf aus. Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.",
       "openButton": "Stammbaum öffnen",
       "detailSummary": "Woher bekomme ich die Daten?",
-      "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben."
+      "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben.",
+      "tryItOut": "Jetzt ausprobieren!"
     },
     "navigationArticle": {
       "title": "Bedienung",

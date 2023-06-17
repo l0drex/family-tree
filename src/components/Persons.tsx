@@ -43,7 +43,7 @@ function ViewOptions(props) {
 
       <div id="file-buttons">
         <input type="file" hidden ref={fileInput} accept="application/json"
-               onChange={() => parseFile(fileInput.current.files[0]).then(saveDataAndRedirect)}/>
+               onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(saveDataAndRedirect)}/>
         <button className="icon-only" onClick={e => {
           e.preventDefault();
           fileInput.current.click();

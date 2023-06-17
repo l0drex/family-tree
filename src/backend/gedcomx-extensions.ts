@@ -113,6 +113,8 @@ export class Person extends GedcomX.Person {
   }
 
   setFacts(facts: Fact[] | object[]): Person {
+    if (!facts) return this;
+
     facts = facts.map(f => f instanceof Fact ? f : new Fact(f));
     super.setFacts(facts);
     return this;

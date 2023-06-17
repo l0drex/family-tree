@@ -3,6 +3,7 @@ import * as React from "react";
 import {hasData, strings} from "../main";
 import {useEffect, useState} from "react";
 import {db} from "../backend/db";
+import getTestData from "../backend/TestData";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
@@ -44,10 +45,15 @@ function Form(props) {
     setFocused(false);
   }
 
+  function loadTestData(e) {
+    e.preventDefault();
+    saveDataAndRedirect(getTestData());
+  }
+
   return (
     <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
       event.preventDefault();
-      parseFile(input.current.files[0]).then(saveDataAndRedirect);
+      parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(saveDataAndRedirect);
     }}>
       <div className="card-wrapper">
         <div
@@ -66,7 +72,8 @@ function Form(props) {
         </div>
       </div>
 
-      {dataExists && <a className="button" href="/family-tree/view">
+      <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
+      {dataExists && <a className="button" href="/family-tree/persons">
         {strings.form.continueSession}
       </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
@@ -92,9 +99,7 @@ export async function parseFile(gedcomFile) {
   });
 }
 
-export function saveDataAndRedirect(fileContent) {
-  let data = JSON.parse(fileContent);
-
+export function saveDataAndRedirect(data: object) {
   if (typeof data !== "object") throw new Error("Data type is invalid!")
 
   db.load(data)
