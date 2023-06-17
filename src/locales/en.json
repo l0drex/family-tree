@@ -295,6 +295,11 @@
       "Single": "single",
       "Widowed": "widowed"
     },
+    "document": {
+      "extracted": "This information was extracted from a document.",
+      "documents": "Documents",
+      "noDocuments": "There are no documents."
+    },
     "gender": "Sex",
     "confidence": "Confidence",
     "ageQualifier": "with {0} years old",

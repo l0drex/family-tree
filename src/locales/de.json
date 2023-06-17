@@ -295,6 +295,11 @@
       "Single": "ledig",
       "Widowed": "verwitwet"
     },
+    "document": {
+      "extracted": "Die folgenden Informationen wurden aus einem Dokument extrahiert.",
+      "documents": "Dokumente",
+      "noDocuments": "Es sind keine Dokumente vorhanden."
+    },
     "gender": "Geschlecht",
     "confidence": "Zuversicht",
     "ageQualifier": "mit {0} Jahren",

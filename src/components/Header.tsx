@@ -17,6 +17,7 @@ function Header(props) {
         <a href="/family-tree/persons">🌳</a>
         <a href="/family-tree/stats">📊</a>
         <a href="/family-tree/sources">📚</a>
+        <a href="/family-tree/documents">📄</a>
       </nav>
     </header>
   );

@@ -1,5 +1,5 @@
 import './InfoPanel.css';
-import {Confidence, PersonFactTypes} from "../backend/gedcomx-enums";
+import {PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {Gallery} from "./Gallery";
 import Sidebar from "./Sidebar";
@@ -8,7 +8,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
-import {Note, SourceReference} from "./GedcomXComponents";
+import {Confidence, Note, SourceReference} from "./GedcomXComponents";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
@@ -16,24 +16,6 @@ function InfoPanel() {
   const images = useLiveQuery(async () => {
     if (person) return getImages(person);
   }, [person])
-
-  let confidence;
-  if (person) {
-    switch (person.confidence) {
-      case Confidence.Low:
-        confidence = 1;
-        break;
-      case Confidence.Medium:
-        confidence = 2;
-        break;
-      case Confidence.High:
-        confidence = 3;
-        break;
-      default:
-        confidence = undefined;
-        break;
-    }
-  }
 
   const parents = useLiveQuery(async () => {
     if (!person) return;
@@ -219,10 +201,7 @@ function InfoPanel() {
         return <SourceReference key={i} reference={reference}/>
       })}
 
-      {person.getConfidence() && <div id="confidence">
-        <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
-        <meter value={confidence} max={3} low={2} high={2} optimum={3}>{person.getConfidence()}</meter>
-      </div>}
+      {person && person.getConfidence() && <Confidence confidence={person.getConfidence()}/>}
     </Sidebar>
   );
 }

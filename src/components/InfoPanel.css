@@ -47,7 +47,7 @@ article.gallery div {
   font-size: .75rem;
 }
 
-#confidence {
+.confidence {
   flex-grow: 2;
   text-align: center;
 }

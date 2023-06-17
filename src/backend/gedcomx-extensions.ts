@@ -3,10 +3,10 @@ import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
 import config from "../config";
 import {
-  baseUri, KnownResourceTypes,
+  baseUri, DocumentTypes, KnownResourceTypes,
   NameTypes,
   PersonFactQualifiers,
-  PersonFactTypes
+  PersonFactTypes, TextTypes
 } from "./gedcomx-enums";
 import * as factEmojis from './factEmojies.json';
 import {
@@ -341,6 +341,33 @@ export class SourceDescription extends GedcomX.SourceDescription {
     }
 
     return "📖";
+  }
+}
+
+export class Document extends GedcomX.Document {
+  get isPlainText() {
+    // return true if text type is plain or undefined
+    return !this.getTextType() || this.getTextType() === TextTypes.Plain;
+  }
+
+  get isExtracted(): boolean {
+    return Boolean(this.getExtracted());
+  }
+  // todo get attribution from containing data set
+
+  get emoji(): string {
+    switch (this.getType()) {
+      case DocumentTypes.Abstract:
+        return "📄";
+      case DocumentTypes.Transcription:
+        return "📝";
+      case DocumentTypes.Translation:
+        return "🌍";
+      case DocumentTypes.Analysis:
+        return "🔍";
+      default:
+        return "📄";
+    }
   }
 }
 

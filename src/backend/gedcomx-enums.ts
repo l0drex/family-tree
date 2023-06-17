@@ -165,6 +165,11 @@ export enum DocumentTypes {
   Analysis = "http://gedcomx.org/Analysis"
 }
 
+export enum TextTypes {
+  Plain = "plain",
+  XHtml = "xhtml"
+}
+
 export enum EventTypes {
   Adoption = "http://gedcomx.org/Adoption",
   Birth = "http://gedcomx.org/Birth",
