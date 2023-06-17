@@ -97,7 +97,7 @@ export function SourceReference(props: { reference: gedcomX.SourceReference }) {
   return <article>
     <h1><span className="emoji">{"📖"}</span> {strings.infoPanel.source}</h1>
     <p>
-      <a href={`sources#${props.reference.description}`}>{props.reference.description}</a>
+      <a href={`sources${props.reference.description}`}>{props.reference.description}</a>
       {props.reference.attribution && <Attribution attribution={props.reference.attribution}/>}
     </p>
   </article>
