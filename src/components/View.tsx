@@ -1,22 +1,27 @@
-import {useEffect, useState} from "react";
-import {strings} from "../main";
+import * as React from "react";
+import {createContext, useEffect, useState} from "react";
+import {getUrlOption, strings} from "../main";
 import "./View.css";
-import {graphModel, loadData} from "../backend/ModelGraph";
-import {ViewMode, ColorMode} from "../backend/ViewGraph";
+import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import Header from "./Header";
 import SearchField from "./SearchField";
-import * as React from "react";
-import {Person} from "gedcomx-js";
+import {Person} from "../backend/gedcomx-extensions";
+import {parseFile, saveDataAndRedirect} from "./Form";
+import {db} from "../backend/db";
 
+export const FocusPersonContext = createContext<Person>(null);
 
 function ViewOptions(props) {
+  let fileInput = React.createRef<HTMLInputElement>();
+
   return (
     <form id="view-all">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <select id="view-selector" className="button inline all" defaultValue={props.view} onChange={props.onViewChanged}>
+        <select id="view-selector" className="button inline all" defaultValue={props.view}
+                onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
           <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
@@ -27,46 +32,49 @@ function ViewOptions(props) {
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <select id="color-selector" className="button inline all" defaultValue={props.colorMode} onChange={props.onColorChanged}>
+        <select id="color-selector" className="button inline all" defaultValue={props.colorMode}
+                onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
         </select>
+      </div>
+
+      <div id="file-buttons">
+        <input type="file" hidden ref={fileInput} accept="application/json"
+               onChange={() => parseFile(fileInput.current.files[0]).then(saveDataAndRedirect)}/>
+        <button className="icon-only" onClick={e => {
+          e.preventDefault();
+          fileInput.current.click();
+        }}>📁
+        </button>
       </div>
     </form>
   );
 }
 
 function View() {
-  loadData(JSON.parse(localStorage.getItem("familyData")));
-  let url = new URL(window.location.href);
-
-  const [view, setView] = useState<ViewMode>((url.searchParams.get("view") as ViewMode) || ViewMode.DEFAULT);
-  const [colorMode, setColorMode] = useState<ColorMode>((url.searchParams.get("colorMode") as ColorMode) || ColorMode.GENDER);
-  const [focusId, setFocus] = useState(url.hash.substring(1));
+  const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
+  const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
+  const [focusPerson, setFocus] = useState<Person>(null);
   const [focusHidden, hideFocus] = useState(false);
 
-  console.debug(`View: ${view}`);
-  console.debug(`ColorMode: ${colorMode}`)
-
   useEffect(() => {
-    let root = document.querySelector<HTMLDivElement>("#root");
-    root.classList.add("sidebar-visible");
-  });
+    let url = new URL(window.location.href);
+    let id = url.hash.substring(1);
+    db.personWithId(id)
+      .catch(() => db.persons.toCollection().first().then(p => new Person(p)))
+      .then(p => setFocus(p));
+  }, []);
 
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
     if (focusHidden) {
       root.classList.remove("sidebar-visible");
+    } else {
+      root.classList.add("sidebar-visible");
     }
   }, [focusHidden])
-
-  let viewGraph = graphModel.buildViewGraph(focusId, view);
-  useEffect(() => {
-    graphModel.buildViewGraph(focusId, view);
-  }, [focusId, view])
-
-  let focus = graphModel.getPersonById(focusId) || graphModel.persons[0];
 
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
@@ -79,7 +87,7 @@ function View() {
     }
     window.history.pushState({}, "", url.toString());
 
-    setView(view as ViewMode);
+    setViewMode(view as ViewMode);
   }
 
   function onColorChanged(e) {
@@ -97,16 +105,17 @@ function View() {
   }
 
   function onRefocus(newFocus: Person) {
+    if (newFocus.getId() === focusPerson.getId()) {
+      hideFocus(!focusHidden)
+      return;
+    }
+
     let url = new URL(window.location.href);
     url.hash = newFocus.getId();
     window.history.pushState({}, "", url.toString());
 
-    if (newFocus.getId() === focusId) {
-      hideFocus(!focusHidden)
-      return;
-    }
     hideFocus(false);
-    setFocus(newFocus.getId());
+    setFocus(newFocus);
   }
 
   return (
@@ -114,12 +123,17 @@ function View() {
       <Header>
         <SearchField onRefocus={onRefocus}/>
       </Header>
-      {!focusHidden && <InfoPanel person={focus} onRefocus={onRefocus}/>}
+      <FocusPersonContext.Provider value={focusPerson}>
+        {!focusHidden && <InfoPanel />}
+      </FocusPersonContext.Provider>
       <main>
         <article id="family-tree-container">
-          <ViewOptions view={view} colorMode={colorMode} onViewChanged={onViewChanged} onColorChanged={onColorChanged}/>
-          <TreeView colorMode={colorMode} focus={focus} focusHidden={focusHidden}
-                    onRefocus={onRefocus} graph={viewGraph}/>
+          <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}
+                       onColorChanged={onColorChanged}/>
+          <FocusPersonContext.Provider value={focusPerson}>
+            <TreeView colorMode={colorMode} focusHidden={focusHidden}
+                      onRefocus={onRefocus} viewMode={viewMode}/>
+          </FocusPersonContext.Provider>
         </article>
       </main>
     </>

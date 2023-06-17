@@ -1,57 +1,95 @@
 import './InfoPanel.css';
-import {Person} from "gedcomx-js";
-import {baseUri, PersonFactTypes, RelationshipTypes} from "../backend/gedcomx-enums";
+import {Confidence, PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
-import {graphModel} from "../backend/ModelGraph";
 import {Gallery} from "./Gallery";
 import Sidebar from "./Sidebar";
 import * as gedcomX from "gedcomx-js";
+import {db} from "../backend/db";
+import {useLiveQuery} from "dexie-react-hooks";
+import {GDate, Person} from "../backend/gedcomx-extensions";
+import {useContext} from "react";
+import {FocusPersonContext} from "./View";
 
-interface Props {
-  onRefocus: (newFocus: Person) => void,
-  person: Person
-}
+function InfoPanel() {
+  const person = useContext(FocusPersonContext);
 
-function InfoPanel(props: Props) {
-  let person = props.person;
-  let images = getImages(person);
+  const images = useLiveQuery(async () => {
+    if (person) return getImages(person);
+  }, [person])
 
   let confidence;
-  if (person.getConfidence()) {
-    switch (person.getConfidence().substring(baseUri.length)) {
-      case "Low":
+  if (person) {
+    switch (person.confidence) {
+      case Confidence.Low:
         confidence = 1;
         break;
-      case "Medium":
+      case Confidence.Medium:
         confidence = 2;
         break;
-      case "High":
+      case Confidence.High:
         confidence = 3;
+        break;
+      default:
+        confidence = undefined;
         break;
     }
   }
 
-  let parentChild = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.ParentChild);
-  let parents = parentChild.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
-  let children = parentChild.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  const parents = useLiveQuery(async () => {
+    if (!person) return;
 
-  let partner = graphModel.relationships
-    .filter(r => r.getType() === RelationshipTypes.Couple && r.involvesPerson(person))
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+    return db.getParentsOf(person.id).then(parents =>
+      Promise.all(parents.map(r => db.personWithId(r))));
+  }, [person])
 
-  let godparentRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.Godparent);
-  let godparents = godparentRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
-  let godchildren = godparentRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+  const children = useLiveQuery(async () => {
+    if (!person) return;
 
-  let slaveRelations = graphModel.relationships.filter(r => r.getType() === RelationshipTypes.EnslavedBy);
-  let enslavedBy = slaveRelations.filter(r => r.getPerson2().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
-  let slaves = slaveRelations.filter(r => r.getPerson1().getResource().substring(1) === person.getId())
-    .map(r => graphModel.getPersonById(r.getOtherPerson(person)));
+    return db.getChildrenOf(person.id).then(children =>
+      Promise.all(children.map(r => db.personWithId(r))));
+  }, [person])
+
+  const partner = useLiveQuery(async () => {
+    if (!person) return;
+
+    return db.getPartnerOf(person.id).then(partner =>
+      Promise.all(partner.map(r => db.personWithId(r))));
+  }, [person])
+
+  const godparents = useLiveQuery(async () => {
+    if (!person) return;
+
+    return db.getGodparentsOf(person.id).then(parents =>
+      Promise.all(parents.map(r => db.personWithId(r))));
+  }, [person])
+
+  const godchildren = useLiveQuery(async () => {
+    if (!person) return;
+
+    return db.getGodchildrenOf(person.id).then(children =>
+      Promise.all(children.map(r => db.personWithId(r))));
+  }, [person])
+
+  const enslavedBy = useLiveQuery(async () => {
+    if (!person) return;
+
+    return db.getEnslavers(person.id).then(children =>
+      Promise.all(children.map(r => db.personWithId(r))));
+  }, [person])
+
+  const slaves = useLiveQuery(async () => {
+    if (!person) return;
+
+    return db.getSlaves(person.id).then(children =>
+      Promise.all(children.map(r => db.personWithId(r))));
+  }, [person])
+
+  const sourceDescriptions = useLiveQuery(async () => {
+    if (!person) return;
+
+    return Promise.all(person.getSources()
+      .map(s => db.sourceDescriptionWithId(s.getDescription())))
+  }, [person])
 
   // todo:
   // person.getEvidence()
@@ -59,27 +97,31 @@ function InfoPanel(props: Props) {
   // person.getAnalysis()
   // person.getAttribution()
 
+  if (!person) {
+    return <aside id={"info-panel"}></aside>
+  }
+
   return (
     <Sidebar id="info-panel">
       <section className="title">
-        <h1 className="name">{person.getFullName()}</h1>
-        {person.getMarriedName() && <h2 className="birth-name">
-          {strings.formatString(strings.infoPanel.born, person.getBirthName())}
+        <h1 className="name">{person.fullName}</h1>
+        {person.marriedName && <h2 className="birth-name">
+          {strings.formatString(strings.infoPanel.born, person.birthName)}
         </h2>}
-        {person.getAlsoKnownAs() && <h2 className="alsoKnownAs">
-          {strings.formatString(strings.infoPanel.aka, person.getAlsoKnownAs())}
+        {person.alsoKnownAs && <h2 className="alsoKnownAs">
+          {strings.formatString(strings.infoPanel.aka, person.alsoKnownAs)}
         </h2>}
-        {person.getNickname() && <h2 className="nickname">
-          {strings.formatString(strings.infoPanel.nickname, person.getNickname())}
+        {person.nickname && <h2 className="nickname">
+          {strings.formatString(strings.infoPanel.nickname, person.nickname)}
         </h2>}
       </section>
 
-      {images.length > 0 && <Gallery>
+      {images && images.length > 0 && <Gallery>
         {images.map(image => {
           let credit = image.getCitations()[0].getValue();
           return <div key={image.id}>
             <img src={image.getAbout()}
-                 alt={strings.formatString(strings.infoPanel.personImageAlt, person.getFullName()) as string
+                 alt={strings.formatString(strings.infoPanel.personImageAlt, person.fullName) as string
                    /* quick hack, dont know why this does not just return string */}/>
             <span className="credits">
               © <a href={image.getAbout()}>{credit}</a>
@@ -90,83 +132,87 @@ function InfoPanel(props: Props) {
 
       <article>
         <ul id="factView">
-          {person.getFacts().filter(filterLang).sort((a, b) => {
-            // place birth at top, generation right below
-            if (a.getType() === PersonFactTypes.Birth) {
-              return -1;
-            } else if (b.getType() === PersonFactTypes.Birth) {
-              return 1;
-            } else if (a.getType() === PersonFactTypes.GenerationNumber) {
-              return -1;
-            } else if (b.getType() === PersonFactTypes.GenerationNumber) {
-              return 1;
-            }
-
-            if (a.getDate() && !b.getDate()) {
-              return 1;
-            } else if (!a.getDate() && b.getDate()) {
-              return -1;
-            }
-            if (a.getDate() && b.getDate()) {
-              let aDate = a.getDate().toDateObject();
-              let bDate = b.getDate().toDateObject();
-              if (aDate && bDate) {
-                return aDate.getMilliseconds() - bDate.getMilliseconds();
+          {person.getFacts()
+            .filter(filterLang)
+            .sort((a, b) => {
+              // place birth at top, generation right below
+              if (a.getType() === PersonFactTypes.Birth) {
+                return -1;
+              } else if (b.getType() === PersonFactTypes.Birth) {
+                return 1;
+              } else if (a.getType() === PersonFactTypes.GenerationNumber) {
+                return -1;
+              } else if (b.getType() === PersonFactTypes.GenerationNumber) {
+                return 1;
               }
-            }
 
-            return 0;
-          }).map(f => <li key={f.toString()}
-                          style={{listStyleType: `"${f.getEmoji()} "`}}>{f.toString()}</li>)}
+              if (a.getDate() && !b.getDate()) {
+                return 1;
+              } else if (!a.getDate() && b.getDate()) {
+                return -1;
+              }
+              if (a.getDate() && b.getDate()) {
+                let aDate = new GDate(a.date).toDateObject();
+                let bDate = new GDate(b.date).toDateObject();
+                if (aDate && bDate) {
+                  return aDate.getMilliseconds() - bDate.getMilliseconds();
+                }
+              }
+
+              return 0;
+            })
+            .map((f, i) => <li key={i} style={{listStyleType: `"${f.emoji} "`}}>
+              {f.toString()}
+            </li>)}
         </ul>
       </article>
 
-      {parents.length > 0 && <article>
+      {parents && parents.length > 0 && <article>
         <h1>👪 {strings.infoPanel.parents}</h1>
         <ul>
-          {parents.map(p => <li>{p.getFullName()}</li>)}
+          {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {children.length > 0 && <article>
+      {children && children.length > 0 && <article>
         <h1>🍼 {strings.infoPanel.children}</h1>
         <ul>
-          {children.map(p => <li>{p.getFullName()}</li>)}
+          {children.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {partner.length > 0 && <article>
+      {partner && partner.length > 0 && <article>
         <h1>❤️ {strings.infoPanel.partner}</h1>
         <ul>
-          {partner.map(p => <li>{p.getFullName()}</li>)}
+          {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {godparents.length > 0 && <article>
+      {godparents && godparents.length > 0 && <article>
         <h1>⛅ {strings.infoPanel.godparents}</h1>
         <ul>
-          {godparents.map(p => <li>{p.getFullName()}</li>)}
+          {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {godchildren.length > 0 && <article>
+      {godchildren && godchildren.length > 0 && <article>
         <h1>⛅ {strings.infoPanel.godchildren}</h1>
         <ul>
-          {godchildren.map(p => <li>{p.getFullName()}</li>)}
+          {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {enslavedBy.length > 0 && <article>
+      {enslavedBy && enslavedBy.length > 0 && <article>
         <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
         <ul>
-          {enslavedBy.map(p => <li>{p.getFullName()}</li>)}
+          {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
-      {slaves.length > 0 && <article>
+      {slaves && slaves.length > 0 && <article>
         <h1>⛓️ {strings.infoPanel.slaves}</h1>
         <ul>
-          {slaves.map(p => <li>{p.getFullName()}</li>)}
+          {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
         </ul>
       </article>}
 
@@ -174,12 +220,10 @@ function InfoPanel(props: Props) {
         return <Note note={note} key={i}/>
       })}
 
-      {person.getSources().map(source => source.getDescription()).map(ref => {
-        return <article key={ref}>
+      {sourceDescriptions && sourceDescriptions.map(description => {
+        return <article key={description.id}>
           <h1><span className="emoji">📚</span> {strings.infoPanel.source}</h1>
-          <p>{graphModel.getSourceDescriptionById(ref.replace('#', '')) ?
-            graphModel.getSourceDescriptionById(ref.replace('#', '')).getCitations()[0].getValue()
-            : strings.formatString(strings.infoPanel.noSourceDescriptionError, <code>{ref}</code>)}</p>
+          <p>{description.getCitations()[0].getValue()}</p>
         </article>
       })}
 
@@ -205,22 +249,22 @@ function Note(props: { note: gedcomX.Note }) {
 function Attribution(props: { attribution: gedcomX.Attribution }) {
   let created = props.attribution.getCreated().toString();
   let creatorRef = props.attribution.getCreator();
-  let creator = graphModel.getAgentById(creatorRef).getNames().filter(filterLang)[0].getValue();
+  const creator = useLiveQuery(async () => db.agentWithId(creatorRef), [creatorRef]);
+  let creatorName = creator.getNames().filter(filterLang)[0].getValue();
   let modified = props.attribution.getModified().toString();
   let contributorRef = props.attribution.getContributor();
-  let contributor = graphModel.getAgentById(contributorRef).getNames().filter(filterLang)[0].getValue();
+  const contributor = useLiveQuery(async () => db.agentWithId(contributorRef), [contributorRef]);
+  let contributorName = contributor.getNames().filter(filterLang)[0].getValue();
   let message = props.attribution.getChangeMessage();
 
-  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creator, modified, contributor)} {message}</cite>
+  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creatorName, modified, contributorName)} {message}</cite>
 }
 
-function getImages(person: Person) {
+async function getImages(person: Person) {
   let mediaRefs = person.getMedia().map(media => media.getDescription());
-  return mediaRefs.map(ref => {
-    let sourceDescription = graphModel.getSourceDescriptionById(ref.replace('#', ''));
-    if (!sourceDescription) throw Error(`Could not find a source description with id ${ref}`);
-    return sourceDescription;
-  }).filter(sourceDescription => {
+  const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
+
+  return sourceDescriptions.filter(sourceDescription => {
     let mediaType = sourceDescription.getMediaType();
     if (!mediaType) return false;
     return mediaType.split('/')[0] === 'image'

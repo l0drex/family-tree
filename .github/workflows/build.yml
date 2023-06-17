@@ -28,13 +28,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          cache: 'npm'
+          cache: 'yarn'
       - name: Install and Build
         run: |
-          npm ci
-          npm run build --if-present
+          yarn install --frozen-lockfile
+          yarn build --if-present
       - name: Test
-        run: npm test
+        run: yarn test
       - uses: actions/upload-artifact@v3
         with:
           name: production-files

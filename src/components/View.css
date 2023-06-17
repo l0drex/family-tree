@@ -131,6 +131,7 @@
   overflow-x: auto;
   overflow-y: clip;
   flex-wrap: nowrap;
+  gap: 1rem;
 }
 
 #view-all > * {
@@ -139,7 +140,16 @@
   align-items: baseline;
 }
 
+#view-all > :last-child {
+  margin-right: 1rem;
+}
+
 #view-all div label {
-  margin-right: .5rem;
   white-space: nowrap;
+}
+
+#file-buttons {
+  flex-grow: 1;
+  justify-content: right;
+  font-size: 1.4rem;
 }

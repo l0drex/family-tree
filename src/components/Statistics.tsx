@@ -1,7 +1,7 @@
 import "./Statistics.css";
 
 import * as React from "react";
-import {ReactNode} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {baseUri, Confidence} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
@@ -24,10 +24,12 @@ import {Wordcloud} from "@visx/wordcloud";
 import {AreaSeries, AreaStack, Axis, BarSeries, BarStack, GlyphSeries, Grid, Tooltip, XYChart} from "@visx/xychart";
 import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
-import {strings} from "../main";
+import {hasData, strings} from "../main";
 import {Legend} from "@visx/visx";
-import {graphModel, loadData} from "../backend/ModelGraph";
 import Header from "./Header";
+import {useLiveQuery} from "dexie-react-hooks";
+import NoData from "./NoData";
+import {Loading} from "./Loading";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -35,15 +37,20 @@ const radius = Math.min(width, height) / 2;
 function Stat(props: { title: string, legend?: ReactNode, className?: string, children }) {
   return <article className={"graph " + props.className}>
     <h1>{props.title}</h1>
-    <p>
+    <div>
       {props.children}
-    </p>
+    </div>
     {props.legend}
   </article>
 }
 
 function GenderStats() {
-  let data = getGenderPerGeneration();
+  const data = useLiveQuery(getGenderPerGeneration);
+
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
+
   let keys = Array.from(new Set(data.map(d => Object.keys(d.gender)).flat())).map(g => g.substring(baseUri.length));
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
     domain: keys.map(k => strings.gedcomX.types.gender[k]),
@@ -67,7 +74,11 @@ function GenderStats() {
 }
 
 function ReligionStats() {
-  let data = getReligionPerYear();
+  let data = useLiveQuery(getReligionPerYear);
+  if (!data) return <Stat title={strings.gedcomX.types.fact.person.Religion}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
+
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
@@ -96,7 +107,7 @@ function ReligionStats() {
 
 // eslint-disable-next-line
 function OccupationStats() {
-  let data = getOccupations();
+  let data = useLiveQuery(getOccupations);
   let colorScale = scaleOrdinal({
     domain: data.map(d => d.value),
     range: d3.schemeSet3.map(c => c.toString())
@@ -118,7 +129,7 @@ function OccupationStats() {
 
 // eslint-disable-next-line
 function LocationStats() {
-  let data = getBirthPlace();
+  let data = useLiveQuery(getBirthPlace);
 
   return <Stat title={strings.gedcomX.types.fact.person.Heimat}>
     <NaturalEarth
@@ -129,7 +140,10 @@ function LocationStats() {
 }
 
 function NameStats(props: { nameType: "First" | "Last" }) {
-  let data = getNames(props.nameType);
+  let data = useLiveQuery(async () => getNames(props.nameType), [props.nameType]);
+  if (!data) return <Stat title={strings.gedcomX.firstName}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
 
   const colors = scaleOrdinal({
     domain: data.map(d => d.value),
@@ -170,7 +184,11 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 }
 
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
-  let data = getBirthDeathMonthOverYears(props.type);
+  let data = useLiveQuery(async () => getBirthDeathMonthOverYears(props.type), [props.type]);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
+
   let angleScale = scaleLinear({
     domain: [0, 12],
     range: [0, Math.PI * 2]
@@ -197,7 +215,10 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 }
 
 function LifeExpectancy() {
-  let data = getLifeExpectancyOverYears();
+  let data = useLiveQuery(getLifeExpectancyOverYears);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
   //console.debug(data)
 
   return <Stat title={strings.statistics.lifeExpectancy} className="landscape">
@@ -214,7 +235,10 @@ function LifeExpectancy() {
 }
 
 function MarriageAge() {
-  let data = getMarriageAge();
+  let data = useLiveQuery(getMarriageAge);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
 
   let yScale = scaleLinear({
     domain: [Math.min(...data.map(d => Number(d.value))), Math.max(...data.map(d => Number(d.value)))],
@@ -230,7 +254,11 @@ function MarriageAge() {
 }
 
 function ConfidenceStats() {
-  let data = getConfidence();
+  let data = useLiveQuery(getConfidence);
+  if (!data) return <Stat title={strings.gedcomX.gender}>
+    <Loading text={strings.loading.statistic}/>
+  </Stat>
+
   let colorScale = scaleOrdinal({
     domain: [Confidence.Low, Confidence.Medium, Confidence.High],
     range: d3.schemeRdYlGn[3].map(c => c.toString())
@@ -248,20 +276,22 @@ function ConfidenceStats() {
         pieValue={d => d.count}
         fill={d => d.data.value === "null" ? "none" : colorScale(d.data.value as Confidence)}
         stroke={"var(--background)"}
-        stroke-width={".2rem"}
+        strokeWidth={".2rem"}
       />
     </svg>
   </Stat>
 }
 
 export default function Statistics() {
-  if (graphModel === undefined){
-    console.warn("Graph model is undefined, initializing from local storage");
-    loadData(JSON.parse(localStorage.getItem("familyData")))
-  }
+  const [dataExists, setDataExists] = useState(false);
+
+  useEffect(() => {
+    hasData().then(value => setDataExists(value));
+  });
 
   return <>
     <Header/>
+    {dataExists ?
     <main id="stats">
       <ConfidenceStats/>
       <GenderStats/>
@@ -272,6 +302,6 @@ export default function Statistics() {
       <BirthOverYearStats type={"Death"}/>
       <LifeExpectancy/>
       <MarriageAge/>
-    </main>
+    </main> : <NoData/>}
   </>
 }

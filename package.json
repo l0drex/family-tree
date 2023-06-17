@@ -21,20 +21,20 @@
   "repository": "https://github.com/l0drex/family-tree",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^14.4.3",
-    "@types/d3": "^7.4.0",
-    "@types/jest": "^29.5.1",
-    "@types/node": "^20.2.5",
-    "@types/react": "^18.2.7",
-    "@types/react-dom": "^18.2.4",
+    "@babel/core": "^7.22.5",
+    "@babel/plugin-syntax-flow": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@react-spring/web": "^9.7.2",
+    "@testing-library/dom": "^9.3.1",
     "@visx/axis": "^3.1.0",
     "@visx/geo": "^3.0.0",
+    "@visx/react-spring": "^3.1.0",
     "@visx/shape": "^3.0.0",
     "@visx/stats": "^3.0.0",
     "@visx/visx": "^3.1.2",
     "d3": "7.6.1",
+    "dexie": "^3.2.3",
+    "dexie-react-hooks": "^1.1.6",
     "gedcomx-js": "^2.8.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -68,5 +68,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/d3": "^7.4.0",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^20.2.5",
+    "@types/react": "^18.2.7",
+    "@types/react-dom": "^18.2.4",
+    "fake-indexeddb": "^4.0.1"
   }
 }

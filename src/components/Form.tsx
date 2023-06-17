@@ -1,17 +1,27 @@
 import './Form.css';
 import * as React from "react";
-import {strings} from "../main";
-import {useState} from "react";
+import {hasData, strings} from "../main";
+import {useEffect, useState} from "react";
+import {db} from "../backend/db";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
   const [file, setFile] = useState("");
+  const [dataExists, setDataExists] = useState(false);
+
+  useEffect(() => {
+    let familyData = localStorage.getItem("familyData");
+    if (familyData) {
+      db.load(JSON.parse(familyData)).then(() => setDataExists(true));
+      localStorage.removeItem("familyData");
+    } else hasData().then(setDataExists);
+  }, [])
 
   let input = React.createRef<HTMLInputElement>();
 
   function checkDropAllowed(e) {
     e.preventDefault();
-    if (e.dataTransfer.items[0].type === "application/json") {
+    if (e.dataTransfer.items[0] && e.dataTransfer.items[0].type === "application/json") {
       e.dataTransfer.effectAllowed = "copy";
       e.dataTransfer.dropEffect = "copy";
       setFocused(true);
@@ -56,7 +66,7 @@ function Form(props) {
         </div>
       </div>
 
-      {localStorage.getItem("familyData") && <a className="button" href="/family-tree/view">
+      {dataExists && <a className="button" href="/family-tree/view">
         {strings.form.continueSession}
       </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
@@ -66,26 +76,33 @@ function Form(props) {
 
 export async function parseFile(gedcomFile) {
   if (!gedcomFile) {
-    throw new Error(strings.form.noFileError)
+    return Promise.reject(new Error(strings.form.noFileError));
   }
 
-  let readerGedcom = new FileReader();
-  readerGedcom.onload = (file) => {
-    if (typeof file.target.result === "string") {
-      localStorage.setItem("familyData", file.target.result);
-      return file.target.result;
-    } else {
-      throw new Error(strings.form.graphLoadingError)
+  return new Promise<string>((resolve, reject) => {
+    let readerGedcom = new FileReader();
+    readerGedcom.onload = (file) => {
+      if (typeof file.target.result === "string") {
+        resolve(file.target.result);
+      } else {
+        reject(new Error(strings.form.graphLoadingError))
+      }
     }
-  }
-  readerGedcom.readAsText(gedcomFile);
+    readerGedcom.readAsText(gedcomFile);
+  });
 }
 
 export function saveDataAndRedirect(fileContent) {
-  localStorage.setItem("familyData", fileContent);
-  let url = new URL(window.location.href);
-  url.pathname = "/family-tree/view";
-  window.location.href = url.href;
+  let data = JSON.parse(fileContent);
+
+  if (typeof data !== "object") throw new Error("Data type is invalid!")
+
+  db.load(data)
+    .then(() => {
+      let url = new URL(window.location.href);
+      url.pathname = "/family-tree/view";
+      window.location.href = url.href;
+    });
 }
 
 export default Form;

@@ -1,10 +1,13 @@
 import {useEffect, useState} from "react";
 import {strings} from "../main";
-import {graphModel} from "../backend/ModelGraph";
-import {Person} from "gedcomx-js";
+import {db} from "../backend/db";
+import {useLiveQuery} from "dexie-react-hooks";
+import * as GedcomX from "gedcomx-js";
+import {Person} from "../backend/gedcomx-extensions";
+import "./Form.css";
 
 interface Props {
-  onRefocus: (newFocus: Person) => void
+  onRefocus: (newFocus: GedcomX.Person) => void
 }
 
 function SearchField(props: Props) {
@@ -26,12 +29,12 @@ function SearchField(props: Props) {
     });
   }, []);
 
-  function refocus(event) {
+  async function refocus(event) {
     event.preventDefault();
     let name = document.querySelector<HTMLInputElement>("#input-name").value;
     if (name) {
       // find a person that matches the given name
-      let person = graphModel.getPersonByName(name.toLowerCase());
+      let person = await db.personWithName(name.toLowerCase());
 
       // if no person was found, throw error
       setHasError(!person);
@@ -40,7 +43,7 @@ function SearchField(props: Props) {
         return;
       }
 
-      console.log(`Assuming the person is ${person.getFullName()} with id ${person.getId()}`);
+      console.log(`Assuming the person is ${person.fullName} with id ${person.getId()}`);
       props.onRefocus(person);
     }
   }
@@ -52,6 +55,10 @@ function SearchField(props: Props) {
     }
   }
 
+  const persons = useLiveQuery(async () => {
+    return db.persons.toArray().then(persons => persons.map(p => new Person(p)))
+  })
+
   return (
     <form id="name-form" className="name-form search"
           onSubmit={refocus}>
@@ -60,8 +67,8 @@ function SearchField(props: Props) {
       <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
       <datalist id="names">
         {
-          graphModel.persons.map(p =>
-            <option value={p.getFullName()} key={p.getId()}>{p.getFullName()}</option>
+          persons?.map(p =>
+            <option value={p.fullName} key={p.getId()}>{p.fullName}</option>
           )
         }
       </datalist>

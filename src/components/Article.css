@@ -11,6 +11,10 @@ article h1 {
   padding-bottom: .75rem;
 }
 
+article > div {
+  padding: .5rem 0;
+}
+
 aside ul, aside ol {
   padding-left: 1rem;
 }

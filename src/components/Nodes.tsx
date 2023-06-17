@@ -1,15 +1,15 @@
 import config from "../config";
 import {strings} from "../main";
-import viewGraph from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
+import {Person as PersonClass} from "../backend/gedcomx-extensions";
 
-export function Family(props: {locked: boolean, data: GraphFamily}) {
+export function Family(props: {locked: boolean, data: GraphFamily, onClicked: (a: GraphFamily) => void}) {
   return (
     <g className={"partnerNode" + (props.locked ? " locked" : "")} onClick={() => {
       if (props.locked) {
         return;
       }
-      viewGraph.hideFamily(props.data);
+      props.onClicked(props.data);
     }}>
       <circle r={config.gridSize / 2}/>
       {props.data.marriage &&
@@ -22,16 +22,16 @@ export function Family(props: {locked: boolean, data: GraphFamily}) {
   );
 }
 
-export function Etc(props) {
+export function Etc(props: {onClick: Function, family: GraphFamily}) {
   return (
-    <g className="etc" onClick={() => props.graph.showFamily(props.data)}>
+    <g className="etc" onClick={() => props.onClick(props.family)}>
       <circle r={config.gridSize / 2}/>
       <text y="4pt">➕</text>
     </g>
   );
 }
 
-export function Person(props) {
+export function Person(props: {data: GraphPerson, onClick: (person: PersonClass) => void, focused: boolean}) {
   let graphPerson: GraphPerson = props.data;
   return (
     <foreignObject
