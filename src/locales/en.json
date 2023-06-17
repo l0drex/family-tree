@@ -41,8 +41,6 @@
     "aka": "aka {0}",
     "nickname": "Nickname: {0}",
     "personImageAlt": "Image of {0}.",
-    "note": "Note",
-    "source": "Source",
     "noSourceDescriptionError": "Source description {0} could not be found",
     "confidenceExplanation": "How much can the data be trusted",
     "confidenceLabel": "Confidence: ",
