@@ -154,31 +154,31 @@ declare module "gedcomx-js" {
 
     getAttribution(): Attribution;
 
-    setAttribution(attribution: Attribution);
+    setAttribution(attribution: Attribution): Conclusion;
 
     getAnalysis(): ResourceReference;
 
-    setAnalysis(analysis: ResourceReference);
+    setAnalysis(analysis: ResourceReference): Conclusion;
 
     getConfidence(): string;
 
-    setConfidence(confidence: string);
+    setConfidence(confidence: string): Conclusion;
 
     getLang(): string;
 
-    setLang(lang: string);
+    setLang(lang: string): Conclusion;
 
     getNotes(): Note[];
 
-    setNotes(notes: Note[]);
+    setNotes(notes: Note[]): Conclusion;
 
-    addNote(note: Note);
+    addNote(note: Note): Conclusion;
 
     getSources(): SourceReference[];
 
-    setSources(sources: SourceReference[]);
+    setSources(sources: SourceReference[]): Conclusion;
 
-    addSource(source: SourceReference);
+    addSource(source: SourceReference): Conclusion;
   }
 
   export class EvidenceReference extends ResourceReference {

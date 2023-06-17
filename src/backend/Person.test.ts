@@ -47,8 +47,8 @@ test("get full name returns the correct name", () => {
   strings.setLanguage("en");
 
   person.addName(new GedcomX.Name()
-    .setLang(strings.getLanguage())
-    .addNameForm(new GedcomX.NameForm().setFullText("John Doe")));
+    .addNameForm(new GedcomX.NameForm().setFullText("John Doe")))
+    .setLang(strings.getLanguage());
   expect(person.fullName).toBe("John Doe");
 
   let preferredName = new GedcomX.Name()
