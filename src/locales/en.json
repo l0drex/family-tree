@@ -46,7 +46,6 @@
     "noSourceDescriptionError": "Source description {0} could not be found",
     "confidenceExplanation": "How much can the data be trusted",
     "confidenceLabel": "Confidence: ",
-    "attribution": "Created on {0} by {1}. Modified on {2} by {3}:",
     "relationships": "Relationships",
     "children": "Children",
     "parents": "Parents",
@@ -295,6 +294,11 @@
       "Single": "single",
       "Widowed": "widowed"
     },
+    "sourceDescription": {
+      "sourceDescription": "Source",
+      "sourceDescriptions": "Sources",
+      "noSourceDescriptions": "There are no sources."
+    },
     "document": {
       "extracted": "This information was extracted from a document.",
       "documents": "Documents",
@@ -308,7 +312,9 @@
     "year": "in {0}",
     "time": "at {0}",
     "place": "in {0}",
-    "firstName": "first name"
+    "firstName": "first name",
+    "note": "Note",
+    "attribution": "Created on {0} by {1}. Modified on {2} by {3}:"
   },
   "searchField": {
     "noPersonFound": "No person with that name found!",

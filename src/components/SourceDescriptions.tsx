@@ -24,14 +24,17 @@ export function SourceDescriptions() {
 function DescriptionOverview() {
   const descriptions = useLiveQuery(() => {
     return db.sourceDescriptions.toArray().then(sds => sds.map(s => new SourceDescriptionClass(s)));
-  }, [])
+  }, []);
+
+  const hasSources = descriptions && descriptions.length > 0;
 
   return <article>
-    <h1><span className={"emoji"}>📚</span> {strings.infoPanel.source}</h1>
-    <ul className={"clickable"}>
+    <h1><span className={"emoji"}>📚</span> {strings.gedcomX.sourceDescription.sourceDescriptions}</h1>
+    {hasSources && <ul className={"clickable"}>
       {descriptions?.map(sd =>
         <li key={sd.id}><a href={`#${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</a></li>
       )}
-    </ul>
+    </ul>}
+    {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}
   </article>
 }

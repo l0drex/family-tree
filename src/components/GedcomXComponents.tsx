@@ -8,7 +8,7 @@ import {Confidence as ConfidenceEnum} from "../backend/gedcomx-enums";
 
 export function Note(props: { note: gedcomX.Note }) {
   return <article>
-    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.infoPanel.note}</h1>
+    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.gedcomX.note}</h1>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <Attribution attribution={props.note.getAttribution()}/>}
   </article>
@@ -28,7 +28,7 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
   let contributorName = contributor.getNames().filter(filterLang)[0].getValue();
   let message = props.attribution.getChangeMessage();
 
-  return <cite>{strings.formatString(strings.infoPanel.attribution, created, creatorName, modified, contributorName)} {message}</cite>
+  return <cite>{strings.formatString(strings.gedcomX.attribution, created, creatorName, modified, contributorName)} {message}</cite>
 }
 
 export function SourceDescription(props: { description: SourceDescriptionClass }) {
@@ -44,7 +44,7 @@ export function SourceDescription(props: { description: SourceDescriptionClass }
       .then(t => setText(t));
   }, [hasMedia, props.description])
 
-  const title = (props.description.getTitles().length > 0) ? props.description.getTitles()[0].value : strings.infoPanel.source;
+  const title = props.description.title;
   const componentOf = props.description.getComponentOf();
   let media;
   if (hasMedia) {
@@ -91,7 +91,7 @@ export function SourceDescription(props: { description: SourceDescriptionClass }
 
 export function SourceReference(props: { reference: gedcomX.SourceReference }) {
   return <article>
-    <h1><span className="emoji">{"📖"}</span> {strings.infoPanel.source}</h1>
+    <h1><span className="emoji">{"📖"}</span> {strings.gedcomX.sourceDescription.sourceDescription}</h1>
     <p>
       <a href={`sources${props.reference.description}`}>{props.reference.description}</a>
       {props.reference.attribution && <Attribution attribution={props.reference.attribution}/>}

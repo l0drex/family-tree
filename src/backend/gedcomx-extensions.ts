@@ -324,7 +324,7 @@ export class FamilyView extends GedcomX.FamilyView implements Equals {
 
 export class SourceDescription extends GedcomX.SourceDescription {
   get title() {
-    if (this.getTitles().length > 0) return this.getTitles()[0];
+    if (this.getTitles().length > 0) return this.getTitles()[0].value;
     return this.getCitations()[0].getValue();
   }
 

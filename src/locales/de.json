@@ -41,12 +41,9 @@
     "aka": "alias {0}",
     "nickname": "Spitzname: {0}",
     "personImageAlt": "Bild von {0}.",
-    "note": "Anmerkung",
-    "source": "Quelle",
     "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden",
     "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
     "confidenceLabel": "Zuversicht: ",
-    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:",
     "relationships": "Verbundene Personen",
     "children": "Kinder",
     "parents": "Eltern",
@@ -295,6 +292,11 @@
       "Single": "ledig",
       "Widowed": "verwitwet"
     },
+    "sourceDescription": {
+      "sourceDescription": "Quelle",
+      "sourceDescriptions": "Quellen",
+      "noSourceDescriptions": "Es sind keine Quellen vorhanden."
+    },
     "document": {
       "extracted": "Die folgenden Informationen wurden aus einem Dokument extrahiert.",
       "documents": "Dokumente",
@@ -308,7 +310,9 @@
     "year": "{0}",
     "time": "um {0}",
     "place": "in {0}",
-    "firstName": "Vorname"
+    "firstName": "Vorname",
+    "note": "Anmerkung",
+    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:"
   },
   "searchField": {
     "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
