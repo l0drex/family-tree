@@ -235,7 +235,7 @@ export class Fact extends GedcomX.Fact {
 
   setPlace(place: GedcomX.PlaceReference | object): Fact {
     if (place && !(place instanceof PlaceReference)) place = new PlaceReference(place);
-    super.setPlace(new PlaceReference(place));
+    super.setPlace(place);
     return this;
   }
 
