@@ -2,7 +2,7 @@ import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import * as cola from "webcola";
 import {baseUri, GenderTypes} from "./gedcomx-enums";
-import {FamilyView, Person} from "./gedcomx-extensions";
+import {FamilyView, GDate, Person} from "./gedcomx-extensions";
 
 type PersonType = "person";
 type FamilyType = "family" | "etc";
@@ -57,7 +57,7 @@ export class GraphFamily extends FamilyView implements GraphObject {
   type: FamilyType = "family"
   width = config.margin * 2
   height = config.margin * 2
-  marriage
+  marriage: GDate
   x: number = 0;
   y: number = 0;
 

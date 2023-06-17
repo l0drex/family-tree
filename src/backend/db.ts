@@ -122,7 +122,7 @@ export class FamilyDB extends Dexie {
 
     return this.couples.toArray()
       .then(rs =>
-        rs.filter((r: Relationship) =>
+        rs.map(r => new Relationship(r)).filter(r =>
           r.members.map(m => m.resource.substring(1))
             .includes(id)));
   }
