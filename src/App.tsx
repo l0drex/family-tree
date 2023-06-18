@@ -21,7 +21,7 @@ function App() {
     </Header>
     <Routes>
       <Route path="/" element={<Home/>}/>
-      <Route path="/persons" element={<Persons setHeaderChildren={setChildren}/>}/>
+      <Route path="/persons/:id?" element={<Persons setHeaderChildren={setChildren}/>}/>
       <Route path="/sources/:id?" element={<SourceDescriptions/>}/>
       <Route path="/documents/:id?" element={<Documents/>}/>
       <Route path="/agents/:id?" element={<Agents/>}/>

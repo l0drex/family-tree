@@ -10,7 +10,7 @@ interface Props {
   onRefocus: (newFocus: GedcomX.Person) => void
 }
 
-function SearchField(props: Props) {
+export default function SearchField(props: Props) {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -32,20 +32,20 @@ function SearchField(props: Props) {
   async function refocus(event) {
     event.preventDefault();
     let name = document.querySelector<HTMLInputElement>("#input-name").value;
-    if (name) {
-      // find a person that matches the given name
-      let person = await db.personWithName(name.toLowerCase());
+    if (!name) return;
 
-      // if no person was found, throw error
-      setHasError(!person);
-      if (!person) {
-        window.alert(strings.searchField.noPersonFound);
-        return;
-      }
+    // find a person that matches the given name
+    let person = await db.personWithName(name);
 
-      console.log(`Assuming the person is ${person.fullName} with id ${person.getId()}`);
-      props.onRefocus(person);
+    // if no person was found, throw error
+    setHasError(!person);
+    if (!person) {
+      window.alert(strings.searchField.noPersonFound);
+      return;
     }
+
+    console.log(`Assuming the person is ${person.fullName} with id ${person.getId()}`);
+    props.onRefocus(person);
   }
 
   function resetError() {
@@ -55,25 +55,20 @@ function SearchField(props: Props) {
     }
   }
 
-  const persons = useLiveQuery(async () => {
-    return db.persons.toArray().then(persons => persons.map(p => new Person(p)))
-  })
+  const persons = useLiveQuery(async () => db.persons.toArray()
+    .then(persons => persons.map(p => new Person(p))))
 
   return (
     <form id="name-form" className="name-form search"
           onSubmit={refocus}>
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
-      <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" className={hasError ? "error" : ""}/>
+      <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false"
+             className={hasError ? "error" : ""}/>
       <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
-      <datalist id="names">
-        {
-          persons?.map(p =>
-            <option value={p.fullName} key={p.getId()}>{p.fullName}</option>
-          )
-        }
-      </datalist>
+      {persons && <datalist id="names">
+        {persons.map(p =>
+          <option value={p.fullName} key={p.id}>{p.fullName}</option>)}
+      </datalist>}
     </form>
   );
 }
-
-export default SearchField;

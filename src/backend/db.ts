@@ -122,7 +122,7 @@ export class FamilyDB extends Dexie {
   async personWithName(name: string) {
     return this.persons.toArray()
       .then(persons =>
-        persons.map(p => new Person(p.toJSON())).find(p => p.fullName === name))
+        persons.map(p => new Person(p)).find(p => p.fullName === name))
   }
 
   async sourceDescriptionWithId(id: string | ResourceReference) {

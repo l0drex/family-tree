@@ -9,6 +9,7 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 import {db} from "../backend/db";
+import {useParams} from "react-router-dom";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -56,16 +57,15 @@ function ViewOptions(props) {
 function Persons(props: { setHeaderChildren: (children) => void }) {
   const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
   const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
+  const {id} = useParams();
   const [focusPerson, setFocus] = useState<Person>(null);
   const [focusHidden, hideFocus] = useState(false);
 
   useEffect(() => {
-    let url = new URL(window.location.href);
-    let id = url.hash.substring(1);
     db.personWithId(id)
       .catch(() => db.persons.toCollection().first().then(p => new Person(p)))
       .then(p => setFocus(p));
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
@@ -106,13 +106,13 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
 
   const onRefocus = useMemo(() => {
     function onRefocus(newFocus: Person) {
-      if (newFocus.getId() === focusPerson.getId()) {
+      if (newFocus.getId() === id) {
         hideFocus(!focusHidden)
         return;
       }
 
       let url = new URL(window.location.href);
-      url.hash = newFocus.getId();
+      url.pathname = `family-tree/persons/${newFocus.getId()}`;
       window.history.pushState({}, "", url.toString());
 
       hideFocus(false);
@@ -120,7 +120,7 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
     }
 
     return onRefocus;
-  }, [focusHidden, focusPerson]);
+  }, [focusHidden, id]);
 
   const setHeaderChildren = props.setHeaderChildren;
 

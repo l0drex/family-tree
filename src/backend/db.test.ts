@@ -135,3 +135,7 @@ test("finds descendants", async () => {
   descendants = await db.getDescendants("7");
   expect(descendants).toHaveLength(1);
 })
+
+it("finds person with name", async () => {
+  await expect(db.personWithName("Husband").then(p => p.getId())).resolves.toBe("1");
+})
