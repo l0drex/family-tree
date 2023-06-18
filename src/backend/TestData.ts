@@ -33,6 +33,7 @@ export default function getTestData(): object {
   return testData.toJSON();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extensiveData() {
   const lastName = faker.person.lastName();
   const marriageDate = new GedcomX.Date().setFormal(faker.date.past({years: 10}).toISOString());

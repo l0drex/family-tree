@@ -194,40 +194,52 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
       break;
     }
     case ColorMode.AGE: {
-      const ageColor = d3.scaleSequential()
-        .domain([0, 120])
-        .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))
+      const ageColor = d => {
+        if (!d) return "var(--background-higher)";
+        return d3.scaleSequential()
+          .domain([0, 120])
+          .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))(d)
+      }
       personNode
         .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "var(background-higher)")
+        .style("background-color", (d: GraphPerson) => d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "var(--background-higher)")
         .style("color", (d: GraphPerson) =>
           (d.data.getAgeAt(new Date()) < 70 && d.data.isLiving) ? "var(--background)" : "var(--foreground)")
         .style("border-color", (d: GraphPerson) => d.data.isLiving ? "var(--background-higher)" : ageColor(d.data.getAgeAt(new Date())))
         .style("border-style", (d: GraphPerson) => d.data.isLiving ? "" : "solid");
       personNode
         .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${ageColor(d.data.getAgeAt(new Date()))}`);
+        .style("box-shadow", d => `0 0 1rem ${d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "var(--background-higher)"}`);
       break;
     }
     case ColorMode.GENDER: {
-      const genderColor = d3.scaleOrdinal(["female", "male", "intersex", "unknown"], d3.schemeSet1);
+      const genderColor = d => {
+        if (d === "unknown") return "var(--background-higher)";
+        return d3.scaleOrdinal(["female", "male", "intersex"], d3.schemeSet1)(d)
+      };
       personNode
         .select(".bg")
         .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "var(--background-higher)")
         .style("border-color", (d: GraphPerson) => d.data.isLiving ? "var(--background-higher)" : genderColor(d.getGender()))
         .style("border-style", (d: GraphPerson) => d.data.isLiving ? "" : "solid")
-        .style("color", (d: GraphPerson) => d.data.isLiving && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
+        .style("color", (d: GraphPerson) => d.data.isLiving && d.getGender() !== "unknown" && matchMedia("(prefers-color-scheme: light)").matches ? "var(--background)" : "var(--foreground)")
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
       break;
     }
     case ColorMode.CONFIDENCE: {
-      const confidenceColor = d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High], d3.schemeRdYlGn[3]);
+      const confidenceColor = d => {
+        if (!d) return "var(--background-higher)";
+        return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High], d3.schemeRdYlGn[3])(d)
+      }
       personNode
         .select(".bg")
         .style("background-color", d => confidenceColor(d.data.getConfidence() as Confidence))
-        .style("color", d => d.data.getConfidence() as Confidence === Confidence.Medium ? "black" : "")
+        .style("color", "black");
+      personNode
+        .select(".focused")
+        .style("box-shadow", d => `0 0 1rem ${confidenceColor(d.data.getConfidence() as Confidence)}`);
     }
   }
 
