@@ -65,61 +65,61 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
   </cite>
 }
 
-export function SourceDescription(props: { description: SourceDescriptionClass }) {
+export function SourceDescription(props: { data: SourceDescriptionClass }) {
   const [text, setText] = useState("");
-  const hasMedia = props.description.mediaType && props.description.about;
+  const hasMedia = props.data.mediaType && props.data.about;
   useEffect(() => {
     if (!hasMedia) return;
-    let mediaType = props.description.mediaType.split('/');
+    let mediaType = props.data.mediaType.split('/');
     if (mediaType[0] !== "text") return;
 
-    fetch(props.description.getAbout())
+    fetch(props.data.getAbout())
       .then(r => r.text())
       .then(t => setText(t));
-  }, [hasMedia, props.description])
+  }, [hasMedia, props.data])
 
-  const title = props.description.title;
-  const componentOf = props.description.getComponentOf();
+  const title = props.data.title;
+  const componentOf = props.data.getComponentOf();
   let media;
   if (hasMedia) {
-    if (props.description.mediaType.startsWith("text"))
+    if (props.data.mediaType.startsWith("text"))
       media = <p>{text}</p>
     else
-      media = <object type={props.description.mediaType} data={props.description.about} className={"center"}>
-        {props.description.getDescriptions().filter(filterLang)[0]?.getValue()}
+      media = <object type={props.data.mediaType} data={props.data.about} className={"center"}>
+        {props.data.getDescriptions().filter(filterLang)[0]?.getValue()}
       </object>;
   }
 
-  const hasMisc = componentOf || props.description.rights || props.description.repository || props.description.analysis;
+  const hasMisc = componentOf || props.data.rights || props.data.repository || props.data.analysis;
 
   return <>
     <article>
-      <h1><span className={"emoji"}>{props.description?.emoji}</span> {title}</h1>
+      <h1><span className={"emoji"}>{props.data?.emoji}</span> {title}</h1>
       {hasMisc && <section className={"misc"}>
         {componentOf && <div>componentOf: <a
           href={componentOf.getDescription()}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</a>
         </div>}
-        {props.description.rights && <div>©️{props.description.rights}</div>}
-        {props.description.repository && <div>repository: {props.description.repository}</div>}
-        {props.description.getAnalysis() && <a href={props.description.getAnalysis()}>Analysis</a>}
+        {props.data.rights && <div>©️{props.data.rights}</div>}
+        {props.data.repository && <div>repository: {props.data.repository}</div>}
+        {props.data.getAnalysis() && <a href={props.data.getAnalysis()}>Analysis</a>}
       </section>}
       {hasMedia && <figure>{media}</figure>}
-      {props.description.getDescriptions().filter(filterLang).map((d, i) =>
+      {props.data.getDescriptions().filter(filterLang).map((d, i) =>
         <p key={i}>{d.getValue()}</p>
       )}
-      {props.description.getMediator() && <p>{`Mediator: ${props.description.getMediator()}`}</p>}
-      {props.description.citations && <section>
+      {props.data.getMediator() && <p>{`Mediator: ${props.data.getMediator()}`}</p>}
+      {props.data.citations && <section>
         Citations:
         <ul>
-          {props.description.getCitations()
+          {props.data.getCitations()
             .filter(filterLang)
             .map((c, i) => <li key={i}>{c.getValue()}</li>)}
         </ul>
       </section>}
     </article>
-    {props.description.getCoverage().map((c, i) => <Coverage coverage={c} key={i}/>)}
-    {props.description.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-    {props.description.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
+    {props.data.getCoverage().map((c, i) => <Coverage coverage={c} key={i}/>)}
+    {props.data.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
+    {props.data.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
   </>
 }
 
@@ -193,28 +193,28 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
   </div>
 }
 
-export function Agent(props: {agent: AgentClass}) {
+export function Agent(props: {data: AgentClass}) {
   return <>
     <article>
-      <h1><span className={"emoji"}>👤</span> {`${strings.gedcomX.agent.agent} ${props.agent.name ?? ""}`}</h1>
-      {props.agent.names?.length > 1 && <p>{strings.infoPanel.aka + props.agent.names.map(n => n.value).join(', ')}</p>}
-      {props.agent.homepage && <p>{strings.gedcomX.agent.homepage}: <a href={props.agent.homepage.resource}>{props.agent.homepage.resource}</a></p>}
-      {props.agent.openid && <p>OpenID: <a href={props.agent.openid.resource}>{props.agent.openid.resource}</a></p>}
-      {props.agent.accounts && <>{strings.gedcomX.agent.accounts}: <ul>
-        {props.agent.accounts.map((a, i) => <li key={i}>
+      <h1><span className={"emoji"}>👤</span> {`${strings.gedcomX.agent.agent} ${props.data.name ?? ""}`}</h1>
+      {props.data.names?.length > 1 && <p>{strings.infoPanel.aka + props.data.names.map(n => n.value).join(', ')}</p>}
+      {props.data.homepage && <p>{strings.gedcomX.agent.homepage}: <a href={props.data.homepage.resource}>{props.data.homepage.resource}</a></p>}
+      {props.data.openid && <p>OpenID: <a href={props.data.openid.resource}>{props.data.openid.resource}</a></p>}
+      {props.data.accounts && <>{strings.gedcomX.agent.accounts}: <ul>
+        {props.data.accounts.map((a, i) => <li key={i}>
           {strings.formatString(strings.gedcomX.agent.onlineAccount, <>{a.accountName}</>, <a href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</a>)}
         </li>)}
       </ul></>}
-      {props.agent.emails && <>{strings.gedcomX.agent.emails}: <ul>
-        {props.agent.emails.map(e => <li key={e.resource}><a href={`mailto:${e.resource}`}>{e.resource}</a></li>)}
+      {props.data.emails && <>{strings.gedcomX.agent.emails}: <ul>
+        {props.data.emails.map(e => <li key={e.resource}><a href={`mailto:${e.resource}`}>{e.resource}</a></li>)}
       </ul></>}
-      {props.agent.phones && <>{strings.gedcomX.agent.phones}:
-        <ul>{props.agent.phones.map(p => <li key={p.resource}><a href={`tel:${p.resource}`}>{p.resource}</a></li>)}
+      {props.data.phones && <>{strings.gedcomX.agent.phones}:
+        <ul>{props.data.phones.map(p => <li key={p.resource}><a href={`tel:${p.resource}`}>{p.resource}</a></li>)}
       </ul></>}
-      {props.agent.addresses && <>{strings.gedcomX.agent.addresses}: <ul>
-        {props.agent.addresses.map(a => <li key={a.value}>{a.value}</li>)}
+      {props.data.addresses && <>{strings.gedcomX.agent.addresses}: <ul>
+        {props.data.addresses.map(a => <li key={a.value}>{a.value}</li>)}
       </ul></>}
-      {props.agent.person && <p>{strings.gedcomX.agent.person}: <a href={`persons${props.agent.person.resource}`}>{props.agent.person.resource}</a></p>}
+      {props.data.person && <p>{strings.gedcomX.agent.person}: <a href={`persons${props.data.person.resource}`}>{props.data.person.resource}</a></p>}
     </article>
   </>
 }

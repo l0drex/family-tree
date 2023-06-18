@@ -8,6 +8,8 @@ import {Agent, Document, Person, Relationship, setReferenceAge, SourceDescriptio
 import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
 import {ResourceReference} from "gedcomx-js";
 
+export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
+
 export class FamilyDB extends Dexie {
   persons!: Table<GedcomX.Person>
   relationships!: Table<GedcomX.Relationship>
@@ -77,14 +79,44 @@ export class FamilyDB extends Dexie {
     return this.relationships.where("type").equals(RelationshipTypes.ParentChild);
   }
 
-  async personWithId(id: string | ResourceReference) {
+  async elementWithId(id: string | ResourceReference, type: RootType) {
     try {
       id = toResource(id).resource.substring(1);
     } catch (e) {
-      return Promise.reject(id);
+      return Promise.reject(e);
     }
 
-    return this.persons.where("id").equals(id).first().then(p => new Person(p));
+    switch (type) {
+      case "person":
+        return this.persons.where("id").equals(id).first()
+          .then(p => new Person(p));
+      case "relationship":
+        return this.relationships.where("id").equals(id).first()
+          .then(r => new Relationship(r));
+      case "sourceDescription":
+        return this.sourceDescriptions.where("id").equals(id).first()
+          .then(sd => new SourceDescription(sd));
+      case "agent":
+        return this.agents.where("id").equals(id).first()
+          .then(a => new Agent(a));
+      case "event":
+        return this.events.where("id").equals(id).first()
+          .then(e => new GedcomX.Event(e));
+      case "document":
+        return this.documents.where("id").equals(id).first()
+          .then(d => new Document(d));
+      case "place":
+        return this.places.where("id").equals(id).first()
+          .then(p => new GedcomX.PlaceDescription(p));
+      case "group":
+        return this.groups.where("id").equals(id).first();
+      default:
+        return Promise.reject(`Unknown type ${type}`);
+    }
+  }
+
+  async personWithId(id: string | ResourceReference): Promise<Person> {
+    return this.elementWithId(id, "person").then(p => new Person(p));
   }
 
   async personWithName(name: string) {
@@ -94,28 +126,11 @@ export class FamilyDB extends Dexie {
   }
 
   async sourceDescriptionWithId(id: string | ResourceReference) {
-    try {
-      id = toResource(id).resource.substring(1);
-    } catch (e) {
-      return Promise.reject(id);
-    }
-
-    return this.sourceDescriptions.where("id").equals(id).first()
-      .then(sd => new SourceDescription(sd));
+    return this.elementWithId(id, "sourceDescription").then(sd => new SourceDescription(sd));
   }
 
   async agentWithId(id: string | ResourceReference) {
-    id = toResource(id).resource.substring(1);
-
-    return this.agents.where({"id": id}).first()
-      .then(a => new Agent(a));
-  }
-
-  async documentWithId(id: string | ResourceReference) {
-    id = toResource(id).resource.substring(1);
-
-    return this.documents.where({"id": id}).first()
-      .then(d => new Document(d));
+    return this.elementWithId(id, "agent").then(a => new Agent(a));
   }
 
   async getCoupleRelationsOf(person: ResourceReference | string): Promise<GedcomX.Relationship[]> {

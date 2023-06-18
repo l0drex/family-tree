@@ -3,18 +3,10 @@ import {db} from "../backend/db";
 import {Agent} from "./GedcomXComponents";
 import {Agent as AgentClass} from "../backend/gedcomx-extensions";
 import {strings} from "../main";
+import {ElementView} from "./ElementView";
 
 export function Agents() {
-  const agent = useLiveQuery(() => {
-    let url = new URL(window.location.href);
-    let id = url.hash.substring(1);
-    if (id.length === 0) return null;
-    return db.agentWithId(id);
-  }, [window.location.href]);
-
-  return <main>
-    {agent ? <Agent agent={agent}/> : <AgentOverview/>}
-  </main>
+  return <ElementView type={"agent"} ElementOverview={AgentOverview} ElementView={Agent}/>
 }
 
 function AgentOverview() {

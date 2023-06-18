@@ -3,18 +3,10 @@ import {db} from "../backend/db";
 import {strings} from "../main";
 import {Document as DocumentClass} from "../backend/gedcomx-extensions";
 import {Document} from "./GedcomXComponents";
+import {ElementView} from "./ElementView";
 
 export function Documents() {
-  const document = useLiveQuery(() => {
-    let url = new URL(window.location.href);
-    let id = url.hash.substring(1);
-    if (id.length === 0) return null;
-    return db.documentWithId(id);
-  });
-
-  return <main>
-    {document ? <Document document={document}/> : <DocumentOverview/>}
-  </main>
+  return <ElementView type={"document"} ElementOverview={DocumentOverview} ElementView={Document}/>
 }
 
 function DocumentOverview() {

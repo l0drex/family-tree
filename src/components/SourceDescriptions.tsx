@@ -3,18 +3,13 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
 import {strings} from "../main";
 import {SourceDescription} from "./GedcomXComponents";
+import {ElementView} from "./ElementView";
 
 export function SourceDescriptions() {
-  const description = useLiveQuery(() => {
-    let url = new URL(window.location.href);
-    let id = url.hash.substring(1);
-    if (id.length === 0) return null;
-    return db.sourceDescriptionWithId(id);
-  }, [window.location.href]);
-
-  return <main>
-    {description ? <SourceDescription description={description}/> : <DescriptionOverview/>}
-  </main>
+  return <ElementView
+    type="sourceDescription"
+    ElementOverview={DescriptionOverview}
+    ElementView={SourceDescription}/>
 }
 
 function DescriptionOverview() {
