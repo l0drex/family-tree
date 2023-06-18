@@ -14,11 +14,11 @@ function Header(props) {
         {props.children}
       </div>
       <nav>
-        <a href="/family-tree/persons">🌳</a>
-        <a href="/family-tree/stats">📊</a>
-        <a href="/family-tree/sources">📚</a>
-        <a href="/family-tree/documents">📄</a>
-        <a href="/family-tree/agents">👤</a>
+        <Link to="/persons">🌳</Link>
+        <Link to="/stats">📊</Link>
+        <Link to="/sources">📚</Link>
+        <Link to="/documents">📄</Link>
+        <Link to="/agents">👤</Link>
       </nav>
     </header>
   );

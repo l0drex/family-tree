@@ -4,6 +4,7 @@ import {Agent} from "./GedcomXComponents";
 import {Agent as AgentClass} from "../backend/gedcomx-extensions";
 import {strings} from "../main";
 import {ElementView} from "./ElementView";
+import {Link} from "react-router-dom";
 
 export function Agents() {
   return <ElementView type={"agent"} ElementOverview={AgentOverview} ElementView={Agent}/>
@@ -20,7 +21,7 @@ function AgentOverview() {
     <h1><span className={"emoji"}>👤</span> {strings.gedcomX.agent.agents}</h1>
     {hasAgents && <ul className={"clickable"}>
       {agents?.map(agent =>
-        <li key={agent.id}><a href={`agents/${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</a></li>)}
+        <li key={agent.id}><Link to={`${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</Link></li>)}
     </ul>}
   </article>
 }

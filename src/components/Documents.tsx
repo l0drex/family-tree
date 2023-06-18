@@ -4,6 +4,7 @@ import {strings} from "../main";
 import {Document as DocumentClass} from "../backend/gedcomx-extensions";
 import {Document} from "./GedcomXComponents";
 import {ElementView} from "./ElementView";
+import {Link} from "react-router-dom";
 
 export function Documents() {
   return <ElementView type={"document"} ElementOverview={DocumentOverview} ElementView={Document}/>
@@ -20,7 +21,7 @@ function DocumentOverview() {
     <h1><span className={"emoji"}>📄</span> {strings.gedcomX.document.documents}</h1>
     {hasDocuments && <ul className={"clickable"}>
       {documents?.map(doc =>
-        <li key={doc.id}><a href={`documents/${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</a></li>
+        <li key={doc.id}><Link to={`${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</Link></li>
       )}
     </ul>}
     {!hasDocuments && <p>{strings.gedcomX.document.noDocuments}</p>}

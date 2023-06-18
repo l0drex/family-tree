@@ -10,6 +10,7 @@ import {
 } from "../backend/gedcomx-extensions";
 import {useEffect, useState} from "react";
 import {Confidence as ConfidenceEnum} from "../backend/gedcomx-enums";
+import {Link} from "react-router-dom";
 
 export function Note(props: { note: gedcomX.Note }) {
   return <article>
@@ -53,9 +54,9 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
 
   return <cite>
     {createdString} {creator && strings.formatString(strings.byPerson,
-    <a href={`agents/${creatorRef.resource.substring(1)}`}>
+    <Link to={`/agents/${creatorRef.resource.substring(1)}`}>
       {creator.names?.filter(filterLang)[0].value}
-    </a>)}
+    </Link>)}
     <br/>
     {modifiedString} {contributor && strings.formatString(strings.byPerson,
     <a href={`agents/${contributorRef.resource.substring(1)}`}>
@@ -96,12 +97,12 @@ export function SourceDescription(props: { data: SourceDescriptionClass }) {
     <article>
       <h1><span className={"emoji"}>{props.data?.emoji}</span> {title}</h1>
       {hasMisc && <section className={"misc"}>
-        {componentOf && <div>componentOf: <a
-          href={"sources/" + componentOf.getDescription().substring(1)}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</a>
+        {componentOf && <div>componentOf: <Link
+          to={`/sources/${componentOf.getDescription().substring(1)}`}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</Link>
         </div>}
         {props.data.rights && <div>©️{props.data.rights}</div>}
         {props.data.repository && <div>repository: {props.data.repository}</div>}
-        {props.data.getAnalysis() && <a href={"documents/" + props.data.getAnalysis().substring(1)}>Analysis</a>}
+        {props.data.getAnalysis() && <Link to={`/documents/${props.data.getAnalysis().substring(1)}`}>Analysis</Link>}
       </section>}
       {hasMedia && <figure>{media}</figure>}
       {props.data.getDescriptions().filter(filterLang).map((d, i) =>
@@ -127,7 +128,7 @@ export function SourceReference(props: { reference: gedcomX.SourceReference }) {
   return <article>
     <h1><span className="emoji">{"📖"}</span> {strings.gedcomX.sourceDescription.sourceDescription}</h1>
     <p>
-      <a href={`sources/${props.reference.description.substring(1)}`}>{props.reference.description}</a>
+      <Link to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</Link>
       {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
     </p>
   </article>
@@ -150,7 +151,7 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
 export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
   let original = props.reference.original ?? props.reference.description ?? "?";
   if (props.reference.description) {
-    return <a href={"places/" + props.reference.description.substring(1)}>{original}</a>
+    return <Link to={"/places/" + props.reference.description.substring(1)}>{original}</Link>
   }
   return <span>{original}</span>
 }
@@ -216,7 +217,7 @@ export function Agent(props: {data: AgentClass}) {
       {props.data.addresses && <>{strings.gedcomX.agent.addresses}: <ul>
         {props.data.addresses.map(a => <li key={a.value}>{a.value}</li>)}
       </ul></>}
-      {props.data.person && <p>{strings.gedcomX.agent.person}: <a href={`persons/${props.data.person.resource.substring(1)}`}>{props.data.person.resource}</a></p>}
+      {props.data.person && <p>{strings.gedcomX.agent.person}: <Link to={`/persons/${props.data.person.resource.substring(1)}`}>{props.data.person.resource}</Link></p>}
     </article>
   </>
 }

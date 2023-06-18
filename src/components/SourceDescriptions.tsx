@@ -4,6 +4,7 @@ import {db} from "../backend/db";
 import {strings} from "../main";
 import {SourceDescription} from "./GedcomXComponents";
 import {ElementView} from "./ElementView";
+import {Link} from "react-router-dom";
 
 export function SourceDescriptions() {
   return <ElementView
@@ -23,7 +24,7 @@ function DescriptionOverview() {
     <h1><span className={"emoji"}>📚</span> {strings.gedcomX.sourceDescription.sourceDescriptions}</h1>
     {hasSources && <ul className={"clickable"}>
       {descriptions?.map(sd =>
-        <li key={sd.id}><a href={`sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</a></li>
+        <li key={sd.id}><Link to={`${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</Link></li>
       )}
     </ul>}
     {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}
