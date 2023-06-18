@@ -222,7 +222,7 @@ export class FamilyDB extends Dexie {
   }
 
   async getFamiliesAsParent(person: Person): Promise<GedcomX.FamilyView[]> {
-    if (person.display && person.display.familiesAsParent.length > 0) {
+    if (person.display && person.display.familiesAsParent && person.display.familiesAsParent.length > 0) {
       return person.display.familiesAsParent;
     }
 
@@ -249,7 +249,7 @@ export class FamilyDB extends Dexie {
   }
 
   async getFamiliesAsChild(person: GedcomX.Person): Promise<GedcomX.FamilyView[]> {
-    if (person.display && person.display.familiesAsChild.length > 0) {
+    if (person.display && person.display.familiesAsChild && person.display.familiesAsChild.length > 0) {
       return person.display.familiesAsChild;
     }
 
