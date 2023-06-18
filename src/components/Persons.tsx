@@ -1,5 +1,5 @@
 import * as React from "react";
-import {createContext, useEffect, useState} from "react";
+import {createContext, useEffect, useMemo, useState} from "react";
 import {getUrlOption, strings} from "../main";
 import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
@@ -104,23 +104,31 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
     setColorMode(colorMode as ColorMode);
   }
 
-  function onRefocus(newFocus: Person) {
-    if (newFocus.getId() === focusPerson.getId()) {
-      hideFocus(!focusHidden)
-      return;
+  const onRefocus = useMemo(() => {
+    function onRefocus(newFocus: Person) {
+      if (newFocus.getId() === focusPerson.getId()) {
+        hideFocus(!focusHidden)
+        return;
+      }
+
+      let url = new URL(window.location.href);
+      url.hash = newFocus.getId();
+      window.history.pushState({}, "", url.toString());
+
+      hideFocus(false);
+      setFocus(newFocus);
     }
 
-    let url = new URL(window.location.href);
-    url.hash = newFocus.getId();
-    window.history.pushState({}, "", url.toString());
+    return onRefocus;
+  }, [focusHidden, focusPerson]);
 
-    hideFocus(false);
-    setFocus(newFocus);
-  }
+  const setHeaderChildren = props.setHeaderChildren;
 
-  props.setHeaderChildren([
-    <SearchField onRefocus={onRefocus}/>
-  ])
+  useEffect(() => {
+    setHeaderChildren([
+      <SearchField onRefocus={onRefocus}/>
+    ])
+  }, [setHeaderChildren, onRefocus]);
 
   return (
     <>
