@@ -91,9 +91,9 @@ declare module "gedcomx-js" {
 
     getDocuments(): Document[]
 
-    setDocuments(documents: Document[]): Root
+    setDocuments(documents: Document[] | object[]): Root
 
-    addDocument(document: Document): Root
+    addDocument(document: Document | object): Root
 
     getPlaces(): PlaceDescription[]
 

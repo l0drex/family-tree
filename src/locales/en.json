@@ -301,6 +301,7 @@
     "document": {
       "extracted": "This information was extracted from a document.",
       "documents": "Documents",
+      "document": "Document",
       "noDocuments": "There are no documents."
     },
     "agent": {

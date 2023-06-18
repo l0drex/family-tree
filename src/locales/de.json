@@ -301,6 +301,7 @@
     "document": {
       "extracted": "Die folgenden Informationen wurden aus einem Dokument extrahiert.",
       "documents": "Dokumente",
+      "document": "Dokument",
       "noDocuments": "Es sind keine Dokumente vorhanden."
     },
     "agent": {

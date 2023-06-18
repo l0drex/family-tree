@@ -12,11 +12,12 @@ import {
   PlaceReference,
   Relationship,
   ResourceReference,
-  Root, SourceCitation, SourceDescription, SourceReference, TextValue
+  Root, SourceCitation, SourceDescription, SourceReference, TextValue,
+  Document
 } from "gedcomx-js";
 import {faker} from "@faker-js/faker";
 import {
-  Confidence,
+  Confidence, DocumentTypes,
   GenderTypes,
   NameTypes,
   PersonFactTypes,
@@ -156,7 +157,14 @@ function extensiveData() {
       .setId("a1"))
     .addAgent(new Agent()
       .setPerson(new ResourceReference().setResource("#p1"))
-      .setId("a2"));
+      .setId("a2"))
+    .addDocument(new Document()
+      .setType(DocumentTypes.Analysis)
+      .setExtracted(true)
+      .setText(faker.lorem.paragraphs(3))
+      .setConfidence(Confidence.High)
+      .addNote(new Note().setText(faker.lorem.paragraphs(1)))
+      .setId("d1"))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -155,18 +155,20 @@ export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
   return <span>{original}</span>
 }
 
-export function Document(props: { document: DocumentClass }) {
+export function Document(props: { data: DocumentClass }) {
   // todo sanitize and render xhtml
   return <>
     <article>
-      <h1><span className={"emoji"}>📄</span> Document</h1>
-      {props.document.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
-      {props.document.getConfidence() && <Confidence confidence={props.document.getConfidence()}/>}
-      {props.document.isPlainText && <p>{props.document.getText()}</p>}
-      {props.document.getAttribution() && <p><Attribution attribution={props.document.getAttribution()}/></p>}
+      <h1><span className={"emoji"}>📄</span> {strings.gedcomX.document.document}</h1>
+      <section className={"misc"}>
+        {props.data.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
+        {props.data.getConfidence() && <Confidence confidence={props.data.getConfidence()}/>}
+      </section>
+      {props.data.isPlainText && <p>{props.data.getText()}</p>}
+      {props.data.getAttribution() && <p><Attribution attribution={props.data.getAttribution()}/></p>}
     </article>
-    {props.document.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-    {props.document.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
+    {props.data.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
+    {props.data.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
   </>
 }
 
