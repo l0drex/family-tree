@@ -2,7 +2,6 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
 import {strings} from "../main";
 import {Document as DocumentClass} from "../backend/gedcomx-extensions";
-import Header from "./Header";
 import {Document} from "./GedcomXComponents";
 
 export function Documents() {
@@ -13,12 +12,9 @@ export function Documents() {
     return db.documentWithId(id);
   });
 
-  return <>
-    <Header/>
-    <main>
-      {document ? <Document document={document}/> : <DocumentOverview/>}
-    </main>
-  </>
+  return <main>
+    {document ? <Document document={document}/> : <DocumentOverview/>}
+  </main>
 }
 
 function DocumentOverview() {

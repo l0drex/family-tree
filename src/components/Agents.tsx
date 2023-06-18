@@ -1,6 +1,5 @@
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
-import Header from "./Header";
 import {Agent} from "./GedcomXComponents";
 import {Agent as AgentClass} from "../backend/gedcomx-extensions";
 import {strings} from "../main";
@@ -13,12 +12,9 @@ export function Agents() {
     return db.agentWithId(id);
   }, [window.location.href]);
 
-  return <>
-    <Header/>
-    <main>
-      {agent ? <Agent agent={agent}/> : <AgentOverview/>}
-    </main>
-  </>
+  return <main>
+    {agent ? <Agent agent={agent}/> : <AgentOverview/>}
+  </main>
 }
 
 function AgentOverview() {
@@ -32,7 +28,7 @@ function AgentOverview() {
     <h1><span className={"emoji"}>👤</span> {strings.gedcomX.agent.agents}</h1>
     {hasAgents && <ul className={"clickable"}>
       {agents?.map(agent =>
-      <li key={agent.id}><a href={`#${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</a></li>)}
+        <li key={agent.id}><a href={`#${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</a></li>)}
     </ul>}
   </article>
 }

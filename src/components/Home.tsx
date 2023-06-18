@@ -1,12 +1,10 @@
 import * as React from "react";
-import Header from "./Header";
 import {strings} from "../main";
 import Form from "./Form";
 import "./Article.css";
 
 export function Home() {
   return <>
-    <Header/>
     <main>
       <Uploader/>
       <NavigationTutorial/>
@@ -48,35 +46,32 @@ function Article(props) {
 
 function NavigationTutorial() {
   return <Article title={strings.home.navigationArticle.title} emoji="🖥">
-  <p>
-    {strings.formatString(strings.home.navigationArticle.content,
-      <kbd>{strings.ctrl}</kbd>)}
-  </p>
+    <p>
+      {strings.formatString(strings.home.navigationArticle.content,
+        <kbd>{strings.ctrl}</kbd>)}
+    </p>
   </Article>
 }
 
 export function Imprint() {
-  return <>
-    <Header/>
-    <main>
-      <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
-        <p>
-          {strings.formatString(strings.imprint.privacyArticle.content,
-            <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
-              {strings.linkContent}
-            </a>)}
-        </p>
-      </Article>
-      <Article title={strings.imprint.imprintArticle.title} emoji="📇">
-        <p>
-          <address>
-            Hoffmann, Lorenz <br/>
-            Robert-Sterl Str 5c <br/>
-            01219 Dresden <br/>
-            <a href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</a>
-          </address>
-        </p>
-      </Article>
-    </main>
-  </>
+  return <main>
+    <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
+      <p>
+        {strings.formatString(strings.imprint.privacyArticle.content,
+          <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
+            {strings.linkContent}
+          </a>)}
+      </p>
+    </Article>
+    <Article title={strings.imprint.imprintArticle.title} emoji="📇">
+      <p>
+        <address>
+          Hoffmann, Lorenz <br/>
+          Robert-Sterl Str 5c <br/>
+          01219 Dresden <br/>
+          <a href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</a>
+        </address>
+      </p>
+    </Article>
+  </main>
 }

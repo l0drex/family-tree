@@ -8,13 +8,20 @@ import Statistics from "./components/Statistics";
 import {SourceDescriptions} from "./components/SourceDescriptions";
 import {Documents} from "./components/Documents";
 import {Agents} from "./components/Agents";
+import Header from "./components/Header";
+import {useState} from "react";
 
 function App() {
-  // todo: places, agents
+  const [headerChildren, setChildren] = useState([]);
+
+  // todo: places
   return <BrowserRouter basename={"family-tree"}>
+    <Header>
+      {headerChildren}
+    </Header>
     <Routes>
       <Route path="/" element={<Home/>}/>
-      <Route path="/persons" element={<Persons/>}/>
+      <Route path="/persons" element={<Persons setHeaderChildren={setChildren}/>}/>
       <Route path="/sources" element={<SourceDescriptions/>}/>
       <Route path="/documents" element={<Documents/>}/>
       <Route path="/agents" element={<Agents/>}/>

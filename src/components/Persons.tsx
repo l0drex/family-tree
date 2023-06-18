@@ -5,7 +5,6 @@ import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
-import Header from "./Header";
 import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
@@ -54,7 +53,7 @@ function ViewOptions(props) {
   );
 }
 
-function Persons() {
+function Persons(props: { setHeaderChildren: (children) => void }) {
   const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
   const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
   const [focusPerson, setFocus] = useState<Person>(null);
@@ -119,13 +118,14 @@ function Persons() {
     setFocus(newFocus);
   }
 
+  props.setHeaderChildren([
+    <SearchField onRefocus={onRefocus}/>
+  ])
+
   return (
     <>
-      <Header>
-        <SearchField onRefocus={onRefocus}/>
-      </Header>
       <FocusPersonContext.Provider value={focusPerson}>
-        {!focusHidden && <InfoPanel />}
+        {!focusHidden && <InfoPanel/>}
       </FocusPersonContext.Provider>
       <main>
         <article id="family-tree-container">

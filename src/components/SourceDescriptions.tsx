@@ -1,4 +1,3 @@
-import Header from "./Header";
 import {SourceDescription as SourceDescriptionClass} from "../backend/gedcomx-extensions";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
@@ -13,12 +12,9 @@ export function SourceDescriptions() {
     return db.sourceDescriptionWithId(id);
   }, [window.location.href]);
 
-  return <>
-    <Header/>
-    <main>
-      {description ? <SourceDescription description={description}/> : <DescriptionOverview/>}
-    </main>
-  </>
+  return <main>
+    {description ? <SourceDescription description={description}/> : <DescriptionOverview/>}
+  </main>
 }
 
 function DescriptionOverview() {
