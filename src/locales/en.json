@@ -303,6 +303,17 @@
       "documents": "Documents",
       "noDocuments": "There are no documents."
     },
+    "agent": {
+      "agents": "Agents",
+      "agent": "Agent",
+      "homepage": "Homepage",
+      "accounts": "Accounts",
+      "onlineAccount": "{0} on {1}",
+      "person": "Person",
+      "emails": "Emails",
+      "phones": "Phones",
+      "addresses": "Addresses"
+    },
     "gender": "Sex",
     "confidence": "Confidence",
     "ageQualifier": "with {0} years old",

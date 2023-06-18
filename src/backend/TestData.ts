@@ -1,12 +1,13 @@
 import * as GedcomX from "gedcomx-js";
 import {
+  Address,
   Agent,
   Attribution, Coverage,
   Fact,
   Gender,
   Name,
   NameForm,
-  Note,
+  Note, OnlineAccount,
   Person,
   PlaceReference,
   Relationship,
@@ -145,9 +146,20 @@ function extensiveData() {
       .setId("s1"))
     .addAgent(new Agent()
       .addName(new TextValue().setValue(faker.person.fullName()))
+      .addEmail(new ResourceReference().setResource(faker.internet.email()))
+      .setHomepage(new ResourceReference().setResource(faker.internet.url()))
+      .addAccount(new OnlineAccount()
+        .setServiceHomepage(new ResourceReference().setResource(faker.internet.url()))
+        .setAccountName(faker.internet.userName()))
+      .addPhone(new ResourceReference().setResource(faker.phone.number()))
+      .addAddress(new Address().setValue(faker.address.streetAddress(true)))
       .setId("a1"))
+    .addAgent(new Agent()
+      .setPerson(new ResourceReference().setResource("#p1"))
+      .setId("a2"));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function minimalData() {
   return new Root()
     .addPerson(new Person()

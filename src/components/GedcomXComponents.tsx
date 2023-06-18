@@ -5,7 +5,8 @@ import {db} from "../backend/db";
 import {
   GDate,
   SourceDescription as SourceDescriptionClass,
-  Document as DocumentClass, formatJDate
+  Document as DocumentClass, formatJDate,
+  Agent as AgentClass
 } from "../backend/gedcomx-extensions";
 import {useEffect, useState} from "react";
 import {Confidence as ConfidenceEnum} from "../backend/gedcomx-enums";
@@ -40,7 +41,7 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
     if (!contributorRef) return undefined;
     return db.agentWithId(contributorRef);
   }, [contributorRef]);
-  let contributorName = contributor?.names.filter(filterLang)[0].value;
+  let contributorName = contributor?.names?.filter(filterLang)[0].value;
   let message = props.attribution.getChangeMessage();
 
   let modifiedString = "";
@@ -50,16 +51,15 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
     if (modified && contributorName) modifiedString += " ";
   }
 
-
   return <cite>
     {createdString} {creator && strings.formatString(strings.byPerson,
     <a href={"agents" + creatorRef.resource}>
-      {creator.names.filter(filterLang)[0].value}
+      {creator.names?.filter(filterLang)[0].value}
     </a>)}
     <br/>
     {modifiedString} {contributor && strings.formatString(strings.byPerson,
     <a href={"agents" + contributorRef.resource}>
-      {contributor.names.filter(filterLang)[0].value}
+      {contributor.names?.filter(filterLang)[0].value}
     </a>)}
     {message && ` ("${message}")`}
   </cite>
@@ -191,4 +191,30 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
     <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
     <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}>{props.confidence}</meter>
   </div>
+}
+
+export function Agent(props: {agent: AgentClass}) {
+  return <>
+    <article>
+      <h1><span className={"emoji"}>👤</span> {`${strings.gedcomX.agent.agent} ${props.agent.name ?? ""}`}</h1>
+      {props.agent.names?.length > 1 && <p>{strings.infoPanel.aka + props.agent.names.map(n => n.value).join(', ')}</p>}
+      {props.agent.homepage && <p>{strings.gedcomX.agent.homepage}: <a href={props.agent.homepage.resource}>{props.agent.homepage.resource}</a></p>}
+      {props.agent.openid && <p>OpenID: <a href={props.agent.openid.resource}>{props.agent.openid.resource}</a></p>}
+      {props.agent.accounts && <>{strings.gedcomX.agent.accounts}: <ul>
+        {props.agent.accounts.map((a, i) => <li key={i}>
+          {strings.formatString(strings.gedcomX.agent.onlineAccount, <>{a.accountName}</>, <a href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</a>)}
+        </li>)}
+      </ul></>}
+      {props.agent.emails && <>{strings.gedcomX.agent.emails}: <ul>
+        {props.agent.emails.map(e => <li key={e.resource}><a href={`mailto:${e.resource}`}>{e.resource}</a></li>)}
+      </ul></>}
+      {props.agent.phones && <>{strings.gedcomX.agent.phones}:
+        <ul>{props.agent.phones.map(p => <li key={p.resource}><a href={`tel:${p.resource}`}>{p.resource}</a></li>)}
+      </ul></>}
+      {props.agent.addresses && <>{strings.gedcomX.agent.addresses}: <ul>
+        {props.agent.addresses.map(a => <li key={a.value}>{a.value}</li>)}
+      </ul></>}
+      {props.agent.person && <p>{strings.gedcomX.agent.person}: <a href={`persons${props.agent.person.resource}`}>{props.agent.person.resource}</a></p>}
+    </article>
+  </>
 }

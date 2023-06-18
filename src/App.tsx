@@ -7,6 +7,7 @@ import {Home, Imprint} from "./components/Home";
 import Statistics from "./components/Statistics";
 import {SourceDescriptions} from "./components/SourceDescriptions";
 import {Documents} from "./components/Documents";
+import {Agents} from "./components/Agents";
 
 function App() {
   // todo: places, agents
@@ -16,6 +17,7 @@ function App() {
       <Route path="/persons" element={<Persons/>}/>
       <Route path="/sources" element={<SourceDescriptions/>}/>
       <Route path="/documents" element={<Documents/>}/>
+      <Route path="/agents" element={<Agents/>}/>
       <Route path="/imprint" element={<Imprint/>}/>
       <Route path="/stats" element={<Statistics/>}/>
     </Routes>

@@ -377,6 +377,13 @@ export class Document extends GedcomX.Document {
   }
 }
 
+export class Agent extends GedcomX.Agent {
+  get name(): string {
+    if (!this.names || this.names.length === 0) return undefined;
+    return this.names[0].value;
+  }
+}
+
 let referenceAge: { age: number, generation: number } = {
   age: undefined,
   generation: undefined
