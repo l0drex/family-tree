@@ -154,7 +154,7 @@ function extensiveData() {
         .setServiceHomepage(new ResourceReference().setResource(faker.internet.url()))
         .setAccountName(faker.internet.userName()))
       .addPhone(new ResourceReference().setResource(faker.phone.number()))
-      .addAddress(new Address().setValue(faker.address.streetAddress(true)))
+      .addAddress(new Address().setValue(faker.location.streetAddress(true)))
       .setId("a1"))
     .addAgent(new Agent()
       .setPerson(new ResourceReference().setResource("#p1"))

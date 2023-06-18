@@ -83,7 +83,7 @@ export class FamilyDB extends Dexie {
     try {
       id = toResource(id).resource.substring(1);
     } catch (e) {
-      return Promise.reject(e);
+      return Promise.reject("Error while parsing resource!");
     }
 
     switch (type) {

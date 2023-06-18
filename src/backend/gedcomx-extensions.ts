@@ -54,7 +54,7 @@ export class Person extends GedcomX.Person {
       return "?";
     }
     // name form that matches language, or if none matches return the first without lang
-    let nameForm = new GedcomX.NameForm(name.nameForms.find(filterPureLang) ?? name.nameForms[0]);
+    let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
     return nameForm.getFullText(true);
   }
 
@@ -176,8 +176,9 @@ export class GDate extends GedcomX.Date {
   }
 
   toString() {
-    if (!this.formal && this.original) {
-      return this.original;
+    if (!this.formal) {
+      if (this.original) return this.original;
+      else return "";
     }
 
     let dateObject = this.toDateObject();
@@ -204,7 +205,7 @@ export function formatJDate(dateObject: Date, length: number) {
       options["day"] = "2-digit";
       break;
   }
-  let date = dateObject.toLocaleDateString(config.browserLang, options);
+  let date = dateObject.toLocaleDateString(strings.getLanguage(), options);
 
   let time = "";
   if (length >= 14) {
@@ -217,7 +218,7 @@ export function formatJDate(dateObject: Date, length: number) {
     if (length >= 20) {
       options["second"] = "2-digit";
     }
-    time = dateObject.toLocaleTimeString(config.browserLang, options);
+    time = dateObject.toLocaleTimeString(strings.getLanguage(), options);
   }
 
   return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;

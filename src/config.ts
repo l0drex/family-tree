@@ -1,7 +1,5 @@
 // configuration variables
 const config = {
-  // language to use
-  browserLang: window.navigator.language.substring(0, 2),
   gridSize: 32,
   // distance between nodes
   margin: 20,

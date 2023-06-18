@@ -4,7 +4,6 @@ import {Fact, FamilyView, GDate, Person, setReferenceAge} from "./gedcomx-extens
 import {ResourceReference} from "gedcomx-js";
 import {PersonFactTypes} from "./gedcomx-enums";
 import {strings} from "../main";
-import config from "../config";
 
 test("Graph Family", () => {
   let graphFamily = new GraphFamily();
@@ -91,7 +90,6 @@ test("get full name returns the correct name", () => {
     .addNameForm(new GedcomX.NameForm().setFullText("Maximilian Mustermann")))
   expect(person.fullName).toBe("Maximilian Mustermann");
 
-
   strings.setLanguage("en");
 
   person.addName(new GedcomX.Name()
@@ -113,7 +111,7 @@ test("get full name returns the correct name", () => {
 })
 
 test("toString works", () => {
-  config.browserLang = "en";
+  strings.setLanguage("en");
   let fact = new Fact().setType(PersonFactTypes.Birth);
   expect(fact.toString()).toBe("Birth")
 
@@ -132,7 +130,7 @@ test("toDateObject works", () => {
 
   gDate.setFormal("2000");
   date = gDate.toDateObject();
-  expect(date).toBeUndefined();
+  expect(date.getTime()).toBe(Date.UTC(2000, 0));
 
   gDate.setFormal("+2000");
   date = gDate.toDateObject();
@@ -167,7 +165,7 @@ test("toDateObject works", () => {
 })
 
 test("toString works", () => {
-  config.browserLang = "en";
+  strings.setLanguage("en");
 
   let date = new GDate();
   expect(date.toString()).toBe("")
