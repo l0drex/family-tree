@@ -20,7 +20,7 @@ function DocumentOverview() {
     <h1><span className={"emoji"}>📄</span> {strings.gedcomX.document.documents}</h1>
     {hasDocuments && <ul className={"clickable"}>
       {documents?.map(doc =>
-        <li key={doc.id}><a href={`#${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</a></li>
+        <li key={doc.id}><a href={`documents/${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</a></li>
       )}
     </ul>}
     {!hasDocuments && <p>{strings.gedcomX.document.noDocuments}</p>}

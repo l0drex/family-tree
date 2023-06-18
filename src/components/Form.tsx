@@ -73,7 +73,7 @@ function Form(props) {
       </div>
 
       <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
-      {dataExists && <a className="button" href="/family-tree/persons">
+      {dataExists && <a className="button" href="/persons">
         {strings.form.continueSession}
       </a>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>

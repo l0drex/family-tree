@@ -23,7 +23,7 @@ function DescriptionOverview() {
     <h1><span className={"emoji"}>📚</span> {strings.gedcomX.sourceDescription.sourceDescriptions}</h1>
     {hasSources && <ul className={"clickable"}>
       {descriptions?.map(sd =>
-        <li key={sd.id}><a href={`#${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</a></li>
+        <li key={sd.id}><a href={`sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</a></li>
       )}
     </ul>}
     {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}

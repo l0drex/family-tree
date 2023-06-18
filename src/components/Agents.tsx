@@ -20,7 +20,7 @@ function AgentOverview() {
     <h1><span className={"emoji"}>👤</span> {strings.gedcomX.agent.agents}</h1>
     {hasAgents && <ul className={"clickable"}>
       {agents?.map(agent =>
-        <li key={agent.id}><a href={`#${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</a></li>)}
+        <li key={agent.id}><a href={`agents/${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</a></li>)}
     </ul>}
   </article>
 }

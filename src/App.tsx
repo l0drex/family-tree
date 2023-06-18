@@ -22,16 +22,16 @@ function App() {
     <Routes>
       <Route path="/" element={<Home/>}/>
       <Route path="/persons" element={<Persons setHeaderChildren={setChildren}/>}/>
-      <Route path="/sources" element={<SourceDescriptions/>}/>
-      <Route path="/documents" element={<Documents/>}/>
-      <Route path="/agents" element={<Agents/>}/>
+      <Route path="/sources/:id?" element={<SourceDescriptions/>}/>
+      <Route path="/documents/:id?" element={<Documents/>}/>
+      <Route path="/agents/:id?" element={<Agents/>}/>
       <Route path="/imprint" element={<Imprint/>}/>
       <Route path="/stats" element={<Statistics/>}/>
     </Routes>
     <footer>
         <span>
           {strings.formatString(strings.footer.sourceCode, <a
-            href={"https://github.com/l0drex/family-tree"}>Github</a>)}
+            href="https://github.com/l0drex/family-tree">Github</a>)}
         </span>
       <a href="/family-tree/imprint" className="important">
         {strings.footer.imprint}
