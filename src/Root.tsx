@@ -1,26 +1,45 @@
 import * as React from "react";
+import {createBrowserRouter, Link, Outlet, RouterProvider} from "react-router-dom";
 import './App.css';
 import {strings} from "./main";
-import Persons from "./components/Persons";
-import {createBrowserRouter, Link, Outlet, Route, RouterProvider, Routes} from "react-router-dom";
-import {Home, Imprint} from "./components/Home";
-import Statistics from "./components/Statistics";
-import {SourceDescriptions} from "./components/SourceDescriptions";
-import {Documents} from "./components/Documents";
-import {Agents} from "./components/Agents";
-import Header from "./components/Header";
 import {useState} from "react";
+import {db} from "./backend/db";
+import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
+import Header from "./components/Header";
+import {Home, Imprint} from "./components/Home";
+import Persons from "./components/Persons";
+import Statistics from "./components/Statistics";
+import {SourceDescriptionOverview, SourceDescriptionView} from "./components/SourceDescriptions";
+import {DocumentOverview, DocumentView} from "./components/Documents";
+import {AgentOverview, AgentView} from "./components/Agents";
 
 // todo: places
 const router = createBrowserRouter([
   {
     path: "*", Component: Layout, children: [
       {index: true, Component: Home},
-      {path: "persons/:id?", Component: Persons},
+      {path: "persons/:id?", Component: Persons, loader: ({params}) => {
+          if (!params.id) return db.persons.toCollection().first().then(p => new Person(p))
+          return db.personWithId(params.id);
+        }
+      },
       {path: "stats", Component: Statistics},
-      {path: "sources/:id?", Component: SourceDescriptions},
-      {path: "documents/:id?", Component: Documents},
-      {path: "agents/:id?", Component: Agents},
+      {
+        path: "sources", children: [
+          {index: true, Component: SourceDescriptionOverview, loader: () => db.sourceDescriptions.toArray().then(s => s.map(d => new SourceDescription(d)))},
+          {path: ":id", Component: SourceDescriptionView, loader: ({params}) => db.sourceDescriptionWithId(params.id)}
+        ]
+      },
+      {
+        path: "documents", children: [
+          {index: true, Component: DocumentOverview, loader: () => db.documents.toArray().then(d => new Document(d))},
+          {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
+        ]
+      },
+      {path: "agents", children: [
+        {index: true, Component: AgentOverview, loader: () => db.agents.toArray().then(a => a.map(d => new Agent(d)))},
+        {path: ":id", Component: AgentView, loader: ({params}) => db.agentWithId(params.id)}
+        ]},
       {path: "imprint", Component: Imprint}
     ]
   }

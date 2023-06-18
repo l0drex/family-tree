@@ -8,8 +8,7 @@ import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
-import {db} from "../backend/db";
-import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
 import {HeaderContext} from "../Root";
 
 export const FocusPersonContext = createContext<Person>(null);
@@ -62,15 +61,9 @@ const ColorModeParam = "colorMode";
 function Persons() {
   const setHeaderChildren = useContext(HeaderContext);
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
-  const {id} = useParams();
-  const [focusPerson, setFocus] = useState<Person>(null);
+  const focusPerson = useLoaderData() as Person;
   const [focusHidden, hideFocus] = useState(false);
-
-  useEffect(() => {
-    db.personWithId(id)
-      .catch(() => db.persons.toCollection().first().then(p => new Person(p)))
-      .then(p => setFocus(p));
-  }, [id]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
@@ -97,21 +90,16 @@ function Persons() {
 
   const onRefocus = useMemo(() => {
     function onRefocus(newFocus: Person) {
-      if (newFocus.getId() === id) {
+      if (newFocus.getId() === focusPerson.id) {
         hideFocus(!focusHidden)
         return;
       }
 
-      let url = new URL(window.location.href);
-      url.pathname = `family-tree/persons/${newFocus.getId()}`;
-      window.history.pushState({}, "", url.toString());
-
-      hideFocus(false);
-      setFocus(newFocus);
+      navigate(`/persons/${newFocus.getId()}`);
     }
 
     return onRefocus;
-  }, [focusHidden, id]);
+  }, [focusPerson, focusHidden, navigate]);
 
   useEffect(() => {
     setHeaderChildren([
