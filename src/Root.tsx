@@ -2,7 +2,7 @@ import * as React from "react";
 import './App.css';
 import {strings} from "./main";
 import Persons from "./components/Persons";
-import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
+import {createBrowserRouter, Link, Outlet, Route, RouterProvider, Routes} from "react-router-dom";
 import {Home, Imprint} from "./components/Home";
 import Statistics from "./components/Statistics";
 import {SourceDescriptions} from "./components/SourceDescriptions";
@@ -11,23 +11,37 @@ import {Agents} from "./components/Agents";
 import Header from "./components/Header";
 import {useState} from "react";
 
-function App() {
+// todo: places
+const router = createBrowserRouter([
+  {
+    path: "*", Component: Layout, children: [
+      {index: true, Component: Home},
+      {path: "persons/:id?", Component: Persons},
+      {path: "stats", Component: Statistics},
+      {path: "sources/:id?", Component: SourceDescriptions},
+      {path: "documents/:id?", Component: Documents},
+      {path: "agents/:id?", Component: Agents},
+      {path: "imprint", Component: Imprint}
+    ]
+  }
+], {basename: "/family-tree"});
+
+export default function App() {
+  return <RouterProvider router={router}/>;
+}
+
+export const HeaderContext = React.createContext<Function>(undefined);
+
+function Layout() {
   const [headerChildren, setChildren] = useState([]);
 
-  // todo: places
-  return <BrowserRouter basename={"family-tree"}>
+  return <>
     <Header>
       {headerChildren}
     </Header>
-    <Routes>
-      <Route path="/" element={<Home/>}/>
-      <Route path="/persons/:id?" element={<Persons setHeaderChildren={setChildren}/>}/>
-      <Route path="/sources/:id?" element={<SourceDescriptions/>}/>
-      <Route path="/documents/:id?" element={<Documents/>}/>
-      <Route path="/agents/:id?" element={<Agents/>}/>
-      <Route path="/imprint" element={<Imprint/>}/>
-      <Route path="/stats" element={<Statistics/>}/>
-    </Routes>
+    <HeaderContext.Provider value={setChildren}>
+      <Outlet/>
+    </HeaderContext.Provider>
     <footer>
         <span>
           {strings.formatString(strings.footer.sourceCode, <a
@@ -40,7 +54,5 @@ function App() {
         {strings.footer.bugReport}
       </a>
     </footer>
-  </BrowserRouter>
+  </>
 }
-
-export default App;

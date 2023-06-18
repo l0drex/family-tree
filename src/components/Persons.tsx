@@ -1,5 +1,5 @@
 import * as React from "react";
-import {createContext, useEffect, useMemo, useState} from "react";
+import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import {strings} from "../main";
 import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
@@ -10,6 +10,7 @@ import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 import {db} from "../backend/db";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {HeaderContext} from "../Root";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -58,7 +59,8 @@ function ViewOptions(props) {
 const ViewModeParam = "viewMode";
 const ColorModeParam = "colorMode";
 
-function Persons(props: { setHeaderChildren: (children) => void }) {
+function Persons() {
+  const setHeaderChildren = useContext(HeaderContext);
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
   const {id} = useParams();
   const [focusPerson, setFocus] = useState<Person>(null);
@@ -110,8 +112,6 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
 
     return onRefocus;
   }, [focusHidden, id]);
-
-  const setHeaderChildren = props.setHeaderChildren;
 
   useEffect(() => {
     setHeaderChildren([
