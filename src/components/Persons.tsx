@@ -1,6 +1,6 @@
 import * as React from "react";
 import {createContext, useEffect, useMemo, useState} from "react";
-import {getUrlOption, strings} from "../main";
+import {strings} from "../main";
 import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
@@ -9,7 +9,7 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 import {db} from "../backend/db";
-import {useParams} from "react-router-dom";
+import {useParams, useSearchParams} from "react-router-dom";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -54,9 +54,11 @@ function ViewOptions(props) {
   );
 }
 
+const ViewModeParam = "viewMode";
+const ColorModeParam = "colorMode";
+
 function Persons(props: { setHeaderChildren: (children) => void }) {
-  const [viewMode, setViewMode] = useState(getUrlOption("view", ViewMode.DEFAULT));
-  const [colorMode, setColorMode] = useState(getUrlOption("colorMode", ColorMode.GENDER));
+  const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
   const {id} = useParams();
   const [focusPerson, setFocus] = useState<Person>(null);
   const [focusHidden, hideFocus] = useState(false);
@@ -79,29 +81,15 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
 
-    let url = new URL(window.location.href);
-    if (view === ViewMode.DEFAULT) {
-      url.searchParams.delete("view");
-    } else {
-      url.searchParams.set("view", view);
-    }
-    window.history.pushState({}, "", url.toString());
-
-    setViewMode(view as ViewMode);
+    searchParams.set(ViewModeParam, view);
+    setSearchParams(searchParams);
   }
 
   function onColorChanged(e) {
     let colorMode = (e.target as HTMLSelectElement).value;
 
-    let url = new URL(window.location.href);
-    if (colorMode === ColorMode.GENDER) {
-      url.searchParams.delete("colorMode");
-    } else {
-      url.searchParams.set("colorMode", colorMode);
-    }
-    window.history.pushState({}, "", url.toString());
-
-    setColorMode(colorMode as ColorMode);
+    searchParams.set(ColorModeParam, colorMode);
+    setSearchParams(searchParams);
   }
 
   const onRefocus = useMemo(() => {
@@ -137,11 +125,11 @@ function Persons(props: { setHeaderChildren: (children) => void }) {
       </FocusPersonContext.Provider>
       <main>
         <article id="family-tree-container">
-          <ViewOptions view={viewMode} colorMode={colorMode} onViewChanged={onViewChanged}
+          <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
           <FocusPersonContext.Provider value={focusPerson}>
-            <TreeView colorMode={colorMode} focusHidden={focusHidden}
-                      onRefocus={onRefocus} viewMode={viewMode}/>
+            <TreeView colorMode={searchParams.get(ColorModeParam) as ColorMode} focusHidden={focusHidden}
+                      onRefocus={onRefocus} viewMode={searchParams.get(ViewModeParam) as ViewMode}/>
           </FocusPersonContext.Provider>
         </article>
       </main>

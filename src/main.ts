@@ -40,13 +40,3 @@ export function unique<T extends Equals>(elements: T[]): T[] {
 export async function hasData() {
   return db.persons.toCollection().first().then(p => typeof p !== "undefined").catch(() => false);
 }
-
-export function getUrlOption<T>(name: string, fallback: T): T {
-  let url = new URL(window.location.href);
-  if (url.searchParams.has(name)) {
-    let value = url.searchParams.get(name) as T;
-    if (value) return value;
-  }
-
-  return fallback;
-}
