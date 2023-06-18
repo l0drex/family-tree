@@ -4,11 +4,13 @@ import {hasData, strings} from "../main";
 import {useEffect, useState} from "react";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
+import {Link, useNavigate} from "react-router-dom";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
   const [file, setFile] = useState("");
   const [dataExists, setDataExists] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let familyData = localStorage.getItem("familyData");
@@ -47,13 +49,13 @@ function Form(props) {
 
   function loadTestData(e) {
     e.preventDefault();
-    saveDataAndRedirect(getTestData());
+    saveDataAndRedirect(getTestData(), navigate);
   }
 
   return (
     <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
       event.preventDefault();
-      parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(saveDataAndRedirect);
+      parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(data => saveDataAndRedirect(data, navigate));
     }}>
       <div className="card-wrapper">
         <div
@@ -73,9 +75,9 @@ function Form(props) {
       </div>
 
       <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
-      {dataExists && <a className="button" href="/persons">
+      {dataExists && <Link className="button" to="/persons">
         {strings.form.continueSession}
-      </a>}
+      </Link>}
       <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
     </form>
   );
@@ -99,15 +101,10 @@ export async function parseFile(gedcomFile) {
   });
 }
 
-export function saveDataAndRedirect(data: object) {
+export function saveDataAndRedirect(data: object, navigate: (url: string) => void) {
   if (typeof data !== "object") throw new Error("Data type is invalid!")
 
-  db.load(data)
-    .then(() => {
-      let url = new URL(window.location.href);
-      url.pathname = "/family-tree/persons";
-      window.location.href = url.href;
-    });
+  db.load(data).then(() => navigate("/persons"));
 }
 
 export default Form;

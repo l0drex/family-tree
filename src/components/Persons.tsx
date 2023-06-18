@@ -9,11 +9,12 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 import {db} from "../backend/db";
-import {useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 
 export const FocusPersonContext = createContext<Person>(null);
 
 function ViewOptions(props) {
+  const navigate = useNavigate();
   let fileInput = React.createRef<HTMLInputElement>();
 
   return (
@@ -43,7 +44,7 @@ function ViewOptions(props) {
 
       <div id="file-buttons">
         <input type="file" hidden ref={fileInput} accept="application/json"
-               onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(saveDataAndRedirect)}/>
+               onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
         <button className="icon-only" onClick={e => {
           e.preventDefault();
           fileInput.current.click();

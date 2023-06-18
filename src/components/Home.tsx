@@ -43,7 +43,6 @@ function Article(props) {
   );
 }
 
-
 function NavigationTutorial() {
   return <Article title={strings.home.navigationArticle.title} emoji="🖥">
     <p>
