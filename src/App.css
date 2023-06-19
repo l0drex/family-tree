@@ -3,6 +3,10 @@
 :root {
   background: var(--background-lower);
   color: var(--foreground);
+  font-family: "Open Sans", "Noto Sans", sans-serif;
+}
+
+h1, #title {
   font-family: "Nunito", sans-serif;
 }
 
