@@ -26,7 +26,6 @@ import {ViolinPlot} from "@visx/stats";
 import {AxisLeft} from "@visx/axis";
 import {hasData, strings} from "../main";
 import {Legend} from "@visx/visx";
-import Header from "./Header";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {Loading} from "./Loading";

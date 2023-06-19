@@ -1,7 +1,6 @@
 import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
-import config from "../config";
 import {
   baseUri, DocumentTypes, KnownResourceTypes,
   NameTypes,
