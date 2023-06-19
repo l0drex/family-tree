@@ -2,7 +2,7 @@ import * as React from "react";
 import {createBrowserRouter, Link, Outlet, RouterProvider} from "react-router-dom";
 import './App.css';
 import {strings} from "./main";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
 import Header from "./components/Header";
@@ -18,7 +18,8 @@ const router = createBrowserRouter([
   {
     path: "*", Component: Layout, children: [
       {index: true, Component: Home},
-      {path: "persons/:id?", Component: Persons, loader: ({params}) => {
+      {
+        path: "persons/:id?", Component: Persons, loader: ({params}) => {
           if (!params.id) return db.persons.toCollection().first().then(p => new Person(p))
           return db.personWithId(params.id);
         }
@@ -26,7 +27,11 @@ const router = createBrowserRouter([
       {path: "stats", Component: Statistics},
       {
         path: "sources", children: [
-          {index: true, Component: SourceDescriptionOverview, loader: () => db.sourceDescriptions.toArray().then(s => s.map(d => new SourceDescription(d)))},
+          {
+            index: true,
+            Component: SourceDescriptionOverview,
+            loader: () => db.sourceDescriptions.toArray().then(s => s.map(d => new SourceDescription(d)))
+          },
           {path: ":id", Component: SourceDescriptionView, loader: ({params}) => db.sourceDescriptionWithId(params.id)}
         ]
       },
@@ -36,10 +41,16 @@ const router = createBrowserRouter([
           {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
         ]
       },
-      {path: "agents", children: [
-        {index: true, Component: AgentOverview, loader: () => db.agents.toArray().then(a => a.map(d => new Agent(d)))},
-        {path: ":id", Component: AgentView, loader: ({params}) => db.agentWithId(params.id)}
-        ]},
+      {
+        path: "agents", children: [
+          {
+            index: true,
+            Component: AgentOverview,
+            loader: () => db.agents.toArray().then(a => a.map(d => new Agent(d)))
+          },
+          {path: ":id", Component: AgentView, loader: ({params}) => db.agentWithId(params.id)}
+        ]
+      },
       {path: "imprint", Component: Imprint}
     ]
   }
