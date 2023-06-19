@@ -2,7 +2,7 @@ import * as React from "react";
 import {createBrowserRouter, Link, Outlet, RouterProvider} from "react-router-dom";
 import './App.css';
 import {strings} from "./main";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
 import Header from "./components/Header";
@@ -70,7 +70,9 @@ function Layout() {
       {headerChildren}
     </Header>
     <HeaderContext.Provider value={setChildren}>
-      <Outlet/>
+      <div className={"main-container"}>
+        <Outlet/>
+      </div>
     </HeaderContext.Provider>
     <footer>
         <span>

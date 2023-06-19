@@ -62,7 +62,7 @@ function TreeView(props: Props) {
     }
     setupCola()
       .then(() => animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme));
-  }, [viewGraph, viewGraphState, props.colorMode, isLandscape, isDarkColorscheme]);
+  }, [viewGraph, viewGraphState, props.colorMode, isLandscape, isDarkColorscheme, props.focusHidden]);
 
   function onEtcClicked(family: GraphFamily) {
     setViewGraphState(LoadingState.LOADING);

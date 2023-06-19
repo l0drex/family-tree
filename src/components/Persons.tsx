@@ -65,15 +65,6 @@ function Persons() {
   const [focusHidden, hideFocus] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let root = document.querySelector<HTMLDivElement>("#root");
-    if (focusHidden) {
-      root.classList.remove("sidebar-visible");
-    } else {
-      root.classList.add("sidebar-visible");
-    }
-  }, [focusHidden])
-
   function onViewChanged(e) {
     let view = (e.target as HTMLSelectElement).value;
 
@@ -89,7 +80,7 @@ function Persons() {
   }
 
   const onRefocus = useMemo(() => {
-    function onRefocus(newFocus: Person) {
+    return function onRefocus(newFocus: Person) {
       if (newFocus.getId() === focusPerson.id) {
         hideFocus(!focusHidden)
         return;
@@ -97,8 +88,6 @@ function Persons() {
 
       navigate(`/persons/${newFocus.getId()}`);
     }
-
-    return onRefocus;
   }, [focusPerson, focusHidden, navigate]);
 
   useEffect(() => {

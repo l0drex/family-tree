@@ -31,8 +31,14 @@ h1, #title {
   box-sizing: border-box;
 }
 
-main {
+.main-container {
   grid-area: main;
+  display: flex;
+  gap: 1rem;
+}
+
+main {
+  flex-basis: 75%;
 }
 
 main > * {
@@ -57,9 +63,9 @@ aside {
   flex-flow: row;
   max-width: 100vw;
   flex-wrap: wrap;
-  grid-area: sidebar;
   max-height: 30vh;
   padding: 0 1rem;
+  flex-basis: 25%;
 }
 
 aside > * {
@@ -125,8 +131,7 @@ footer {
   color: var(--foreground-secondary);
   text-align: left;
   grid-area: footer;
-  padding: .5rem 1rem;
-  padding-top: 0;
+  padding: 0 1rem .5rem;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -199,13 +204,8 @@ object[type="application/pdf"], object[type^="video"] {
     }
   }
 
-  #root.sidebar-visible {
-    grid-template-areas:
-    "header"
-    "sidebar"
-    "main"
-    "footer";
-    grid-template-rows: auto auto 2fr auto;
+  .main-container {
+    flex-direction: column;
   }
 }
 
@@ -219,12 +219,8 @@ object[type="application/pdf"], object[type^="video"] {
     "footer";
   }
 
-  #root.sidebar-visible {
-    grid-template-columns: 1fr 3fr;
-    grid-template-areas:
-      "header header"
-      "sidebar main"
-      "footer footer";
+  .main-container {
+    flex-direction: row;
   }
 
   main {
