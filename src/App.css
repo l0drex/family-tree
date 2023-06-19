@@ -39,6 +39,7 @@ h1, #title {
 
 main {
   flex-basis: 75%;
+  flex-grow: 1;
 }
 
 main > * {
