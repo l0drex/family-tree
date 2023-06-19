@@ -290,7 +290,6 @@ export default function Statistics() {
   });
 
   return <>
-    <Header/>
     {dataExists ?
     <main id="stats">
       <ConfidenceStats/>
