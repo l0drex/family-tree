@@ -3,20 +3,20 @@ import {filterLang, strings} from "../main";
 import {Link, useLoaderData} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {Coverage, Note, SourceReference} from "./GedcomXComponents";
+import {Article, ClickableLi, Main} from "../App";
 
 export function SourceDescriptionOverview() {
   const descriptions = useLoaderData() as SourceDescription[];
   const hasSources = descriptions && descriptions.length > 0;
 
-  return <main><article>
-    <h1><span className={"emoji"}>📚</span> {strings.gedcomX.sourceDescription.sourceDescriptions}</h1>
+  return <Main><Article emoji="📚" title={strings.gedcomX.sourceDescription.sourceDescriptions}>
     {hasSources && <ul className={"clickable"}>
       {descriptions?.map(sd =>
-        <li key={sd.id}><Link to={`${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</Link></li>
+        <ClickableLi key={sd.id}><Link to={`${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</Link></ClickableLi>
       )}
     </ul>}
     {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}
-  </article></main>;
+  </Article></Main>;
 }
 
 export function SourceDescriptionView() {
@@ -48,9 +48,8 @@ export function SourceDescriptionView() {
 
   const hasMisc = componentOf || sourceDescription.rights || sourceDescription.repository || sourceDescription.analysis;
 
-  return <main>
-    <article>
-      <h1><span className={"emoji"}>{sourceDescription?.emoji}</span> {title}</h1>
+  return <Main>
+    <Article emoji={sourceDescription?.emoji} title={title}>
       {hasMisc && <section className={"misc"}>
         {componentOf && <div>componentOf: <Link
           to={`/sources/${componentOf.getDescription().substring(1)}`}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</Link>
@@ -72,9 +71,9 @@ export function SourceDescriptionView() {
             .map((c, i) => <li key={i}>{c.getValue()}</li>)}
         </ul>
       </section>}
-    </article>
+    </Article>
     {sourceDescription.getCoverage().map((c, i) => <Coverage coverage={c} key={i}/>)}
     {sourceDescription.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
     {sourceDescription.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
-  </main>
+  </Main>
 }

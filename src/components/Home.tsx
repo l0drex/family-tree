@@ -1,15 +1,13 @@
 import * as React from "react";
 import {strings} from "../main";
 import Form from "./Form";
-import "./Article.css";
+import {Article, Details, Kbd, Main, VanillaLink} from "../App";
 
 export function Home() {
-  return <>
-    <main>
-      <Uploader/>
-      <NavigationTutorial/>
-    </main>
-  </>;
+  return <Main>
+    <Uploader/>
+    <NavigationTutorial/>
+  </Main>;
 }
 
 function Uploader() {
@@ -22,24 +20,14 @@ function Uploader() {
         {strings.home.uploadArticle.content}
       </p>
       <Form submit={strings.home.uploadArticle.openButton}/>
-      <details>
-        <summary><span className="emoji">🗒️</span> {strings.home.uploadArticle.detailSummary}</summary>
-        <p>
+      <Details title={<><span className="emoji">🗒️</span> {strings.home.uploadArticle.detailSummary}</>}>
+        <p className="my-2">
           {strings.formatString(strings.home.uploadArticle.detail,
-            <a href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">
-              {strings.linkContent}</a>)}
+            <VanillaLink href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">
+              {strings.linkContent}</VanillaLink>)}
         </p>
-      </details>
+      </Details>
     </Article>
-  );
-}
-
-function Article(props) {
-  return (
-    <article lang={props.lang}>
-      <h1><span className="emoji">{props.emoji}</span> {props.title}</h1>
-      {props.children}
-    </article>
   );
 }
 
@@ -47,19 +35,19 @@ function NavigationTutorial() {
   return <Article title={strings.home.navigationArticle.title} emoji="🖥">
     <p>
       {strings.formatString(strings.home.navigationArticle.content,
-        <kbd>{strings.ctrl}</kbd>)}
+        <Kbd>{strings.ctrl}</Kbd>)}
     </p>
   </Article>
 }
 
 export function Imprint() {
-  return <main>
+  return <Main>
     <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
       <p>
         {strings.formatString(strings.imprint.privacyArticle.content,
-          <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
+          <VanillaLink href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
             {strings.linkContent}
-          </a>)}
+          </VanillaLink>)}
       </p>
     </Article>
     <Article title={strings.imprint.imprintArticle.title} emoji="📇">
@@ -68,9 +56,9 @@ export function Imprint() {
           Hoffmann, Lorenz <br/>
           Robert-Sterl Str 5c <br/>
           01219 Dresden <br/>
-          <a href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</a>
+          <VanillaLink href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</VanillaLink>
         </address>
       </p>
     </Article>
-  </main>
+  </Main>
 }

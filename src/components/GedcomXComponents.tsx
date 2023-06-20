@@ -8,13 +8,13 @@ import {
 } from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
+import {Article, ReactLink} from "../App";
 
 export function Note(props: { note: gedcomX.Note }) {
-  return <article>
-    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.gedcomX.note}</h1>
+  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.note}>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
-  </article>
+  </Article>
 }
 
 export function Attribution(props: { attribution: gedcomX.Attribution }) {
@@ -64,27 +64,25 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
 }
 
 export function SourceReference(props: { reference: gedcomX.SourceReference }) {
-  return <article>
-    <h1><span className="emoji">{"📖"}</span> {strings.gedcomX.sourceDescription.sourceDescription}</h1>
+  return <Article emoji="📖" title={strings.gedcomX.sourceDescription.sourceDescription}>
     <p>
-      <Link to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</Link>
+      <ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
       {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
     </p>
-  </article>
+  </Article>
 }
 
 export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <article>
-    <h1><span className={"emoji"}>🗺️</span> {strings.sourceDescriptions.coverage}</h1>
+  return <Article emoji="🗺️" title={strings.sourceDescriptions.coverage}>
     <p>
       {props.coverage.temporal && <>{`${strings.gedcomX.coverage.temporal}: ${date}`}</>}
       {props.coverage.spatial && <>{strings.gedcomX.coverage.spatial + ": "} <PlaceReference
         reference={props.coverage.spatial}/></>}
     </p>
-  </article>
+  </Article>
 }
 
 export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
@@ -112,8 +110,8 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
       break;
   }
 
-  return <div className={"confidence"}>
+  return <div className={"text-center"}>
     <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
-    <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}>{props.confidence}</meter>
+    <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3} className="rounded-full">{props.confidence}</meter>
   </div>
 }

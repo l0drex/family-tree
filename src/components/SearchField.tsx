@@ -4,7 +4,6 @@ import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import * as GedcomX from "gedcomx-js";
 import {Person} from "../backend/gedcomx-extensions";
-import "./Form.css";
 
 interface Props {
   onRefocus: (newFocus: GedcomX.Person) => void
@@ -59,11 +58,11 @@ export default function SearchField(props: Props) {
     .then(persons => persons.map(p => new Person(p))))
 
   return (
-    <form id="name-form" className="name-form search"
+    <form id="name-form" className="mx-auto max-w-fit"
           onSubmit={refocus}>
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
       <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false"
-             className={hasError ? "error" : ""}/>
+             className="rounded-full px-4 bg-white bg-opacity-50 mr-4 placeholder-neutral-600"/>
       <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
       {persons && <datalist id="names">
         {persons.map(p =>

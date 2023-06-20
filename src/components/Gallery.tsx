@@ -7,7 +7,7 @@ interface Props {
 export function Gallery(props: Props) {
   const [index, scroll] = useState(0);
 
-  return <article className="gallery">
+  return <section className="rounded-2xl">
     {props.children[index]}
     {props.children.length > 1 && <span className="buttons">
       {<button className="inline prev" onClick={() =>
@@ -15,5 +15,5 @@ export function Gallery(props: Props) {
       {<button className="inline next" onClick={() =>
         scroll(i => Math.min(props.children.length - 1, i + 2))}>➡</button>}
     </span>}
-  </article>;
+  </section>;
 }

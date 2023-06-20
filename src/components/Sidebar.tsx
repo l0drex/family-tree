@@ -6,5 +6,7 @@ export default function Sidebar(props) {
     root.classList.add("sidebar-visible");
   }, [])
 
-  return <aside>{props.children}</aside>
+  return <aside className="overflow-y-auto overflow-x-scroll flex gap-4 portrait:flex-row landscape:flex-col flex-wrap py-4 ml-4 basis-1/4">
+    {props.children}
+  </aside>
 }

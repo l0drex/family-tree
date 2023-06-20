@@ -1,4 +1,3 @@
-import './Loading.css';
 
 export function Loading(props: {text: string, value?: number, max?: number}) {
   return <div className="loading">

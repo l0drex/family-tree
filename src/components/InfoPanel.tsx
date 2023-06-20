@@ -1,4 +1,3 @@
-import './InfoPanel.css';
 import {PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {Gallery} from "./Gallery";
@@ -9,6 +8,7 @@ import {GDate, Person} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
 import {Confidence, Note, SourceReference} from "./GedcomXComponents";
+import {Article, Details} from "../App";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
@@ -78,8 +78,8 @@ function InfoPanel() {
 
   return (
     <Sidebar id="info-panel">
-      <section className="title">
-        <h1 className="name">{person.fullName}</h1>
+      <section className="text-2xl text-center">
+        <h1 className="font-bold">{person.fullName}</h1>
         {person.marriedName && <h2 className="birth-name">
           {strings.formatString(strings.infoPanel.born, person.birthName)}
         </h2>}
@@ -96,16 +96,17 @@ function InfoPanel() {
           let credit = image.getCitations()[0].getValue();
           return <div key={image.id}>
             <img src={image.getAbout()}
-                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}/>
-            <span className="credits">
+                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
+                 className="rounded-2xl"/>
+            <div className="relative bottom-8 py-1 text-center backdrop-blur rounded-b-2xl bg-opacity-50 bg-gray-200 dark:bg-neutral-700 dark:bg-opacity-50">
               © <a href={image.getAbout()}>{credit}</a>
-            </span>
+            </div>
           </div>
         })}
       </Gallery>}
 
-      {person.facts && <article>
-        <ul id="factView">
+      {person.facts && <Article>
+        <ul id="factView" className="pl-4">
           {person.getFacts()
             .filter(filterLang)
             .sort((a, b) => {
@@ -139,59 +140,51 @@ function InfoPanel() {
               {f.toString()}
             </li>)}
         </ul>
-      </article>}
+      </Article>}
 
-      <details>
-        <summary>{strings.infoPanel.relationships}</summary>
-        {parents && parents.length > 0 && <article>
-          <h1>👪 {strings.infoPanel.parents}</h1>
+      <Details title={strings.infoPanel.relationships}>
+        {parents && parents.length > 0 && <Article emoji="👪" title={strings.infoPanel.parents}>
           <ul>
             {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {children && children.length > 0 && <article>
-          <h1>🍼 {strings.infoPanel.children}</h1>
+        {children && children.length > 0 && <Article emoji="🍼" title={strings.infoPanel.children}>
           <ul>
             {children.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {partner && partner.length > 0 && <article>
-          <h1>❤️ {strings.infoPanel.partner}</h1>
+        {partner && partner.length > 0 && <Article emoji="❤️️" title={strings.infoPanel.partner}>
           <ul>
             {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {godparents && godparents.length > 0 && <article>
-          <h1>⛅ {strings.infoPanel.godparents}</h1>
+        {godparents && godparents.length > 0 && <Article emoji="⛅" title={strings.infoPanel.godparents}>
           <ul>
             {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {godchildren && godchildren.length > 0 && <article>
-          <h1>⛅ {strings.infoPanel.godchildren}</h1>
+        {godchildren && godchildren.length > 0 && <Article emoji="⛅" title={strings.infoPanel.godchildren}>
           <ul>
             {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {enslavedBy && enslavedBy.length > 0 && <article>
-          <h1>⛓️ {strings.infoPanel.enslavedBy}</h1>
+        {enslavedBy && enslavedBy.length > 0 && <Article emoji="⛓" title={strings.infoPanel.enslavedBy}>
           <ul>
             {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
+        </Article>}
 
-        {slaves && slaves.length > 0 && <article>
-          <h1>⛓️ {strings.infoPanel.slaves}</h1>
+        {slaves && slaves.length > 0 && <Article emoji="⛓" title={strings.infoPanel.slaves}>
           <ul>
             {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
-        </article>}
-      </details>
+        </Article>}
+      </Details>
 
       {person.getNotes().filter(filterLang).map((note, i) => {
         return <Note note={note} key={i}/>

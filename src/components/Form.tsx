@@ -1,10 +1,10 @@
-import './Form.css';
 import * as React from "react";
 import {hasData, strings} from "../main";
 import {useEffect, useState} from "react";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
 import {Link, useNavigate} from "react-router-dom";
+import {ButtonLike} from "../App";
 
 function Form(props) {
   const [focused, setFocused] = useState(false);
@@ -56,29 +56,30 @@ function Form(props) {
     <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
       event.preventDefault();
       parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(data => saveDataAndRedirect(data, navigate));
-    }}>
-      <div className="card-wrapper">
-        <div
-          className={"card"
-            + (focused ? " focused" : "")
-            + (file !== "" ? " file-selected" : "")}
-          onDragEnter={checkDropAllowed} onDragOver={checkDropAllowed}
-          onDrop={onDrop}
-          onDragLeave={removeFocus} onDragEnd={removeFocus}>
-          <label htmlFor="gedcom-file">
-            {strings.form.fileInputLabel}
-          </label>
-          <br/>
-          <input type="file" id="gedcom-file" accept="application/json" onChange={(e) =>
-            setFile(e.target.files[0].name)} ref={input}/>
-        </div>
+    }} className="my-4">
+      <div className={"rounded-2xl bg-green-100 dark:bg-neutral-600 max-w-fit mx-auto my-4 px-4 py-2 text-center"
+          + (focused ? " focused" : "")
+          + (file !== "" ? " file-selected" : "")}
+        onDragEnter={checkDropAllowed} onDragOver={checkDropAllowed}
+        onDrop={onDrop}
+        onDragLeave={removeFocus} onDragEnd={removeFocus}>
+        <label htmlFor="gedcom-file">
+          {strings.form.fileInputLabel}
+        </label>
+        <br/>
+        <input type="file" id="gedcom-file" accept="application/json" onChange={(e) =>
+          setFile(e.target.files[0].name)} ref={input}/>
       </div>
 
-      <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
-      {dataExists && <Link className="button" to="/persons">
+      <ButtonLike>
+        <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
+      </ButtonLike>
+      {dataExists && <ButtonLike><Link to="/persons">
         {strings.form.continueSession}
-      </Link>}
-      <input className={file === "" ? "inactive" : ""} type="submit" value={props.submit}/>
+      </Link></ButtonLike>}
+      <ButtonLike>
+        <input className={`${file ? "bg-green-400 dark:bg-green-800 cursor-pointer" : "border-2 border-green-400 dark:border-green-800 cursor-not-allowed"}`} type="submit" value={props.submit}/>
+      </ButtonLike>
     </form>
   );
 }

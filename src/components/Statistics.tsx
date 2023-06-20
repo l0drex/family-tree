@@ -1,5 +1,3 @@
-import "./Statistics.css";
-
 import * as React from "react";
 import {ReactNode, useEffect, useState} from "react";
 import {baseUri, Confidence} from "../backend/gedcomx-enums";
