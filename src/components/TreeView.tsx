@@ -188,7 +188,7 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
         .select(".bg")
         .classed("border-none", true)
         .style("background-color", d => nameColor(d.getName().split(" ").reverse()[0]))
-        .style("color", "black")
+        .classed("text-black", true)
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${nameColor(d.getName().split(" ").reverse()[0])}`);
@@ -204,8 +204,8 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
       personNode
         .select(".bg")
         .style("background-color", (d: GraphPerson) => d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "")
-        .classed("text-white", (d: GraphPerson) => d.data.getAgeAt(new Date()) < 70 && d.data.isLiving)
-        .classed("text-black", d => d.data.getAgeAt(new Date()) >= 70 && d.data.isLiving)
+        .classed("text-black", (d: GraphPerson) => darkMode && d.data.isLiving)
+        .classed("text-white", (d: GraphPerson) => !darkMode && d.data.isLiving && d.data.getAgeAt(new Date()) < 70)
         .style("border-color", (d: GraphPerson) => d.data.isLiving ? "" : ageColor(d.data.getAgeAt(new Date())))
         .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid");
       personNode
@@ -223,8 +223,6 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
         .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "")
         .style("border-color", (d: GraphPerson) => d.data.isLiving ? "" : genderColor(d.getGender()))
         .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid")
-        .classed("text-white", (d: GraphPerson) => d.data.isLiving && d.getGender() !== "unknown")
-        .classed("text-black", (d: GraphPerson) => !d.data.isLiving || d.getGender() === "unknown")
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
@@ -232,14 +230,14 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
     }
     case ColorMode.CONFIDENCE: {
       const confidenceColor = d => {
-        if (!d) return "var(--background-higher)";
+        if (!d) return "";
         return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High], d3.schemeRdYlGn[3])(d)
       }
       personNode
         .select(".bg")
         .classed("border-none", true)
         .style("background-color", d => confidenceColor(d.data.getConfidence() as Confidence))
-        .style("color", "black");
+        .classed("text-black", true);
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${confidenceColor(d.data.getConfidence() as Confidence)}`);

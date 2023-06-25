@@ -65,11 +65,11 @@ function Layout() {
   const [headerChildren, setChildren] = useState([]);
 
   return <>
-    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1">{strings.header.navigationMenu}</div>
+    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">{strings.header.navigationMenu}</div>
     <header className="row-start-1 text-xl flex flex-row items-center gap-4">
       {headerChildren}
     </header>
-    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1`}>{titleRight}</div>
+    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white`}>{titleRight}</div>
     <nav className="row-start-2 ml-4">
       <ul className="flex flex-col gap-4 text-center text-xl">
         <li><Link to="">🏠</Link></li>
@@ -109,7 +109,7 @@ export function Main(props) {
     layoutContext.setRightTitle(titleRight);
   }, [titleRight]);
 
-  return <main className="row-start-2">
+  return <main className="row-start-2 dark:text-white">
     {props.children}
   </main>
 }
@@ -120,14 +120,14 @@ export function Sidebar(props) {
     root.classList.add("sidebar-visible");
   }, [])
 
-  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 portrait:flex-row landscape:flex-col flex-wrap mr-4`}>
+  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 portrait:flex-row landscape:flex-col flex-wrap mr-4 dark:text-white`}>
     {props.children}
   </aside>
 }
 
 export function Article(props) {
   return (
-    <article className="bg-white bg-opacity-50 dark:bg-neutral-800 dark:text-white rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
+    <article className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
       {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-2"><span
         className="font-normal">{props.emoji}</span> {props.title}</h1>}
       {props.children}
@@ -156,7 +156,7 @@ export function Details(props) {
 
 export function ButtonLike(props: {enabled?: boolean, children?}) {
   const enabled = props.enabled ?? true;
-  return <div className={`inline-block rounded-full max-w-fit max-h-fit px-4 py-1 mx-2 ${enabled ? "bg-green-700 text-white cursor-pointer hover:shadow-md hover:scale-105" : "border-green-700 border-2 dark:text-white cursor-not-allowed"}`}>
+  return <div className={`inline-block rounded-full max-w-fit max-h-fit px-4 py-1 mx-2 ${enabled ? "bg-green-700 text-white cursor-pointer hover:shadow-md hover:scale-105" : "border-green-700 border-2 cursor-not-allowed"}`}>
     {props.children}
   </div>
 }

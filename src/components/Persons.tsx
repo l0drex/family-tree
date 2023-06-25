@@ -101,7 +101,7 @@ function Persons() {
         {!focusHidden && <InfoPanel/>}
       </FocusPersonContext.Provider>
       <Main titleRight={focusPerson.fullName}>
-        <Article id="family-tree-container" className="bg-white dark:bg-black dark:text-white rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
+        <Article id="family-tree-container" className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
           <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
           <FocusPersonContext.Provider value={focusPerson}>
