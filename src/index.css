@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  background: #D2E8D2;
+}
+
 #root {
   height: 100vh;
   width: 100vw;
@@ -10,18 +14,17 @@
   grid-template-rows: auto 1fr auto;
   grid-template-columns: auto 1fr auto;
   padding: .5rem 0;
-  background: #D2E8D2;
   font-family: sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
-  #root {
+  :root {
     background: #D2E8D2;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  #root {
+  :root {
     background: #182118;
   }
 }
