@@ -65,12 +65,13 @@ function Layout() {
   const [headerChildren, setChildren] = useState([]);
 
   return <>
-    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">{strings.header.navigationMenu}</div>
+    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">➡️</div>
     <header className="row-start-1 text-xl flex flex-row items-center gap-4">
       {headerChildren}
     </header>
-    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white`}>{titleRight}</div>
-    <nav className="row-start-2 ml-4">
+    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>
+    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>⬅️</div>
+    <nav className="row-start-2 ml-4 hidden md:block">
       <ul className="flex flex-col gap-4 text-center text-xl">
         <li><Link to="">🏠</Link></li>
         <li><Link to="persons">🌳</Link></li>
@@ -87,16 +88,18 @@ function Layout() {
         <Outlet/>
     </LayoutContext.Provider>
     <footer className="row-start-3 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
-        <span>
+        <span className="hidden md:inline">
           {strings.formatString(strings.footer.sourceCode, <VanillaLink
             href="https://github.com/l0drex/family-tree">Github</VanillaLink>)}
         </span>
       <ReactLink to="imprint">
         {strings.footer.imprint}
       </ReactLink>
-      <VanillaLink href="https://github.com/l0drex/family-tree/issues/new">
-        {strings.footer.bugReport}
-      </VanillaLink>
+      <span className="hidden md:inline">
+        <VanillaLink href="https://github.com/l0drex/family-tree/issues/new">
+          {strings.footer.bugReport}
+        </VanillaLink>
+      </span>
     </footer>
   </>
 }
@@ -109,7 +112,7 @@ export function Main(props) {
     layoutContext.setRightTitle(titleRight);
   }, [titleRight]);
 
-  return <main className="row-start-2 dark:text-white">
+  return <main className="row-start-2 col-span-3 md:col-span-2 lg:col-span-1 mx-4 md:ml-0 lg:mr-0 dark:text-white">
     {props.children}
   </main>
 }
@@ -120,7 +123,7 @@ export function Sidebar(props) {
     root.classList.add("sidebar-visible");
   }, [])
 
-  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 portrait:flex-row landscape:flex-col flex-wrap mr-4 dark:text-white`}>
+  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll hidden lg:flex gap-4 flex-col mr-4 dark:text-white`}>
     {props.children}
   </aside>
 }
