@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
@@ -58,11 +58,11 @@ export default function SearchField(props: Props) {
     .then(persons => persons.map(p => new Person(p))))
 
   return (
-    <form id="name-form" className="mx-auto max-w-fit"
+    <form id="name-form" className={`mx-auto max-w-fit rounded-full px-4 py-1 bg-white bg-opacity-50 ${hasError ? "bg-red-300" : ""}`}
           onSubmit={refocus}>
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
       <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false"
-             className="rounded-full px-4 bg-white bg-opacity-50 mr-4 placeholder-neutral-600"/>
+             className="placeholder-neutral-600 bg-transparent caret-neutral-600 focus:outline-none"/>
       <input className="emoji icon-only" type="submit" value="🔍" onInput={resetError}/>
       {persons && <datalist id="names">
         {persons.map(p =>

@@ -1,10 +1,9 @@
 import * as React from "react";
 import {createBrowserRouter, Link, Outlet, RouterProvider} from "react-router-dom";
 import {strings} from "./main";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
-import Header from "./components/Header";
 import {Home, Imprint} from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
@@ -59,21 +58,35 @@ export default function App() {
   return <RouterProvider router={router}/>;
 }
 
-export const HeaderContext = React.createContext<Function>(undefined);
+export const LayoutContext = React.createContext(undefined);
 
 function Layout() {
+  const [titleRight, setTitleRight] = useState<React.ReactNode>(undefined);
   const [headerChildren, setChildren] = useState([]);
 
   return <>
-    <Header>
+    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1">{strings.header.navigationMenu}</div>
+    <header className="row-start-1 text-xl flex flex-row items-center gap-4">
       {headerChildren}
-    </Header>
-    <HeaderContext.Provider value={setChildren}>
-      <div className="flex flex-grow gap-4 dark:text-white">
+    </header>
+    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1`}>{titleRight}</div>
+    <nav className="row-start-2 ml-4">
+      <ul className="flex flex-col gap-4 text-center text-xl">
+        <li><Link to="">🏠</Link></li>
+        <li><Link to="persons">🌳</Link></li>
+        <li><Link to="stats">📊</Link></li>
+        <li><Link to="sources">📚</Link></li>
+        <li><Link to="documents">📄</Link></li>
+        <li><Link to="agents">👤</Link></li>
+      </ul>
+    </nav>
+    <LayoutContext.Provider value={{
+      setRightTitle: setTitleRight,
+      setHeaderChildren: setChildren
+    }}>
         <Outlet/>
-      </div>
-    </HeaderContext.Provider>
-    <footer className="px-4 pb-1 flex justify-around dark:text-neutral-400">
+    </LayoutContext.Provider>
+    <footer className="row-start-3 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
         <span>
           {strings.formatString(strings.footer.sourceCode, <VanillaLink
             href="https://github.com/l0drex/family-tree">Github</VanillaLink>)}
@@ -89,15 +102,33 @@ function Layout() {
 }
 
 export function Main(props) {
-  return <main className="basis-3/4 flex-grow">
+  const layoutContext = React.useContext(LayoutContext);
+  const titleRight = props.titleRight ?? "";
+
+  useEffect(() => {
+    layoutContext.setRightTitle(titleRight);
+  }, [titleRight]);
+
+  return <main className="row-start-2">
     {props.children}
   </main>
 }
 
+export function Sidebar(props) {
+  useEffect(() => {
+    let root = document.querySelector<HTMLDivElement>("#root");
+    root.classList.add("sidebar-visible");
+  }, [])
+
+  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 portrait:flex-row landscape:flex-col flex-wrap mr-4`}>
+    {props.children}
+  </aside>
+}
+
 export function Article(props) {
   return (
-    <article className="bg-white dark:bg-neutral-800 dark:text-white rounded-2xl mt-4 first:mt-0 mx-auto mb-0 p-4 pt-2 w-full max-w-3xl" {...props}>
-      {props.title && <h1 className="font-bold text-xl border-b dark:border-gray-400 pb-2 mb-2"><span
+    <article className="bg-white bg-opacity-50 dark:bg-neutral-800 dark:text-white rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
+      {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-2"><span
         className="font-normal">{props.emoji}</span> {props.title}</h1>}
       {props.children}
     </article>
@@ -117,14 +148,15 @@ export function ReactLink(props) {
 }
 
 export function Details(props) {
-  return <details className="rounded-2xl bg-green-100 dark:bg-neutral-900 px-4 py-1 my-2 last:mb-0">
+  return <details className="rounded-2xl last:mb-0">
     <summary className="font-bold">{props.title}</summary>
     {props.children}
   </details>
 }
 
-export function ButtonLike(props) {
-  return <div className="rounded-full bg-green-400 dark:bg-green-800 px-4 py-2 mx-2 max-w-fit max-h-fit inline">
+export function ButtonLike(props: {enabled?: boolean, children?}) {
+  const enabled = props.enabled ?? true;
+  return <div className={`inline-block rounded-full max-w-fit max-h-fit px-4 py-1 mx-2 ${enabled ? "bg-green-700 text-white cursor-pointer hover:shadow-md hover:scale-105" : "border-green-700 border-2 dark:text-white cursor-not-allowed"}`}>
     {props.children}
   </div>
 }

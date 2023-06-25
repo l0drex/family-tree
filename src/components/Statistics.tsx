@@ -27,6 +27,7 @@ import {Legend} from "@visx/visx";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {Loading} from "./Loading";
+import {Main} from "../App";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -288,7 +289,7 @@ export default function Statistics() {
 
   return <>
     {dataExists ?
-    <main id="stats">
+    <Main>
       <ConfidenceStats/>
       <GenderStats/>
       <ReligionStats/>
@@ -298,6 +299,6 @@ export default function Statistics() {
       <BirthOverYearStats type={"Death"}/>
       <LifeExpectancy/>
       <MarriageAge/>
-    </main> : <NoData/>}
+    </Main> : <NoData/>}
   </>
 }

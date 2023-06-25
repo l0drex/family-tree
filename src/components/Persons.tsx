@@ -8,7 +8,7 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Form";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {Article, ButtonLike, HeaderContext, Main} from "../App";
+import {Article, ButtonLike, LayoutContext, Main} from "../App";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -20,7 +20,7 @@ function ViewOptions(props) {
     <form id="view-all" className="flex gap-4 p-4">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <ButtonLike><select id="view-selector" className="bg-green-400 dark:bg-green-800" defaultValue={props.view}
+        <ButtonLike><select id="view-selector" className="bg-transparent" defaultValue={props.view}
                 onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
@@ -32,7 +32,7 @@ function ViewOptions(props) {
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <ButtonLike><select id="color-selector" className="bg-green-400 dark:bg-green-800" defaultValue={props.colorMode}
+        <ButtonLike><select id="color-selector" className="bg-transparent" defaultValue={props.colorMode}
                 onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
@@ -58,7 +58,7 @@ const ViewModeParam = "viewMode";
 const ColorModeParam = "colorMode";
 
 function Persons() {
-  const setHeaderChildren = useContext(HeaderContext);
+  const layoutContext = useContext(LayoutContext);
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
   const focusPerson = useLoaderData() as Person;
   const [focusHidden, hideFocus] = useState(false);
@@ -90,18 +90,18 @@ function Persons() {
   }, [focusPerson, focusHidden, navigate]);
 
   useEffect(() => {
-    setHeaderChildren([
+    layoutContext.setHeaderChildren([
       <SearchField onRefocus={onRefocus}/>
     ])
-  }, [setHeaderChildren, onRefocus]);
+  }, [onRefocus]);
 
   return (
     <>
       <FocusPersonContext.Provider value={focusPerson}>
         {!focusHidden && <InfoPanel/>}
       </FocusPersonContext.Provider>
-      <Main>
-        <Article id="family-tree-container" className="bg-white dark:bg-black dark:text-white rounded-2xl mx-auto mb-0 mr-4 p-0 h-full box-border flex flex-col">
+      <Main titleRight={focusPerson.fullName}>
+        <Article id="family-tree-container" className="bg-white dark:bg-black dark:text-white rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
           <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
           <FocusPersonContext.Provider value={focusPerson}>

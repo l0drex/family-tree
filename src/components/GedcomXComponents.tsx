@@ -65,10 +65,8 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
 
 export function SourceReference(props: { reference: gedcomX.SourceReference }) {
   return <Article emoji="📖" title={strings.gedcomX.sourceDescription.sourceDescription}>
-    <p>
-      <ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
-      {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
-    </p>
+    <p><ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink></p>
+    {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
   </Article>
 }
 

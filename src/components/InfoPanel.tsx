@@ -1,17 +1,17 @@
 import {PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {Gallery} from "./Gallery";
-import Sidebar from "./Sidebar";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
-import {useContext} from "react";
+import {useContext, useEffect} from "react";
 import {FocusPersonContext} from "./Persons";
 import {Confidence, Note, SourceReference} from "./GedcomXComponents";
-import {Article, Details} from "../App";
+import {Article, Details, LayoutContext, Sidebar} from "../App";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
+  const layoutContext = useContext(LayoutContext);
 
   const images = useLiveQuery(async () => {
     if (person) return getImages(person);
@@ -72,14 +72,19 @@ function InfoPanel() {
   // person.getAnalysis()
   // person.getAttribution()
 
+  useEffect(() => {
+    layoutContext.setRightTitle(person.fullName);
+  }, [person])
+
   if (!person) {
     return <aside id={"info-panel"}></aside>
   }
 
+  const hasMultipleNames = person.names.length > 1;
+
   return (
-    <Sidebar id="info-panel">
-      <section className="text-2xl text-center">
-        <h1 className="font-bold">{person.fullName}</h1>
+    <Sidebar left={false} id="info-panel">
+      {hasMultipleNames && <Article className="text-2xl text-center">
         {person.marriedName && <h2 className="birth-name">
           {strings.formatString(strings.infoPanel.born, person.birthName)}
         </h2>}
@@ -89,7 +94,7 @@ function InfoPanel() {
         {person.nickname && <h2 className="nickname">
           {strings.formatString(strings.infoPanel.nickname, person.nickname)}
         </h2>}
-      </section>
+      </Article>}
 
       {images && images.length > 0 && <Gallery>
         {images.map(image => {

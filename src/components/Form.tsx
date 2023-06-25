@@ -71,15 +71,17 @@ function Form(props) {
           setFile(e.target.files[0].name)} ref={input}/>
       </div>
 
-      <ButtonLike>
-        <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
-      </ButtonLike>
-      {dataExists && <ButtonLike><Link to="/persons">
-        {strings.form.continueSession}
-      </Link></ButtonLike>}
-      <ButtonLike>
-        <input className={`${file ? "bg-green-400 dark:bg-green-800 cursor-pointer" : "border-2 border-green-400 dark:border-green-800 cursor-not-allowed"}`} type="submit" value={props.submit}/>
-      </ButtonLike>
+      <div className="flex justify-around">
+        <ButtonLike>
+          <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
+        </ButtonLike>
+        {dataExists && <ButtonLike><Link to="/persons">
+          {strings.form.continueSession}
+        </Link></ButtonLike>}
+        <ButtonLike enabled={!!file}>
+          <input type="submit" value={props.submit}/>
+        </ButtonLike>
+      </div>
     </form>
   );
 }

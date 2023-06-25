@@ -12,7 +12,8 @@
   },
   "header": {
     "imageAlt": "Ein lächelnder Baum.",
-    "title": "Stammbaum"
+    "title": "Stammbaum",
+    "navigationMenu": "Menü"
   },
   "home": {
     "uploadArticle": {

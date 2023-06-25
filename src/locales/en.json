@@ -12,7 +12,8 @@
   },
   "header": {
     "imageAlt": "A smiling tree.",
-    "title": "Family tree"
+    "title": "Family tree",
+    "navigationMenu": "Menu"
   },
   "home": {
     "uploadArticle": {
