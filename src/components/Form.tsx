@@ -57,9 +57,9 @@ function Form(props) {
       event.preventDefault();
       parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(data => saveDataAndRedirect(data, navigate));
     }} className="my-4">
-      <div className={"rounded-2xl bg-green-100 dark:bg-neutral-600 max-w-fit mx-auto my-4 px-4 py-2 text-center"
-          + (focused ? " focused" : "")
-          + (file !== "" ? " file-selected" : "")}
+      <div className={"rounded-2xl max-w-fit mx-auto my-4 px-4 py-2 text-center"
+          + (focused ? " shadow-lg shadow-green-700" : "")
+          + (file !== "" ? " bg-green-400 dark:bg-green-800" : " bg-white dark:bg-neutral-600")}
         onDragEnter={checkDropAllowed} onDragOver={checkDropAllowed}
         onDrop={onDrop}
         onDragLeave={removeFocus} onDragEnd={removeFocus}>
