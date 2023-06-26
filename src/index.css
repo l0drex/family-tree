@@ -2,8 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (prefers-color-scheme: light) {
+  :root {
+    --background-color: #D2E8D2;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #182118;
+  }
+}
+
 :root {
-  background: #D2E8D2;
+  background: var(--background-color);
 }
 
 #root {
@@ -18,22 +30,24 @@
   font-family: sans-serif;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    background: #D2E8D2;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    background: #182118;
-  }
-}
-
 .partnerNode text, .etc text {
   text-anchor: middle;
 }
 
 text.marriageDate {
   text-anchor: end;
+}
+
+a.active {
+  background: rgba(255, 255, 255, 50%);
+}
+
+dialog {
+  background: var(--background-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  a.active {
+    background: rgba(255, 255, 255, 10%);
+  }
 }
