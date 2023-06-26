@@ -221,8 +221,9 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
       personNode
         .select(".bg")
         .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "")
-        .style("border-color", (d: GraphPerson) => d.data.isLiving ? "" : genderColor(d.getGender()))
+        .style("border-color", (d: GraphPerson) => genderColor(d.getGender()))
         .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid")
+        .classed("text-white", d => !darkMode && d.data.isLiving && d.getGender() !== "unknown")
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);

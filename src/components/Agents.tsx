@@ -10,8 +10,9 @@ export function AgentOverview() {
   return <Main><Article emoji="👤" title={strings.gedcomX.agent.agents}>
     {hasAgents && <ul className={"clickable"}>
       {agents?.map(agent =>
-        <ClickableLi key={agent.id}><Link to={`${agent.id}`}>{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</Link></ClickableLi>)}
+        <ClickableLi key={agent.id}><Link to={`${agent.id}`} className="block w-full h-full">{`👤 ${agent.name ?? strings.gedcomX.agent.agent}`}</Link></ClickableLi>)}
     </ul>}
+    {!hasAgents && <p>{strings.gedcomX.agent.noAgents}</p>}
   </Article></Main>
 }
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {ReactNode, useEffect, useState} from "react";
+import {ReactNode, useContext, useEffect, useState} from "react";
 import {baseUri, Confidence} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
@@ -27,7 +27,7 @@ import {Legend} from "@visx/visx";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {Loading} from "./Loading";
-import {Main} from "../App";
+import {LayoutContext, Main} from "../App";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -285,14 +285,22 @@ function ConfidenceStats() {
 
 export default function Statistics() {
   const [dataExists, setDataExists] = useState(false);
+  const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
     hasData().then(value => setDataExists(value));
   });
 
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<h1 className="mx-auto">
+      {strings.statistics.title}
+    </h1>);
+    layoutContext.setRightTitle("");
+  }, []);
+
   return <>
     {dataExists ?
-    <Main>
+    <Main skipCleanup>
       <div className="grid grid-flow-dense gap-4 justify-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <ConfidenceStats/>
         <GenderStats/>

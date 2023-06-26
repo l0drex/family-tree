@@ -109,7 +109,10 @@ export function Main(props) {
   const titleRight = props.titleRight ?? "";
 
   useEffect(() => {
-    layoutContext.setRightTitle(titleRight);
+    if (!props.skipCleanup) {
+      layoutContext.setRightTitle(titleRight);
+      layoutContext.setHeaderChildren(<></>);
+    }
   }, [titleRight]);
 
   return <main className="row-start-2 col-span-3 md:col-span-2 lg:col-span-1 mx-4 md:ml-0 lg:mr-0 dark:text-white">
@@ -123,14 +126,16 @@ export function Sidebar(props) {
     root.classList.add("sidebar-visible");
   }, [])
 
-  return <aside className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll hidden lg:flex gap-4 flex-col mr-4 dark:text-white`}>
+  return <aside
+    className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll hidden lg:flex gap-4 flex-col mr-4 dark:text-white`}>
     {props.children}
   </aside>
 }
 
 export function Article(props) {
   return (
-    <article className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
+    <article
+      className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
       {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-2"><span
         className="font-normal">{props.emoji}</span> {props.title}</h1>}
       {props.children}
@@ -139,7 +144,8 @@ export function Article(props) {
 }
 
 export function Kbd(props) {
-  return <kbd className="bg-gray-200 dark:bg-neutral-600 rounded-lg p-1 border-b-2 border-b-gray-400">{props.children}</kbd>
+  return <kbd
+    className="bg-gray-200 dark:bg-neutral-600 rounded-lg p-1 border-b-2 border-b-gray-400">{props.children}</kbd>
 }
 
 export function VanillaLink(props) {
@@ -157,7 +163,7 @@ export function Details(props) {
   </details>
 }
 
-export function ButtonLike(props: {enabled?: boolean, children?}) {
+export function ButtonLike(props: { enabled?: boolean, children? }) {
   const enabled = props.enabled ?? true;
   return <div className={`inline-block rounded-full max-w-fit max-h-fit px-4 py-1 mx-2 ${enabled ? "bg-green-700 text-white cursor-pointer hover:shadow-md hover:scale-105" : "border-green-700 border-2 cursor-not-allowed"}`}>
     {props.children}
@@ -165,5 +171,5 @@ export function ButtonLike(props: {enabled?: boolean, children?}) {
 }
 
 export function ClickableLi(props) {
-  return <li className="hover:bg-gray-100 px-4 py-1 rounded-2xl">{props.children}</li>
+  return <li className="hover:bg-white dark:hover:bg-black px-4 py-1 rounded-2xl my-2">{props.children}</li>
 }

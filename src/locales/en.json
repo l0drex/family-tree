@@ -314,7 +314,8 @@
       "person": "Person",
       "emails": "Emails",
       "phones": "Phones",
-      "addresses": "Addresses"
+      "addresses": "Addresses",
+      "noAgents": "There are no agents."
     },
     "gender": "Sex",
     "confidence": "Confidence",
@@ -355,6 +356,7 @@
     }
   },
   "statistics": {
+    "title": "Statistics",
     "location": "Location",
     "birth_month": "birth month",
     "death_month": "death month",

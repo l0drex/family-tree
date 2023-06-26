@@ -314,7 +314,8 @@
       "person": "Person",
       "emails": "Emails",
       "phones": "Telefonnummern",
-      "addresses": "Adressen"
+      "addresses": "Adressen",
+      "noAgents": "Es sind keine Agenten vorhanden."
     },
     "gender": "Geschlecht",
     "confidence": "Zuversicht",
@@ -355,6 +356,7 @@
     }
   },
   "statistics": {
+    "title": "Statistiken",
     "location": "Ort",
     "birth_month": "Geburtsmonat",
     "death_month": "Todesmonat",
