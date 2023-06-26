@@ -160,8 +160,8 @@ export function Sidebar(props) {
 export function Article(props) {
   return (
     <article
-      className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 pt-2 w-full max-w-3xl" {...props}>
-      {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-2"><span
+      className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 w-full max-w-3xl" {...props}>
+      {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-4"><span
         className="font-normal">{props.emoji}</span> {props.title}</h1>}
       {props.children}
     </article>

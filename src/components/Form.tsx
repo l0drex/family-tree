@@ -71,7 +71,7 @@ function Form(props) {
           setFile(e.target.files[0].name)} ref={input}/>
       </div>
 
-      <div className="flex justify-around">
+      <div className="flex justify-around flex-wrap gap-2">
         <ButtonLike>
           <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
         </ButtonLike>
