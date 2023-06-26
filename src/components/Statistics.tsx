@@ -32,10 +32,10 @@ import {Main} from "../App";
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
 
-function Stat(props: { title: string, legend?: ReactNode, className?: string, children }) {
-  return <article className={"graph " + props.className}>
-    <h1>{props.title}</h1>
-    <div>
+function Stat(props: { title: string, legend?: ReactNode, landscape?: boolean, children }) {
+  return <article className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 ${props.landscape ? "col-span-2" : ""}`}>
+    <h1 className="font-bold text-lg text-center mb-4">{props.title}</h1>
+    <div className="mx-auto w-fit">
       {props.children}
     </div>
     {props.legend}
@@ -53,7 +53,7 @@ function GenderStats() {
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
     domain: keys.map(k => strings.gedcomX.types.gender[k]),
     range: d3.schemeSet1.map(c => c.toString())
-  })} direction={"row"}/>
+  })} direction={"row"} className={"flex-wrap"}/>
 
   return <Stat title={strings.gedcomX.gender} legend={legend}>
     <XYChart height={height} width={width}
@@ -80,7 +80,7 @@ function ReligionStats() {
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={strings.gedcomX.types.fact.person.Religion} className="landscape">
+  return <Stat title={strings.gedcomX.types.fact.person.Religion} landscape={true}>
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}}>
@@ -196,15 +196,18 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     range: [0, radius]
   })
 
+  const strokeColor = "#c5c5c5";
+
   return <Stat title={props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month}>
     <svg height={height} width={width}>
       <Group top={height / 2} left={width / 2}>
-        <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius}/>
+        <GridPolar scaleAngle={angleScale} scaleRadial={radiusScale} outerRadius={radius} lineStyleRadial={{stroke: strokeColor}} lineStyleAngle={{stroke: strokeColor}}/>
         <LineRadial
           data={data}
           angle={(_, i) => angleScale(i) ?? 0}
           radius={d => radiusScale(d) ?? 0}
           stroke={d3.schemeSet1[4]}
+          strokeWidth={2}
           curve={curveLinearClosed}
         />
       </Group>
@@ -219,7 +222,7 @@ function LifeExpectancy() {
   </Stat>
   //console.debug(data)
 
-  return <Stat title={strings.statistics.lifeExpectancy} className="landscape">
+  return <Stat title={strings.statistics.lifeExpectancy} landscape={true}>
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 5, left: 30, bottom: 25, right: 5}}>
       <Grid/>
@@ -290,15 +293,17 @@ export default function Statistics() {
   return <>
     {dataExists ?
     <Main>
-      <ConfidenceStats/>
-      <GenderStats/>
-      <ReligionStats/>
-      <NameStats nameType={"First"}/>
-      <NameStats nameType={"Last"}/>
-      <BirthOverYearStats type={"Birth"}/>
-      <BirthOverYearStats type={"Death"}/>
-      <LifeExpectancy/>
-      <MarriageAge/>
+      <div className="grid grid-flow-dense gap-4 justify-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <ConfidenceStats/>
+        <GenderStats/>
+        <ReligionStats/>
+        <NameStats nameType={"First"}/>
+        <NameStats nameType={"Last"}/>
+        <BirthOverYearStats type={"Birth"}/>
+        <BirthOverYearStats type={"Death"}/>
+        <LifeExpectancy/>
+        <MarriageAge/>
+      </div>
     </Main> : <NoData/>}
   </>
 }
