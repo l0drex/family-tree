@@ -46,6 +46,11 @@ dialog {
   background: var(--background-color);
 }
 
+dialog::backdrop {
+  backdrop-filter: blur(1rem);
+  background: rgba(0, 0, 0, 0.5);
+}
+
 @media (prefers-color-scheme: dark) {
   a.active {
     background: rgba(255, 255, 255, 10%);

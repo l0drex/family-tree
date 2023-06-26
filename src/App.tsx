@@ -89,8 +89,10 @@ function Layout() {
     </ul>
   </nav>
 
-  if (navBarExtended) dialog.current?.show();
-  else dialog.current?.close();
+  useEffect(() => {
+    if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();
+    else dialog.current?.close();
+  }, [navBarExtended]);
 
   useEffect(() => toggleNavBar(false), [location]);
 
@@ -104,7 +106,7 @@ function Layout() {
     <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>
     <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>⬅️
     </div>
-    {isSmallScreen ? <dialog ref={dialog} className="top-1/4 rounded-2xl shadow-lg">{nav}</dialog> : nav}
+    {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
     <LayoutContext.Provider value={{
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
