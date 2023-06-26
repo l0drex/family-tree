@@ -17,7 +17,7 @@ function ViewOptions(props) {
   let fileInput = React.createRef<HTMLInputElement>();
 
   return (
-    <form id="view-all" className="flex gap-4 p-4">
+    <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
         <ButtonLike><select id="view-selector" className="bg-transparent" defaultValue={props.view}
