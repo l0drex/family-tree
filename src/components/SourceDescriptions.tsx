@@ -1,9 +1,9 @@
 import {SourceDescription} from "../backend/gedcomx-extensions";
 import {filterLang, strings} from "../main";
 import {Link, useLoaderData} from "react-router-dom";
-import {useContext, useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Coverage, Note, SourceReference} from "./GedcomXComponents";
-import {Article, ClickableLi, LayoutContext, Main, Sidebar} from "../App";
+import {Article, LayoutContext, Main, ReactNavLink, Sidebar} from "../App";
 import {db} from "../backend/db";
 
 export function SourceDescriptionOverview() {
@@ -17,11 +17,11 @@ export function SourceDescriptionOverview() {
 }
 
 function SourcesList(props) {
-  return <ul className={"clickable"}>
+  return <ul>
     {props.descriptions?.map(sd =>
-      <ClickableLi key={sd.id}>
-        <Link to={`${sd.getId()}`} className="block w-full h-full">{`${sd.emoji} ${sd.title}`}</Link>
-      </ClickableLi>
+      <li key={sd.id} className="my-2">
+        <ReactNavLink to={`/sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
+      </li>
     )}
   </ul>
 }
@@ -30,7 +30,13 @@ export function SourceDescriptionView() {
   const sourceDescription = useLoaderData() as SourceDescription;
   const [text, setText] = useState("");
   const hasMedia = sourceDescription.mediaType && sourceDescription.about;
+  const [others, setOthers] = useState([]);
   const layoutContext = useContext(LayoutContext);
+
+  useEffect(() => {
+    db.sourceDescriptions.toArray().then(sds => sds.map(sd => new SourceDescription(sd))).then(setOthers);
+    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
+  }, [])
 
   useEffect(() => {
     if (!hasMedia) return;
@@ -87,5 +93,8 @@ export function SourceDescriptionView() {
       {sourceDescription.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
       {sourceDescription.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
     </Main>
+    <Sidebar>
+      <SourcesList descriptions={others}/>
+    </Sidebar>
   </>
 }

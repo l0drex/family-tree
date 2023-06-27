@@ -58,7 +58,13 @@ export default function App() {
   return <RouterProvider router={router}/>;
 }
 
-export const LayoutContext = React.createContext(undefined);
+interface ILayoutContext {
+  setRightTitle: (string) => void,
+  setHeaderChildren: (ReactNode) => void,
+  sidebarVisible: boolean
+}
+
+export const LayoutContext = React.createContext<ILayoutContext>(undefined);
 
 function ShowHiddenButton(props) {
   const dialog = React.useRef<HTMLDialogElement>(null);
@@ -81,12 +87,12 @@ function Layout() {
 
   const nav = <nav className="row-start-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="">{"🏠" + (navBarExtended ? " Home" : "")}</NavLink></li>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="persons">{"🌳" + (navBarExtended ? " Persons" : "")}</NavLink></li>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="stats">{"📊" + (navBarExtended ? " Stats" : "")}</NavLink></li>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="sources">{"📚" + (navBarExtended ? " Sources" : "")}</NavLink></li>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="documents">{"📄" + (navBarExtended ? " Documents" : "")}</NavLink></li>
-      <li><NavLink className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg" to="agents">{"👤" + (navBarExtended ? " Agents" : "")}</NavLink></li>
+      <li><ReactNavLink to="">{"🏠" + (navBarExtended ? " Home" : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? " Persons" : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? " Stats" : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="sources">{"📚" + (navBarExtended ? " Sources" : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="documents">{"📄" + (navBarExtended ? " Documents" : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? " Agents" : "")}</ReactNavLink></li>
     </ul>
   </nav>
 
@@ -192,6 +198,10 @@ export function ReactLink(props) {
   return <Link className="underline" {...props}>{props.children}</Link>
 }
 
+export function ReactNavLink(props) {
+  return <NavLink to={props.to} className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg">{props.children}</NavLink>
+}
+
 export function Details(props) {
   return <details className="rounded-2xl last:mb-0">
     <summary className="font-bold">{props.title}</summary>
@@ -218,8 +228,4 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
     className={`inline-block rounded-full max-w-fit max-h-fit mx-2 ${style}`}>
     {props.children}
   </div>
-}
-
-export function ClickableLi(props) {
-  return <li className="hover:bg-white dark:hover:bg-opacity-10 px-4 py-1 rounded-2xl my-2">{props.children}</li>
 }
