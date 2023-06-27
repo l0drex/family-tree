@@ -40,6 +40,7 @@ export function SourceDescriptionView() {
 
   useEffect(() => {
     db.sourceDescriptions.toArray().then(sds => sds.map(sd => new SourceDescription(sd))).then(setOthers);
+    layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [])
 
@@ -53,7 +54,6 @@ export function SourceDescriptionView() {
       .then(t => setText(t));
   }, [hasMedia, sourceDescription])
 
-  const title = sourceDescription.title;
   const componentOf = sourceDescription.getComponentOf();
   let media;
   if (hasMedia) {
@@ -70,7 +70,7 @@ export function SourceDescriptionView() {
 
   return <>
     <Main>
-      <Article emoji={sourceDescription?.emoji} title={title}>
+      <Article>
         {hasMisc && <section className={"misc"}>
           {componentOf && <div>componentOf: <Link
             to={`/sources/${componentOf.getDescription().substring(1)}`}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</Link>

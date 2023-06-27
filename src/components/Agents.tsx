@@ -35,12 +35,13 @@ export function AgentView() {
 
   useEffect(() => {
     db.agents.toArray().then(sds => sds.map(sd => new Agent(sd))).then(setOthers);
+    layoutContext.setHeaderChildren(<Title emoji="👤">{agent.name ?? strings.gedcomX.agent.agent}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.agent.agents);
   }, [])
 
   return <>
     <Main>
-      <Article emoji="👤" title={`${strings.gedcomX.agent.agent} ${agent.name ?? ""}`}>
+      <Article>
         {agent.names?.length > 1 && <p>{strings.infoPanel.aka + agent.names.map(n => n.value).join(', ')}</p>}
         {agent.homepage && <p>{strings.gedcomX.agent.homepage}: <VanillaLink
           href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink></p>}

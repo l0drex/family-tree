@@ -37,13 +37,14 @@ export function DocumentView() {
 
   useEffect(() => {
     db.documents.toArray().then(sds => sds.map(sd => new Document(sd))).then(setOthers);
+    layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [])
 
   // todo sanitize and render xhtml
   return <>
     <Main>
-      <Article emoji="📄" title={strings.gedcomX.document.document}>
+      <Article>
         <section className={"misc"}>
           {document.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
           {document.getConfidence() && <Confidence confidence={document.getConfidence()}/>}
