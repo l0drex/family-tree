@@ -32,7 +32,7 @@
   "imprint": {
     "privacyArticle": {
       "title": "Datenschutzerklärung",
-      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und im local Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
+      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und lokal im Web Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
     },
     "imprintArticle": {
       "title": "Impressum"

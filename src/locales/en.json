@@ -32,7 +32,7 @@
   "imprint": {
     "privacyArticle": {
       "title": "Privacy Policy",
-      "content": "All family tree data is processed locally only and stored in the browser's local storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
+      "content": "All family tree data is processed locally only and stored locally in the browser's web storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
     },
     "imprintArticle": {
       "title": "Imprint"
