@@ -6,7 +6,7 @@ import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
-import {parseFile, saveDataAndRedirect} from "./Form";
+import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
 import {Article, ButtonLike, LayoutContext, Main} from "../App";
 
