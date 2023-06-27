@@ -342,7 +342,7 @@
   "searchField": {
     "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
     "searchLabel": "Name:",
-    "searchHint": "Nach einer Person suchen"
+    "searchHint": "Max Mustermann"
   },
   "viewOptions": {
     "filter": {

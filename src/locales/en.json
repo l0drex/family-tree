@@ -342,7 +342,7 @@
   "searchField": {
     "noPersonFound": "No person with that name found!",
     "searchLabel": "Name:",
-    "searchHint": "Search for a person"
+    "searchHint": "Jon Doe"
   },
   "viewOptions": {
     "filter": {
