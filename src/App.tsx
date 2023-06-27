@@ -66,14 +66,6 @@ interface ILayoutContext {
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
 
-function ShowHiddenButton(props) {
-  const dialog = React.useRef<HTMLDialogElement>(null);
-
-  return <button onClick={props.action}>
-      {props.title}
-    </button>
-}
-
 function Layout() {
   const [titleRight, setTitleRight] = useState<React.ReactNode>(undefined);
   const [headerChildren, setChildren] = useState([]);
@@ -105,7 +97,7 @@ function Layout() {
 
   return <>
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
-      <ShowHiddenButton title={navBarExtended ? "⬅️" : "➡️"} action={() => toggleNavBar(!navBarExtended)}/>
+      <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? "⬅️" : "➡️"}</button>
     </div>
     <header className="row-start-1 text-xl flex flex-row items-center gap-4 dark:text-white">
       {headerChildren}
@@ -114,7 +106,7 @@ function Layout() {
       className={`row-start-1 text-center mr-4 font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>}
     {titleRight && <div
       className={`row-start-1 text-right ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>
-      <ShowHiddenButton title={sidebarExtended ? "➡️" : "⬅️"} action={() => toggleSidebar(!sidebarExtended)}/>
+      <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
     </div>}
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
     <LayoutContext.Provider value={{
@@ -152,7 +144,8 @@ export function Main(props) {
     }
   }, [titleRight]);
 
-  return <main className={`row-start-2 ${layoutContext.sidebarVisible ? "col-span-2 md:col-span-1" : "col-span-3 md:col-span-2 lg:col-span-1"} mx-4 md:ml-0 lg:mr-0 dark:text-white`}>
+  return <main
+    className={`row-start-2 ${layoutContext.sidebarVisible ? "col-span-2 md:col-span-1" : "col-span-3 md:col-span-2 lg:col-span-1"} mx-4 md:ml-0 lg:mr-0 dark:text-white`}>
     {props.children}
   </main>
 }
@@ -199,7 +192,8 @@ export function ReactLink(props) {
 }
 
 export function ReactNavLink(props) {
-  return <NavLink to={props.to} className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg">{props.children}</NavLink>
+  return <NavLink to={props.to}
+                  className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg">{props.children}</NavLink>
 }
 
 export function Details(props) {
