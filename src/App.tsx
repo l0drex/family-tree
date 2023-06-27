@@ -72,12 +72,12 @@ function Layout() {
   const [navBarExtended, toggleNavBar] = useState(false);
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
   const dialog = useRef<HTMLDialogElement>();
-  const query = matchMedia("(max-width: 768px)");
   const location = useLocation();
+  const query = matchMedia("(max-width: 639px)");
   const [isSmallScreen, setSmallScreen] = useState(query.matches);
   query.addEventListener("change", e => setSmallScreen(e.matches));
 
-  const nav = <nav className="row-start-2 dark:text-white">
+  const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
       <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
       <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.persons}` : "")}</ReactNavLink></li>
@@ -102,11 +102,11 @@ function Layout() {
     <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
     </header>
-    {titleRight && sidebarExtended && <div
-      className={`row-start-1 text-center mr-4 font-bold text-xl my-1 dark:text-white`}>{titleRight}</div>}
-    {titleRight && <div
-      className={`row-start-1 text-right ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>
-      <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
+    {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
+      {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}
+      <span className={`lg:hidden`}>
+        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
+      </span>
     </div>}
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
     <LayoutContext.Provider value={{
@@ -116,7 +116,7 @@ function Layout() {
     }}>
       <Outlet/>
     </LayoutContext.Provider>
-    <footer className="row-start-3 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
+    <footer className="row-start-4 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
         <span className="hidden md:inline">
           {strings.formatString(strings.footer.sourceCode, <VanillaLink
             href="https://github.com/l0drex/family-tree">Github</VanillaLink>)}
@@ -144,23 +144,24 @@ export function Main(props) {
     }
   }, [titleRight]);
 
+  let className = `row-start-2 mx-4 ${layoutContext.sidebarVisible ? "sm:ml-0 md:mr-0" : "sm:ml-0 lg:mr-0"} dark:text-white`;
+  if (layoutContext.sidebarVisible)
+    className += " row-start-3 md:row-start-2 row-span-1 md:row-span-2 sm:col-start-2 col-span-3 sm:col-span-2 md:col-span-1";
+  else
+    className += " row-span-2 col-span-3 md:col-span-2 lg:col-span-1";
+
   return <main
-    className={`row-start-2 ${layoutContext.sidebarVisible ? "col-span-2 md:col-span-1" : "col-span-3 md:col-span-2 lg:col-span-1"} mx-4 md:ml-0 lg:mr-0 dark:text-white`}>
+    className={className}>
     {props.children}
   </main>
 }
 
 export function Sidebar(props) {
-  const visible = useContext(LayoutContext).sidebarVisible;
+  const layoutContext = useContext(LayoutContext);
 
-  useEffect(() => {
-    let root = document.querySelector<HTMLDivElement>("#root");
-    root.classList.add("sidebar-visible");
-  }, [])
-
-  if (visible) {
+  if (layoutContext.sidebarVisible) {
     return <aside
-      className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 flex-col mr-4 dark:text-white`}>
+      className={`row-start-2 md:row-span-2 mx-4 sm:ml-0 col-start-1 sm:col-start-2 md:col-start-3 col-span-3 sm:col-span-2 md:col-span-1 max-h-64 md:max-h-full md:max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 flex-col dark:text-white`}>
       {props.children}
     </aside>
   }
