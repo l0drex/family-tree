@@ -20,7 +20,7 @@ function ViewOptions(props) {
     <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <ButtonLike><select id="view-selector" className="bg-transparent" defaultValue={props.view}
+        <ButtonLike primary noHover><select id="view-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.view}
                 onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
@@ -32,7 +32,7 @@ function ViewOptions(props) {
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <ButtonLike><select id="color-selector" className="bg-transparent" defaultValue={props.colorMode}
+        <ButtonLike primary noHover><select id="color-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.colorMode}
                 onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>

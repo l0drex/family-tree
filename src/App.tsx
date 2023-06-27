@@ -199,14 +199,27 @@ export function Details(props) {
   </details>
 }
 
-export function ButtonLike(props: { enabled?: boolean, children? }) {
+export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHover?: boolean, children? }) {
   const enabled = props.enabled ?? true;
+  const primary = props.primary ?? false;
+  const noHover = props.noHover ?? false;
+
+  let style: string;
+  if (enabled) {
+    style = "cursor-pointer";
+    if (!noHover) style += "hover:shadow-md hover:scale-110 active:scale-105 active:shadow-sm transition-all";
+    if (primary) style += " bg-green-700 text-white";
+    else style += " bg-white dark:bg-neutral-500";
+  } else {
+    style = "border-green-700 border-2 cursor-not-allowed";
+  }
+
   return <div
-    className={`inline-block rounded-full max-w-fit max-h-fit px-4 py-1 mx-2 ${enabled ? "bg-green-700 text-white cursor-pointer hover:shadow-md hover:scale-105" : "border-green-700 border-2 cursor-not-allowed"}`}>
+    className={`inline-block rounded-full max-w-fit max-h-fit mx-2 ${style}`}>
     {props.children}
   </div>
 }
 
 export function ClickableLi(props) {
-  return <li className="hover:bg-white dark:hover:bg-black px-4 py-1 rounded-2xl my-2">{props.children}</li>
+  return <li className="hover:bg-white dark:hover:bg-opacity-10 px-4 py-1 rounded-2xl my-2">{props.children}</li>
 }

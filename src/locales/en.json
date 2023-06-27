@@ -18,7 +18,7 @@
   "home": {
     "uploadArticle": {
       "title": "File-Upload",
-      "content": "Select the file with the button below. Then click the green button to view the family tree.",
+      "content": "Use the highlighted button to open your family tree file and the family tree will open. You can also use the \"Try it now!\"-button to generate some example data.",
       "openButton": "Open family tree",
       "detailSummary": "From where do I get the data?",
       "detail": "The file must be a valid GedcomX file in json format, as described {0}.",

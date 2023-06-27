@@ -7,8 +7,6 @@ import {Link, useNavigate} from "react-router-dom";
 import {ButtonLike} from "../App";
 
 function Form(props) {
-  const [focused, setFocused] = useState(false);
-  const [file, setFile] = useState("");
   const [dataExists, setDataExists] = useState(false);
   const navigate = useNavigate();
 
@@ -22,31 +20,6 @@ function Form(props) {
 
   let input = React.createRef<HTMLInputElement>();
 
-  function checkDropAllowed(e) {
-    e.preventDefault();
-    if (e.dataTransfer.items[0] && e.dataTransfer.items[0].type === "application/json") {
-      e.dataTransfer.effectAllowed = "copy";
-      e.dataTransfer.dropEffect = "copy";
-      setFocused(true);
-      return;
-    }
-
-    // block any other drop
-    e.dataTransfer.effectAllowed = "none";
-    e.dataTransfer.dropEffect = "none";
-  }
-
-  function onDrop(e) {
-    e.preventDefault();
-    setFocused(false);
-    setFile(e.dataTransfer.files[0].name);
-    document.querySelector<HTMLInputElement>("#gedcom-file").files = e.dataTransfer.files;
-  }
-
-  function removeFocus() {
-    setFocused(false);
-  }
-
   function loadTestData(e) {
     e.preventDefault();
     saveDataAndRedirect(getTestData(), navigate);
@@ -57,29 +30,24 @@ function Form(props) {
       event.preventDefault();
       parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(data => saveDataAndRedirect(data, navigate));
     }} className="my-4">
-      <div className={"rounded-2xl max-w-fit mx-auto my-4 px-4 py-2 text-center"
-          + (focused ? " shadow-lg shadow-green-700" : "")
-          + (file !== "" ? " bg-green-400 dark:bg-green-800" : " bg-white dark:bg-neutral-600")}
-        onDragEnter={checkDropAllowed} onDragOver={checkDropAllowed}
-        onDrop={onDrop}
-        onDragLeave={removeFocus} onDragEnd={removeFocus}>
-        <label htmlFor="gedcom-file">
-          {strings.form.fileInputLabel}
-        </label>
-        <br/>
-        <input type="file" id="gedcom-file" accept="application/json" onChange={(e) =>
-          setFile(e.target.files[0].name)} ref={input}/>
-      </div>
+      <input type="file" id="gedcom-file" accept="application/json" hidden
+             onChange={() => parseFile(input.current.files[0])
+               .then(t => JSON.parse(t))
+               .then(d => saveDataAndRedirect(d, navigate))}
+             ref={input}/>
 
       <div className="flex justify-around flex-wrap gap-2">
         <ButtonLike>
-          <button onClick={loadTestData}>{strings.home.uploadArticle.tryItOut}</button>
+          <button onClick={loadTestData} className="px-4 py-2">{strings.home.uploadArticle.tryItOut}</button>
         </ButtonLike>
-        {dataExists && <ButtonLike><Link to="/persons">
+        {dataExists && <ButtonLike><Link to="/persons" className="block px-4 py-2">
           {strings.form.continueSession}
         </Link></ButtonLike>}
-        <ButtonLike enabled={!!file}>
-          <input type="submit" value={props.submit}/>
+        <ButtonLike primary={true}>
+          <input type="submit" value={props.submit} className={`px-4 py-2`} onClick={e => {
+            e.preventDefault();
+            input.current?.click();
+          }}/>
         </ButtonLike>
       </div>
     </form>

@@ -18,7 +18,7 @@
   "home": {
     "uploadArticle": {
       "title": "Datei-Upload",
-      "content": "Wähle die Datei über den unteren Knopf aus. Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.",
+      "content": "Drücke den hervorgehobenen Knopf, um deine Stammbaum-Datei auszuwählen. Mit dem \"Jetzt ausprobieren!\"-Knopf kannst du Beispieldaten generieren und die Seite ausprobieren.",
       "openButton": "Stammbaum öffnen",
       "detailSummary": "Woher bekomme ich die Daten?",
       "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben.",
