@@ -1,7 +1,7 @@
 import * as React from "react";
 import {createBrowserRouter, Link, NavLink, Outlet, RouterProvider, useLocation} from "react-router-dom";
 import {strings} from "./main";
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
 import {Home, Imprint} from "./components/Home";
@@ -72,6 +72,7 @@ function Layout() {
   const [titleRight, setTitleRight] = useState<React.ReactNode>(undefined);
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
+  const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
   const dialog = useRef<HTMLDialogElement>();
   const query = matchMedia("(max-width: 768px)");
   const location = useLocation();
@@ -92,25 +93,28 @@ function Layout() {
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();
     else dialog.current?.close();
-  }, [navBarExtended]);
+  }, [navBarExtended, isSmallScreen]);
 
   useEffect(() => toggleNavBar(false), [location]);
 
   return <>
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
-      <ShowHiddenButton title={navBarExtended ? "⬅️" : "➡️"} action={() => toggleNavBar(!navBarExtended)}></ShowHiddenButton>
+      <ShowHiddenButton title={navBarExtended ? "⬅️" : "➡️"} action={() => toggleNavBar(!navBarExtended)}/>
     </div>
     <header className="row-start-1 text-xl flex flex-row items-center gap-4 dark:text-white">
       {headerChildren}
     </header>
-    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>
-    <div className={`row-start-1 text-center ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>⬅️
-    </div>
+    {titleRight && <div
+      className={`row-start-1 text-center mr-4 font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>}
+    {titleRight && <div
+      className={`row-start-1 text-right ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>
+      <ShowHiddenButton title={sidebarExtended ? "➡️" : "⬅️"} action={() => toggleSidebar(!sidebarExtended)}/>
+    </div>}
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
     <LayoutContext.Provider value={{
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
-      toggleNavBar: toggleNavBar
+      sidebarVisible: sidebarExtended
     }}>
       <Outlet/>
     </LayoutContext.Provider>
@@ -142,21 +146,26 @@ export function Main(props) {
     }
   }, [titleRight]);
 
-  return <main className="row-start-2 col-span-3 md:col-span-2 lg:col-span-1 mx-4 md:ml-0 lg:mr-0 dark:text-white">
+  return <main className={`row-start-2 ${layoutContext.sidebarVisible ? "col-span-2 md:col-span-1" : "col-span-3 md:col-span-2 lg:col-span-1"} mx-4 md:ml-0 lg:mr-0 dark:text-white`}>
     {props.children}
   </main>
 }
 
 export function Sidebar(props) {
+  const visible = useContext(LayoutContext).sidebarVisible;
+
   useEffect(() => {
     let root = document.querySelector<HTMLDivElement>("#root");
     root.classList.add("sidebar-visible");
   }, [])
 
-  return <aside
-    className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll hidden lg:flex gap-4 flex-col mr-4 dark:text-white`}>
-    {props.children}
-  </aside>
+  if (visible) {
+    return <aside
+      className={`row-start-2 col-start-3 max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 flex-col mr-4 dark:text-white`}>
+      {props.children}
+    </aside>
+  }
+  return <></>;
 }
 
 export function Article(props) {
