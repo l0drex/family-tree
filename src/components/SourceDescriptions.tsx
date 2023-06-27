@@ -3,14 +3,19 @@ import {filterLang, strings} from "../main";
 import {Link, useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {Coverage, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactNavLink, Sidebar} from "../App";
+import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Title} from "../App";
 import {db} from "../backend/db";
 
 export function SourceDescriptionOverview() {
   const descriptions = useLoaderData() as SourceDescription[];
   const hasSources = descriptions && descriptions.length > 0;
+  const layoutContext = useContext(LayoutContext);
 
-  return <Main><Article emoji="📚" title={strings.gedcomX.sourceDescription.sourceDescriptions}>
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<Title emoji="📚">{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
+  }, [])
+
+  return <Main><Article>
     {hasSources && <SourcesList descriptions={descriptions}/>}
     {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}
   </Article></Main>;
@@ -19,7 +24,7 @@ export function SourceDescriptionOverview() {
 function SourcesList(props) {
   return <ul>
     {props.descriptions?.map(sd =>
-      <li key={sd.id} className="my-2">
+      <li key={sd.id}>
         <ReactNavLink to={`/sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
       </li>
     )}

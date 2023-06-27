@@ -2,15 +2,20 @@ import {filterLang, strings} from "../main";
 import {Document} from "../backend/gedcomx-extensions";
 import {useLoaderData} from "react-router-dom";
 import {Attribution, Confidence, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactNavLink, Sidebar} from "../App";
+import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Title} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 
 export function DocumentOverview() {
   const documents = useLoaderData() as Document[];
   const hasDocuments = documents && documents.length > 0;
+  const layoutContext = useContext(LayoutContext);
 
-  return <Main><Article emoji="📄" title={strings.gedcomX.document.documents}>
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<Title emoji="📄">{strings.gedcomX.document.documents}</Title>);
+  }, [])
+
+  return <Main><Article>
     {hasDocuments && <DocumentList documents={documents}/>}
     {!hasDocuments && <p>{strings.gedcomX.document.noDocuments}</p>}
   </Article></Main>

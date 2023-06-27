@@ -27,7 +27,7 @@ import {Legend} from "@visx/visx";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {Loading} from "./Loading";
-import {LayoutContext, Main} from "../App";
+import {LayoutContext, Main, Title} from "../App";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -292,9 +292,9 @@ export default function Statistics() {
   });
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<h1 className="mx-auto">
+    layoutContext.setHeaderChildren(<Title emoji="📊">
       {strings.statistics.title}
-    </h1>);
+    </Title>);
     layoutContext.setRightTitle("");
   }, []);
 

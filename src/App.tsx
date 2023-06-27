@@ -99,7 +99,7 @@ function Layout() {
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
       <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? "⬅️" : "➡️"}</button>
     </div>
-    <header className="row-start-1 text-xl flex flex-row items-center gap-4 dark:text-white">
+    <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
     </header>
     {titleRight && <div
@@ -171,11 +171,15 @@ export function Article(props) {
   return (
     <article
       className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 w-full max-w-3xl" {...props}>
-      {props.title && <h1 className="font-bold text-xl dark:border-gray-400 mb-4"><span
-        className="font-normal">{props.emoji}</span> {props.title}</h1>}
+      {props.title && <Title emoji={props.emoji}>{props.title}</Title>}
       {props.children}
     </article>
   );
+}
+
+export function Title(props: {emoji: string, children}) {
+  return <h1 className="font-bold text-xl dark:border-gray-400 mb-4 last:mb-0">
+    <span className="font-normal">{props.emoji}</span> {props.children}</h1>
 }
 
 export function Kbd(props) {

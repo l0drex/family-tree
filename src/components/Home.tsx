@@ -1,12 +1,18 @@
 import * as React from "react";
 import {hasData, strings} from "../main";
-import {Article, ButtonLike, Details, Kbd, Main, VanillaLink} from "../App";
-import {useEffect, useState} from "react";
+import {Article, ButtonLike, Details, Kbd, LayoutContext, Main, Title, VanillaLink} from "../App";
+import {useContext, useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
 
 export function Home() {
+  const layoutContext = useContext(LayoutContext);
+
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<Title emoji="🌳">{strings.header.title}</Title>);
+  }, [])
+
   return <Main>
     <Uploader/>
     <NavigationTutorial/>

@@ -1,15 +1,20 @@
 import {Agent} from "../backend/gedcomx-extensions";
 import {strings} from "../main";
 import {useLoaderData} from "react-router-dom";
-import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, VanillaLink} from "../App";
+import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Title, VanillaLink} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 
 export function AgentOverview() {
   const agents = useLoaderData() as Agent[];
   const hasAgents = agents && agents.length > 0;
+  const layoutContext = useContext(LayoutContext);
 
-  return <Main><Article emoji="👤" title={strings.gedcomX.agent.agents}>
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<Title emoji="👤">{strings.gedcomX.agent.agents}</Title>);
+  }, [])
+
+  return <Main><Article>
     {hasAgents && <AgentList agents={agents}/>}
     {!hasAgents && <p>{strings.gedcomX.agent.noAgents}</p>}
   </Article></Main>
