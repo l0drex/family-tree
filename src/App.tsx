@@ -102,8 +102,8 @@ function Layout() {
     <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
     </header>
-    {titleRight && <div
-      className={`row-start-1 text-center mr-4 font-bold text-xl my-1 dark:text-white hidden lg:block`}>{titleRight}</div>}
+    {titleRight && sidebarExtended && <div
+      className={`row-start-1 text-center mr-4 font-bold text-xl my-1 dark:text-white`}>{titleRight}</div>}
     {titleRight && <div
       className={`row-start-1 text-right ${titleRight ? "mr-4" : ""} font-bold text-xl my-1 dark:text-white block lg:hidden`}>
       <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>

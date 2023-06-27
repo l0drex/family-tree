@@ -4,14 +4,13 @@ import {Gallery} from "./Gallery";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
-import {useContext, useEffect} from "react";
+import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
 import {Confidence, Note, SourceReference} from "./GedcomXComponents";
-import {Article, Details, LayoutContext, Sidebar} from "../App";
+import {Article, Details, Sidebar} from "../App";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
-  const layoutContext = useContext(LayoutContext);
 
   const images = useLiveQuery(async () => {
     if (person) return getImages(person);
@@ -71,10 +70,6 @@ function InfoPanel() {
   // person.getIdentifiers()
   // person.getAnalysis()
   // person.getAttribution()
-
-  useEffect(() => {
-    layoutContext.setRightTitle(person.fullName);
-  }, [person])
 
   if (!person) {
     return <aside id={"info-panel"}></aside>
