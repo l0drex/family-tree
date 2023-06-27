@@ -27,7 +27,8 @@
     "navigationArticle": {
       "title": "Bedienung",
       "content": "Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man {0} gedrückt, kann man mit dem Mausrad rein- bzw. rauszoomen. Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt. An vielen Personen hängen Kreise, in denen \"+\" oder \"-\" steht. Klickt man auf diese, werden weitere Verwandte ein- oder ausgeblendet."
-    }
+    },
+    "title": "Startseite"
   },
   "imprint": {
     "privacyArticle": {
@@ -294,6 +295,7 @@
       "Single": "ledig",
       "Widowed": "verwitwet"
     },
+    "persons": "Personen",
     "sourceDescription": {
       "sourceDescription": "Quelle",
       "sourceDescriptions": "Quellen",

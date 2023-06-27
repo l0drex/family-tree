@@ -27,7 +27,8 @@
     "navigationArticle": {
       "title": "Usage",
       "content": "You can move the family tree with your mouse.While pressing {0}, you can zoom in and out with your mouse wheel. Select a person with your left mouse button to show their information. Many people have a circle with \"+\" or \"-\" inside them, clicking on those displays their relatives."
-    }
+    },
+    "title": "Home"
   },
   "imprint": {
     "privacyArticle": {
@@ -294,6 +295,7 @@
       "Single": "single",
       "Widowed": "widowed"
     },
+    "persons": "Persons",
     "sourceDescription": {
       "sourceDescription": "Source",
       "sourceDescriptions": "Sources",
