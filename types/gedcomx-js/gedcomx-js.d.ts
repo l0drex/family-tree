@@ -237,7 +237,7 @@ declare module "gedcomx-js" {
 
     setCitations(citations: SourceCitation[] | object[]): SourceDescription
 
-    addCitation(citation: SourceCitation | object)
+    addCitation(citation: SourceCitation | object): SourceDescription
 
     getMediaType(): string
 
@@ -257,9 +257,9 @@ declare module "gedcomx-js" {
 
     addSource(source: SourceReference): SourceDescription
 
-    getAnalysis(): string
+    getAnalysis(): ResourceReference
 
-    setAnalysis(analysis: string): SourceDescription
+    setAnalysis(analysis: ResourceReference | object): SourceDescription
 
     getComponentOf(): SourceReference
 

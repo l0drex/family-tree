@@ -228,3 +228,8 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
     {props.children}
   </div>
 }
+
+export function Tag(props: { children }) {
+  return <span
+    className="inline-block rounded-full bg-white bg-opacity-50 dark:bg-opacity-10 px-4 py-1 text-neutral-700 dark:text-neutral-300 text-sm">{props.children}</span>
+}

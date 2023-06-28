@@ -3,7 +3,7 @@ import {filterLang, strings} from "../main";
 import {Link, useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {Coverage, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Title} from "../App";
+import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title, VanillaLink} from "../App";
 import {db} from "../backend/db";
 
 export function SourceDescriptionOverview() {
@@ -70,24 +70,34 @@ export function SourceDescriptionView() {
 
   return <>
     <Main>
+      {hasMisc && <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
+        {componentOf && <Tag>
+          component of: <ReactLink to={`/sources/${componentOf.getDescription().substring(1)}`}>
+          {componentOf.getDescriptionId() ?? componentOf.getDescription()}</ReactLink>
+        </Tag>}
+        {sourceDescription.rights && sourceDescription.getRights().map(r => <Tag key={r.getResource()}>
+            rights: <VanillaLink to={r.getResource()}>{r.getResource()}</VanillaLink>
+          </Tag>)}
+        {sourceDescription.repository && <Tag>
+          repository: <VanillaLink to={sourceDescription.getRepository().getResource()}>
+          {sourceDescription.getRepository().getResource()}</VanillaLink>
+        </Tag>}
+        {sourceDescription.getMediator() && <Tag>
+          mediator: <ReactLink to={`/${sourceDescription.getMediator().getResource()}`}>
+          {sourceDescription.getMediator().getResource()}</ReactLink>
+        </Tag>}
+        {sourceDescription.getAnalysis() && <Tag>
+          <ReactLink to={`/documents/${sourceDescription.getAnalysis().resource.substring(1)}`}>Analysis</ReactLink>
+        </Tag>}
+      </section>}
       <Article>
-        {hasMisc && <section className={"misc"}>
-          {componentOf && <div>componentOf: <Link
-            to={`/sources/${componentOf.getDescription().substring(1)}`}>{componentOf.getDescriptionId() ?? componentOf.getDescription()}</Link>
-          </div>}
-          {sourceDescription.rights && <div>©️{sourceDescription.rights}</div>}
-          {sourceDescription.repository && <div>repository: {sourceDescription.repository}</div>}
-          {sourceDescription.getAnalysis() &&
-            <Link to={`/documents/${sourceDescription.getAnalysis().substring(1)}`}>Analysis</Link>}
-        </section>}
-        {hasMedia && <figure>{media}</figure>}
+        {hasMedia && <figure className="mb-4 last:mb-0">{media}</figure>}
         {sourceDescription.getDescriptions().filter(filterLang).map((d, i) =>
-          <p key={i}>{d.getValue()}</p>
+          <p key={i} className="mb-4 last:mb-0">{d.getValue()}</p>
         )}
-        {sourceDescription.getMediator() && <p>{`Mediator: ${sourceDescription.getMediator()}`}</p>}
         {sourceDescription.citations && <section>
-          Citations:
-          <ul>
+          <h2 className="font-bold text-lg">Citations</h2>
+          <ul className="list-disc pl-4">
             {sourceDescription.getCitations()
               .filter(filterLang)
               .map((c, i) => <li key={i}>{c.getValue()}</li>)}

@@ -13,12 +13,12 @@ import {
   Relationship,
   ResourceReference,
   Root, SourceCitation, SourceDescription, SourceReference, TextValue,
-  Document
+  Document, Identifiers
 } from "gedcomx-js";
 import {faker} from "@faker-js/faker";
 import {
   Confidence, DocumentTypes,
-  GenderTypes,
+  GenderTypes, IdentifierTypes, KnownResourceTypes,
   NameTypes,
   PersonFactTypes,
   RelationshipFactTypes,
@@ -140,11 +140,23 @@ function extensiveData() {
       .setPerson1(new ResourceReference().setResource("#p5"))
       .setPerson2(new ResourceReference().setResource("#p1")))
     .addSourceDescription(new SourceDescription()
+      .setResourceType(KnownResourceTypes.DigitalArtifact)
+      .setMediator(new ResourceReference().setResource("#a1"))
+      .addSource(new SourceReference().setDescription("#s1"))
+      .setAbout(faker.image.urlLoremFlickr())
+      .setMediaType("image/jpeg")
+      .setAnalysis(new ResourceReference().setResource("#d1"))
+      .setComponentOf(new SourceReference().setDescription("#s1"))
       .addTitle(new TextValue().setValue(faker.lorem.words(3)))
-      .addCitation(new SourceCitation().setValue(faker.lorem.text()))
-      .addDescription(new TextValue().setValue(faker.lorem.text()))
-      .addNote(new Note().setText(faker.lorem.paragraphs(1)))
+      .addRight(new ResourceReference().setResource(faker.internet.url()))
       .addCoverage(new Coverage().setSpatial(new PlaceReference().setOriginal(faker.location.city())))
+      .addDescription(new TextValue().setValue(faker.lorem.text()))
+      .addCitation(new SourceCitation().setValue(faker.lorem.text()))
+      .setIdentifiers(new Identifiers().addValue(faker.internet.url(), IdentifierTypes.Authority))
+      .setCreated(faker.date.recent().valueOf())
+      .setModified(faker.date.recent().valueOf())
+      .addNote(new Note().setText(faker.lorem.paragraphs(1)))
+      .setRepository(new ResourceReference().setResource(faker.internet.url()))
       .setId("s1"))
     .addAgent(new Agent()
       .addName(new TextValue().setValue(faker.person.fullName()))
