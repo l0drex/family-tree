@@ -2,7 +2,7 @@ import {filterLang, strings} from "../main";
 import {Document} from "../backend/gedcomx-extensions";
 import {useLoaderData} from "react-router-dom";
 import {Attribution, Confidence, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Title} from "../App";
+import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Tag, Title} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 
@@ -24,8 +24,9 @@ export function DocumentOverview() {
 function DocumentList(props) {
   return <ul>
     {props.documents?.map(doc =>
-      <li key={doc.id}><ReactNavLink
-        to={`${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</ReactNavLink></li>
+      <li key={doc.id}><ReactNavLink to={`/documents/${doc.getId()}`}>
+        {`${doc.emoji} ${strings.gedcomX.document.document}`}
+      </ReactNavLink></li>
     )}
   </ul>
 }
@@ -44,13 +45,13 @@ export function DocumentView() {
   // todo sanitize and render xhtml
   return <>
     <Main>
+      <section className="mx-auto w-fit flex flex-row gap-4">
+        {document.isExtracted && <Tag>{strings.gedcomX.document.extracted}</Tag>}
+        {document.getConfidence() && <Tag><Confidence confidence={document.getConfidence()}/></Tag>}
+      </section>
       <Article>
-        <section className={"misc"}>
-          {document.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
-          {document.getConfidence() && <Confidence confidence={document.getConfidence()}/>}
-        </section>
-        {document.isPlainText && <p>{document.getText()}</p>}
-        {document.getAttribution() && <p><Attribution attribution={document.getAttribution()}/></p>}
+        {document.isPlainText && <p className="mb-4 last:mb-0">{document.getText()}</p>}
+        {document.getAttribution() && <p className="mb-4 last:mb-0"><Attribution attribution={document.getAttribution()}/></p>}
       </Article>
       {document.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
       {document.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}

@@ -35,7 +35,10 @@ const router = createBrowserRouter([
       },
       {
         path: "documents", children: [
-          {index: true, Component: DocumentOverview, loader: () => db.documents.toArray().then(d => new Document(d))},
+          {
+            index: true,
+            Component: DocumentOverview,
+            loader: () => db.documents.toArray().then(ds => ds.map(d => new Document(d)))},
           {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
         ]
       },
@@ -82,9 +85,13 @@ function Layout() {
       <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
       <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.persons}` : "")}</ReactNavLink></li>
       <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="documents">{"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink
+        to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink>
+      </li>
+      <li><ReactNavLink
+        to="documents">{"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}</ReactNavLink>
+      </li>
     </ul>
   </nav>
 
@@ -178,7 +185,7 @@ export function Article(props) {
   );
 }
 
-export function Title(props: {emoji: string, children}) {
+export function Title(props: { emoji: string, children }) {
   return <h1 className="font-bold text-xl dark:border-gray-400 mb-4 last:mb-0">
     <span className="font-normal">{props.emoji}</span> {props.children}</h1>
 }

@@ -302,7 +302,7 @@
       "noSourceDescriptions": "Es sind keine Quellen vorhanden."
     },
     "document": {
-      "extracted": "Die folgenden Informationen wurden aus einem Dokument extrahiert.",
+      "extracted": "extrahiert",
       "documents": "Dokumente",
       "document": "Dokument",
       "noDocuments": "Es sind keine Dokumente vorhanden."

@@ -302,7 +302,7 @@
       "noSourceDescriptions": "There are no sources."
     },
     "document": {
-      "extracted": "This information was extracted from a document.",
+      "extracted": "extracted",
       "documents": "Documents",
       "document": "Document",
       "noDocuments": "There are no documents."
