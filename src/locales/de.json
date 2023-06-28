@@ -374,7 +374,7 @@
   },
   "errors": {
     "title": "Uups, etwas ist schief gelaufen",
-    "no_data": "Wir konnten keine Daten finden. Stelle bitte sicher, dass du eine Datei {0} ausgewählt hast."
+    "noData": "Wir konnten keine Daten finden."
   },
   "ctrl": "Strg",
   "linkContent": "hier"

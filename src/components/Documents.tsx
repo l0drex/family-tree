@@ -40,7 +40,7 @@ export function DocumentView() {
     db.documents.toArray().then(sds => sds.map(sd => new Document(sd))).then(setOthers);
     layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
-  }, [])
+  }, [document])
 
   // todo sanitize and render xhtml
   return <>

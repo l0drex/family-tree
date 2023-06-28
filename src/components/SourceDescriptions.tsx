@@ -42,7 +42,7 @@ export function SourceDescriptionView() {
     db.sourceDescriptions.toArray().then(sds => sds.map(sd => new SourceDescription(sd))).then(setOthers);
     layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
-  }, [])
+  }, [sourceDescription])
 
   useEffect(() => {
     if (!hasMedia) return;

@@ -374,7 +374,7 @@
   },
   "errors": {
     "title": "Whoops, something went wrong",
-    "no_data": "We couldn't find any data. Please make sure to select a file over {0}."
+    "noData": "We couldn't find any data."
   },
   "ctrl": "Ctrl",
   "linkContent": "here"

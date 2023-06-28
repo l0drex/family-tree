@@ -160,6 +160,7 @@ function extensiveData() {
       .setId("s1"))
     .addAgent(new Agent()
       .addName(new TextValue().setValue(faker.person.fullName()))
+      .addName(new TextValue().setValue(faker.person.fullName()))
       .addEmail(new ResourceReference().setResource(faker.internet.email()))
       .setHomepage(new ResourceReference().setResource(faker.internet.url()))
       .addAccount(new OnlineAccount()

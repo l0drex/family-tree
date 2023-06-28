@@ -186,7 +186,7 @@ export function Article(props) {
 }
 
 export function Title(props: { emoji: string, children }) {
-  return <h1 className="font-bold text-xl dark:border-gray-400 mb-4 last:mb-0">
+  return <h1 className="font-bold text-xl dark:border-gray-400 mb-2 last:mb-0">
     <span className="font-normal">{props.emoji}</span> {props.children}</h1>
 }
 
@@ -239,4 +239,8 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
 export function Tag(props: { children }) {
   return <span
     className="inline-block rounded-full bg-white bg-opacity-50 dark:bg-opacity-10 px-4 py-1 text-neutral-700 dark:text-neutral-300 text-sm">{props.children}</span>
+}
+
+export function P(props) {
+  return <p className="mb-4 last:mb-0">{props.children}</p>
 }
