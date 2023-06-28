@@ -64,7 +64,8 @@ export default function App() {
 interface ILayoutContext {
   setRightTitle: (string) => void,
   setHeaderChildren: (ReactNode) => void,
-  sidebarVisible: boolean
+  sidebarVisible: boolean,
+  isDark: boolean
 }
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
@@ -76,6 +77,9 @@ function Layout() {
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
+  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+  const [isDark, toggleDark] = useState(darkQuery.matches);
+  darkQuery.addEventListener("change", e => toggleDark(e.matches));
   const query = matchMedia("(max-width: 639px)");
   const [isSmallScreen, setSmallScreen] = useState(query.matches);
   query.addEventListener("change", e => setSmallScreen(e.matches));
@@ -119,7 +123,8 @@ function Layout() {
     <LayoutContext.Provider value={{
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
-      sidebarVisible: sidebarExtended
+      sidebarVisible: sidebarExtended,
+      isDark: isDark
     }}>
       <Outlet/>
     </LayoutContext.Provider>
