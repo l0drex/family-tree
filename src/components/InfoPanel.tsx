@@ -1,20 +1,19 @@
 import {PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
-import {Gallery} from "./Gallery";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {GDate, Person} from "../backend/gedcomx-extensions";
+import {GDate} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
-import {ConclusionArticles, SubjectMisc} from "./GedcomXComponents";
-import {Article, Details, Sidebar} from "../App";
+import {
+  SubjectArticles,
+  SubjectMisc,
+  SubjectSidebar
+} from "./GedcomXComponents";
+import {Article, Details, Sidebar, Tag} from "../App";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
-
-  const images = useLiveQuery(async () => {
-    if (person) return getImages(person);
-  }, [person])
 
   const parents = useLiveQuery(async () => {
     if (!person) return;
@@ -90,20 +89,6 @@ function InfoPanel() {
           {strings.formatString(strings.infoPanel.nickname, person.nickname)}
         </h2>}
       </Article>}
-
-      {images && images.length > 0 && <Gallery>
-        {images.map(image => {
-          let credit = image.getCitations()[0].getValue();
-          return <div key={image.id}>
-            <img src={image.getAbout()}
-                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
-                 className="rounded-2xl"/>
-            <div className="relative bottom-8 py-1 text-center backdrop-blur rounded-b-2xl bg-opacity-50 bg-gray-200 dark:bg-neutral-700 dark:bg-opacity-50">
-              © <a href={image.getAbout()}>{credit}</a>
-            </div>
-          </div>
-        })}
-      </Gallery>}
 
       {person.facts && <Article noMargin>
         <ul id="factView" className="pl-4">
@@ -186,24 +171,15 @@ function InfoPanel() {
         </Article>}
       </Details>
 
-      <ConclusionArticles conclusion={person} noMargin/>
+      <SubjectArticles subject={person} noMargin/>
       <section className="mx-auto w-fit flex flex-row flex-wrap gap-4">
+        {person.isPrivate && <Tag>{strings.gedcomX.person.private}</Tag>}
         <SubjectMisc subject={person}/>
       </section>
+
+      <SubjectSidebar subject={person}/>
     </Sidebar>
   );
 }
-
-async function getImages(person: Person) {
-  let mediaRefs = person.getMedia().map(media => media.getDescription());
-  const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
-
-  return sourceDescriptions.filter(sourceDescription => {
-    let mediaType = sourceDescription.getMediaType();
-    if (!mediaType) return false;
-    return mediaType.split('/')[0] === 'image'
-  });
-}
-
 
 export default InfoPanel;

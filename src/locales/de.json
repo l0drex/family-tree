@@ -296,6 +296,9 @@
       "Widowed": "verwitwet"
     },
     "persons": "Personen",
+    "person": {
+      "private": "privat"
+    },
     "sourceDescription": {
       "sourceDescription": "Quelle",
       "sourceDescriptions": "Quellen",
@@ -333,6 +336,7 @@
     "place": "in {0}",
     "firstName": "Vorname",
     "note": "Anmerkung",
+    "evidence": "Beweis",
     "attribution": {
       "created": "Erstellt",
       "modified": "Geändert"

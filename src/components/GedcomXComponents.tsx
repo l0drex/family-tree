@@ -8,7 +8,8 @@ import {
 } from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
-import {Article, P, ReactLink, Tag} from "../App";
+import {Article, Hr, P, ReactLink, Tag} from "../App";
+import {Gallery} from "./Gallery";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
   return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.note} noMargin={props.noMargin}>
@@ -17,7 +18,7 @@ export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
   </Article>
 }
 
-export function Attribution({ attribution}: {attribution: gedcomX.Attribution }) {
+export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
   const creator = useLiveQuery(async () => {
     if (!attribution?.getCreator()) return undefined;
     return db.agentWithId(attribution.getCreator());
@@ -140,17 +141,67 @@ export function SubjectMisc({subject}: { subject: gedcomX.Subject }) {
   </>
 }
 
+export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
+  return <>
+    {subject.getIdentifiers() && <Hr/>}
+    <Identifiers identifiers={subject.getIdentifiers()}/>
+    <ConclusionSidebar conclusion={subject}/>
+  </>
+}
+
+export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
+  const images = useLiveQuery(async () => {
+    let mediaRefs = subject.getMedia().map(media => media.getDescription());
+    const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
+
+    return sourceDescriptions.filter(sourceDescription => {
+      let mediaType = sourceDescription.getMediaType();
+      if (!mediaType) return false;
+      return mediaType.split('/')[0] === 'image'
+    });
+  }, [subject])
+
+  return <>
+    {images && images.length > 0 && <Gallery noMargin={noMargin}>
+      {images.map(image => {
+        let credit = image.getCitations()[0].getValue();
+        return <div key={image.id}>
+          <img src={image.getAbout()}
+               alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
+               className="rounded-2xl"/>
+          <div className="relative bottom-8 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+            © <a href={image.getAbout()}>{credit}</a>
+          </div>
+        </div>
+      })}
+    </Gallery>}
+    {subject.getEvidence().map(e => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence}>
+      <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
+      <Attribution attribution={e.attribution}/>
+    </Article>)}
+    <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
+  </>
+}
+
 export function ConclusionMisc({conclusion}: { conclusion: gedcomX.Conclusion }) {
   return <>
+    {conclusion.analysis && <Tag>{strings.gedcomX.types.document.Analysis}: <ReactLink
+      to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
     {conclusion.confidence && <Tag><Confidence confidence={conclusion.confidence}/></Tag>}
-    {conclusion.analysis && <Tag>{strings.gedcomX.types.document.Analysis}: <ReactLink to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
   </>
 }
 
 export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
   return <>
-    {conclusion.getNotes().map((note, i) => <Note key={i} note={note} noMargin={noMargin}/>)}
     {conclusion.getSources().map((source, i) => <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
+    {conclusion.getNotes().map((note, i) => <Note key={i} note={note} noMargin={noMargin}/>)}
+  </>
+}
+
+export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion }) {
+  return <>
+    {conclusion.getAttribution() && <Hr/>}
+    <Attribution attribution={conclusion.getAttribution()}/>
   </>
 }
 
@@ -163,7 +214,8 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
   return <>
     <ul>
       {identifierMap[IdentifierTypes.Primary]?.map((id, i) => <li key={i}>{id}</li>)}
-      {identifierMap[IdentifierTypes.Authority]?.map((id, i) => <li key={i} className="italic"><ReactLink to={id}>{id}</ReactLink></li>)}
+      {identifierMap[IdentifierTypes.Authority]?.map((id, i) => <li key={i} className="italic"><ReactLink
+        to={id}>{id}</ReactLink></li>)}
       {identifierMap[IdentifierTypes.Deprecated]?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
     </ul>
   </>

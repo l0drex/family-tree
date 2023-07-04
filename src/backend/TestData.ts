@@ -41,6 +41,7 @@ function extensiveData() {
 
   return new Root()
     .addPerson(new Person(getSubject("p1"))
+      .setPrivate(true)
       .addName(new Name().addNameForm(new NameForm().setFullText(faker.person.fullName({
         lastName: lastName,
         sex: "male"

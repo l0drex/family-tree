@@ -67,7 +67,6 @@ export function SourceDescriptionView() {
 
   const hasMisc = componentOf || sourceDescription.rights || sourceDescription.repository || sourceDescription.analysis;
 
-  let hasSidebarContent = sourceDescription.getAttribution() || sourceDescription.getIdentifiers();
   return <>
     <Main>
       {hasMisc && <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
@@ -111,11 +110,11 @@ export function SourceDescriptionView() {
     </Main>
     <Sidebar>
       <SourcesList descriptions={others}/>
-      {hasSidebarContent && <>
-        <Hr/>
-        <Attribution attribution={sourceDescription.getAttribution()}/>
-        <Identifiers identifiers={sourceDescription.getIdentifiers()}/>
-      </>}
+      {sourceDescription.getAttribution() && <Hr/>}
+      <Attribution attribution={sourceDescription.getAttribution()}/>
+      {sourceDescription.getIdentifiers() && <Hr/>}
+      <Identifiers identifiers={sourceDescription.getIdentifiers()}/>
+
     </Sidebar>
   </>
 }

@@ -13,6 +13,10 @@ import {
 } from "./gedcomx-types";
 
 export class Person extends GedcomX.Person {
+  get isPrivate(): boolean {
+    return Boolean(this.getPrivate());
+  }
+
   get generation(): undefined | number {
     if (!this.facts) return undefined;
     let generationFacts = this.facts.filter(f => f.type === PersonFactTypes.GenerationNumber);

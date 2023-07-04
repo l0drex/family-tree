@@ -1,4 +1,4 @@
-import {Article, Hr, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title} from "../App";
+import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title} from "../App";
 import {useLoaderData} from "react-router-dom";
 import {PlaceDescription} from "gedcomx-js";
 import {useContext, useEffect, useState} from "react";
@@ -7,15 +7,14 @@ import {db} from "../backend/db";
 import {MapContainer, Marker, TileLayer} from "react-leaflet";
 import {LatLngExpression} from "leaflet";
 import {
-  Alias, Attribution,
-  ConclusionArticles,
-  SubjectMisc
+  Alias,
+  SubjectArticles,
+  SubjectMisc, SubjectSidebar
 } from "./GedcomXComponents";
 import {GDate} from "../backend/gedcomx-extensions";
 
 export function PlaceOverview() {
   const places = useLoaderData() as PlaceDescription[];
-  const hasPlaces = places && places.length > 0;
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
@@ -71,14 +70,11 @@ export function PlaceView() {
           <Marker position={coordinates}/>
         </MapContainer>}
       </Article>
-      <ConclusionArticles conclusion={place}/>
+      <SubjectArticles subject={place}/>
     </Main>
     <Sidebar>
       <PlaceList places={others}/>
-      {place.getAttribution() && <>
-        <Hr/>
-        <Attribution attribution={place.getAttribution()}/>
-      </>}
+      <SubjectSidebar subject={place}/>
     </Sidebar>
   </>
 }
