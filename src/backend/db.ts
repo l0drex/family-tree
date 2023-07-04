@@ -4,7 +4,15 @@ import {
   IGroup
 } from "./gedcomx-types";
 import * as GedcomX from "gedcomx-js";
-import {Agent, Document, Person, Relationship, setReferenceAge, SourceDescription} from "./gedcomx-extensions";
+import {
+  Agent,
+  Document,
+  Person,
+  PlaceDescription,
+  Relationship,
+  setReferenceAge,
+  SourceDescription
+} from "./gedcomx-extensions";
 import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
 import {ResourceReference} from "gedcomx-js";
 
@@ -107,7 +115,7 @@ export class FamilyDB extends Dexie {
           .then(d => d ? new Document(d) : Promise.reject(new Error(`Document with id ${id} not found!`)));
       case "place":
         return this.places.where("id").equals(id).first()
-          .then(p => p ? new GedcomX.PlaceDescription(p) : Promise.reject(new Error(`Place with id ${id} not found!`)));
+          .then(p => p ? new PlaceDescription(p) : Promise.reject(new Error(`Place with id ${id} not found!`)));
       case "group":
         return this.groups.where("id").equals(id).first()
           .then(g => g ? g : Promise.reject(new Error(`Group with id ${id} not found!`)));

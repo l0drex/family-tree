@@ -188,3 +188,13 @@ test("toString works", () => {
   date.setFormal("+2022-01-25T05:06:06")
   expect(date.toString()).toBe("on 01/25/2022 at 05:06:06 AM")
 })
+
+it("is not extracted", () => {
+  let person = new Person();
+  expect(person.extracted).toBeFalsy();
+  expect(person.isExtracted()).toBeFalsy();
+
+  person.setExtracted(false);
+  expect(person.extracted).toBeFalsy();
+  expect(person.isExtracted()).toBeFalsy();
+})
