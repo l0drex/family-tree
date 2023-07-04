@@ -67,7 +67,7 @@ const router = createBrowserRouter([
           },
           {path: "imprint", Component: Imprint},
           {
-            path: "places",  children: [
+            path: "places", children: [
               {
                 index: true,
                 Component: PlaceOverview,
@@ -127,7 +127,7 @@ function Layout() {
   const layoutContext = useMemo(() => {
     return {
       setRightTitle: setTitleRight,
-        setHeaderChildren: setChildren,
+      setHeaderChildren: setChildren,
       sidebarVisible: sidebarExtended,
       isDark: isDark
     }
@@ -144,19 +144,23 @@ function Layout() {
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
       <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? "⬅️" : "➡️"}</button>
     </div>
-    <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
+    {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
+
+    {headerChildren.length > 0 && <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
-    </header>
+    </header>}
+
     {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
       {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}
       <span className={`lg:hidden`}>
         <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
       </span>
     </div>}
-    {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
+
     <LayoutContext.Provider value={layoutContext}>
       <Outlet/>
     </LayoutContext.Provider>
+
     <footer className="row-start-4 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
         <span className="hidden md:inline">
           {strings.formatString(strings.footer.sourceCode, <VanillaLink

@@ -46,7 +46,7 @@ export function Details(props) {
   </details>
 }
 
-export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHover?: boolean, children? }) {
+export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHover?: boolean, className?: string, children? }) {
   const enabled = props.enabled ?? true;
   const primary = props.primary ?? false;
   const noHover = props.noHover ?? false;
@@ -62,7 +62,7 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
   }
 
   return <div
-    className={`inline-block rounded-full max-w-fit max-h-fit mx-2 ${style}`}>
+    className={`inline-block rounded-full max-w-fit max-h-fit mx-2 ${style} ` + props.className}>
     {props.children}
   </div>
 }

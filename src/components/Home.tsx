@@ -1,6 +1,6 @@
 import * as React from "react";
 import {hasData, strings} from "../main";
-import {Article, ButtonLike, Details, Kbd, Title, VanillaLink} from "./GeneralComponents";
+import {Article, ButtonLike, Details, Kbd, P, Title, VanillaLink} from "./GeneralComponents";
 import {LayoutContext, Main} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
@@ -8,69 +8,14 @@ import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
 
 export function Home() {
-  const layoutContext = useContext(LayoutContext);
-
-  useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="🌳">{strings.header.title}</Title>);
-  }, [layoutContext])
-
   return <Main>
-    <Uploader/>
-    <NavigationTutorial/>
-  </Main>;
-}
+    <div className="flex flex-col h-full justify-center">
+      <h1 className="font-bold text-5xl sm:text-6xl text-center bg-gradient-to-r from-green-900 dark:from-green-600 to-green-600 dark:to-green-300 w-fit mx-auto bg-clip-text text-transparent">Stammbaum</h1>
+      <span className="text-xl sm:text-2xl text-center text-neutral-500 block mt-4">Free, private, Open Source</span>
 
-function Uploader() {
-  let root = document.getElementById("root");
-  root.classList.remove("sidebar-visible");
-
-  return (
-    <Article title={strings.home.uploadArticle.title} emoji="📁">
-      <p>
-        {strings.home.uploadArticle.content}
-      </p>
       <Form submit={strings.home.uploadArticle.openButton}/>
-      <Details title={<><span className="emoji">🗒️</span> {strings.home.uploadArticle.detailSummary}</>}>
-        <p className="my-2">
-          {strings.formatString(strings.home.uploadArticle.detail,
-            <VanillaLink href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">
-              {strings.linkContent}</VanillaLink>)}
-        </p>
-      </Details>
-    </Article>
-  );
-}
-
-function NavigationTutorial() {
-  return <Article title={strings.home.navigationArticle.title} emoji="🖥">
-    <p>
-      {strings.formatString(strings.home.navigationArticle.content,
-        <Kbd>{strings.ctrl}</Kbd>)}
-    </p>
-  </Article>
-}
-
-export function Imprint() {
-  return <Main>
-    <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
-      <p>
-        {strings.formatString(strings.imprint.privacyArticle.content,
-          <VanillaLink href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
-            {strings.linkContent}
-          </VanillaLink>)}
-      </p>
-    </Article>
-    <Article title={strings.imprint.imprintArticle.title} emoji="📇">
-      <p>
-        <address>
-          Hoffmann, Lorenz <br/>
-          Robert-Sterl Str 5c <br/>
-          01219 Dresden <br/>
-          <VanillaLink href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</VanillaLink>
-        </address>
-      </p>
-    </Article>
-  </Main>
+    </div>
+  </Main>;
 }
 
 function Form(props) {
@@ -95,28 +40,28 @@ function Form(props) {
   return (
     <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
       event.preventDefault();
-      parseFile(input.current.files[0]).then(t => JSON.parse(t)).then(data => saveDataAndRedirect(data, navigate));
-    }} className="my-4">
+      parseFile(input.current.files[0])
+        .then(t => JSON.parse(t))
+        .then(data => saveDataAndRedirect(data, navigate));
+    }} className="mt-20 flex flex-col gap-4 items-center">
       <input type="file" id="gedcom-file" accept="application/json" hidden
              onChange={() => parseFile(input.current.files[0])
                .then(t => JSON.parse(t))
                .then(d => saveDataAndRedirect(d, navigate))}
              ref={input}/>
 
-      <div className="flex justify-around flex-wrap gap-2">
-        <ButtonLike>
-          <button onClick={loadTestData} className="px-4 py-2">{strings.home.uploadArticle.tryItOut}</button>
-        </ButtonLike>
-        {dataExists && <ButtonLike><Link to="/persons" className="block px-4 py-2">
-          {strings.form.continueSession}
-        </Link></ButtonLike>}
-        <ButtonLike primary={true}>
-          <input type="submit" value={props.submit} className={`px-4 py-2`} onClick={e => {
-            e.preventDefault();
-            input.current?.click();
-          }}/>
-        </ButtonLike>
-      </div>
+      <ButtonLike primary className="mb-4">
+        <button onClick={loadTestData} className="px-8 py-4 text-xl min-w-max w-64">{strings.home.uploadArticle.tryItOut}</button>
+      </ButtonLike>
+      {dataExists && <ButtonLike><Link to="/persons" className="block px-4 py-2 min-w-max w-48 text-center">
+        {strings.form.continueSession}
+      </Link></ButtonLike>}
+      <ButtonLike>
+        <input type="submit" value={props.submit} className={`px-4 py-2 min-w-max w-48 text-center`} onClick={e => {
+          e.preventDefault();
+          input.current?.click();
+        }}/>
+      </ButtonLike>
     </form>
   );
 }
@@ -143,4 +88,27 @@ export function saveDataAndRedirect(data: object, navigate: (url: string) => voi
   if (typeof data !== "object") throw new Error("Data type is invalid!")
 
   db.load(data).then(() => navigate("/persons"));
+}
+
+export function Imprint() {
+  return <Main>
+    <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
+      <p>
+        {strings.formatString(strings.imprint.privacyArticle.content,
+          <VanillaLink href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
+            {strings.linkContent}
+          </VanillaLink>)}
+      </p>
+    </Article>
+    <Article title={strings.imprint.imprintArticle.title} emoji="📇">
+      <p>
+        <address>
+          Hoffmann, Lorenz <br/>
+          Robert-Sterl Str 5c <br/>
+          01219 Dresden <br/>
+          <VanillaLink href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</VanillaLink>
+        </address>
+      </p>
+    </Article>
+  </Main>
 }

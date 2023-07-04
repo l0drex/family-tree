@@ -6,7 +6,7 @@
   },
   "form": {
     "fileInputLabel": "Gedcom Datei",
-    "continueSession": "Mit letzter Sitzung fortfahren",
+    "continueSession": "Sitzung fortsetzen",
     "noFileError": "Keine Datei ausgewählt",
     "graphLoadingError": "Der Graph konnte nicht geladen werden."
   },
@@ -19,7 +19,7 @@
     "uploadArticle": {
       "title": "Datei-Upload",
       "content": "Drücke den hervorgehobenen Knopf, um deine Stammbaum-Datei auszuwählen. Mit dem \"Jetzt ausprobieren!\"-Knopf kannst du Beispieldaten generieren und die Seite ausprobieren.",
-      "openButton": "Stammbaum öffnen",
+      "openButton": "Datei öffnen",
       "detailSummary": "Woher bekomme ich die Daten?",
       "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben.",
       "tryItOut": "Jetzt ausprobieren!"
