@@ -1,8 +1,8 @@
 import * as React from "react";
 import {hasData, strings} from "../main";
-import {Article, ButtonLike, Details, Kbd, P, Title, VanillaLink} from "./GeneralComponents";
-import {LayoutContext, Main} from "../App";
-import {useContext, useEffect, useState} from "react";
+import {Article, ButtonLike, VanillaLink} from "./GeneralComponents";
+import {Main} from "../App";
+import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
