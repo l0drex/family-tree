@@ -175,7 +175,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
         </div>
       })}
     </Gallery>}
-    {subject.getEvidence().map(e => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence}>
+    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence} key={i}>
       <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
       <Attribution attribution={e.attribution}/>
     </Article>)}
