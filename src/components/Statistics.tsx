@@ -65,7 +65,7 @@ function GenderStats() {
   </Stat>
 
   if (data.length === 0) return <Stat title={strings.gedcomX.gender}>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   let sorted = [GenderTypes.Female, GenderTypes.Male, GenderTypes.Intersex, GenderTypes.Unknown];
@@ -101,7 +101,7 @@ function ReligionStats() {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.gedcomX.types.fact.person.Religion} landscape>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
@@ -172,7 +172,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={title}>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   const colors = scaleOrdinal({
@@ -222,7 +222,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={title}>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   let angleScale = scaleLinear({
@@ -261,7 +261,7 @@ function LifeExpectancy() {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.statistics.lifeExpectancy} landscape>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   return <Stat title={strings.statistics.lifeExpectancy} landscape>
@@ -284,7 +284,7 @@ function MarriageAge() {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.statistics.marriageAge}>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   let yScale = scaleLinear({
@@ -316,7 +316,7 @@ function ConfidenceStats() {
     <Loading text={strings.loading.statistic}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.gedcomX.confidence}>
-    <NoData/>
+    {strings.errors.noData}
   </Stat>
 
   console.debug(data);
@@ -358,8 +358,8 @@ export default function Statistics() {
   }, []);
 
   return <>
-    {dataExists ?
       <Main skipCleanup>
+        {dataExists ?
         <div className="grid grid-flow-dense gap-4 justify-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <ConfidenceStats/>
           <GenderStats/>
@@ -370,7 +370,7 @@ export default function Statistics() {
           <BirthOverYearStats type={"Death"}/>
           <LifeExpectancy/>
           <MarriageAge/>
-        </div>
-      </Main> : <NoData/>}
+        </div> : <NoData/>}
+      </Main>
   </>
 }

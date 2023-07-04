@@ -319,6 +319,10 @@
       "addresses": "Addresses",
       "noAgents": "There are no agents."
     },
+    "placeDescription": {
+      "places": "Places",
+      "jurisdiction": "Jurisdiction"
+    },
     "gender": "Sex",
     "confidence": "Confidence",
     "ageQualifier": "with {0} years old",
@@ -374,7 +378,8 @@
   },
   "errors": {
     "title": "Whoops, something went wrong",
-    "noData": "We couldn't find any data."
+    "noData": "No data available.",
+    "stack": "Details for developers"
   },
   "ctrl": "Ctrl",
   "linkContent": "here"

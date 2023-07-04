@@ -19,9 +19,8 @@
 }
 
 #root {
-  min-height: 100vh;
-  min-width: 100vw;
-  overflow: auto;
+  height: 100vh;
+  width: 100vw;
   display: grid;
   gap: 1rem;
   grid-template-rows: auto auto 1fr auto;
@@ -55,4 +54,9 @@ dialog::backdrop {
   a.active {
     background: rgba(255, 255, 255, 10%);
   }
+}
+
+#map, .leaflet-container {
+  height: 500px;
+  border-radius: 1rem;
 }

@@ -1,11 +1,9 @@
 import {strings} from "../main";
-import {Title} from "../App";
+import {Article, P, Title} from "../App";
 
 export default function NoData() {
-  return <main>
-    <>
+  return <Article>
       <Title emoji="⚠️">{strings.errors.title}</Title>
-      <p>{strings.errors.noData}</p>
-    </>
-  </main>
+      <P>{strings.errors.noData}</P>
+    </Article>
 }

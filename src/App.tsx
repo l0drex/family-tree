@@ -10,52 +10,74 @@ import Statistics from "./components/Statistics";
 import {SourceDescriptionOverview, SourceDescriptionView} from "./components/SourceDescriptions";
 import {DocumentOverview, DocumentView} from "./components/Documents";
 import {AgentOverview, AgentView} from "./components/Agents";
+import {PlaceDescription} from "gedcomx-js";
+import {PlaceOverview, PlaceView} from "./components/Places";
+import ErrorBoundary from "./components/ErrorBoundary";
 
-// todo: places
 const router = createBrowserRouter([
   {
     path: "*", Component: Layout, children: [
-      {index: true, Component: Home},
       {
-        path: "persons/:id?", Component: Persons, loader: ({params}) => {
-          if (!params.id) return db.persons.toCollection().first().then(p => new Person(p))
-          return db.personWithId(params.id);
-        }
-      },
-      {path: "stats", Component: Statistics},
-      {
-        path: "sources", children: [
+        path: "*", errorElement: <ErrorBoundary/>, children: [
+          {index: true, Component: Home},
           {
-            index: true,
-            Component: SourceDescriptionOverview,
-            loader: () => db.sourceDescriptions.toArray().then(s => s.map(d => new SourceDescription(d)))
+            path: "persons/:id?", Component: Persons, loader: ({params}) => {
+              if (!params.id) {
+                return db.persons.toCollection().first()
+                  .then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+              }
+              return db.personWithId(params.id);
+            }
           },
-          {path: ":id", Component: SourceDescriptionView, loader: ({params}) => db.sourceDescriptionWithId(params.id)}
-        ]
-      },
-      {
-        path: "documents", children: [
+          {path: "stats", Component: Statistics},
           {
-            index: true,
-            Component: DocumentOverview,
-            loader: () => db.documents.toArray().then(ds => ds.map(d => new Document(d)))},
-          {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
-        ]
-      },
-      {
-        path: "agents", children: [
-          {
-            index: true,
-            Component: AgentOverview,
-            loader: () => db.agents.toArray().then(a => a.map(d => new Agent(d)))
+            path: "sources", children: [
+              {
+                index: true,
+                Component: SourceDescriptionOverview,
+                loader: () => db.sourceDescriptions.toArray().then(s => s.length ? s.map(d => new SourceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {
+                path: ":id",
+                Component: SourceDescriptionView,
+                loader: ({params}) => db.sourceDescriptionWithId(params.id)
+              }
+            ]
           },
-          {path: ":id", Component: AgentView, loader: ({params}) => db.agentWithId(params.id)}
+          {
+            path: "documents", children: [
+              {
+                index: true,
+                Component: DocumentOverview,
+                loader: () => db.documents.toArray().then(ds => ds.length ? ds.map(d => new Document(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
+            ]
+          },
+          {
+            path: "agents", children: [
+              {
+                index: true,
+                Component: AgentOverview,
+                loader: () => db.agents.toArray().then(a => a.length ? a.map(d => new Agent(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {path: ":id", Component: AgentView, loader: ({params}) => db.elementWithId(params.id, "agent")}
+            ]
+          },
+          {path: "imprint", Component: Imprint},
+          {
+            path: "places",  children: [
+              {
+                index: true,
+                Component: PlaceOverview,
+                loader: () => db.places.toArray().then(p => p.length ? p.map(d => new PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")}
+            ]
+          }
         ]
-      },
-      {path: "imprint", Component: Imprint}
-    ]
-  }
-], {basename: "/family-tree"});
+      }]
+  }], {basename: "/family-tree"});
 
 export default function App() {
   return <RouterProvider router={router}/>;
@@ -96,6 +118,8 @@ function Layout() {
         to="documents">{"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}</ReactNavLink></li>
       <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}</ReactNavLink>
       </li>
+      <li><ReactNavLink
+        to="places">{"🌎" + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}</ReactNavLink></li>
     </ul>
   </nav>
 
@@ -156,7 +180,7 @@ export function Main(props) {
     }
   }, [titleRight]);
 
-  let className = `row-start-2 mx-4 ${layoutContext.sidebarVisible ? "sm:ml-0 md:mr-0" : "sm:ml-0 lg:mr-0"} dark:text-white`;
+  let className = `row-start-2 mx-4 ${layoutContext.sidebarVisible ? "sm:ml-0 md:mr-0" : "sm:ml-0 lg:mr-0"} dark:text-white overflow-y-auto`;
   if (layoutContext.sidebarVisible)
     className += " row-start-3 md:row-start-2 row-span-1 md:row-span-2 sm:col-start-2 col-span-3 sm:col-span-2 md:col-span-1";
   else
@@ -181,9 +205,13 @@ export function Sidebar(props) {
 }
 
 export function Article(props) {
+  let other = {};
+  Object.assign(other, props);
+  delete other["noMargin"];
+
   return (
     <article
-      className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl mt-4 first:mt-0 mx-auto p-4 w-full max-w-3xl" {...props}>
+      className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl ${props.noMargin ? "" : "mt-4 first:mt-0"} mx-auto p-4 w-full max-w-3xl`} {...other}>
       {props.title && <Title emoji={props.emoji}>{props.title}</Title>}
       {props.children}
     </article>
@@ -214,7 +242,7 @@ export function ReactNavLink(props) {
 }
 
 export function Details(props) {
-  return <details className="rounded-2xl last:mb-0">
+  return <details className="rounded-2xl">
     <summary className="font-bold">{props.title}</summary>
     {props.children}
   </details>
@@ -241,11 +269,17 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
   </div>
 }
 
-export function Tag(props: { children }) {
+export function Tag({children}) {
   return <span
-    className="inline-block rounded-full bg-white bg-opacity-50 dark:bg-opacity-10 px-4 py-1 text-neutral-700 dark:text-neutral-300 text-sm">{props.children}</span>
+    className="inline-block rounded-full bg-white bg-opacity-50 dark:bg-opacity-10 w-fit px-4 py-1 text-neutral-700 dark:text-neutral-300 text-sm">
+    {children}
+  </span>
 }
 
-export function P(props) {
-  return <p className="mb-4 last:mb-0">{props.children}</p>
+export function P({noMargin, children}: { noMargin?: boolean, children }) {
+  return <p className={"text-block " + (noMargin ? "" : "mb-4 last:mb-0")}>{children}</p>
+}
+
+export function Hr() {
+  return <hr className="border-neutral-500 mx-8"/>
 }

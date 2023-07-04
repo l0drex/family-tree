@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
@@ -65,8 +65,8 @@ export default function SearchField(props: Props) {
              className="placeholder-neutral-600 dark:placeholder-neutral-400 dark:caret-white dark:text-white bg-transparent focus:outline-none"/>
       <input className="font-normal ml-4" type="submit" value="🔍" onInput={resetError}/>
       {persons && <datalist id="names">
-        {persons.map(p =>
-          <option value={p.fullName} key={p.id}>{p.fullName}</option>)}
+        {persons.map((p, i) =>
+          <option value={p.fullName} key={i}>{p.fullName}</option>)}
       </datalist>}
     </form>
   );

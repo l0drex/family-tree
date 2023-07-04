@@ -1,14 +1,17 @@
-import {filterLang, strings} from "../main";
+import {strings} from "../main";
 import {Document} from "../backend/gedcomx-extensions";
 import {useLoaderData} from "react-router-dom";
-import {Attribution, Confidence, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactNavLink, Sidebar, Tag, Title} from "../App";
+import {
+  Attribution,
+  ConclusionArticles,
+  ConclusionMisc
+} from "./GedcomXComponents";
+import {Article, Hr, LayoutContext, Main, P, ReactNavLink, Sidebar, Tag, Title} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 
 export function DocumentOverview() {
   const documents = useLoaderData() as Document[];
-  const hasDocuments = documents && documents.length > 0;
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
@@ -16,8 +19,7 @@ export function DocumentOverview() {
   }, [])
 
   return <Main><Article>
-    {hasDocuments && <DocumentList documents={documents}/>}
-    {!hasDocuments && <p>{strings.gedcomX.document.noDocuments}</p>}
+    <DocumentList documents={documents}/>
   </Article></Main>
 }
 
@@ -47,17 +49,19 @@ export function DocumentView() {
     <Main>
       <section className="mx-auto w-fit flex flex-row gap-4">
         {document.isExtracted && <Tag>{strings.gedcomX.document.extracted}</Tag>}
-        {document.getConfidence() && <Tag><Confidence confidence={document.getConfidence()}/></Tag>}
+        <ConclusionMisc conclusion={document}/>
       </section>
       <Article>
-        {document.isPlainText && <p className="mb-4 last:mb-0">{document.getText()}</p>}
-        {document.getAttribution() && <p className="mb-4 last:mb-0"><Attribution attribution={document.getAttribution()}/></p>}
+        {document.isPlainText && <P>{document.getText()}</P>}
       </Article>
-      {document.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-      {document.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
+      <ConclusionArticles conclusion={document}/>
     </Main>
     <Sidebar>
       <DocumentList documents={others}/>
+      {document.getAttribution() && <>
+        <Hr/>
+        <Attribution attribution={document.getAttribution()}/>
+      </>}
     </Sidebar>
   </>
 }

@@ -6,7 +6,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {GDate, Person} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
-import {Confidence, Note, SourceReference} from "./GedcomXComponents";
+import {ConclusionArticles, SubjectMisc} from "./GedcomXComponents";
 import {Article, Details, Sidebar} from "../App";
 
 function InfoPanel() {
@@ -75,11 +75,11 @@ function InfoPanel() {
     return <aside id={"info-panel"}></aside>
   }
 
-  const hasMultipleNames = person.names.length > 1;
+  const hasMultipleNames = person.names?.length > 1;
 
   return (
-    <Sidebar left={false} id="info-panel">
-      {hasMultipleNames && <Article className="text-2xl text-center">
+    <Sidebar id="info-panel">
+      {hasMultipleNames && <Article className="text-lg text-center">
         {person.marriedName && <h2 className="birth-name">
           {strings.formatString(strings.infoPanel.born, person.birthName)}
         </h2>}
@@ -105,7 +105,7 @@ function InfoPanel() {
         })}
       </Gallery>}
 
-      {person.facts && <Article>
+      {person.facts && <Article noMargin>
         <ul id="factView" className="pl-4">
           {person.getFacts()
             .filter(filterLang)
@@ -186,15 +186,10 @@ function InfoPanel() {
         </Article>}
       </Details>
 
-      {person.getNotes().filter(filterLang).map((note, i) => {
-        return <Note note={note} key={i}/>
-      })}
-
-      {person.getSources().length > 0 && person.getSources().map((reference, i) => {
-        return <SourceReference key={i} reference={reference}/>
-      })}
-
-      {person && person.getConfidence() && <Confidence confidence={person.getConfidence()}/>}
+      <ConclusionArticles conclusion={person} noMargin/>
+      <section className="mx-auto w-fit flex flex-row flex-wrap gap-4">
+        <SubjectMisc subject={person}/>
+      </section>
     </Sidebar>
   );
 }

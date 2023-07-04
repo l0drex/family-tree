@@ -8,7 +8,7 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {Article, ButtonLike, LayoutContext, Main} from "../App";
+import {Article, ButtonLike, LayoutContext, Main, Title} from "../App";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -60,7 +60,7 @@ const ColorModeParam = "colorMode";
 function Persons() {
   const layoutContext = useContext(LayoutContext);
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
-  const focusPerson = useLoaderData() as Person;
+  const focusPerson = useLoaderData() as Person | null;
   const [focusHidden, hideFocus] = useState(false);
   const navigate = useNavigate();
 
@@ -80,6 +80,8 @@ function Persons() {
 
   const onRefocus = useMemo(() => {
     return function onRefocus(newFocus: Person) {
+      if (!focusPerson) return;
+
       if (newFocus.getId() === focusPerson.id) {
         hideFocus(!focusHidden)
         return;
@@ -90,11 +92,18 @@ function Persons() {
   }, [focusPerson, focusHidden, navigate]);
 
   useEffect(() => {
+    if (!focusPerson) {
+      layoutContext.setHeaderChildren([
+        <Title emoji="🌳">{strings.gedcomX.persons}</Title>
+      ]);
+      return;
+    }
+
     layoutContext.setHeaderChildren([
       <SearchField onRefocus={onRefocus}/>
     ])
     layoutContext.setRightTitle(focusHidden ? "" : focusPerson.fullName)
-  }, [onRefocus]);
+  }, [onRefocus, focusPerson, focusHidden]);
 
   return (
     <>

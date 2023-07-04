@@ -319,6 +319,10 @@
       "addresses": "Adressen",
       "noAgents": "Es sind keine Agenten vorhanden."
     },
+    "placeDescription": {
+      "places": "Orte",
+      "jurisdiction": "Gerichtsbarkeit"
+    },
     "gender": "Geschlecht",
     "confidence": "Zuversicht",
     "ageQualifier": "mit {0} Jahren",
@@ -374,7 +378,8 @@
   },
   "errors": {
     "title": "Uups, etwas ist schief gelaufen",
-    "noData": "Wir konnten keine Daten finden."
+    "noData": "Keine Daten vorhanden.",
+    "stack": "Entwicklerdetails"
   },
   "ctrl": "Strg",
   "linkContent": "hier"

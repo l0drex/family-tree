@@ -1,14 +1,13 @@
 import {SourceDescription} from "../backend/gedcomx-extensions";
 import {filterLang, strings} from "../main";
-import {Link, useLoaderData} from "react-router-dom";
+import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
-import {Coverage, Note, SourceReference} from "./GedcomXComponents";
-import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title, VanillaLink} from "../App";
+import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
+import {Article, Hr, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title, VanillaLink} from "../App";
 import {db} from "../backend/db";
 
 export function SourceDescriptionOverview() {
   const descriptions = useLoaderData() as SourceDescription[];
-  const hasSources = descriptions && descriptions.length > 0;
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
@@ -16,8 +15,7 @@ export function SourceDescriptionOverview() {
   }, [])
 
   return <Main><Article>
-    {hasSources && <SourcesList descriptions={descriptions}/>}
-    {!hasSources && <p>{strings.gedcomX.sourceDescription.noSourceDescriptions}</p>}
+    <SourcesList descriptions={descriptions}/>
   </Article></Main>;
 }
 
@@ -40,7 +38,8 @@ export function SourceDescriptionView() {
 
   useEffect(() => {
     db.sourceDescriptions.toArray().then(sds => sds.map(sd => new SourceDescription(sd))).then(setOthers);
-    layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
+    layoutContext.setHeaderChildren(<Title
+      emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [sourceDescription])
 
@@ -68,6 +67,7 @@ export function SourceDescriptionView() {
 
   const hasMisc = componentOf || sourceDescription.rights || sourceDescription.repository || sourceDescription.analysis;
 
+  let hasSidebarContent = sourceDescription.getAttribution() || sourceDescription.getIdentifiers();
   return <>
     <Main>
       {hasMisc && <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
@@ -76,8 +76,8 @@ export function SourceDescriptionView() {
           {componentOf.getDescriptionId() ?? componentOf.getDescription()}</ReactLink>
         </Tag>}
         {sourceDescription.rights && sourceDescription.getRights().map(r => <Tag key={r.getResource()}>
-            rights: <VanillaLink to={r.getResource()}>{r.getResource()}</VanillaLink>
-          </Tag>)}
+          rights: <VanillaLink to={r.getResource()}>{r.getResource()}</VanillaLink>
+        </Tag>)}
         {sourceDescription.repository && <Tag>
           repository: <VanillaLink to={sourceDescription.getRepository().getResource()}>
           {sourceDescription.getRepository().getResource()}</VanillaLink>
@@ -91,12 +91,13 @@ export function SourceDescriptionView() {
         </Tag>}
       </section>}
       <Article>
+        <Alias aliases={sourceDescription.getTitles()}/>
         {hasMedia && <figure className="mb-4 last:mb-0">{media}</figure>}
         {sourceDescription.getDescriptions().filter(filterLang).map((d, i) =>
           <p key={i} className="mb-4 last:mb-0">{d.getValue()}</p>
         )}
         {sourceDescription.citations && <section>
-          <h2 className="font-bold text-lg">Citations</h2>
+          <h2 className="font-bold">Citations</h2>
           <ul className="list-disc pl-4">
             {sourceDescription.getCitations()
               .filter(filterLang)
@@ -110,6 +111,11 @@ export function SourceDescriptionView() {
     </Main>
     <Sidebar>
       <SourcesList descriptions={others}/>
+      {hasSidebarContent && <>
+        <Hr/>
+        <Attribution attribution={sourceDescription.getAttribution()}/>
+        <Identifiers identifiers={sourceDescription.getIdentifiers()}/>
+      </>}
     </Sidebar>
   </>
 }
