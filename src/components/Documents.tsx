@@ -6,7 +6,8 @@ import {
   ConclusionArticles,
   ConclusionMisc
 } from "./GedcomXComponents";
-import {Article, Hr, LayoutContext, Main, P, ReactNavLink, Sidebar, Tag, Title} from "../App";
+import {Article, Hr, P, ReactNavLink, Tag, Title} from "./GeneralComponents";
+import {LayoutContext, Main, Sidebar} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 

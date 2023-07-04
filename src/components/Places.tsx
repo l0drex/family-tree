@@ -1,4 +1,5 @@
-import {Article, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title} from "../App";
+import {LayoutContext, Main, Sidebar} from "../App";
+import {Article, ReactLink, ReactNavLink, Tag, Title} from "./GeneralComponents";
 import {useLoaderData} from "react-router-dom";
 import {PlaceDescription} from "gedcomx-js";
 import {useContext, useEffect, useState} from "react";

@@ -1,6 +1,7 @@
 import * as React from "react";
 import {hasData, strings} from "../main";
-import {Article, ButtonLike, Details, Kbd, LayoutContext, Main, Title, VanillaLink} from "../App";
+import {Article, ButtonLike, Details, Kbd, Title, VanillaLink} from "./GeneralComponents";
+import {LayoutContext, Main} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {db} from "../backend/db";

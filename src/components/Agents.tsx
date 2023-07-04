@@ -1,7 +1,8 @@
 import {Agent} from "../backend/gedcomx-extensions";
 import {strings} from "../main";
 import {useLoaderData} from "react-router-dom";
-import {Article, Hr, LayoutContext, Main, P, ReactLink, ReactNavLink, Sidebar, Tag, Title, VanillaLink} from "../App";
+import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {LayoutContext, Main, Sidebar} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 import {Alias, Identifiers} from "./GedcomXComponents";

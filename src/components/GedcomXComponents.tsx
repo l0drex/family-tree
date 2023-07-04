@@ -8,8 +8,7 @@ import {
 } from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
-import {Article, Hr, P, ReactLink, Tag} from "../App";
-import {Gallery} from "./Gallery";
+import {Article, Hr, P, ReactLink, Tag, Gallery} from "./GeneralComponents";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
   return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.note} noMargin={props.noMargin}>
@@ -169,13 +168,15 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
           <img src={image.getAbout()}
                alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
                className="rounded-2xl"/>
-          <div className="relative bottom-8 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+          <div
+            className="relative bottom-8 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
             © <a href={image.getAbout()}>{credit}</a>
           </div>
         </div>
       })}
     </Gallery>}
-    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence} key={i}>
+    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence}
+                                                  key={i}>
       <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
       <Attribution attribution={e.attribution}/>
     </Article>)}

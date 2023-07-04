@@ -10,7 +10,8 @@ import {
   SubjectMisc,
   SubjectSidebar
 } from "./GedcomXComponents";
-import {Article, Details, Sidebar, Tag} from "../App";
+import {Sidebar} from "../App";
+import {Article, Details, Tag} from "./GeneralComponents";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);

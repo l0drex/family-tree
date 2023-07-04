@@ -3,7 +3,8 @@ import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
-import {Article, Hr, LayoutContext, Main, ReactLink, ReactNavLink, Sidebar, Tag, Title, VanillaLink} from "../App";
+import {Article, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {LayoutContext, Main, Sidebar} from "../App";
 import {db} from "../backend/db";
 
 export function SourceDescriptionOverview() {

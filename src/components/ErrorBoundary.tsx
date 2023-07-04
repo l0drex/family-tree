@@ -1,5 +1,6 @@
 import {useRouteError} from "react-router-dom";
-import {Article, Details, LayoutContext, Main, Title} from "../App";
+import {Article, Details, Title} from "./GeneralComponents";
+import {LayoutContext, Main} from "../App";
 import {strings} from "../main";
 import {useContext, useEffect} from "react";
 

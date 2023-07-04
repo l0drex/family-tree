@@ -8,7 +8,8 @@ import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {Article, ButtonLike, LayoutContext, Main, Title} from "../App";
+import {LayoutContext, Main} from "../App";
+import {Article, ButtonLike, Title} from "./GeneralComponents";
 
 export const FocusPersonContext = createContext<Person>(null);
 

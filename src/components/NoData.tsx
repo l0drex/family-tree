@@ -1,5 +1,5 @@
 import {strings} from "../main";
-import {Article, P, Title} from "../App";
+import {Article, P, Title} from "./GeneralComponents";
 
 export default function NoData() {
   return <Article>
