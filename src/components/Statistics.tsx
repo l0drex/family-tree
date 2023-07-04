@@ -355,7 +355,7 @@ export default function Statistics() {
       {strings.statistics.title}
     </Title>);
     layoutContext.setRightTitle("");
-  }, []);
+  }, [layoutContext]);
 
   return <>
       <Main skipCleanup>

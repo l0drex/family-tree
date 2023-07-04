@@ -10,7 +10,7 @@ export default function ErrorBoundary() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="💥">{strings.errors.title}</Title>);
-  }, [error]);
+  }, [error, layoutContext]);
 
   return <Main>
     <Article emoji="💥" title={error.message}>

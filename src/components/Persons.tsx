@@ -103,7 +103,7 @@ function Persons() {
       <SearchField onRefocus={onRefocus}/>
     ])
     layoutContext.setRightTitle(focusHidden ? "" : focusPerson.fullName)
-  }, [onRefocus, focusPerson, focusHidden]);
+  }, [onRefocus, focusPerson, focusHidden, layoutContext]);
 
   return (
     <>

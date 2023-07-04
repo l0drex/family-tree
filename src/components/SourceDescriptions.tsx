@@ -12,7 +12,7 @@ export function SourceDescriptionOverview() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="📚">{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
-  }, [])
+  }, [layoutContext])
 
   return <Main><Article>
     <SourcesList descriptions={descriptions}/>
@@ -41,7 +41,7 @@ export function SourceDescriptionView() {
     layoutContext.setHeaderChildren(<Title
       emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
-  }, [sourceDescription])
+  }, [layoutContext, sourceDescription])
 
   useEffect(() => {
     if (!hasMedia) return;

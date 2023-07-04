@@ -12,7 +12,7 @@ export function AgentOverview() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="👤">{strings.gedcomX.agent.agents}</Title>);
-  }, [])
+  }, [layoutContext])
 
   return <Main>
     <Article><AgentList agents={agents}/></Article>
@@ -36,7 +36,7 @@ export function AgentView() {
     db.agents.toArray().then(sds => sds.map(sd => new Agent(sd))).then(setOthers);
     layoutContext.setHeaderChildren(<Title emoji="👤">{agent.name ?? strings.gedcomX.agent.agent}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.agent.agents);
-  }, [agent])
+  }, [agent, layoutContext])
 
   const hasData = agent.names?.length > 1 || agent.homepage || agent.openid || agent.accounts || agent.emails || agent.phones || agent.addresses;
 

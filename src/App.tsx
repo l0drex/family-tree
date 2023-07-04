@@ -1,7 +1,7 @@
 import * as React from "react";
 import {createBrowserRouter, Link, NavLink, Outlet, RouterProvider, useLocation} from "react-router-dom";
 import {strings} from "./main";
-import {useContext, useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
 import {Home, Imprint} from "./components/Home";
@@ -123,6 +123,15 @@ function Layout() {
     </ul>
   </nav>
 
+  const layoutContext = useMemo(() => {
+    return {
+      setRightTitle: setTitleRight,
+        setHeaderChildren: setChildren,
+      sidebarVisible: sidebarExtended,
+      isDark: isDark
+    }
+  }, [isDark, sidebarExtended])
+
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();
     else dialog.current?.close();
@@ -144,12 +153,7 @@ function Layout() {
       </span>
     </div>}
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
-    <LayoutContext.Provider value={{
-      setRightTitle: setTitleRight,
-      setHeaderChildren: setChildren,
-      sidebarVisible: sidebarExtended,
-      isDark: isDark
-    }}>
+    <LayoutContext.Provider value={layoutContext}>
       <Outlet/>
     </LayoutContext.Provider>
     <footer className="row-start-4 col-span-3 flex justify-around text-neutral-700 dark:text-neutral-400">
@@ -178,7 +182,7 @@ export function Main(props) {
       layoutContext.setRightTitle(titleRight);
       layoutContext.setHeaderChildren(<></>);
     }
-  }, [titleRight]);
+  }, [layoutContext, props.skipCleanup, titleRight]);
 
   let className = `row-start-2 mx-4 ${layoutContext.sidebarVisible ? "sm:ml-0 md:mr-0" : "sm:ml-0 lg:mr-0"} dark:text-white overflow-y-auto`;
   if (layoutContext.sidebarVisible)

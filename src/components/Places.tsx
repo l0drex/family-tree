@@ -19,7 +19,7 @@ export function PlaceOverview() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="🌎">{strings.gedcomX.placeDescription.places}</Title>);
-  }, []);
+  }, [layoutContext]);
 
   return <Main><Article>
     <PlaceList places={places}/>
@@ -43,7 +43,7 @@ export function PlaceView() {
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="🌎">{place.names[0].getValue()}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.placeDescription.places);
-  }, [place])
+  }, [layoutContext, place])
 
   useEffect(() => {
     db.places.toArray().then(sds => sds.map(sd => new PlaceDescription(sd))).then(setOthers);

@@ -16,7 +16,7 @@ export function DocumentOverview() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="📄">{strings.gedcomX.document.documents}</Title>);
-  }, [])
+  }, [layoutContext])
 
   return <Main><Article>
     <DocumentList documents={documents}/>
@@ -42,7 +42,7 @@ export function DocumentView() {
     db.documents.toArray().then(sds => sds.map(sd => new Document(sd))).then(setOthers);
     layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
-  }, [document])
+  }, [document, layoutContext])
 
   // todo sanitize and render xhtml
   return <>

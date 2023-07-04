@@ -11,7 +11,7 @@ export function Home() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji="🌳">{strings.header.title}</Title>);
-  }, [])
+  }, [layoutContext])
 
   return <Main>
     <Uploader/>
