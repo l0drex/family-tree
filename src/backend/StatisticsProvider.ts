@@ -49,7 +49,7 @@ export async function getGenderPerGeneration() {
         data[generation] = {};
       }
 
-      let gender = p.getGender().getType() ?? GenderTypes.Unknown;
+      let gender = p.getGender() ? p.getGender().getType() : GenderTypes.Unknown;
       if (gender in data[generation]) {
         data[generation][gender]++;
       } else {
@@ -106,7 +106,7 @@ export async function getReligionPerYear() {
           religion = p.getFactsByType(PersonFactTypes.Religion)[0].getValue();
         } catch (e) {
           if (e instanceof TypeError) {
-            religion = "";
+            return;
           } else {
             throw e;
           }
@@ -195,7 +195,7 @@ export async function getNames(type: "First" | "Last") {
 }
 
 export async function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
-  let data: number[] = [];
+  let data: number[] = Array.from({length: 12}, () => 0);
 
   await db.persons.toArray().then(persons => persons
     .map(p => new Person(p))
@@ -211,8 +211,7 @@ export async function getBirthDeathMonthOverYears(type: "Birth" | "Death") {
         else throw e;
       }
       let month = birth.getMonth();
-      if (month in data) data[month]++;
-      else data[month] = 1;
+      data[month]++;
     }));
 
   return data;

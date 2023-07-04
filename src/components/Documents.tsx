@@ -1,39 +1,67 @@
-import {filterLang, strings} from "../main";
+import {strings} from "../main";
 import {Document} from "../backend/gedcomx-extensions";
-import {Link, useLoaderData} from "react-router-dom";
-import {Attribution, Confidence, Note, SourceReference} from "./GedcomXComponents";
+import {useLoaderData} from "react-router-dom";
+import {
+  Attribution,
+  ConclusionArticles,
+  ConclusionMisc
+} from "./GedcomXComponents";
+import {Article, Hr, LayoutContext, Main, P, ReactNavLink, Sidebar, Tag, Title} from "../App";
+import {useContext, useEffect, useState} from "react";
+import {db} from "../backend/db";
 
 export function DocumentOverview() {
   const documents = useLoaderData() as Document[];
-  const hasDocuments = documents && documents.length > 0;
+  const layoutContext = useContext(LayoutContext);
 
-  return <main><article>
-    <h1><span className={"emoji"}>📄</span> {strings.gedcomX.document.documents}</h1>
-    {hasDocuments && <ul className={"clickable"}>
-      {documents?.map(doc =>
-        <li key={doc.id}><Link to={`${doc.getId()}`}>{`${doc.emoji} ${strings.gedcomX.document.document}`}</Link></li>
-      )}
-    </ul>}
-    {!hasDocuments && <p>{strings.gedcomX.document.noDocuments}</p>}
-  </article></main>
+  useEffect(() => {
+    layoutContext.setHeaderChildren(<Title emoji="📄">{strings.gedcomX.document.documents}</Title>);
+  }, [])
+
+  return <Main><Article>
+    <DocumentList documents={documents}/>
+  </Article></Main>
 }
 
+function DocumentList(props) {
+  return <ul>
+    {props.documents?.map(doc =>
+      <li key={doc.id}><ReactNavLink to={`/documents/${doc.getId()}`}>
+        {`${doc.emoji} ${strings.gedcomX.document.document}`}
+      </ReactNavLink></li>
+    )}
+  </ul>
+}
 
 export function DocumentView() {
   const document = useLoaderData() as Document;
+  const [others, setOthers] = useState([]);
+  const layoutContext = useContext(LayoutContext);
+
+  useEffect(() => {
+    db.documents.toArray().then(sds => sds.map(sd => new Document(sd))).then(setOthers);
+    layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
+    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
+  }, [document])
 
   // todo sanitize and render xhtml
-  return <main>
-    <article>
-      <h1><span className={"emoji"}>📄</span> {strings.gedcomX.document.document}</h1>
-      <section className={"misc"}>
-        {document.isExtracted && <p>{strings.gedcomX.document.extracted}</p>}
-        {document.getConfidence() && <Confidence confidence={document.getConfidence()}/>}
+  return <>
+    <Main>
+      <section className="mx-auto w-fit flex flex-row gap-4">
+        {document.isExtracted && <Tag>{strings.gedcomX.document.extracted}</Tag>}
+        <ConclusionMisc conclusion={document}/>
       </section>
-      {document.isPlainText && <p>{document.getText()}</p>}
-      {document.getAttribution() && <p><Attribution attribution={document.getAttribution()}/></p>}
-    </article>
-    {document.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-    {document.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
-  </main>
+      <Article>
+        {document.isPlainText && <P>{document.getText()}</P>}
+      </Article>
+      <ConclusionArticles conclusion={document}/>
+    </Main>
+    <Sidebar>
+      <DocumentList documents={others}/>
+      {document.getAttribution() && <>
+        <Hr/>
+        <Attribution attribution={document.getAttribution()}/>
+      </>}
+    </Sidebar>
+  </>
 }

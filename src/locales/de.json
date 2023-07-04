@@ -12,12 +12,13 @@
   },
   "header": {
     "imageAlt": "Ein lächelnder Baum.",
-    "title": "Stammbaum"
+    "title": "Stammbaum",
+    "navigationMenu": "Menü"
   },
   "home": {
     "uploadArticle": {
       "title": "Datei-Upload",
-      "content": "Wähle die Datei über den unteren Knopf aus. Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.",
+      "content": "Drücke den hervorgehobenen Knopf, um deine Stammbaum-Datei auszuwählen. Mit dem \"Jetzt ausprobieren!\"-Knopf kannst du Beispieldaten generieren und die Seite ausprobieren.",
       "openButton": "Stammbaum öffnen",
       "detailSummary": "Woher bekomme ich die Daten?",
       "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben.",
@@ -26,12 +27,13 @@
     "navigationArticle": {
       "title": "Bedienung",
       "content": "Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man {0} gedrückt, kann man mit dem Mausrad rein- bzw. rauszoomen. Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt. An vielen Personen hängen Kreise, in denen \"+\" oder \"-\" steht. Klickt man auf diese, werden weitere Verwandte ein- oder ausgeblendet."
-    }
+    },
+    "title": "Startseite"
   },
   "imprint": {
     "privacyArticle": {
       "title": "Datenschutzerklärung",
-      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und im local Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
+      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und lokal im Web Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
     },
     "imprintArticle": {
       "title": "Impressum"
@@ -293,13 +295,17 @@
       "Single": "ledig",
       "Widowed": "verwitwet"
     },
+    "persons": "Personen",
+    "person": {
+      "private": "privat"
+    },
     "sourceDescription": {
       "sourceDescription": "Quelle",
       "sourceDescriptions": "Quellen",
       "noSourceDescriptions": "Es sind keine Quellen vorhanden."
     },
     "document": {
-      "extracted": "Die folgenden Informationen wurden aus einem Dokument extrahiert.",
+      "extracted": "extrahiert",
       "documents": "Dokumente",
       "document": "Dokument",
       "noDocuments": "Es sind keine Dokumente vorhanden."
@@ -313,7 +319,12 @@
       "person": "Person",
       "emails": "Emails",
       "phones": "Telefonnummern",
-      "addresses": "Adressen"
+      "addresses": "Adressen",
+      "noAgents": "Es sind keine Agenten vorhanden."
+    },
+    "placeDescription": {
+      "places": "Orte",
+      "jurisdiction": "Gerichtsbarkeit"
     },
     "gender": "Geschlecht",
     "confidence": "Zuversicht",
@@ -325,6 +336,7 @@
     "place": "in {0}",
     "firstName": "Vorname",
     "note": "Anmerkung",
+    "evidence": "Beweis",
     "attribution": {
       "created": "Erstellt",
       "modified": "Geändert"
@@ -338,7 +350,7 @@
   "searchField": {
     "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
     "searchLabel": "Name:",
-    "searchHint": "Nach einer Person suchen"
+    "searchHint": "Max Mustermann"
   },
   "viewOptions": {
     "filter": {
@@ -354,6 +366,7 @@
     }
   },
   "statistics": {
+    "title": "Statistiken",
     "location": "Ort",
     "birth_month": "Geburtsmonat",
     "death_month": "Todesmonat",
@@ -369,7 +382,8 @@
   },
   "errors": {
     "title": "Uups, etwas ist schief gelaufen",
-    "no_data": "Wir konnten keine Daten finden. Stelle bitte sicher, dass du eine Datei {0} ausgewählt hast."
+    "noData": "Keine Daten vorhanden.",
+    "stack": "Entwicklerdetails"
   },
   "ctrl": "Strg",
   "linkContent": "hier"

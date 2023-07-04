@@ -13,6 +13,10 @@ import {
 } from "./gedcomx-types";
 
 export class Person extends GedcomX.Person {
+  get isPrivate(): boolean {
+    return Boolean(this.getPrivate());
+  }
+
   get generation(): undefined | number {
     if (!this.facts) return undefined;
     let generationFacts = this.facts.filter(f => f.type === PersonFactTypes.GenerationNumber);
@@ -109,6 +113,10 @@ export class Person extends GedcomX.Person {
 
     // subtraction returns milliseconds, have to convert to year
     return Math.floor((date.getTime() - birthDate.getTime()) / 31536000000);
+  }
+
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
   }
 
   setFacts(facts: Fact[] | object[]): Person {
@@ -356,7 +364,7 @@ export class Document extends GedcomX.Document {
   }
 
   get isExtracted(): boolean {
-    return Boolean(this.getExtracted());
+    return Boolean(this.extracted);
   }
 
   // todo get attribution from containing data set
@@ -382,6 +390,12 @@ export class Agent extends GedcomX.Agent {
     if (!this.names || this.names.length === 0) return undefined;
     return this.names[0].value;
   }
+}
+
+export class PlaceDescription extends GedcomX.PlaceDescription {
+ isExtracted(): boolean {
+   return Boolean(this.extracted);
+ }
 }
 
 let referenceAge: { age: number, generation: number } = {

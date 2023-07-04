@@ -1,321 +1,62 @@
-/*! HTML5 Boilerplate v8.0.0 | MIT License | https://html5boilerplate.com/ */
-
-/* main.css 2.1.0 | MIT License | https://github.com/h5bp/main.css#readme */
-/*
- * What follows is the result of much research on cross-browser styling.
- * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
- * Kroc Camen, and the H5BP dev community and team.
- */
-
-/* ==========================================================================
-   Base styles: opinionated defaults
-   ========================================================================== */
-
-html {
-  --foreground: black;
-  --foreground-secondary: #595959;
-  --background: white;
-  --background-higher: #d2d2d2;
-  --background-lower: #b6b6b6;
-  --lines: #b6b6b6;
-  --primary: #366120;
-  --secondary: yellow;
-  --positive-green: #91ff91;
-  --warning-foreground: #595900;
-  --warning-background: #ffff91;
-  --error-foreground: #c00;
-  --error-background: #ffe1e6;
-
-  height: 100vh;
-  width: 100vw;
-}
-
-/*
- * Remove text-shadow in selection highlight:
- * https://twitter.com/miketaylr/status/12228805301
- *
- * Vendor-prefixed and regular ::selection selectors cannot be combined:
- * https://stackoverflow.com/a/16982510/7133471
- *
- * Customize the background color to match your design.
- */
-
-::-moz-selection {
-  background: var(--primary);
-  text-shadow: none;
-}
-
-::selection {
-  background: var(--primary);
-  text-shadow: none;
-}
-
-
-/*
- * A better looking default horizontal rule
- */
-
-hr {
-  display: block;
-  height: 1px;
-  border: 0;
-  border-top: 1px solid var(--lines);
-  margin: 1rem 0;
-  padding: 0;
-}
-
-/*
- * Remove the gap between audio, canvas, iframes,
- * images, videos and the bottom of their containers:
- * https://github.com/h5bp/html5-boilerplate/issues/440
- */
-
-audio,
-canvas,
-iframe,
-img,
-svg,
-video {
-  vertical-align: middle;
-}
-
-/*
- * Remove default fieldset styles.
- */
-
-fieldset {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-
-/*
- * Allow only vertical resizing of textareas.
- */
-
-textarea {
-  resize: vertical;
-}
-
-body {
-  height: 100%;
-  width: 100%;
-}
-
-:focus-visible {
-  border: solid var(--primary);
-  border-radius: .5em;
-}
-
-
-/* ==========================================================================
-   Helper classes
-   ========================================================================== */
-
-/*
- * Hide visually and from screen readers
- */
-
-.hidden,
-[hidden] {
-  display: none !important;
-}
-
-/*
- * Hide only visually, but have it available for screen readers:
- * https://snook.ca/archives/html_and_css/hiding-content-for-accessibility
- *
- * 1. For long content, line feeds are not interpreted as spaces and small width
- *    causes content to wrap 1 word per line:
- *    https://medium.com/@jessebeach/beware-smushed-off-screen-accessible-text-5952a4c2cbfe
- */
-
-.sr-only {
-  border: 0;
-  clip: rect(0, 0, 0, 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
-  /* 1 */
-}
-
-/*
- * Extends the .sr-only class to allow the element
- * to be focusable when navigated to via the keyboard:
- * https://www.drupal.org/node/897638
- */
-
-.sr-only.focusable:active,
-.sr-only.focusable:focus {
-  clip: auto;
-  height: auto;
-  margin: 0;
-  overflow: visible;
-  position: static;
-  white-space: inherit;
-  width: auto;
-}
-
-/*
- * Hide visually and from screen readers, but maintain layout
- */
-
-.invisible {
-  visibility: hidden;
-}
-
-/*
- * Clearfix: contain floats
- *
- * For modern browsers
- * 1. The space content is one way to avoid an Opera bug when the
- *    `contenteditable` attribute is included anywhere else in the document.
- *    Otherwise it causes space to appear at the top and bottom of elements
- *    that receive the `clearfix` class.
- * 2. The use of `table` rather than `block` is only necessary if using
- *    `:before` to contain the top-margins of child elements.
- */
-
-.clearfix::before,
-.clearfix::after {
-  content: " ";
-  display: table;
-}
-
-.clearfix::after {
-  clear: both;
-}
-
-/*
- * Fixes emojis being monochromatic rather than colored on Microsoft Edge
- */
-.emoji {
-  font-weight: normal !important;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @media (prefers-color-scheme: light) {
-  html {
-    --foreground: black;
-    --foreground-secondary: #595959;
-    --background: white;
-    --background-higher: #D7DFD2;
-    --background-lower: #EBEFE9;
-    --lines: #b6b6b6;
-    --positive-green: #99ee87;
-    --warning-foreground: #595900;
-    --warning-background: #ffff91;
-    --error-foreground: #c00;
-    --error-background: #ffe1e6;
-  }
-
-  ::selection {
-    color: var(--background)
+  :root {
+    --background-color: #D2E8D2;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
-    --foreground: #ececec;
-    --foreground-secondary: #d0d0d0;
-    --background: #2b2b2b;
-    --background-higher: #4f4f4f;
-    --background-lower: #1a1a1a;
-    --lines: #797979;
-    --positive-green: #126912;
-    --warning-foreground: #ffff91;
-    --warning-background: #595900;
-    --error-foreground: #ffc4c4;
-    --error-background: #710000;
-  }
-
-  a {
-    color: #8585ff;
-  }
-
-  a:visited {
-    color: violet;
+  :root {
+    --background-color: #182118;
   }
 }
 
-/* ==========================================================================
-   Print styles.
-   Inlined to avoid the additional HTTP request:
-   https://www.phpied.com/delay-loading-your-print-css/
-   ========================================================================== */
+:root {
+  background: var(--background-color);
+}
 
-@media print {
-  *,
-  *::before,
-  *::after {
-    background: #fff !important;
-    color: #000 !important;
-    /* Black prints faster */
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
+#root {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
+  padding: .5rem 0;
+  font-family: sans-serif;
+}
 
-  a,
-  a:visited {
-    text-decoration: underline;
-  }
+.partnerNode text, .etc text {
+  text-anchor: middle;
+}
 
-  a[href]::after {
-    content: " (" attr(href) ")";
-  }
+text.marriageDate {
+  text-anchor: end;
+}
 
-  abbr[title]::after {
-    content: " (" attr(title) ")";
-  }
+a.active {
+  background: rgba(255, 255, 255, 50%);
+}
 
-  /*
-   * Don't show links that are fragment identifiers,
-   * or use the `javascript:` pseudo protocol
-   */
-  a[href^="#"]::after,
-  a[href^="javascript:"]::after {
-    content: "";
-  }
+dialog {
+  background: var(--background-color);
+}
 
-  pre {
-    white-space: pre-wrap !important;
-  }
+dialog::backdrop {
+  backdrop-filter: blur(1rem);
+  background: rgba(0, 0, 0, 0.5);
+}
 
-  pre,
-  blockquote {
-    border: 1px solid #999;
-    page-break-inside: avoid;
+@media (prefers-color-scheme: dark) {
+  a.active {
+    background: rgba(255, 255, 255, 10%);
   }
+}
 
-  /*
-   * Printing Tables:
-   * https://web.archive.org/web/20180815150934/http://css-discuss.incutio.com/wiki/Printing_Tables
-   */
-  thead {
-    display: table-header-group;
-  }
-
-  tr,
-  img {
-    page-break-inside: avoid;
-  }
-
-  p,
-  h2,
-  h3 {
-    orphans: 3;
-    widows: 3;
-  }
-
-  h2,
-  h3 {
-    page-break-after: avoid;
-  }
-
-  header {
-    display: none;
-  }
+#map, .leaflet-container {
+  height: 500px;
+  border-radius: 1rem;
 }

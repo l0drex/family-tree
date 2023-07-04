@@ -6,41 +6,46 @@ import {
   formatJDate,
   GDate
 } from "../backend/gedcomx-extensions";
-import {Confidence as ConfidenceEnum} from "../backend/gedcomx-enums";
+import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
+import {Article, Hr, P, ReactLink, Tag} from "../App";
+import {Gallery} from "./Gallery";
 
-export function Note(props: { note: gedcomX.Note }) {
-  return <article>
-    <h1><span className={"emoji"}>📝</span> {props.note.getSubject() || strings.gedcomX.note}</h1>
+export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
+  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.note} noMargin={props.noMargin}>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
-  </article>
+  </Article>
 }
 
-export function Attribution(props: { attribution: gedcomX.Attribution }) {
-  let created = props.attribution.getCreated()?.toString();
-  let creatorRef = props.attribution.getCreator();
+export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
   const creator = useLiveQuery(async () => {
-    if (!creatorRef) return undefined;
-    return db.agentWithId(creatorRef);
-  }, [creatorRef]);
-  let creatorName = creator?.names.filter(filterLang)[0].value;
+    if (!attribution?.getCreator()) return undefined;
+    return db.agentWithId(attribution.getCreator());
+  }, [attribution]);
+
+  const contributor = useLiveQuery(async () => {
+    if (!attribution?.getContributor()) return undefined;
+    return db.agentWithId(attribution.getContributor());
+  }, [attribution]);
+
+  if (!attribution) return <></>
+
+  let created = attribution.getCreated();
+  let creatorRef = attribution.getCreator();
+  let creatorName = creator?.names?.filter(filterLang)[0].value ?? attribution.creator.resource;
 
   let createdString = "";
   if (created || creatorName) {
     createdString += strings.gedcomX.attribution.created + " ";
-    if (created) createdString += created;
+    if (created) createdString += formatJDate(created, 18);
     if (created && creatorName) createdString += " ";
   }
 
-  let modified = props.attribution.getModified();
-  let contributorRef = props.attribution.getContributor();
-  const contributor = useLiveQuery(async () => {
-    if (!contributorRef) return undefined;
-    return db.agentWithId(contributorRef);
-  }, [contributorRef]);
-  let contributorName = contributor?.names?.filter(filterLang)[0].value;
-  let message = props.attribution.getChangeMessage();
+  let modified = attribution.getModified();
+  let contributorRef = attribution.getContributor();
+  let contributorName = contributor?.names?.filter(filterLang)[0].value ?? attribution.contributor.resource;
+  let message = attribution.getChangeMessage();
 
   let modifiedString = "";
   if (modified || contributorName || message) {
@@ -49,42 +54,41 @@ export function Attribution(props: { attribution: gedcomX.Attribution }) {
     if (modified && contributorName) modifiedString += " ";
   }
 
-  return <cite>
-    {createdString} {creator && strings.formatString(strings.byPerson,
-    <Link to={`/agents/${creatorRef.resource.substring(1)}`}>
-      {creator.names?.filter(filterLang)[0].value}
-    </Link>)}
-    <br/>
-    {modifiedString} {contributor && strings.formatString(strings.byPerson,
-    <a href={`agents/${contributorRef.resource.substring(1)}`}>
-      {contributor.names?.filter(filterLang)[0].value}
-    </a>)}
-    {message && ` ("${message}")`}
-  </cite>
+  return <>
+    <P noMargin>
+      {createdString} {creator && strings.formatString(strings.byPerson,
+      <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
+        {creatorName}
+      </ReactLink>)}
+    </P>
+    <P noMargin>
+      {modifiedString} {contributor && strings.formatString(strings.byPerson,
+      <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
+        {contributorName}
+      </ReactLink>)}
+      {message && <>: <cite> "{message}"</cite></>}
+    </P></>
 }
 
-export function SourceReference(props: { reference: gedcomX.SourceReference }) {
-  return <article>
-    <h1><span className="emoji">{"📖"}</span> {strings.gedcomX.sourceDescription.sourceDescription}</h1>
-    <p>
-      <Link to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</Link>
-      {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
+export function SourceReference(props: { reference: gedcomX.SourceReference, noMargin?: boolean }) {
+  return <Article emoji="📖" title={strings.gedcomX.sourceDescription.sourceDescription} noMargin={props.noMargin}>
+    <p><ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
     </p>
-  </article>
+    {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
+  </Article>
 }
 
 export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <article>
-    <h1><span className={"emoji"}>🗺️</span> {strings.sourceDescriptions.coverage}</h1>
+  return <Article emoji="🗺️" title={strings.sourceDescriptions.coverage}>
     <p>
       {props.coverage.temporal && <>{`${strings.gedcomX.coverage.temporal}: ${date}`}</>}
       {props.coverage.spatial && <>{strings.gedcomX.coverage.spatial + ": "} <PlaceReference
         reference={props.coverage.spatial}/></>}
     </p>
-  </article>
+  </Article>
 }
 
 export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
@@ -112,8 +116,107 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
       break;
   }
 
-  return <div className={"confidence"}>
+  return <div className={"text-center"}>
     <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
-    <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}>{props.confidence}</meter>
+    <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}
+           className="rounded-full">{props.confidence}</meter>
   </div>
+}
+
+export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
+  if (aliases.length < 2) return <></>;
+
+  return <P>
+    {strings.formatString(strings.infoPanel.aka,
+      aliases.filter((_, i) => i > 0)
+        .map(n => n.getValue())
+        .join(', '))}
+  </P>
+}
+
+export function SubjectMisc({subject}: { subject: gedcomX.Subject }) {
+  return <>
+    {subject.isExtracted() && <Tag>{strings.gedcomX.document.extracted}</Tag>}
+    <ConclusionMisc conclusion={subject}/>
+  </>
+}
+
+export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
+  return <>
+    {subject.getIdentifiers() && <Hr/>}
+    <Identifiers identifiers={subject.getIdentifiers()}/>
+    <ConclusionSidebar conclusion={subject}/>
+  </>
+}
+
+export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
+  const images = useLiveQuery(async () => {
+    let mediaRefs = subject.getMedia().map(media => media.getDescription());
+    const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
+
+    return sourceDescriptions.filter(sourceDescription => {
+      let mediaType = sourceDescription.getMediaType();
+      if (!mediaType) return false;
+      return mediaType.split('/')[0] === 'image'
+    });
+  }, [subject])
+
+  return <>
+    {images && images.length > 0 && <Gallery noMargin={noMargin}>
+      {images.map(image => {
+        let credit = image.getCitations()[0].getValue();
+        return <div key={image.id}>
+          <img src={image.getAbout()}
+               alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
+               className="rounded-2xl"/>
+          <div className="relative bottom-8 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+            © <a href={image.getAbout()}>{credit}</a>
+          </div>
+        </div>
+      })}
+    </Gallery>}
+    {subject.getEvidence().map(e => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence}>
+      <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
+      <Attribution attribution={e.attribution}/>
+    </Article>)}
+    <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
+  </>
+}
+
+export function ConclusionMisc({conclusion}: { conclusion: gedcomX.Conclusion }) {
+  return <>
+    {conclusion.analysis && <Tag>{strings.gedcomX.types.document.Analysis}: <ReactLink
+      to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
+    {conclusion.confidence && <Tag><Confidence confidence={conclusion.confidence}/></Tag>}
+  </>
+}
+
+export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
+  return <>
+    {conclusion.getSources().map((source, i) => <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
+    {conclusion.getNotes().map((note, i) => <Note key={i} note={note} noMargin={noMargin}/>)}
+  </>
+}
+
+export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion }) {
+  return <>
+    {conclusion.getAttribution() && <Hr/>}
+    <Attribution attribution={conclusion.getAttribution()}/>
+  </>
+}
+
+export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers }) {
+  if (!identifiers) return <></>
+
+  // this is broken, lets fix it
+  let identifierMap = identifiers.identifiers["identifiers"][0];
+
+  return <>
+    <ul>
+      {identifierMap[IdentifierTypes.Primary]?.map((id, i) => <li key={i}>{id}</li>)}
+      {identifierMap[IdentifierTypes.Authority]?.map((id, i) => <li key={i} className="italic"><ReactLink
+        to={id}>{id}</ReactLink></li>)}
+      {identifierMap[IdentifierTypes.Deprecated]?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
+    </ul>
+  </>
 }

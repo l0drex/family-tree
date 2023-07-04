@@ -1,10 +1,9 @@
 import {strings} from "../main";
+import {Article, P, Title} from "../App";
 
 export default function NoData() {
-  return <main>
-    <article>
-      <h1><span className="emoji">⚠️</span> {strings.errors.title}</h1>
-      <p>{strings.formatString(strings.errors.no_data, <a href="/family-tree">{strings.linkContent}</a>)}</p>
-    </article>
-  </main>
+  return <Article>
+      <Title emoji="⚠️">{strings.errors.title}</Title>
+      <P>{strings.errors.noData}</P>
+    </Article>
 }

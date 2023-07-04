@@ -12,12 +12,13 @@
   },
   "header": {
     "imageAlt": "A smiling tree.",
-    "title": "Family tree"
+    "title": "Family tree",
+    "navigationMenu": "Menu"
   },
   "home": {
     "uploadArticle": {
       "title": "File-Upload",
-      "content": "Select the file with the button below. Then click the green button to view the family tree.",
+      "content": "Use the highlighted button to open your family tree file and the family tree will open. You can also use the \"Try it now!\"-button to generate some example data.",
       "openButton": "Open family tree",
       "detailSummary": "From where do I get the data?",
       "detail": "The file must be a valid GedcomX file in json format, as described {0}.",
@@ -26,12 +27,13 @@
     "navigationArticle": {
       "title": "Usage",
       "content": "You can move the family tree with your mouse.While pressing {0}, you can zoom in and out with your mouse wheel. Select a person with your left mouse button to show their information. Many people have a circle with \"+\" or \"-\" inside them, clicking on those displays their relatives."
-    }
+    },
+    "title": "Home"
   },
   "imprint": {
     "privacyArticle": {
       "title": "Privacy Policy",
-      "content": "All family tree data is processed locally only and stored in the browser's local storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
+      "content": "All family tree data is processed locally only and stored locally in the browser's web storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
     },
     "imprintArticle": {
       "title": "Imprint"
@@ -293,13 +295,17 @@
       "Single": "single",
       "Widowed": "widowed"
     },
+    "persons": "Persons",
+    "person": {
+      "private": "private"
+    },
     "sourceDescription": {
       "sourceDescription": "Source",
       "sourceDescriptions": "Sources",
       "noSourceDescriptions": "There are no sources."
     },
     "document": {
-      "extracted": "This information was extracted from a document.",
+      "extracted": "extracted",
       "documents": "Documents",
       "document": "Document",
       "noDocuments": "There are no documents."
@@ -313,7 +319,12 @@
       "person": "Person",
       "emails": "Emails",
       "phones": "Phones",
-      "addresses": "Addresses"
+      "addresses": "Addresses",
+      "noAgents": "There are no agents."
+    },
+    "placeDescription": {
+      "places": "Places",
+      "jurisdiction": "Jurisdiction"
     },
     "gender": "Sex",
     "confidence": "Confidence",
@@ -325,6 +336,7 @@
     "place": "in {0}",
     "firstName": "first name",
     "note": "Note",
+    "evidence": "Evidence",
     "attribution": {
       "created": "Created",
       "modified": "Modified"
@@ -338,7 +350,7 @@
   "searchField": {
     "noPersonFound": "No person with that name found!",
     "searchLabel": "Name:",
-    "searchHint": "Search for a person"
+    "searchHint": "Jon Doe"
   },
   "viewOptions": {
     "filter": {
@@ -354,6 +366,7 @@
     }
   },
   "statistics": {
+    "title": "Statistics",
     "location": "Location",
     "birth_month": "birth month",
     "death_month": "death month",
@@ -369,7 +382,8 @@
   },
   "errors": {
     "title": "Whoops, something went wrong",
-    "no_data": "We couldn't find any data. Please make sure to select a file over {0}."
+    "noData": "No data available.",
+    "stack": "Details for developers"
   },
   "ctrl": "Ctrl",
   "linkContent": "here"

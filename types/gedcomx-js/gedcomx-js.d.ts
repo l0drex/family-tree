@@ -99,11 +99,11 @@ declare module "gedcomx-js" {
 
     setPlaces(places: PlaceDescription[]): Root
 
-    addPlace(place: PlaceDescription): Root
+    addPlace(place: PlaceDescription | object): Root
 
     getAttribution(): Attribution
 
-    setAttribution(attribution: Attribution): Root
+    setAttribution(attribution: Attribution | object): Root
   }
 
   export default function GedcomX(json: any): Root;
@@ -237,7 +237,7 @@ declare module "gedcomx-js" {
 
     setCitations(citations: SourceCitation[] | object[]): SourceDescription
 
-    addCitation(citation: SourceCitation | object)
+    addCitation(citation: SourceCitation | object): SourceDescription
 
     getMediaType(): string
 
@@ -257,9 +257,9 @@ declare module "gedcomx-js" {
 
     addSource(source: SourceReference): SourceDescription
 
-    getAnalysis(): string
+    getAnalysis(): ResourceReference
 
-    setAnalysis(analysis: string): SourceDescription
+    setAnalysis(analysis: ResourceReference | object): SourceDescription
 
     getComponentOf(): SourceReference
 
@@ -321,9 +321,9 @@ declare module "gedcomx-js" {
 
     getValues(type?: string): string[]
 
-    setValues(values: string[], type?: string)
+    setValues(values: string[], type?: string): Identifiers
 
-    addValue(value: string, type?: string)
+    addValue(value: string, type?: string): Identifiers
   }
 
   export class Subject extends Conclusion {
@@ -340,7 +340,7 @@ declare module "gedcomx-js" {
 
     setEvidence(evidence: object[] | EvidenceReference[]);
 
-    addEvidence(evidence: object | EvidenceReference)
+    addEvidence(evidence: object | EvidenceReference): Subject
 
     getIdentifiers(): Identifiers
 

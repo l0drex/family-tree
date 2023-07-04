@@ -4,7 +4,15 @@ import {
   IGroup
 } from "./gedcomx-types";
 import * as GedcomX from "gedcomx-js";
-import {Agent, Document, Person, Relationship, setReferenceAge, SourceDescription} from "./gedcomx-extensions";
+import {
+  Agent,
+  Document,
+  Person,
+  PlaceDescription,
+  Relationship,
+  setReferenceAge,
+  SourceDescription
+} from "./gedcomx-extensions";
 import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
 import {ResourceReference} from "gedcomx-js";
 
@@ -48,8 +56,8 @@ export class FamilyDB extends Dexie {
     if (data.places) promises.push(this.places.bulkAdd(root.places));
     if (data.groups) promises.push(this.groups.bulkAdd(data.groups));
 
-    console.log(`Found ${data.persons.length} people`);
-    console.log(`Found ${data.relationships.length} relationships`);
+    console.log(`Found ${data.persons?.length ?? 0} people`);
+    console.log(`Found ${data.relationships?.length ?? 0} relationships`);
 
     return Promise.all(promises)
       // make sure database is clean
@@ -83,40 +91,41 @@ export class FamilyDB extends Dexie {
     try {
       id = toResource(id).resource.substring(1);
     } catch (e) {
-      return Promise.reject("Error while parsing resource!");
+      return Promise.reject(new Error("Could not parse resource!"));
     }
 
     switch (type) {
       case "person":
         return this.persons.where("id").equals(id).first()
-          .then(p => new Person(p));
+          .then(p => p ? new Person(p) : Promise.reject(new Error(`Person with id ${id} not found!`)));
       case "relationship":
         return this.relationships.where("id").equals(id).first()
-          .then(r => new Relationship(r));
+          .then(r => r ? new Relationship(r) : Promise.reject(new Error(`Relationship with id ${id} not found!`)));
       case "sourceDescription":
         return this.sourceDescriptions.where("id").equals(id).first()
-          .then(sd => new SourceDescription(sd));
+          .then(sd => sd ? new SourceDescription(sd) : Promise.reject(new Error(`SourceDescription with id ${id} not found!`)));
       case "agent":
         return this.agents.where("id").equals(id).first()
-          .then(a => new Agent(a));
+          .then(a => a ? new Agent(a) : Promise.reject(new Error(`Agent with id ${id} not found!`)));
       case "event":
         return this.events.where("id").equals(id).first()
-          .then(e => new GedcomX.Event(e));
+          .then(e => e ? new GedcomX.Event(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
       case "document":
         return this.documents.where("id").equals(id).first()
-          .then(d => new Document(d));
+          .then(d => d ? new Document(d) : Promise.reject(new Error(`Document with id ${id} not found!`)));
       case "place":
         return this.places.where("id").equals(id).first()
-          .then(p => new GedcomX.PlaceDescription(p));
+          .then(p => p ? new PlaceDescription(p) : Promise.reject(new Error(`Place with id ${id} not found!`)));
       case "group":
-        return this.groups.where("id").equals(id).first();
+        return this.groups.where("id").equals(id).first()
+          .then(g => g ? g : Promise.reject(new Error(`Group with id ${id} not found!`)));
       default:
-        return Promise.reject(`Unknown type ${type}`);
+        return Promise.reject(new Error(`Unknown type ${type}`));
     }
   }
 
   async personWithId(id: string | ResourceReference): Promise<Person> {
-    return this.elementWithId(id, "person").then(p => new Person(p));
+    return this.elementWithId(id, "person").then(p => p as Person);
   }
 
   async personWithName(name: string) {
@@ -126,11 +135,11 @@ export class FamilyDB extends Dexie {
   }
 
   async sourceDescriptionWithId(id: string | ResourceReference) {
-    return this.elementWithId(id, "sourceDescription").then(sd => new SourceDescription(sd));
+    return this.elementWithId(id, "sourceDescription").then(sd => sd as SourceDescription);
   }
 
   async agentWithId(id: string | ResourceReference) {
-    return this.elementWithId(id, "agent").then(a => new Agent(a));
+    return this.elementWithId(id, "agent").then(a => a as Agent);
   }
 
   async getCoupleRelationsOf(person: ResourceReference | string): Promise<GedcomX.Relationship[]> {

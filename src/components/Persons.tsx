@@ -1,15 +1,14 @@
 import * as React from "react";
 import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import {strings} from "../main";
-import "./View.css";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
 import {Person} from "../backend/gedcomx-extensions";
-import {parseFile, saveDataAndRedirect} from "./Form";
+import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {HeaderContext} from "../Root";
+import {Article, ButtonLike, LayoutContext, Main, Title} from "../App";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -18,31 +17,31 @@ function ViewOptions(props) {
   let fileInput = React.createRef<HTMLInputElement>();
 
   return (
-    <form id="view-all">
+    <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <select id="view-selector" className="button inline all" defaultValue={props.view}
+        <ButtonLike primary noHover><select id="view-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.view}
                 onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
           <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
           <option value={ViewMode.LIVING}>{strings.viewOptions.filter.living}</option>
           <option value={ViewMode.ALL}>{strings.viewOptions.filter.all}</option>
-        </select>
+        </select></ButtonLike>
       </div>
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <select id="color-selector" className="button inline all" defaultValue={props.colorMode}
+        <ButtonLike primary noHover><select id="color-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.colorMode}
                 onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
           <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.confidence}</option>
-        </select>
+        </select></ButtonLike>
       </div>
 
-      <div id="file-buttons">
+      <div id="file-buttons" className="ml-auto">
         <input type="file" hidden ref={fileInput} accept="application/json"
                onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
         <button className="icon-only" onClick={e => {
@@ -59,9 +58,9 @@ const ViewModeParam = "viewMode";
 const ColorModeParam = "colorMode";
 
 function Persons() {
-  const setHeaderChildren = useContext(HeaderContext);
+  const layoutContext = useContext(LayoutContext);
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
-  const focusPerson = useLoaderData() as Person;
+  const focusPerson = useLoaderData() as Person | null;
   const [focusHidden, hideFocus] = useState(false);
   const navigate = useNavigate();
 
@@ -81,6 +80,8 @@ function Persons() {
 
   const onRefocus = useMemo(() => {
     return function onRefocus(newFocus: Person) {
+      if (!focusPerson) return;
+
       if (newFocus.getId() === focusPerson.id) {
         hideFocus(!focusHidden)
         return;
@@ -91,26 +92,34 @@ function Persons() {
   }, [focusPerson, focusHidden, navigate]);
 
   useEffect(() => {
-    setHeaderChildren([
+    if (!focusPerson) {
+      layoutContext.setHeaderChildren([
+        <Title emoji="🌳">{strings.gedcomX.persons}</Title>
+      ]);
+      return;
+    }
+
+    layoutContext.setHeaderChildren([
       <SearchField onRefocus={onRefocus}/>
     ])
-  }, [setHeaderChildren, onRefocus]);
+    layoutContext.setRightTitle(focusHidden ? "" : focusPerson.fullName)
+  }, [onRefocus, focusPerson, focusHidden]);
 
   return (
     <>
       <FocusPersonContext.Provider value={focusPerson}>
         {!focusHidden && <InfoPanel/>}
       </FocusPersonContext.Provider>
-      <main>
-        <article id="family-tree-container">
+      <Main titleRight={focusPerson.fullName}>
+        <Article id="family-tree-container" className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
           <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
           <FocusPersonContext.Provider value={focusPerson}>
             <TreeView colorMode={searchParams.get(ColorModeParam) as ColorMode} focusHidden={focusHidden}
                       onRefocus={onRefocus} viewMode={searchParams.get(ViewModeParam) as ViewMode}/>
           </FocusPersonContext.Provider>
-        </article>
-      </main>
+        </Article>
+      </Main>
     </>
   );
 }
