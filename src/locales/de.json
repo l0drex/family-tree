@@ -332,7 +332,9 @@
     },
     "placeDescription": {
       "places": "Orte",
-      "jurisdiction": "Gerichtsbarkeit"
+      "jurisdiction": "Gerichtsbarkeit",
+      "place": "Externe Beschreibung",
+      "spatialDescription": "KML Datei"
     },
     "sourceDescription": {
       "resourceTypes": {

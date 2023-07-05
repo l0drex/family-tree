@@ -330,7 +330,9 @@
     },
     "placeDescription": {
       "places": "Places",
-      "jurisdiction": "Jurisdiction"
+      "jurisdiction": "Jurisdiction",
+      "place": "External Description",
+      "spatialDescription": "KML file"
     },
     "sourceDescription": {
       "resourceTypes": {

@@ -1,5 +1,5 @@
 import {LayoutContext, Main, Sidebar} from "../App";
-import {Article, ExternalContent, ReactLink, ReactNavLink, Tag, Title} from "./GeneralComponents";
+import {Article, ExternalContent, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
 import {useLoaderData} from "react-router-dom";
 import {PlaceDescription} from "gedcomx-js";
 import {useContext, useEffect, useState} from "react";
@@ -51,12 +51,15 @@ export function PlaceView() {
   }, [])
 
   const hasData = place.names?.length > 1 || place.jurisdiction || place.latitude || place.longitude || place.temporalDescription || place.spatialDescription;
-
+  const hasSidebarContent = place.place || place.spatialDescription;
   const coordinates: LatLngExpression = [place.latitude, place.longitude];
+
+  // TODO type, place, spatial description
 
   return <>
     <Main>
       <section className="mx-auto w-fit flex flex-row gap-4">
+        {place.type && <Tag>{place.type}</Tag>}
         {place.jurisdiction && <Tag>{strings.gedcomX.placeDescription.jurisdiction}: <ReactLink to={`/places/${place.jurisdiction.resource.substring(1)}`}>{place.jurisdiction.resource}</ReactLink></Tag>}
         {place.temporalDescription && <Tag>{new GDate(place.temporalDescription.toJSON()).toString()}</Tag>}
         <SubjectMisc subject={place}/>
@@ -77,6 +80,13 @@ export function PlaceView() {
     </Main>
     <Sidebar>
       <PlaceList places={others}/>
+      {hasSidebarContent && <Hr/>}
+      {place.place && <div>
+        {strings.gedcomX.placeDescription.place}: <VanillaLink to={place.place.resource}>{place.place.resource}</VanillaLink>
+      </div>}
+      {place.spatialDescription && <div>
+        {strings.gedcomX.placeDescription.spatialDescription}: <VanillaLink to={place.spatialDescription.resource}>{place.spatialDescription.resource}</VanillaLink>
+      </div>}
       <SubjectSidebar subject={place}/>
     </Sidebar>
   </>
