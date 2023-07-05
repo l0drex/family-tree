@@ -137,7 +137,12 @@ function extensiveData() {
       .setId("s1"))
     .addSourceDescription(new SourceDescription()
       .addCitation(new SourceCitation().setValue(faker.lorem.sentence()))
+      .setMediaType("image/jpeg")
+      .setAbout(faker.image.urlPicsumPhotos())
       .setId("s2"))
+    .addSourceDescription(new SourceDescription()
+      .addCitation(new SourceCitation().setValue(faker.lorem.sentence()))
+      .setId("s3"))
     .addAgent(new Agent()
       .addName(new TextValue().setValue(faker.person.fullName()))
       .addName(new TextValue().setValue(faker.person.fullName()))
@@ -189,6 +194,7 @@ function getSubject(id: string) {
     .setExtracted(faker.datatype.boolean())
     .addEvidence(new EvidenceReference().setResource("#s1"))
     .addMedia(new SourceReference().setDescription("#s1"))
+    .addMedia(new SourceReference().setDescription("#s2"))
     .setIdentifiers(getIdentifiers(id))
 }
 

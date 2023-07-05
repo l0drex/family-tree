@@ -165,12 +165,14 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
       {images.map(image => {
         let credit = image.getCitations()[0].getValue();
         return <ExternalContent key={image.id}>
-          <img src={image.getAbout()}
-               alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
-               className="rounded-2xl"/>
-          <div
-            className="relative bottom-8 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
-            © <a href={image.getAbout()}>{credit}</a>
+          <div className="relative">
+            <img src={image.getAbout()}
+                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
+                 className="rounded-2xl"/>
+            <div
+              className="absolute bottom-0 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+              © <a href={image.getAbout()}>{credit}</a>
+            </div>
           </div>
         </ExternalContent>
       })}

@@ -93,11 +93,12 @@ export function Gallery(props: { children: any[], noMargin?: boolean }) {
 
   return <article className={`rounded-2xl ${props.noMargin ? "" : "mt-4 first:mt-0"} mx-auto w-fit max-w-3xl`}>
     {props.children[index]}
-    {props.children.length > 1 && <span className="buttons">
-      {<button className="inline prev" onClick={() =>
-        scroll(i => Math.max(0, i - 2 /* why 2?? */))}>⬅</button>}
-      {<button className="inline next" onClick={() =>
-        scroll(i => Math.min(props.children.length - 1, i + 2))}>➡</button>}
+    {props.children.length > 1 && <span className="w-full flex justify-between items-center px-4 mt-2">
+      {<ButtonLike enabled={index > 0}><button className={`px-3 ${index > 0 ? "" : "hover:cursor-not-allowed"}`} onClick={() =>
+        scroll(i => Math.max(0, --i))}>⬅</button></ButtonLike>}
+      <span>{index + 1} / {props.children.length}</span>
+      {<ButtonLike enabled={index < props.children.length - 1}><button className={`px-3 ${index < props.children.length - 1 ? "" : "hover:cursor-not-allowed"}`} onClick={() =>
+        scroll(i => Math.min(props.children.length - 1, ++i))}>➡</button></ButtonLike>}
     </span>}
   </article>;
 }
