@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
@@ -11,6 +11,7 @@ interface Props {
 
 export default function SearchField(props: Props) {
   const [hasError, setHasError] = useState(false);
+  const input = useRef<HTMLInputElement>();
 
   useEffect(() => {
     // add keyboard shortcuts
@@ -19,18 +20,18 @@ export default function SearchField(props: Props) {
         case "f":
           if (event.ctrlKey) {
             event.preventDefault();
-            document.getElementById("input-name").focus()
+            input.current.focus();
           }
           break;
         case "Escape":
-          document.querySelector<HTMLElement>(":focus").blur();
+          input.current.blur();
       }
     });
   }, []);
 
   async function refocus(event) {
     event.preventDefault();
-    let name = document.querySelector<HTMLInputElement>("#input-name").value;
+    let name = input.current.value;
     if (!name) return;
 
     // find a person that matches the given name
@@ -48,7 +49,7 @@ export default function SearchField(props: Props) {
   }
 
   function resetError() {
-    let name = document.querySelector<HTMLInputElement>("#input-name").value;
+    let name = input.current.value;
     if (!name) {
       setHasError(false);
     }
@@ -61,7 +62,7 @@ export default function SearchField(props: Props) {
     <form id="name-form" className={`max-w-fit rounded-full px-4 py-1 bg-white bg-opacity-50 dark:bg-opacity-10 ${hasError ? "bg-red-300" : ""}`}
           onSubmit={refocus}>
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
-      <input id="input-name" list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" size={10}
+      <input id="input-name" ref={input} list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" size={10}
              className="placeholder-neutral-600 dark:placeholder-neutral-400 dark:caret-white dark:text-white bg-transparent focus:outline-none"/>
       <input className="font-normal ml-4" type="submit" value="🔍" onInput={resetError}/>
       {persons && <datalist id="names">
