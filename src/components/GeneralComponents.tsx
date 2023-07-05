@@ -21,6 +21,10 @@ export function Title(props: { emoji: string, children }) {
     <span className="font-normal">{props.emoji}</span> {props.children}</h1>
 }
 
+export function Subtitle({children}) {
+  return <h2 className="font-bold text-lg mb-2 mt-6 first:mt-0">{children}</h2>
+}
+
 export function Kbd(props) {
   return <kbd
     className="bg-gray-200 dark:bg-neutral-600 rounded-lg p-1 border-b-2 border-b-gray-400">{props.children}</kbd>

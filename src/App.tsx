@@ -111,7 +111,8 @@ function Layout() {
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
       <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}</ReactNavLink>
+      </li>
       <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}</ReactNavLink></li>
       <li><ReactNavLink
         to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink>
@@ -147,9 +148,9 @@ function Layout() {
     </div>
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
 
-    {headerChildren.length > 0 && <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
+    <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
-    </header>}
+    </header>
 
     {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
       {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}

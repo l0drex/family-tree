@@ -17,13 +17,43 @@
     "openButton": "Open family tree"
   },
   "imprint": {
-    "privacyArticle": {
-      "title": "Privacy Policy",
-      "content": "All family tree data is processed locally only and stored locally in the browser's web storage. The service is hosted on GitHub Pages, the corresponding privacy policy can be found {0}."
+    "title": "Privacy Policy",
+    "introduction": "Thank you for visiting our website. Protecting your personal data is important to us. Below, we would like to inform you about the data collected during your visit to our website and how it is used.",
+    "1": {
+      "title": "Controller",
+      "content": "The controller responsible for data processing on this website is:"
     },
-    "imprintArticle": {
-      "title": "Imprint"
-    }
+    "2": {
+      "title": "Collection and Use of Data",
+      "content": {
+        "a": {
+          "title": "Use of the Website without Registration",
+          "content": "You can visit our website without providing any personal data. We do not collect or store any personal data unless you voluntarily provide it to us."
+        },
+        "b": {
+          "title": "Use of Leaflet",
+          "content": "Our website uses the Leaflet mapping framework to display interactive maps. No personally identifiable information is collected or transmitted. All data entered or displayed through the mapping function is stored exclusively locally in your browser and does not leave your device."
+        },
+        "c": {
+          "title": "Cookies",
+          "content": "We do not use cookies on our website. No information is stored on your device."
+        }
+      }
+    },
+    "3": {
+      "title": "Data Security",
+      "content": "We implement reasonable technical and organizational measures to ensure the security of your data and protect it against manipulation, loss, destruction, or unauthorized access. Our security measures are continuously improved in line with technological advancements."
+    },
+    "4": {
+      "title": "Your Rights",
+      "content": "You have the right to request information about the data we have stored about you. If any of the data is incorrect, you can request its correction. You may also request the deletion or blocking of your personal data if the storage is inadmissible or no longer necessary. Please contact the responsible controller mentioned above to exercise your rights."
+    },
+    "5": {
+      "title": "Changes to this Privacy Policy",
+      "content": "We reserve the right to update this privacy policy as needed to reflect technological or legal developments. Please check this privacy policy regularly to stay informed."
+    },
+    "finale": "If you have any questions about the privacy of our website, please feel free to contact us. You can find the contact details at the beginning of this privacy policy.",
+    "date": "This privacy policy was last updated on 05.07.2023."
   },
   "tree": {
     "loading": "Loading family tree",

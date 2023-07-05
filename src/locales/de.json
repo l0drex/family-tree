@@ -17,13 +17,43 @@
     "openButton": "Datei öffnen"
   },
   "imprint": {
-    "privacyArticle": {
-      "title": "Datenschutzerklärung",
-      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und lokal im Web Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
+    "title": "Datenschutzerklärung",
+    "introduction": "Vielen Dank für Ihren Besuch auf unserer Webseite. Der Schutz Ihrer persönlichen Daten ist uns ein wichtiges Anliegen. Nachfolgend möchten wir Sie darüber informieren, welche Daten während Ihres Besuchs auf unserer Webseite erfasst und wie diese verwendet werden.",
+    "1": {
+      "title": "Verantwortliche Stelle",
+      "content": "Verantwortliche Stelle für die Datenverarbeitung auf dieser Webseite ist:"
     },
-    "imprintArticle": {
-      "title": "Impressum"
-    }
+    "2": {
+      "title": "Erfassung und Verwendung von Daten",
+      "content": {
+        "a": {
+          "title": "Nutzung der Webseite ohne Registrierung",
+          "content": "Sie können unsere Webseite besuchen, ohne personenbezogene Daten anzugeben. Wir erheben und speichern keinerlei persönliche Daten, solange Sie uns diese nicht freiwillig zur Verfügung stellen."
+        },
+        "b": {
+          "title": "Nutzung von Leaflet",
+          "content": "Unsere Webseite verwendet das Leaflet-Kartenframework, um interaktive Karten darzustellen. Dabei werden keine personenbezogenen Daten erfasst oder an Dritte übermittelt. Alle Daten, die Sie über die Kartenfunktion eingeben oder anzeigen lassen, werden ausschließlich lokal in Ihrem Browser gespeichert und verlassen Ihr Gerät nicht."
+        },
+        "c": {
+          "title": "Cookies",
+          "content": "Wir setzen auf unserer Webseite keine Cookies ein. Es werden keine Informationen auf Ihrem Endgerät gespeichert."
+        }
+      }
+    },
+    "3": {
+      "title": "Datensicherheit",
+      "content": "Wir treffen angemessene technische und organisatorische Maßnahmen, um die Sicherheit Ihrer Daten zu gewährleisten und sie vor Manipulation, Verlust, Zerstörung oder dem Zugriff unberechtigter Personen zu schützen. Unsere Sicherheitsmaßnahmen werden entsprechend der technologischen Entwicklung fortlaufend verbessert."
+    },
+    "4": {
+      "title": "Ihre Rechte",
+      "content": "Sie haben das Recht, Auskunft über die zu Ihrer Person gespeicherten Daten zu erhalten. Bei Vorliegen unrichtiger Daten können Sie deren Berichtigung verlangen. Sie können außerdem die Löschung oder Sperrung Ihrer personenbezogenen Daten verlangen, soweit die Speicherung unzulässig oder nicht mehr erforderlich ist. Bitte wenden Sie sich dazu an die oben genannte verantwortliche Stelle."
+    },
+    "5": {
+      "title": "Änderungen dieser Datenschutzerklärung",
+      "content": "Wir behalten uns das Recht vor, diese Datenschutzerklärung bei Bedarf anzupassen, um sie an technische oder rechtliche Entwicklungen anzupassen. Bitte überprüfen Sie diese Datenschutzerklärung regelmäßig, um auf dem neuesten Stand zu bleiben."
+    },
+    "finale": "Wenn Sie Fragen zum Datenschutz auf unserer Webseite haben, können Sie sich gerne an uns wenden. Die Kontaktdaten finden Sie am Anfang dieser Datenschutzerklärung.",
+    "date": "Diese Datenschutzerklärung wurde zuletzt aktualisiert am 05.07.2023."
   },
   "tree": {
     "loading": "Lade Stammbaum",
