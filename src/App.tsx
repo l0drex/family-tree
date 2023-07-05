@@ -25,8 +25,23 @@ const router = createBrowserRouter([
           {
             path: "persons/:id?", Component: Persons, loader: ({params}) => {
               if (!params.id) {
-                return db.persons.toCollection().first()
-                  .then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+                // find a person whose id does not start with "missing-id-" if possible
+                // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
+                return db.persons.toArray().then(ps => ps.sort((a, b) => {
+                  // Check if either string starts with "missing-id-"
+                  const aStartsWithMissingId = a.id.startsWith("missing-id-");
+                  const bStartsWithMissingId = b.id.startsWith("missing-id-");
+
+                  // Sort the strings accordingly
+                  if (aStartsWithMissingId && !bStartsWithMissingId) {
+                    return 1; // a should come after b
+                  } else if (!aStartsWithMissingId && bStartsWithMissingId) {
+                    return -1; // a should come before b
+                  } else {
+                    // If both strings start with "missing-id-" or neither does, perform a regular string comparison
+                    return a.id.localeCompare(b.id);
+                  }
+                })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
               }
               return db.personWithId(params.id);
             }
