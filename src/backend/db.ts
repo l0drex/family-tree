@@ -93,18 +93,7 @@ export class FamilyDB extends Dexie {
   }
 
   async clear() {
-    let promises: PromiseExtended[] = [
-      this.persons.toCollection().delete(),
-      this.relationships.toCollection().delete(),
-      this.sourceDescriptions.toCollection().delete(),
-      this.agents.toCollection().delete(),
-      this.events.toCollection().delete(),
-      this.documents.toCollection().delete(),
-      this.places.toCollection().delete(),
-      this.groups.toCollection().delete()
-    ];
-
-    return Promise.all(promises);
+    return Promise.all(this.tables.map(t => t.clear()));
   }
 
   get couples() {
