@@ -54,7 +54,7 @@ export function ButtonLike(props: { enabled?: boolean, primary?: boolean, noHove
   let style: string;
   if (enabled) {
     style = "cursor-pointer";
-    if (!noHover) style += "hover:shadow-md hover:scale-110 active:scale-105 active:shadow-sm transition-all";
+    if (!noHover) style += "shadow-black hover:shadow-md hover:scale-110 active:scale-105 active:shadow-sm transition-all";
     if (primary) style += " bg-green-700 text-white";
     else style += " bg-white dark:bg-neutral-500";
   } else {
