@@ -17,7 +17,7 @@ export function Article(props) {
 }
 
 export function Title(props: { emoji: string, children }) {
-  return <h1 className="font-bold text-xl dark:border-gray-400 mb-2 last:mb-0">
+  return <h1 className="font-bold text-xl dark:border-gray-400 mb-2 last:mb-0 mt-6 first:mt-0">
     <span className="font-normal">{props.emoji}</span> {props.children}</h1>
 }
 

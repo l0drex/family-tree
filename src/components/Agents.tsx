@@ -62,37 +62,36 @@ export function AgentView() {
 
         {agent.accounts && <>
           <Title emoji="👤">{strings.gedcomX.agent.accounts}</Title>
-          <P>
-            <ul>{agent.accounts.map((a, i) =>
+          <ul>
+            {agent.accounts.map((a, i) =>
               <li key={i}>{strings.formatString(strings.gedcomX.agent.onlineAccount,
                 <span className="italic">{a.accountName}</span>,
                 <VanillaLink href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</VanillaLink>)}
-              </li>)}</ul>
-          </P>
+              </li>)}
+          </ul>
         </>}
 
         {agent.emails && <>
           <Title emoji="📧">{strings.gedcomX.agent.emails}</Title>
-          <P>
-            <ul>{agent.emails.map(e => <li key={e.resource}><VanillaLink
-              href={`mailto:${e.resource}`}>{e.resource}</VanillaLink></li>)}</ul>
-          </P>
+          <ul>
+            {agent.emails.map(e => <li key={e.resource}><VanillaLink
+              href={`mailto:${e.resource}`}>{e.resource}</VanillaLink></li>)}
+          </ul>
         </>}
 
         {agent.phones && <>
           <Title emoji="☎️">{strings.gedcomX.agent.phones}</Title>
-          <P>
-            <ul>{agent.phones.map(p => <li key={p.resource}><VanillaLink
+          <ul>
+            {agent.phones.map(p => <li key={p.resource}><VanillaLink
               href={`tel:${p.resource}`}>{p.resource}</VanillaLink></li>)}
-            </ul>
-          </P></>}
+          </ul>
+        </>}
 
         {agent.addresses && <>
           <Title emoji="📫">{strings.gedcomX.agent.addresses}</Title>
-          <P>
-            <ul>{agent.addresses.map(a => <li key={a.value}>{a.value}</li>)}
-            </ul>
-          </P>
+          <ul>
+            {agent.addresses.map(a => <li key={a.value}>{a.value}</li>)}
+          </ul>
         </>}
       </Article>
     </Main>
