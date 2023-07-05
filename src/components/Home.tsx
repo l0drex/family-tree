@@ -66,7 +66,7 @@ function Form(props) {
         }} className="px-4 py-2 min-w-max w-48 text-center">{strings.home.deleteButton}</button></ButtonLike>
       </>}
       <ButtonLike>
-        <input type="submit" value={props.submit} className="px-4 py-2 min-w-max w-48 text-center" onClick={e => {
+        <input type="submit" value={props.submit} className="px-4 py-2 min-w-max w-48 text-center hover:cursor-pointer" onClick={e => {
           e.preventDefault();
           input.current?.click();
         }}/>
