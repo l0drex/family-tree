@@ -89,7 +89,9 @@ interface ILayoutContext {
   setRightTitle: (string) => void,
   setHeaderChildren: (ReactNode) => void,
   sidebarVisible: boolean,
-  isDark: boolean
+  isDark: boolean,
+  allowExternalContent: boolean,
+  toggleExternalContent: (boolean) => void,
 }
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
@@ -99,6 +101,7 @@ function Layout() {
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
+  const [allowExternalContent, toggleExternalContent] = useState(false);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
   const darkQuery = matchMedia("(prefers-color-scheme: dark)");
@@ -131,9 +134,11 @@ function Layout() {
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
       sidebarVisible: sidebarExtended,
-      isDark: isDark
+      isDark: isDark,
+      allowExternalContent: allowExternalContent,
+      toggleExternalContent: toggleExternalContent
     }
-  }, [isDark, sidebarExtended])
+  }, [allowExternalContent, isDark, sidebarExtended])
 
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();

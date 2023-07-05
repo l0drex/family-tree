@@ -1,6 +1,8 @@
 import {Link, NavLink} from "react-router-dom";
 import * as React from "react";
 import {useState} from "react";
+import {strings} from "../main";
+import {LayoutContext} from "../App";
 
 export function Article(props) {
   let other = {};
@@ -98,4 +100,14 @@ export function Gallery(props: { children: any[], noMargin?: boolean }) {
         scroll(i => Math.min(props.children.length - 1, i + 2))}>➡</button>}
     </span>}
   </article>;
+}
+
+export function ExternalContent({children}: {children}) {
+  const layoutContext = React.useContext(LayoutContext);
+
+  if (layoutContext.allowExternalContent) return children;
+
+  return <div className="w-full text-center bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl px-4 py-12 my-4 first:mt-0 last:mb-0">
+    <ButtonLike primary><button onClick={() => layoutContext.toggleExternalContent(true)} className="px-4 py-2">{strings.externalContentButton}</button></ButtonLike>
+  </div>
 }

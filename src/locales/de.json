@@ -400,5 +400,6 @@
     "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden"
   },
   "ctrl": "Strg",
-  "linkContent": "hier"
+  "linkContent": "hier",
+  "externalContentButton": "Externe Inhalte anzeigen"
 }

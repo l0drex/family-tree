@@ -1,5 +1,5 @@
 import {LayoutContext, Main, Sidebar} from "../App";
-import {Article, ReactLink, ReactNavLink, Tag, Title} from "./GeneralComponents";
+import {Article, ExternalContent, ReactLink, ReactNavLink, Tag, Title} from "./GeneralComponents";
 import {useLoaderData} from "react-router-dom";
 import {PlaceDescription} from "gedcomx-js";
 import {useContext, useEffect, useState} from "react";
@@ -64,12 +64,14 @@ export function PlaceView() {
       <Article>
         {!hasData && <p>{strings.errors.noData}</p>}
         {place.names && <Alias aliases={place.names}/>}
-        {place.latitude && place.longitude && <MapContainer center={coordinates} zoom={13} scrollWheelZoom={false}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
-          <Marker position={coordinates}/>
-        </MapContainer>}
+        {place.latitude && place.longitude && <ExternalContent>
+          <MapContainer center={coordinates} zoom={13} scrollWheelZoom={false}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png"/>
+            <Marker position={coordinates}/>
+          </MapContainer>
+        </ExternalContent>}
       </Article>
       <SubjectArticles subject={place}/>
     </Main>

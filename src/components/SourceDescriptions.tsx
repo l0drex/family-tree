@@ -3,7 +3,7 @@ import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
-import {Article, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {Article, ExternalContent, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {db} from "../backend/db";
 
@@ -92,7 +92,7 @@ export function SourceDescriptionView() {
       </section>}
       <Article>
         <Alias aliases={sourceDescription.getTitles()}/>
-        {hasMedia && <figure className="mb-4 last:mb-0">{media}</figure>}
+        {hasMedia && <ExternalContent><figure className="mb-4 last:mb-0">{media}</figure></ExternalContent>}
         {sourceDescription.getDescriptions().filter(filterLang).map((d, i) =>
           <p key={i} className="mb-4 last:mb-0">{d.getValue()}</p>
         )}

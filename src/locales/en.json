@@ -398,5 +398,6 @@
     "noSourceDescriptionError": "Source description {0} could not be found"
   },
   "ctrl": "Ctrl",
-  "linkContent": "here"
+  "linkContent": "here",
+  "externalContentButton": "Show external content"
 }
