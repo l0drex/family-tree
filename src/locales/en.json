@@ -310,7 +310,6 @@
       },
       "sourceDescription": "Source",
       "sourceDescriptions": "Sources",
-      "noSourceDescriptions": "There are no sources.",
       "coverageTitle": "Coverage",
       "coverage": {
         "spatial": "spatial",
