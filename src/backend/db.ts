@@ -64,7 +64,7 @@ export class FamilyDB extends Dexie {
       .catch(e => this.clear().then(() => Promise.reject(e)));
   }
 
-  private async clear() {
+  async clear() {
     let promises: PromiseExtended[] = [
       this.persons.toCollection().delete(),
       this.relationships.toCollection().delete(),

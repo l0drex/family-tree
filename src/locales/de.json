@@ -20,6 +20,7 @@
       "title": "Datei-Upload",
       "content": "Drücke den hervorgehobenen Knopf, um deine Stammbaum-Datei auszuwählen. Mit dem \"Jetzt ausprobieren!\"-Knopf kannst du Beispieldaten generieren und die Seite ausprobieren.",
       "openButton": "Datei öffnen",
+      "deleteButton": "Daten löschen",
       "detailSummary": "Woher bekomme ich die Daten?",
       "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben.",
       "tryItOut": "Jetzt ausprobieren!"

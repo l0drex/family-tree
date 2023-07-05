@@ -10,10 +10,12 @@ import getTestData from "../backend/TestData";
 export function Home() {
   return <Main>
     <div className="flex flex-col h-full justify-center">
-      <h1 className="font-bold text-5xl sm:text-6xl text-center bg-gradient-to-r from-green-900 dark:from-green-600 to-green-600 dark:to-green-300 w-fit mx-auto bg-clip-text text-transparent">Stammbaum</h1>
-      <span className="text-xl sm:text-2xl text-center text-neutral-500 block mt-4">Free, private, Open Source</span>
+      <h1
+        className="font-bold text-5xl sm:text-6xl text-center bg-gradient-to-r from-green-900 dark:from-green-600 to-green-600 dark:to-green-300 w-fit mx-auto bg-clip-text text-transparent">Stammbaum</h1>
+      <span className="text-xl sm:text-2xl text-center text-neutral-500 block mt-4">Free, Private, Open Source</span>
 
       <Form submit={strings.home.uploadArticle.openButton}/>
+      <div className="bg-transparent h-28"></div>
     </div>
   </Main>;
 }
@@ -51,13 +53,20 @@ function Form(props) {
              ref={input}/>
 
       <ButtonLike primary className="mb-4">
-        <button onClick={loadTestData} className="px-8 py-4 text-xl min-w-max w-64">{strings.home.uploadArticle.tryItOut}</button>
+        <button onClick={loadTestData}
+                className="px-8 py-4 text-xl min-w-max w-64">{strings.home.uploadArticle.tryItOut}</button>
       </ButtonLike>
-      {dataExists && <ButtonLike><Link to="/persons" className="block px-4 py-2 min-w-max w-48 text-center">
-        {strings.form.continueSession}
-      </Link></ButtonLike>}
+      {dataExists && <>
+        <ButtonLike><Link to="/persons" className="block px-4 py-2 min-w-max w-48 text-center">
+          {strings.form.continueSession}
+        </Link></ButtonLike>
+        <ButtonLike><button onClick={e => {
+          e.preventDefault();
+          db.clear().then(() => setDataExists(false));
+        }} className="px-4 py-2 min-w-max w-48 text-center">{strings.home.uploadArticle.deleteButton}</button></ButtonLike>
+      </>}
       <ButtonLike>
-        <input type="submit" value={props.submit} className={`px-4 py-2 min-w-max w-48 text-center`} onClick={e => {
+        <input type="submit" value={props.submit} className="px-4 py-2 min-w-max w-48 text-center" onClick={e => {
           e.preventDefault();
           input.current?.click();
         }}/>
