@@ -10,6 +10,7 @@ import {Article, Hr, P, ReactNavLink, Tag, Title} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
+import * as sanitize from "sanitize-html";
 
 export function DocumentOverview() {
   const documents = useLoaderData() as Document[];
@@ -45,7 +46,11 @@ export function DocumentView() {
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [document, layoutContext])
 
-  // todo sanitize and render xhtml
+  let html;
+  if (document.isXHTML) {
+    html = sanitize(document.getText());
+  }
+
   return <>
     <Main>
       <section className="mx-auto w-fit flex flex-row gap-4">
@@ -54,6 +59,7 @@ export function DocumentView() {
       </section>
       <Article>
         {document.isPlainText && <P>{document.getText()}</P>}
+        {document.isXHTML && <div dangerouslySetInnerHTML={{__html: html}}/>}
       </Article>
       <ConclusionArticles conclusion={document}/>
     </Main>

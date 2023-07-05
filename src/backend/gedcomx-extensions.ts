@@ -363,6 +363,10 @@ export class Document extends GedcomX.Document {
     return !this.getTextType() || this.getTextType() === TextTypes.Plain;
   }
 
+  get isXHTML() {
+    return this.getTextType() === TextTypes.XHtml;
+  }
+
   get isExtracted(): boolean {
     return Boolean(this.extracted);
   }
