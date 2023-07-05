@@ -75,3 +75,23 @@ progress:indeterminate::-moz-progress-bar {
   from { transform: translate(-100%); }
   to { transform: translate(100%); }
 }
+
+meter {
+  background-image: none;
+}
+
+*::-moz-meter-bar {
+  background: #0891b2;
+}
+
+:-moz-meter-optimum::-moz-meter-bar {
+  background: #15803d;
+}
+
+:-moz-meter-sub-optimum::-moz-meter-bar {
+  background: #eab308;
+}
+
+:-moz-meter-sub-sub-optimum::-moz-meter-bar {
+  background: #b91c1c;
+}

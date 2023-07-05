@@ -115,7 +115,7 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
   return <div className={"text-center"}>
     <span title={strings.gedcomX.conclusion.confidenceExplanation}>{strings.gedcomX.conclusion.confidence}: </span>
     <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}
-           className="rounded-full">{props.confidence}</meter>
+           className="rounded-full bg-white dark:bg-opacity-30">{props.confidence}</meter>
   </div>
 }
 
