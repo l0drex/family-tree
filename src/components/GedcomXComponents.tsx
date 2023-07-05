@@ -81,7 +81,7 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <Article emoji="🗺️" title={strings.gedcomX.sourceDescription.coverage}>
+  return <Article emoji="🗺️" title={strings.gedcomX.sourceDescription.coverageTitle}>
     <p>
       {props.coverage.temporal && <>{`${strings.gedcomX.sourceDescription.coverage.temporal}: ${date}`}</>}
       {props.coverage.spatial && <>{strings.gedcomX.sourceDescription.coverage.spatial + ": "} <PlaceReference

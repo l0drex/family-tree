@@ -301,8 +301,7 @@
     },
     "placeDescription": {
       "places": "Orte",
-      "jurisdiction": "Gerichtsbarkeit",
-      "coverage": "Abdeckung"
+      "jurisdiction": "Gerichtsbarkeit"
     },
     "sourceDescription": {
       "resourceTypes": {
@@ -313,6 +312,7 @@
       },
       "sourceDescription": "Quelle",
       "sourceDescriptions": "Quellen",
+      "coverageTitle": "Abdeckung",
       "coverage": {
         "spatial": "räumlich",
         "temporal": "zeitlich"
