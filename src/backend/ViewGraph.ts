@@ -85,7 +85,7 @@ export class ViewGraph implements EventTarget {
     let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
 
     let hideAll = false;
-    if (families.length <= 0) {
+    if (families.length === 0) {
       console.error("No families found!");
       // adding at least the start person with etc-nodes
       families = await this.getFamilyViews(ViewMode.DEFAULT, startPerson);
@@ -98,12 +98,15 @@ export class ViewGraph implements EventTarget {
       families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
     }
 
-    //await Promise.all(families.map(f => this.showFamily(f)));
     for (const f of families) {
       if (f === undefined) throw new Error("family is undefined");
       await this.showFamily(f);
       if (hideAll) await this.hideFamily(f);
       this.progress += .5/families.length;
+    }
+    if (this.nodes.length === 0) {
+      // adding at least the start person
+      await this.showNode(await this.getGraphPerson(startPerson));
     }
     this.progress = 1;
 

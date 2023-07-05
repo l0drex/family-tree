@@ -17,6 +17,7 @@ import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
 import {ResourceReference} from "gedcomx-js";
 
 export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
+type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;
 
 export class FamilyDB extends Dexie {
   persons!: Table<GedcomX.Person>
@@ -31,20 +32,22 @@ export class FamilyDB extends Dexie {
   constructor() {
     super('familyData');
     this.version(1).stores({
-      persons: '++, &id, lang',
-      relationships: '++, &id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
-      sourceDescriptions: '++, &id, mediaType',
-      agents: '++, &id',
-      events: '++, &id, lang, date',
-      documents: '++, &id, lang',
-      places: '++, &id, lang',
-      groups: '++, &id, lang'
+      persons: '&id, lang',
+      relationships: '&id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
+      sourceDescriptions: '&id, mediaType',
+      agents: '&id',
+      events: '&id, lang, date',
+      documents: '&id, lang',
+      places: '&id, lang',
+      groups: '&id, lang'
     });
   }
 
   async load(data: IGedcomX) {
-    let root = new GedcomX.Root(data);
-    await this.clear();
+    let clear = this.clear();
+    let root = this.sanitizeData(data);
+    await clear;
+
     let promises: PromiseExtended[] = [];
 
     if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
@@ -62,6 +65,31 @@ export class FamilyDB extends Dexie {
     return Promise.all(promises)
       // make sure database is clean
       .catch(e => this.clear().then(() => Promise.reject(e)));
+  }
+
+  private sanitizeData(data: IGedcomX) {
+    let root = new GedcomX.Root(data);
+
+    // generate missing ids
+    function generateIdIfMissing(data: RootClass[]) {
+      if (!data) return;
+
+      let addedIds = 0;
+      data.forEach(d => {
+        if (!d.id) d.id = "missing-id-" + addedIds++;
+      });
+      console.debug(`Added ${addedIds} missing ids.`);
+    }
+    generateIdIfMissing(root.persons);
+    generateIdIfMissing(root.relationships);
+    generateIdIfMissing(root.sourceDescriptions);
+    generateIdIfMissing(root.agents);
+    generateIdIfMissing(root.events);
+    generateIdIfMissing(root.documents);
+    generateIdIfMissing(root.places);
+    generateIdIfMissing(data.groups);
+
+    return root;
   }
 
   async clear() {
@@ -88,6 +116,8 @@ export class FamilyDB extends Dexie {
   }
 
   async elementWithId(id: string | ResourceReference, type: RootType) {
+    // todo find a way to use generics here
+
     try {
       id = toResource(id).resource.substring(1);
     } catch (e) {
@@ -96,28 +126,28 @@ export class FamilyDB extends Dexie {
 
     switch (type) {
       case "person":
-        return this.persons.where("id").equals(id).first()
+        return this.persons.get(id)
           .then(p => p ? new Person(p) : Promise.reject(new Error(`Person with id ${id} not found!`)));
       case "relationship":
-        return this.relationships.where("id").equals(id).first()
+        return this.relationships.get(id)
           .then(r => r ? new Relationship(r) : Promise.reject(new Error(`Relationship with id ${id} not found!`)));
       case "sourceDescription":
-        return this.sourceDescriptions.where("id").equals(id).first()
+        return this.sourceDescriptions.get(id)
           .then(sd => sd ? new SourceDescription(sd) : Promise.reject(new Error(`SourceDescription with id ${id} not found!`)));
       case "agent":
-        return this.agents.where("id").equals(id).first()
+        return this.agents.get(id)
           .then(a => a ? new Agent(a) : Promise.reject(new Error(`Agent with id ${id} not found!`)));
       case "event":
-        return this.events.where("id").equals(id).first()
+        return this.events.get(id)
           .then(e => e ? new GedcomX.Event(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
       case "document":
-        return this.documents.where("id").equals(id).first()
+        return this.documents.get(id)
           .then(d => d ? new Document(d) : Promise.reject(new Error(`Document with id ${id} not found!`)));
       case "place":
-        return this.places.where("id").equals(id).first()
+        return this.places.get(id)
           .then(p => p ? new PlaceDescription(p) : Promise.reject(new Error(`Place with id ${id} not found!`)));
       case "group":
-        return this.groups.where("id").equals(id).first()
+        return this.groups.get(id)
           .then(g => g ? g : Promise.reject(new Error(`Group with id ${id} not found!`)));
       default:
         return Promise.reject(new Error(`Unknown type ${type}`));
