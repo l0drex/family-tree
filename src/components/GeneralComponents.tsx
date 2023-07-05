@@ -1,6 +1,6 @@
 import {Link, NavLink} from "react-router-dom";
 import * as React from "react";
-import {ReactElement, useEffect, useRef, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import {strings} from "../main";
 import {LayoutContext} from "../App";
 
