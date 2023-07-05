@@ -2,13 +2,10 @@ import * as gedcomX from "gedcomx-js";
 import {filterLang, strings} from "../main";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
-import {
-  formatJDate,
-  GDate
-} from "../backend/gedcomx-extensions";
+import {formatJDate, GDate} from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
-import {Article, Hr, P, ReactLink, Tag, Gallery, ExternalContent} from "./GeneralComponents";
+import {Article, ExternalContent, Gallery, Hr, Media, P, ReactLink, Tag} from "./GeneralComponents";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
   return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note} noMargin={props.noMargin}>
@@ -149,29 +146,21 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
 }
 
 export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
-  const images = useLiveQuery(async () => {
+  const media = useLiveQuery(async () => {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
-    const sourceDescriptions = await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)));
-
-    return sourceDescriptions.filter(sourceDescription => {
-      let mediaType = sourceDescription.getMediaType();
-      if (!mediaType) return false;
-      return mediaType.split('/')[0] === 'image'
-    });
+    return await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)))
   }, [subject])
 
   return <>
-    {images && images.length > 0 && <Gallery noMargin={noMargin}>
-      {images.map(image => {
-        let credit = image.getCitations()[0].getValue();
-        return <ExternalContent key={image.id}>
+    {media && media.length > 0 && <Gallery noMargin={noMargin}>
+      {media.map(m => {
+        let credit = m.getCitations()[0].getValue();
+        return <ExternalContent key={m.id}>
           <div className="relative">
-            <img src={image.getAbout()}
-                 alt={image.getDescriptions().filter(filterLang)[0]?.getValue()}
-                 className="rounded-2xl"/>
+            <Media mimeType={m.mediaType} url={m.getAbout()} alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
             <div
               className="absolute bottom-0 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
-              © <a href={image.getAbout()}>{credit}</a>
+              © <a href={m.getAbout()}>{credit}</a>
             </div>
           </div>
         </ExternalContent>

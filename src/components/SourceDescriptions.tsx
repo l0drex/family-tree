@@ -3,7 +3,17 @@ import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
 import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
-import {Article, ExternalContent, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {
+  Article,
+  ExternalContent,
+  Hr,
+  Media,
+  ReactLink,
+  ReactNavLink,
+  Tag,
+  Title,
+  VanillaLink
+} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {db} from "../backend/db";
 
@@ -32,40 +42,23 @@ function SourcesList(props) {
 
 export function SourceDescriptionView() {
   const sourceDescription = useLoaderData() as SourceDescription;
-  const [text, setText] = useState("");
   const hasMedia = sourceDescription.mediaType && sourceDescription.about;
   const [others, setOthers] = useState([]);
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
     db.sourceDescriptions.toArray().then(sds => sds.map(sd => new SourceDescription(sd))).then(setOthers);
-    layoutContext.setHeaderChildren(<Title
-      emoji={sourceDescription?.emoji}>{sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}</Title>)
+    layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>
+      {sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}
+    </Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [layoutContext, sourceDescription])
 
-  useEffect(() => {
-    if (!hasMedia) return;
-    let mediaType = sourceDescription.mediaType.split('/');
-    if (mediaType[0] !== "text") return;
-
-    fetch(sourceDescription.getAbout())
-      .then(r => r.text())
-      .then(t => setText(t));
-  }, [hasMedia, sourceDescription])
-
   const componentOf = sourceDescription.getComponentOf();
   let media;
-  if (hasMedia) {
-    if (sourceDescription.mediaType.startsWith("text"))
-      media = <p>{text}</p>
-    else
-      media = <object type={sourceDescription.mediaType} data={sourceDescription.about}
-                      className={"m-auto rounded-2xl my-2 max-w-full"}>
-        {sourceDescription.getDescriptions().filter(filterLang)[0]?.getValue()}
-      </object>;
-  }
-
+  if (hasMedia)
+    media = <Media mimeType={sourceDescription.mediaType} url={sourceDescription.about}
+                   alt={sourceDescription.getDescriptions().filter(filterLang)[0]?.getValue()}/>
   const hasMisc = componentOf || sourceDescription.rights || sourceDescription.repository || sourceDescription.analysis;
 
   return <>
