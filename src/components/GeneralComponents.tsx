@@ -1,7 +1,7 @@
 import {Link, NavLink} from "react-router-dom";
 import * as React from "react";
-import {useEffect, useState} from "react";
-import {filterLang, strings} from "../main";
+import {ReactElement, useEffect, useRef, useState} from "react";
+import {strings} from "../main";
 import {LayoutContext} from "../App";
 
 export function Article(props) {
@@ -25,11 +25,6 @@ export function Title(props: { emoji: string, children }) {
 
 export function Subtitle({children}) {
   return <h2 className="font-bold text-lg mb-2 mt-6 first:mt-0">{children}</h2>
-}
-
-export function Kbd(props) {
-  return <kbd
-    className="bg-gray-200 dark:bg-neutral-600 rounded-lg p-1 border-b-2 border-b-gray-400">{props.children}</kbd>
 }
 
 export function VanillaLink(props) {
@@ -94,6 +89,13 @@ export function Hr() {
   return <hr className="border-neutral-500 mx-8"/>
 }
 
+export function Loading(props: {text: string, value?: number, max?: number}) {
+  return <div className="text-center">
+    <label htmlFor="progress-bar">{props.text}</label>
+    <progress id="progress-bar" value={props.value} max={props.max} className="mt-2 rounded-full bg-white dark:bg-opacity-30"></progress>
+  </div>
+}
+
 export function Gallery(props: { children: any[], noMargin?: boolean }) {
   const [index, scroll] = useState(0);
 
@@ -131,6 +133,7 @@ export function ExternalContent({children}: { children }) {
 
 export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt: string }) {
   const [text, setText] = useState("");
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let mediaType = mimeType.split('/');
@@ -141,16 +144,17 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
       .then(t => setText(t));
   }, [mimeType, url])
 
-  let media;
+  let media: ReactElement;
   if (mimeType.startsWith("text")) {
     media = <p>{text}</p>
   } else {
-    media = <object type={mimeType} data={url} className={"m-auto rounded-2xl my-2 max-w-full"}>
+    media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`} onLoad={e => setLoaded(true)}>
       {alt}
     </object>;
   }
 
   return <ExternalContent>
     {media}
+    {!loaded && <div className="w-full pt-4 pb-28 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">{<Loading text={strings.gedcomX.subject.loadingMedia}/>}</div>}
   </ExternalContent>
 }

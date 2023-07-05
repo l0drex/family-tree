@@ -39,9 +39,8 @@ import {hasData, strings} from "../main";
 import {Legend} from "@visx/visx";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
-import {Loading} from "./Loading";
 import {LayoutContext, Main} from "../App";
-import {Title} from "./GeneralComponents";
+import {Title, Loading} from "./GeneralComponents";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;

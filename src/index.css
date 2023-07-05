@@ -60,3 +60,18 @@ dialog::backdrop {
   height: 500px;
   border-radius: 1rem;
 }
+
+progress::-moz-progress-bar, progress::-webkit-progress-bar {
+  /*TODO check webkit styling*/
+  background: #22c55e;
+  border-radius: 999px;
+}
+
+progress:indeterminate::-moz-progress-bar {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: translate(-100%); }
+  to { transform: translate(100%); }
+}

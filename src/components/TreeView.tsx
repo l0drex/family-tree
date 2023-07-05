@@ -7,7 +7,7 @@ import {EventType} from "webcola";
 import * as GedcomX from "gedcomx-js";
 import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
-import {Loading} from "./Loading";
+import {Loading} from "./GeneralComponents";
 import {strings} from "../main";
 import {FocusPersonContext} from "./Persons";
 import {Confidence} from "../backend/gedcomx-enums";

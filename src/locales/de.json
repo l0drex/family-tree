@@ -79,7 +79,8 @@
     },
     "subject": {
       "evidence": "Beweis",
-      "mediaImageAlt": "Bild von {0}."
+      "mediaImageAlt": "Bild von {0}.",
+      "loadingMedia": "Lade Medieninhalt…"
     },
     "agent": {
       "agents": "Agenten",

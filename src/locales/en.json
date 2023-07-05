@@ -79,7 +79,8 @@
     },
     "subject": {
       "evidence": "Evidence",
-      "mediaImageAlt": "Image of {0}."
+      "mediaImageAlt": "Image of {0}.",
+      "loadingMedia": "Loading media content…"
     },
     "agent": {
       "agents": "Agents",
