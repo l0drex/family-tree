@@ -61,11 +61,11 @@ function GenderStats() {
   const data = useLiveQuery(getGenderPerGeneration);
   const layoutContext = useContext(LayoutContext);
 
-  if (!data) return <Stat title={strings.gedcomX.gender}>
-    <Loading text={strings.loading.statistic}/>
+  if (!data) return <Stat title={strings.gedcomX.person.gender}>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
 
-  if (data.length === 0) return <Stat title={strings.gedcomX.gender}>
+  if (data.length === 0) return <Stat title={strings.gedcomX.person.gender}>
     {strings.errors.noData}
   </Stat>
 
@@ -74,11 +74,11 @@ function GenderStats() {
     .sort((a, b) => sorted.indexOf(a as GenderTypes) - sorted.indexOf(b as GenderTypes));
 
   let legend = <Legend.LegendOrdinal scale={scaleOrdinal({
-    domain: keys.map(k => strings.gedcomX.types.gender[k.substring(baseUri.length)]),
+    domain: keys.map(k => strings.gedcomX.person.genderTypes[k.substring(baseUri.length)]),
     range: d3.schemeSet1.map(c => c.toString())
   })} direction={"row"} className={"flex-wrap"}/>
 
-  return <Stat title={strings.gedcomX.gender} legend={legend}>
+  return <Stat title={strings.gedcomX.person.gender} legend={legend}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
              margin={{top: 0, left: 45, bottom: 0, right: 0}} theme={layoutContext.isDark ? darkTheme : lightTheme}>
@@ -89,7 +89,7 @@ function GenderStats() {
           colorAccessor={() => d3.schemeSet1[keys.indexOf(key)]}
         />)}
       </BarStack>
-      <Axis orientation="left" label={strings.gedcomX.types.fact.person.GenerationNumber} hideAxisLine={true}
+      <Axis orientation="left" label={strings.gedcomX.person.factTypes.GenerationNumber} hideAxisLine={true}
             hideTicks={true}/>
     </XYChart>
   </Stat>
@@ -98,17 +98,17 @@ function GenderStats() {
 function ReligionStats() {
   const layoutContext = useContext(LayoutContext);
   let data = useLiveQuery(getReligionPerYear);
-  if (!data) return <Stat title={strings.gedcomX.types.fact.person.Religion} landscape>
-    <Loading text={strings.loading.statistic}/>
+  if (!data) return <Stat title={strings.gedcomX.person.factTypes.Religion} landscape>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
-  if (data.length === 0) return <Stat title={strings.gedcomX.types.fact.person.Religion} landscape>
+  if (data.length === 0) return <Stat title={strings.gedcomX.person.factTypes.Religion} landscape>
     {strings.errors.noData}
   </Stat>
 
   let keysUnfiltered = Array.from(new Set(data.map(d => Object.keys(d.religion)).flat()));
   let keys = keysUnfiltered.filter(r => r !== "");
 
-  return <Stat title={strings.gedcomX.types.fact.person.Religion} landscape>
+  return <Stat title={strings.gedcomX.person.factTypes.Religion} landscape>
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
              margin={{top: 1, left: 15, right: 0, bottom: 25}} theme={layoutContext.isDark ? darkTheme : lightTheme}>
@@ -139,7 +139,7 @@ function OccupationStats() {
     range: d3.schemeSet3.map(c => c.toString())
   });
 
-  return <Stat title={strings.gedcomX.types.fact.person.Occupation}>
+  return <Stat title={strings.gedcomX.person.factTypes.Occupation}>
     <svg width={width} height={height}>
       <Pie
         data={data}
@@ -157,7 +157,7 @@ function OccupationStats() {
 function LocationStats() {
   let data = useLiveQuery(getBirthPlace);
 
-  return <Stat title={strings.gedcomX.types.fact.person.Heimat}>
+  return <Stat title={strings.gedcomX.person.factTypes.Heimat}>
     <NaturalEarth
       data={data}
       center={[530, -50]}
@@ -167,10 +167,10 @@ function LocationStats() {
 
 function NameStats(props: { nameType: "First" | "Last" }) {
   let data = useLiveQuery(async () => getNames(props.nameType), [props.nameType]);
-  const title = props.nameType === "First" ? strings.gedcomX.firstName : strings.gedcomX.types.namePart.Surname;
+  const title = props.nameType === "First" ? strings.gedcomX.person.firstName : strings.gedcomX.person.namePartTypes.Surname;
 
   if (!data) return <Stat title={title}>
-    <Loading text={strings.loading.statistic}/>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
   if (data.length === 0) return <Stat title={title}>
     {strings.errors.noData}
@@ -220,7 +220,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   const title = props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month;
 
   if (!data) return <Stat title={title}>
-    <Loading text={strings.loading.statistic}/>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
   if (data.length === 0) return <Stat title={title}>
     {strings.errors.noData}
@@ -259,7 +259,7 @@ function LifeExpectancy() {
   const layoutContext = useContext(LayoutContext);
   let data = useLiveQuery(getLifeExpectancyOverYears);
   if (!data) return <Stat title={strings.statistics.lifeExpectancy} landscape>
-    <Loading text={strings.loading.statistic}/>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.statistics.lifeExpectancy} landscape>
     {strings.errors.noData}
@@ -282,7 +282,7 @@ function MarriageAge() {
   const layoutContext = useContext(LayoutContext);
   let data = useLiveQuery(getMarriageAge);
   if (!data) return <Stat title={strings.statistics.marriageAge}>
-    <Loading text={strings.loading.statistic}/>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
   if (data.length === 0) return <Stat title={strings.statistics.marriageAge}>
     {strings.errors.noData}
@@ -313,10 +313,10 @@ function MarriageAge() {
 
 function ConfidenceStats() {
   let data = useLiveQuery(getConfidence);
-  if (!data) return <Stat title={strings.gedcomX.confidence}>
-    <Loading text={strings.loading.statistic}/>
+  if (!data) return <Stat title={strings.gedcomX.conclusion.confidence}>
+    <Loading text={strings.statistics.loading}/>
   </Stat>
-  if (data.length === 0) return <Stat title={strings.gedcomX.confidence}>
+  if (data.length === 0) return <Stat title={strings.gedcomX.conclusion.confidence}>
     {strings.errors.noData}
   </Stat>
 
@@ -327,7 +327,7 @@ function ConfidenceStats() {
     range: d3.schemeRdYlGn[3].map(c => c.toString())
   });
 
-  return <Stat title={strings.gedcomX.confidence}>
+  return <Stat title={strings.gedcomX.conclusion.confidence}>
     <svg width={width} height={height}>
       <Pie
         data={data}

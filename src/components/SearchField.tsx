@@ -39,7 +39,7 @@ export default function SearchField(props: Props) {
     // if no person was found, throw error
     setHasError(!person);
     if (!person) {
-      window.alert(strings.searchField.noPersonFound);
+      window.alert(strings.errors.noPersonFound);
       return;
     }
 

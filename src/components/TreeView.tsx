@@ -92,7 +92,7 @@ function TreeView(props: Props) {
   }
 
   if (viewGraphState !== LoadingState.FINISHED) {
-    return <Loading text={strings.loading.familyTree} value={viewGraphProgress}/>
+    return <Loading text={strings.tree.loading} value={viewGraphProgress}/>
   }
 
   return (

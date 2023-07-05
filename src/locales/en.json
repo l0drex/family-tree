@@ -1,35 +1,20 @@
 {
-  "footer": {
-    "sourceCode": "The source code is available on {0}.",
-    "imprint": "Imprint & privacy policy",
-    "bugReport": "Report a problem"
-  },
-  "form": {
-    "fileInputLabel": "Gedcom File",
-    "continueSession": "Continue with last session",
-    "noFileError": "No gedcom file selected",
-    "graphLoadingError": "The graph could not be loaded."
-  },
   "header": {
     "imageAlt": "A smiling tree.",
     "title": "Family tree",
     "navigationMenu": "Menu"
   },
+  "footer": {
+    "sourceCode": "The source code is available on {0}.",
+    "imprint": "Imprint & privacy policy",
+    "bugReport": "Report a problem"
+  },
   "home": {
-    "uploadArticle": {
-      "title": "File-Upload",
-      "content": "Use the highlighted button to open your family tree file and the family tree will open. You can also use the \"Try it now!\"-button to generate some example data.",
-      "openButton": "Open family tree",
-      "deleteButton": "Remove data",
-      "detailSummary": "From where do I get the data?",
-      "detail": "The file must be a valid GedcomX file in json format, as described {0}.",
-      "tryItOut": "Try it now!"
-    },
-    "navigationArticle": {
-      "title": "Usage",
-      "content": "You can move the family tree with your mouse.While pressing {0}, you can zoom in and out with your mouse wheel. Select a person with your left mouse button to show their information. Many people have a circle with \"+\" or \"-\" inside them, clicking on those displays their relatives."
-    },
-    "title": "Home"
+    "title": "Home",
+    "tryItOut": "Try it now!",
+    "continueSession": "Continue with last session",
+    "deleteButton": "Remove data",
+    "openButton": "Open family tree"
   },
   "imprint": {
     "privacyArticle": {
@@ -40,44 +25,56 @@
       "title": "Imprint"
     }
   },
-  "infoPanel": {
-    "born": "born: {0}",
-    "aka": "aka {0}",
-    "nickname": "Nickname: {0}",
-    "personImageAlt": "Image of {0}.",
-    "noSourceDescriptionError": "Source description {0} could not be found",
-    "confidenceExplanation": "How much can the data be trusted",
-    "confidenceLabel": "Confidence: ",
-    "relationships": "Relationships",
-    "children": "Children",
-    "parents": "Parents",
-    "partner": "Partner",
-    "godparents": "Godparents",
-    "godchildren": "Godchildren",
-    "enslavedBy": "Enslaved by",
-    "slaves": "Slaves"
-  },
-  "nodes": {
+  "tree": {
+    "loading": "Loading family tree",
     "lockedFamilyHint": "This family cannot be hidden.",
     "hideFamilyHint": "Click to hide this family.",
-    "clickPersonHint": "Click to show more information"
+    "clickPersonHint": "Click to show more information."
   },
   "gedcomX": {
-    "types": {
-      "relationship": {
-        "AncestorDescendant": "Ancestor - Descendant",
-        "Couple": "Couple",
-        "EnslavedBy": "Enslaved by",
-        "Godparent": "Godparent",
-        "ParentChild": "Parent - Child"
+    "conclusion": {
+      "note": "Note",
+      "confidence": "Confidence",
+      "confidenceExplanation": "How much can the data be trusted",
+      "confidenceLevel": {
+        "High": "High",
+        "Medium": "Medium",
+        "Low": "Low"
       },
-      "resource": {
-        "Collection": "Collection",
-        "PhysicalArtifact": "Physical Artifact",
-        "DigitalArtifact": "Digital Artifact",
-        "Record": "Record"
+      "attribution": {
+        "created": "Created",
+        "modified": "Modified",
+        "byPerson": "by {0}"
+      }
+    },
+    "subject": {
+      "evidence": "Evidence",
+      "mediaImageAlt": "Image of {0}."
+    },
+    "agent": {
+      "agents": "Agents",
+      "agent": "Agent",
+      "homepage": "Homepage",
+      "accounts": "Accounts",
+      "onlineAccount": "{0} on {1}",
+      "person": "Person",
+      "emails": "Emails",
+      "phones": "Phones",
+      "addresses": "Addresses"
+    },
+    "document": {
+      "types": {
+        "Abstract": "Abstract",
+        "Transcription": "Transcription",
+        "Translation": "Translation",
+        "Analysis": "Analysis"
       },
-      "event": {
+      "extracted": "extracted",
+      "documents": "Documents",
+      "document": "Document"
+    },
+    "event": {
+      "types": {
         "Adoption": "Adoption",
         "AdultChristening": "Adult Christening",
         "Annulment": "Annulment",
@@ -113,19 +110,28 @@
         "Ordination": "Ordination",
         "Retirement": "Retirement"
       },
-      "document": {
-        "Abstract": "Abstract",
-        "Transcription": "Transcription",
-        "Translation": "Translation",
-        "Analysis": "Analysis"
-      },
-      "gender": {
+      "roles": {
+        "Principal": "Principal",
+        "Participant": "Participant",
+        "Official": "Official",
+        "Witness": "Witness"
+      }
+    },
+    "person": {
+      "persons": "Persons",
+      "private": "private",
+      "gender": "Sex",
+      "genderTypes": {
         "Male": "Male",
         "Female": "Female",
         "Unknown": "Unknown",
         "Intersex": "Intersex"
       },
-      "name": {
+      "firstName": "first name",
+      "born": "born: {0}",
+      "aka": "aka {0}",
+      "nickname": "Nickname: {0}",
+      "nameTypes": {
         "BirthName": "Birth Name",
         "MarriedName": "Married Name",
         "AlsoKnownAs": "Aka.",
@@ -134,144 +140,13 @@
         "FormalName": "Formal Name",
         "ReligiousName": "Religious Name"
       },
-      "fact": {
-        "person": {
-          "Adoption": "Adoption",
-          "AdultChristening": "Adult Christening",
-          "Amnesty": "Amnesty",
-          "AncestralHall": "Ancestral Hall",
-          "AncestralPoem": "Ancestral Poem",
-          "Apprenticeship": "Apprenticeship",
-          "Arrest": "Arrest",
-          "Award": "Award",
-          "Baptism": "Baptism",
-          "BarMitzvah": "Bar Mitzvah",
-          "BatMitzvah": "Bat Mitzvah",
-          "Birth": "Birth",
-          "BirthNotice": "Birth Notice",
-          "Blessing": "Blessing",
-          "Branch": "Branch",
-          "Burial": "Burial",
-          "Caste": "Caste",
-          "Census": "Census",
-          "Christening": "Christening",
-          "Circumcision": "Circumcision",
-          "Clan": "Clan",
-          "Confirmation": "Confirmation",
-          "Court": "Court",
-          "Cremation": "Cremation",
-          "Death": "Death",
-          "Education": "Education",
-          "EducationEnrollment": "Education Enrollment",
-          "Emigration": "Emigration",
-          "Enslavement": "Enslavement",
-          "Ethnicity": "Ethnicity",
-          "Excommunication": "Excommunication",
-          "FirstCommunion": "First Communion",
-          "Funeral": "Funeral",
-          "GenderChange": "Gender Change",
-          "GenerationNumber": "Generation Number",
-          "Graduation": "Graduation",
-          "Heimat": "Heimat",
-          "Immigration": "Immigration",
-          "Imprisonment": "Imprisonment",
-          "Inquest": "Inquest",
-          "LandTransaction": "Land Transaction",
-          "Language": "Language",
-          "Living": "Living",
-          "MaritalStatus": "Marital Status",
-          "Medical": "Medical",
-          "MilitaryAward": "Military Award",
-          "MilitaryDischarge": "Military Discharge",
-          "MilitaryDraftRegistration": "Military Draft Registration",
-          "MilitaryInduction": "Military Induction",
-          "MilitaryService": "Military Service",
-          "Mission": "Mission",
-          "MoveFrom": "Move From",
-          "MoveTo": "Move To",
-          "MultipleBirth": "Multiple Birth",
-          "NationalId": "National Id",
-          "Nationality": "Nationality",
-          "Naturalization": "Naturalization",
-          "NumberOfChildren": "Number Of Children",
-          "NumberOfMarriage": "Number Of Marriage",
-          "Obituary": "Obituary",
-          "OfficialPosition": "Official Position",
-          "Occupation": "Occupation",
-          "Ordination": "Ordination",
-          "Pardon": "Pardon",
-          "PhysicalDescription": "Physical Description",
-          "Probate": "Probate",
-          "Property": "Property",
-          "Race": "Race",
-          "Religion": "Religion",
-          "Residence": "Residence",
-          "Retirement": "Retirement",
-          "Stillbirth": "Stillbirth",
-          "TaxAssessment": "Tax Assessment",
-          "Tribe": "Tribe",
-          "Will": "Will",
-          "Visit": "Visit",
-          "Yahrzeit": "Yahrzeit"
-        },
-        "relationship": {
-          "Couple": {
-            "Annulment": "Annulment",
-            "CommonLawMarriage": "Common-Law Marriage",
-            "CivilUnion": "Civil Union",
-            "Divorce": "Divorce",
-            "DivorceFiling": "Divorce Filing",
-            "DomesticPartnership": "Domestic Partnership",
-            "Engagement": "Engagement",
-            "Marriage": "Marriage",
-            "MarriageBanns": "Marriage Banns",
-            "MarriageContract": "Marriage Contract",
-            "MarriageLicense": "Marriage License",
-            "MarriageNotice": "Marriage Notice",
-            "NumberOfChildren": "Number of Children",
-            "Separation": "Separation"
-          },
-          "ParentChild": {
-            "AdoptiveParent": "Adoptive Parent",
-            "BiologicalParent": "Biological Parent",
-            "ChildOrder": "Child Order",
-            "EnteringHeir": "Entering Heir",
-            "ExitingHeir": "Exiting Heir",
-            "FosterParent": "Foster Parent",
-            "GuardianParent": "Guardian Parent",
-            "StepParent": "Step Parent",
-            "SociologicalParent": "Sociological Parent",
-            "SurrogateParent": "Surrogate Parent"
-          }
-        }
-      },
-      "role": {
-        "Principal": "Principal",
-        "Participant": "Participant",
-        "Official": "Official",
-        "Witness": "Witness"
-      },
-      "namePart": {
+      "namePartTypes": {
         "Prefix": "Prefix",
         "Suffix": "Suffix",
         "Given": "Given",
         "Surname": "Surname"
-      }
-    },
-    "confidenceLevel": {
-      "High": "High",
-      "Medium": "Medium",
-      "Low": "Low"
-    },
-    "qualifiers": {
-      "fact": {
-        "Age": "Age",
-        "Cause": "Cause",
-        "Religion": "Religion",
-        "Transport": "Transport",
-        "NonConsensual": "Non-Consensual"
       },
-      "namePart": {
+      "namePartQualifier": {
         "Primary": "Primary",
         "Secondary": "Secondary",
         "Middle": "Middle",
@@ -287,69 +162,178 @@
         "Postnom": "Postnom",
         "Particle": "Particle",
         "RootName": "RootName"
+      },
+      "factTypes": {
+        "Adoption": "Adoption",
+        "AdultChristening": "Adult Christening",
+        "Amnesty": "Amnesty",
+        "AncestralHall": "Ancestral Hall",
+        "AncestralPoem": "Ancestral Poem",
+        "Apprenticeship": "Apprenticeship",
+        "Arrest": "Arrest",
+        "Award": "Award",
+        "Baptism": "Baptism",
+        "BarMitzvah": "Bar Mitzvah",
+        "BatMitzvah": "Bat Mitzvah",
+        "Birth": "Birth",
+        "BirthNotice": "Birth Notice",
+        "Blessing": "Blessing",
+        "Branch": "Branch",
+        "Burial": "Burial",
+        "Caste": "Caste",
+        "Census": "Census",
+        "Christening": "Christening",
+        "Circumcision": "Circumcision",
+        "Clan": "Clan",
+        "Confirmation": "Confirmation",
+        "Court": "Court",
+        "Cremation": "Cremation",
+        "Death": "Death",
+        "Education": "Education",
+        "EducationEnrollment": "Education Enrollment",
+        "Emigration": "Emigration",
+        "Enslavement": "Enslavement",
+        "Ethnicity": "Ethnicity",
+        "Excommunication": "Excommunication",
+        "FirstCommunion": "First Communion",
+        "Funeral": "Funeral",
+        "GenderChange": "Gender Change",
+        "GenerationNumber": "Generation Number",
+        "Graduation": "Graduation",
+        "Heimat": "Heimat",
+        "Immigration": "Immigration",
+        "Imprisonment": "Imprisonment",
+        "Inquest": "Inquest",
+        "LandTransaction": "Land Transaction",
+        "Language": "Language",
+        "Living": "Living",
+        "MaritalStatus": "Marital Status",
+        "Medical": "Medical",
+        "MilitaryAward": "Military Award",
+        "MilitaryDischarge": "Military Discharge",
+        "MilitaryDraftRegistration": "Military Draft Registration",
+        "MilitaryInduction": "Military Induction",
+        "MilitaryService": "Military Service",
+        "Mission": "Mission",
+        "MoveFrom": "Move From",
+        "MoveTo": "Move To",
+        "MultipleBirth": "Multiple Birth",
+        "NationalId": "National Id",
+        "Nationality": "Nationality",
+        "Naturalization": "Naturalization",
+        "NumberOfChildren": "Number Of Children",
+        "NumberOfMarriage": "Number Of Marriage",
+        "Obituary": "Obituary",
+        "OfficialPosition": "Official Position",
+        "Occupation": "Occupation",
+        "Ordination": "Ordination",
+        "Pardon": "Pardon",
+        "PhysicalDescription": "Physical Description",
+        "Probate": "Probate",
+        "Property": "Property",
+        "Race": "Race",
+        "Religion": "Religion",
+        "Residence": "Residence",
+        "Retirement": "Retirement",
+        "Stillbirth": "Stillbirth",
+        "TaxAssessment": "Tax Assessment",
+        "Tribe": "Tribe",
+        "Will": "Will",
+        "Visit": "Visit",
+        "Yahrzeit": "Yahrzeit"
+      },
+      "maritalStatus": {
+        "Divorced": "divorced",
+        "Married": "married",
+        "Seperated": "seperated",
+        "Single": "single",
+        "Widowed": "widowed"
       }
     },
-    "maritalStatus": {
-      "Divorced": "divorced",
-      "Married": "married",
-      "Seperated": "seperated",
-      "Single": "single",
-      "Widowed": "widowed"
-    },
-    "persons": "Persons",
-    "person": {
-      "private": "private"
-    },
-    "sourceDescription": {
-      "sourceDescription": "Source",
-      "sourceDescriptions": "Sources",
-      "noSourceDescriptions": "There are no sources."
-    },
-    "document": {
-      "extracted": "extracted",
-      "documents": "Documents",
-      "document": "Document",
-      "noDocuments": "There are no documents."
-    },
-    "agent": {
-      "agents": "Agents",
-      "agent": "Agent",
-      "homepage": "Homepage",
-      "accounts": "Accounts",
-      "onlineAccount": "{0} on {1}",
-      "person": "Person",
-      "emails": "Emails",
-      "phones": "Phones",
-      "addresses": "Addresses",
-      "noAgents": "There are no agents."
+    "relationship": {
+      "relationships": "Relationships",
+      "children": "Children",
+      "parents": "Parents",
+      "partner": "Partner",
+      "godparents": "Godparents",
+      "godchildren": "Godchildren",
+      "enslavedBy": "Enslaved by",
+      "slaves": "Slaves",
+      "types": {
+        "AncestorDescendant": "Ancestor - Descendant",
+        "Couple": "Couple",
+        "EnslavedBy": "Enslaved by",
+        "Godparent": "Godparent",
+        "ParentChild": "Parent - Child"
+      },
+      "factTypes": {
+        "Couple": {
+          "Annulment": "Annulment",
+          "CommonLawMarriage": "Common-Law Marriage",
+          "CivilUnion": "Civil Union",
+          "Divorce": "Divorce",
+          "DivorceFiling": "Divorce Filing",
+          "DomesticPartnership": "Domestic Partnership",
+          "Engagement": "Engagement",
+          "Marriage": "Marriage",
+          "MarriageBanns": "Marriage Banns",
+          "MarriageContract": "Marriage Contract",
+          "MarriageLicense": "Marriage License",
+          "MarriageNotice": "Marriage Notice",
+          "NumberOfChildren": "Number of Children",
+          "Separation": "Separation"
+        },
+        "ParentChild": {
+          "AdoptiveParent": "Adoptive Parent",
+          "BiologicalParent": "Biological Parent",
+          "ChildOrder": "Child Order",
+          "EnteringHeir": "Entering Heir",
+          "ExitingHeir": "Exiting Heir",
+          "FosterParent": "Foster Parent",
+          "GuardianParent": "Guardian Parent",
+          "StepParent": "Step Parent",
+          "SociologicalParent": "Sociological Parent",
+          "SurrogateParent": "Surrogate Parent"
+        }
+      }
     },
     "placeDescription": {
       "places": "Places",
       "jurisdiction": "Jurisdiction"
     },
-    "gender": "Sex",
-    "confidence": "Confidence",
-    "ageQualifier": "with {0} years old",
-    "day": "on {0}",
-    "month": "in {0}",
-    "year": "in {0}",
-    "time": "at {0}",
-    "place": "in {0}",
-    "firstName": "first name",
-    "note": "Note",
-    "evidence": "Evidence",
-    "attribution": {
-      "created": "Created",
-      "modified": "Modified"
+    "sourceDescription": {
+      "resourceTypes": {
+        "Collection": "Collection",
+        "PhysicalArtifact": "Physical Artifact",
+        "DigitalArtifact": "Digital Artifact",
+        "Record": "Record"
+      },
+      "sourceDescription": "Source",
+      "sourceDescriptions": "Sources",
+      "noSourceDescriptions": "There are no sources.",
+      "coverageTitle": "Coverage",
+      "coverage": {
+        "spatial": "spatial",
+        "temporal": "temporal"
+      }
     },
-    "coverage": {
-      "spatial": "spatial",
-      "temporal": "temporal"
+    "time": {
+      "year": "in {0}",
+      "month": "in {0}",
+      "day": "on {0}",
+      "time": "at {0}"
+    },
+    "place": "in {0}",
+    "factQualifier": {
+      "Age": "Age",
+      "ageFormatter": "with {0} years old",
+      "Cause": "Cause",
+      "Religion": "Religion",
+      "Transport": "Transport",
+      "NonConsensual": "Non-Consensual"
     }
   },
-  "byPerson": "by {0}",
   "searchField": {
-    "noPersonFound": "No person with that name found!",
     "searchLabel": "Name:",
     "searchHint": "Jon Doe"
   },
@@ -368,23 +352,21 @@
   },
   "statistics": {
     "title": "Statistics",
+    "loading": "Calculating statistic",
     "location": "Location",
     "birth_month": "birth month",
     "death_month": "death month",
     "lifeExpectancy": "Life Expectancy",
     "marriageAge": "Marriage age"
   },
-  "sourceDescriptions": {
-    "coverage": "Coverage"
-  },
-  "loading": {
-    "familyTree": "Loading family tree",
-    "statistic": "Calculating statistic"
-  },
   "errors": {
     "title": "Whoops, something went wrong",
     "noData": "No data available.",
-    "stack": "Details for developers"
+    "stack": "Details for developers",
+    "noFileError": "No gedcom file selected",
+    "graphLoadingError": "The graph could not be loaded.",
+    "noPersonFound": "No person with that name found!",
+    "noSourceDescriptionError": "Source description {0} could not be found"
   },
   "ctrl": "Ctrl",
   "linkContent": "here"

@@ -111,7 +111,7 @@ function Layout() {
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
       <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.persons}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}</ReactNavLink></li>
       <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}</ReactNavLink></li>
       <li><ReactNavLink
         to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink>

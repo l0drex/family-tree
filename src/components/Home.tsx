@@ -14,7 +14,7 @@ export function Home() {
         className="font-bold text-5xl sm:text-6xl text-center bg-gradient-to-r from-green-900 dark:from-green-600 to-green-600 dark:to-green-300 w-fit mx-auto bg-clip-text text-transparent">Stammbaum</h1>
       <span className="text-xl sm:text-2xl text-center text-neutral-500 block mt-4">Free, Private, Open Source</span>
 
-      <Form submit={strings.home.uploadArticle.openButton}/>
+      <Form submit={strings.home.openButton}/>
       <div className="bg-transparent h-28"></div>
     </div>
   </Main>;
@@ -54,16 +54,16 @@ function Form(props) {
 
       <ButtonLike primary className="mb-4">
         <button onClick={loadTestData}
-                className="px-8 py-4 text-xl min-w-max w-64">{strings.home.uploadArticle.tryItOut}</button>
+                className="px-8 py-4 text-xl min-w-max w-64">{strings.home.tryItOut}</button>
       </ButtonLike>
       {dataExists && <>
         <ButtonLike><Link to="/persons" className="block px-4 py-2 min-w-max w-48 text-center">
-          {strings.form.continueSession}
+          {strings.home.continueSession}
         </Link></ButtonLike>
         <ButtonLike><button onClick={e => {
           e.preventDefault();
           db.clear().then(() => setDataExists(false));
-        }} className="px-4 py-2 min-w-max w-48 text-center">{strings.home.uploadArticle.deleteButton}</button></ButtonLike>
+        }} className="px-4 py-2 min-w-max w-48 text-center">{strings.home.deleteButton}</button></ButtonLike>
       </>}
       <ButtonLike>
         <input type="submit" value={props.submit} className="px-4 py-2 min-w-max w-48 text-center" onClick={e => {
@@ -77,7 +77,7 @@ function Form(props) {
 
 export async function parseFile(gedcomFile) {
   if (!gedcomFile) {
-    return Promise.reject(new Error(strings.form.noFileError));
+    return Promise.reject(new Error(strings.errors.noFileError));
   }
 
   return new Promise<string>((resolve, reject) => {
@@ -86,7 +86,7 @@ export async function parseFile(gedcomFile) {
       if (typeof file.target.result === "string") {
         resolve(file.target.result);
       } else {
-        reject(new Error(strings.form.graphLoadingError))
+        reject(new Error(strings.errors.graphLoadingError))
       }
     }
     readerGedcom.readAsText(gedcomFile);

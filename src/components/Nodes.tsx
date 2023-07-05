@@ -17,7 +17,7 @@ export function Family(props: {locked: boolean, data: GraphFamily, onClicked: (a
           {`💍 ${props.data.marriage}`}
         </text>}
       <text y="4pt">{props.locked ? "🔒" : "➖"}</text>
-      <title>{props.locked ? strings.nodes.lockedFamilyHint : strings.nodes.hideFamilyHint}</title>
+      <title>{props.locked ? strings.tree.lockedFamilyHint : strings.tree.hideFamilyHint}</title>
     </g>
   );
 }
@@ -39,7 +39,7 @@ export function Person(props: {data: GraphPerson, onClick: (person: PersonClass)
       x={graphPerson.x - graphPerson.width / 2} y={graphPerson.y - graphPerson.height / 2}
       width={graphPerson.width} height={graphPerson.height}
       onClick={() => props.onClick(graphPerson.data)}>
-      <div className={"bg rounded-3xl px-4 py-2 bg-gray-200 dark:bg-neutral-800 border-4 dark:font-white" + (props.focused ? " focused" : "")} title={strings.nodes.clickPersonHint}>
+      <div className={"bg rounded-3xl px-4 py-2 bg-gray-200 dark:bg-neutral-800 border-4 dark:font-white" + (props.focused ? " focused" : "")} title={strings.tree.clickPersonHint}>
         <p className="fullName text-center">{graphPerson.getName()}</p>
       </div>
     </foreignObject>

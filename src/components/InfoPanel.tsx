@@ -81,13 +81,13 @@ function InfoPanel() {
     <Sidebar id="info-panel">
       {hasMultipleNames && <Article className="text-lg text-center">
         {person.marriedName && <h2 className="birth-name">
-          {strings.formatString(strings.infoPanel.born, person.birthName)}
+          {strings.formatString(strings.gedcomX.person.born, person.birthName)}
         </h2>}
         {person.alsoKnownAs && <h2 className="alsoKnownAs">
-          {strings.formatString(strings.infoPanel.aka, person.alsoKnownAs)}
+          {strings.formatString(strings.gedcomX.person.aka, person.alsoKnownAs)}
         </h2>}
         {person.nickname && <h2 className="nickname">
-          {strings.formatString(strings.infoPanel.nickname, person.nickname)}
+          {strings.formatString(strings.gedcomX.person.nickname, person.nickname)}
         </h2>}
       </Article>}
 
@@ -128,44 +128,44 @@ function InfoPanel() {
         </ul>
       </Article>}
 
-      <Details title={strings.infoPanel.relationships}>
-        {parents && parents.length > 0 && <Article emoji="👪" title={strings.infoPanel.parents}>
+      <Details title={strings.gedcomX.relationship.relationships}>
+        {parents && parents.length > 0 && <Article emoji="👪" title={strings.gedcomX.relationship.parents}>
           <ul>
             {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {children && children.length > 0 && <Article emoji="🍼" title={strings.infoPanel.children}>
+        {children && children.length > 0 && <Article emoji="🍼" title={strings.gedcomX.relationship.children}>
           <ul>
             {children.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {partner && partner.length > 0 && <Article emoji="❤️️" title={strings.infoPanel.partner}>
+        {partner && partner.length > 0 && <Article emoji="❤️️" title={strings.gedcomX.relationship.partner}>
           <ul>
             {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {godparents && godparents.length > 0 && <Article emoji="⛅" title={strings.infoPanel.godparents}>
+        {godparents && godparents.length > 0 && <Article emoji="⛅" title={strings.gedcomX.relationship.godparents}>
           <ul>
             {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {godchildren && godchildren.length > 0 && <Article emoji="⛅" title={strings.infoPanel.godchildren}>
+        {godchildren && godchildren.length > 0 && <Article emoji="⛅" title={strings.gedcomX.relationship.godchildren}>
           <ul>
             {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {enslavedBy && enslavedBy.length > 0 && <Article emoji="⛓" title={strings.infoPanel.enslavedBy}>
+        {enslavedBy && enslavedBy.length > 0 && <Article emoji="⛓" title={strings.gedcomX.relationship.enslavedBy}>
           <ul>
             {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>
         </Article>}
 
-        {slaves && slaves.length > 0 && <Article emoji="⛓" title={strings.infoPanel.slaves}>
+        {slaves && slaves.length > 0 && <Article emoji="⛓" title={strings.gedcomX.relationship.slaves}>
           <ul>
             {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
           </ul>

@@ -35,10 +35,10 @@ function ViewOptions(props) {
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
         <ButtonLike primary noHover><select id="color-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.colorMode}
                 onChange={props.onColorChanged}>
-          <option value={ColorMode.GENDER}>{strings.gedcomX.gender}</option>
-          <option value={ColorMode.NAME}>{strings.gedcomX.types.namePart.Surname}</option>
-          <option value={ColorMode.AGE}>{strings.gedcomX.qualifiers.fact.Age}</option>
-          <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.confidence}</option>
+          <option value={ColorMode.GENDER}>{strings.gedcomX.person.gender}</option>
+          <option value={ColorMode.NAME}>{strings.gedcomX.person.namePartTypes.Surname}</option>
+          <option value={ColorMode.AGE}>{strings.gedcomX.factQualifier.Age}</option>
+          <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.conclusion.confidence}</option>
         </select></ButtonLike>
       </div>
 
@@ -95,7 +95,7 @@ function Persons() {
   useEffect(() => {
     if (!focusPerson) {
       layoutContext.setHeaderChildren([
-        <Title emoji="🌳">{strings.gedcomX.persons}</Title>
+        <Title emoji="🌳">{strings.gedcomX.person.persons}</Title>
       ]);
       return;
     }

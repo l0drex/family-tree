@@ -11,7 +11,7 @@ import {Link} from "react-router-dom";
 import {Article, Hr, P, ReactLink, Tag, Gallery} from "./GeneralComponents";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
-  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.note} noMargin={props.noMargin}>
+  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note} noMargin={props.noMargin}>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
   </Article>
@@ -36,7 +36,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   let createdString = "";
   if (created || creatorName) {
-    createdString += strings.gedcomX.attribution.created + " ";
+    createdString += strings.gedcomX.conclusion.attribution.created + " ";
     if (created) createdString += formatJDate(created, 18);
     if (created && creatorName) createdString += " ";
   }
@@ -48,20 +48,20 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   let modifiedString = "";
   if (modified || contributorName || message) {
-    modifiedString += strings.gedcomX.attribution.modified + " ";
+    modifiedString += strings.gedcomX.conclusion.attribution.modified + " ";
     if (modified) modifiedString += formatJDate(modified, 18);
     if (modified && contributorName) modifiedString += " ";
   }
 
   return <>
     <P noMargin>
-      {createdString} {creator && strings.formatString(strings.byPerson,
+      {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
       <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
         {creatorName}
       </ReactLink>)}
     </P>
     <P noMargin>
-      {modifiedString} {contributor && strings.formatString(strings.byPerson,
+      {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
       <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
         {contributorName}
       </ReactLink>)}
@@ -81,10 +81,10 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <Article emoji="🗺️" title={strings.sourceDescriptions.coverage}>
+  return <Article emoji="🗺️" title={strings.gedcomX.sourceDescription.coverage}>
     <p>
-      {props.coverage.temporal && <>{`${strings.gedcomX.coverage.temporal}: ${date}`}</>}
-      {props.coverage.spatial && <>{strings.gedcomX.coverage.spatial + ": "} <PlaceReference
+      {props.coverage.temporal && <>{`${strings.gedcomX.sourceDescription.coverage.temporal}: ${date}`}</>}
+      {props.coverage.spatial && <>{strings.gedcomX.sourceDescription.coverage.spatial + ": "} <PlaceReference
         reference={props.coverage.spatial}/></>}
     </p>
   </Article>
@@ -116,7 +116,7 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
   }
 
   return <div className={"text-center"}>
-    <span title={strings.infoPanel.confidenceExplanation}>{strings.infoPanel.confidenceLabel}</span>
+    <span title={strings.gedcomX.conclusion.confidenceExplanation}>{strings.gedcomX.conclusion.confidence}</span>
     <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}
            className="rounded-full">{props.confidence}</meter>
   </div>
@@ -126,7 +126,7 @@ export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
   if (aliases.length < 2) return <></>;
 
   return <P>
-    {strings.formatString(strings.infoPanel.aka,
+    {strings.formatString(strings.gedcomX.person.aka,
       aliases.filter((_, i) => i > 0)
         .map(n => n.getValue())
         .join(', '))}
@@ -175,7 +175,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
         </div>
       })}
     </Gallery>}
-    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.evidence}
+    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.subject.evidence}
                                                   key={i}>
       <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
       <Attribution attribution={e.attribution}/>
@@ -186,7 +186,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
 
 export function ConclusionMisc({conclusion}: { conclusion: gedcomX.Conclusion }) {
   return <>
-    {conclusion.analysis && <Tag>{strings.gedcomX.types.document.Analysis}: <ReactLink
+    {conclusion.analysis && <Tag>{strings.gedcomX.document.types.Analysis}: <ReactLink
       to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
     {conclusion.confidence && <Tag><Confidence confidence={conclusion.confidence}/></Tag>}
   </>

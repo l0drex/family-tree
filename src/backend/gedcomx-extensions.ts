@@ -228,7 +228,7 @@ export function formatJDate(dateObject: Date, length: number) {
     time = dateObject.toLocaleTimeString(strings.getLanguage(), options);
   }
 
-  return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
+  return `${strings.formatString(length >= 10 ? strings.gedcomX.time.day : (length >= 7 ? strings.gedcomX.time.month : strings.gedcomX.time.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time.time, time) : ""}`;
 }
 
 export class Fact extends GedcomX.Fact {
@@ -257,10 +257,10 @@ export class Fact extends GedcomX.Fact {
   toString(): string {
     let value = this.value;
     const type = this.type;
-    let string = strings.gedcomX.types.fact.person[type.substring(baseUri.length)] ?? type;
+    let string = strings.gedcomX.person.factTypes[type.substring(baseUri.length)] ?? type;
 
-    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.maritalStatus) {
-      value = strings.gedcomX.maritalStatus[value];
+    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.person.maritalStatus) {
+      value = strings.gedcomX.person.maritalStatus[value];
     }
 
     string += ((value || value === "0") ? `: ${value}` : "");
@@ -288,7 +288,7 @@ class Qualifier extends GedcomX.Qualifier {
     let string;
     switch (this.name) {
       case PersonFactQualifiers.Age:
-        string = strings.formatString(strings.gedcomX.ageQualifier, this.value);
+        string = strings.formatString(strings.gedcomX.factQualifier.ageFormatter, this.value);
         break;
       case PersonFactQualifiers.Cause:
         string = `(${this.value})`;
