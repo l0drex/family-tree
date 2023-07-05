@@ -13,6 +13,10 @@ export default function SearchField(props: Props) {
   const [hasError, setHasError] = useState(false);
   const input = useRef<HTMLInputElement>();
 
+  const query = window.matchMedia("(max-width: 639px)");
+  const [isSmall, setIsSmall] = useState(query.matches);
+  query.addEventListener("change", event => setIsSmall(event.matches));
+
   useEffect(() => {
     // add keyboard shortcuts
     document.addEventListener("keydown", event => {
@@ -62,7 +66,7 @@ export default function SearchField(props: Props) {
     <form id="name-form" className={`max-w-fit rounded-full px-4 py-1 bg-white bg-opacity-50 dark:bg-opacity-10 ${hasError ? "bg-red-300" : ""}`}
           onSubmit={refocus}>
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
-      <input id="input-name" ref={input} list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" size={10}
+      <input id="input-name" ref={input} list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" size={isSmall ? 12 : 20}
              className="placeholder-neutral-600 dark:placeholder-neutral-400 dark:caret-white dark:text-white bg-transparent focus:outline-none"/>
       <input className="font-normal ml-4" type="submit" value="🔍" onInput={resetError}/>
       {persons && <datalist id="names">
