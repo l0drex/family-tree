@@ -81,6 +81,8 @@ declare module "gedcomx-js" {
 
     setAgents(agents: Agent[] | object[]): Root
 
+    addAgent(agent: Agent | object): Root
+
     getEvents(): Event[]
 
     setEvents(events: Event[] | object[]): Root
@@ -89,19 +91,19 @@ declare module "gedcomx-js" {
 
     getDocuments(): Document[]
 
-    setDocuments(documents: Document[]): Root
+    setDocuments(documents: Document[] | object[]): Root
 
-    addDocument(document: Document): Root
+    addDocument(document: Document | object): Root
 
     getPlaces(): PlaceDescription[]
 
     setPlaces(places: PlaceDescription[]): Root
 
-    addPlace(place: PlaceDescription): Root
+    addPlace(place: PlaceDescription | object): Root
 
     getAttribution(): Attribution
 
-    setAttribution(attribution: Attribution): Root
+    setAttribution(attribution: Attribution | object): Root
   }
 
   export default function GedcomX(json: any): Root;
@@ -119,9 +121,9 @@ declare module "gedcomx-js" {
   export class Attribution extends ExtensibleData {
     changeMessage: string
     contributor: ResourceReference
-    created: Date
+    created
     creator: ResourceReference
-    modified: Date
+    modified
 
     getChangeMessage(): string
 
@@ -131,17 +133,17 @@ declare module "gedcomx-js" {
 
     setContributor(contributor: object | ResourceReference): Attribution
 
-    getCreated(): Date
+    getCreated()
 
-    setCreated(date: Date | Number): Attribution
+    setCreated(date: number): Attribution
 
     getCreator(): ResourceReference
 
-    setCreator(creator: ResourceReference)
+    setCreator(creator: ResourceReference): Attribution
 
-    getModified(): Date
+    getModified()
 
-    setModified(date: Date | Number): Attribution
+    setModified(date: number): Attribution
   }
 
   export class Conclusion extends ExtensibleData {
@@ -154,31 +156,31 @@ declare module "gedcomx-js" {
 
     getAttribution(): Attribution;
 
-    setAttribution(attribution: Attribution);
+    setAttribution(attribution: Attribution): Conclusion;
 
     getAnalysis(): ResourceReference;
 
-    setAnalysis(analysis: ResourceReference);
+    setAnalysis(analysis: ResourceReference): Conclusion;
 
     getConfidence(): string;
 
-    setConfidence(confidence: string);
+    setConfidence(confidence: string): Conclusion;
 
     getLang(): string;
 
-    setLang(lang: string);
+    setLang(lang: string): Conclusion;
 
     getNotes(): Note[];
 
-    setNotes(notes: Note[]);
+    setNotes(notes: Note[]): Conclusion;
 
-    addNote(note: Note);
+    addNote(note: Note): Conclusion;
 
     getSources(): SourceReference[];
 
-    setSources(sources: SourceReference[]);
+    setSources(sources: SourceReference[]): Conclusion;
 
-    addSource(source: SourceReference);
+    addSource(source: SourceReference): Conclusion;
   }
 
   export class EvidenceReference extends ResourceReference {
@@ -235,7 +237,7 @@ declare module "gedcomx-js" {
 
     setCitations(citations: SourceCitation[] | object[]): SourceDescription
 
-    addCitation(citation: SourceCitation | object)
+    addCitation(citation: SourceCitation | object): SourceDescription
 
     getMediaType(): string
 
@@ -255,9 +257,9 @@ declare module "gedcomx-js" {
 
     addSource(source: SourceReference): SourceDescription
 
-    getAnalysis(): string
+    getAnalysis(): ResourceReference
 
-    setAnalysis(analysis: string): SourceDescription
+    setAnalysis(analysis: ResourceReference | object): SourceDescription
 
     getComponentOf(): SourceReference
 
@@ -285,7 +287,7 @@ declare module "gedcomx-js" {
 
     addRight(right: ResourceReference | object): SourceDescription
 
-    getCoverage(): Coverage
+    getCoverage(): Coverage[]
 
     setCoverage(coverage: Coverage[] | object[]): SourceDescription
 
@@ -319,9 +321,9 @@ declare module "gedcomx-js" {
 
     getValues(type?: string): string[]
 
-    setValues(values: string[], type?: string)
+    setValues(values: string[], type?: string): Identifiers
 
-    addValue(value: string, type?: string)
+    addValue(value: string, type?: string): Identifiers
   }
 
   export class Subject extends Conclusion {
@@ -338,7 +340,7 @@ declare module "gedcomx-js" {
 
     setEvidence(evidence: object[] | EvidenceReference[]);
 
-    addEvidence(evidence: object | EvidenceReference)
+    addEvidence(evidence: object | EvidenceReference): Subject
 
     getIdentifiers(): Identifiers
 
@@ -731,7 +733,7 @@ declare module "gedcomx-js" {
     setStreet6(street6: string): Address
   }
 
-  class Event extends Subject {
+  export class Event extends Subject {
     type: string
     date: Date
     place: PlaceReference
@@ -756,7 +758,7 @@ declare module "gedcomx-js" {
     addRole(role: EventRole | object): Event
   }
 
-  class Document extends Conclusion {
+  export class Document extends Conclusion {
     type: string
     extracted: string
     textType: string
@@ -779,7 +781,7 @@ declare module "gedcomx-js" {
     setText(text: string): Document
   }
 
-  class PlaceDescription extends Subject {
+  export class PlaceDescription extends Subject {
     type: string
     names: TextValue[]
     place: ResourceReference
@@ -824,7 +826,7 @@ declare module "gedcomx-js" {
     setSpatialDescription(spatial: ResourceReference): PlaceDescription
   }
 
-  class EventRole extends Conclusion {
+  export class EventRole extends Conclusion {
     person: ResourceReference
     type: string
     details: string
@@ -842,7 +844,7 @@ declare module "gedcomx-js" {
     setDetails(details: string): EventRole
   }
 
-  class Coverage extends ExtensibleData {
+  export class Coverage extends ExtensibleData {
     spatial: PlaceReference
     temporal: Date
 

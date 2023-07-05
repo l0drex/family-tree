@@ -3,7 +3,7 @@ import {RelationshipFactTypes} from "./gedcomx-enums";
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import {db} from "./db";
-import {FamilyView, Person} from "./gedcomx-extensions";
+import {FamilyView, GDate, Person} from "./gedcomx-extensions";
 import {unique} from "../main";
 
 export enum ViewMode {
@@ -17,7 +17,8 @@ export enum ViewMode {
 export enum ColorMode {
   GENDER = "gender",
   AGE = "age",
-  NAME = "name"
+  NAME = "name",
+  CONFIDENCE = "confidence"
 }
 
 type eventTypes = "remove" | "add" | "progress";
@@ -84,7 +85,7 @@ export class ViewGraph implements EventTarget {
     let families: FamilyView[] = await this.getFamilyViews(viewMode, startPerson);
 
     let hideAll = false;
-    if (families.length <= 0) {
+    if (families.length === 0) {
       console.error("No families found!");
       // adding at least the start person with etc-nodes
       families = await this.getFamilyViews(ViewMode.DEFAULT, startPerson);
@@ -97,12 +98,15 @@ export class ViewGraph implements EventTarget {
       families.splice(config.maxElements - 1, families.length - (config.maxElements - 1));
     }
 
-    //await Promise.all(families.map(f => this.showFamily(f)));
     for (const f of families) {
       if (f === undefined) throw new Error("family is undefined");
       await this.showFamily(f);
       if (hideAll) await this.hideFamily(f);
       this.progress += .5/families.length;
+    }
+    if (this.nodes.length === 0) {
+      // adding at least the start person
+      await this.showNode(await this.getGraphPerson(startPerson));
     }
     this.progress = 1;
 
@@ -350,13 +354,12 @@ export class ViewGraph implements EventTarget {
     await this.getMarriageDate(family)
       .then(date => {
         (graphFamily as GraphFamily).marriage = date;
-      }).catch(() => {
-      });
+      }).catch(() => {});
 
     return graphFamily as GraphFamily;
   }
 
-  private async getMarriageDate(family: GedcomX.FamilyView): Promise<GedcomX.Date> {
+  private async getMarriageDate(family: GedcomX.FamilyView): Promise<GDate> {
     // find the correct couple relationship
     let couples1 = await db.getCoupleRelationsOf(family.getParent1());
     let couples2 = await db.getCoupleRelationsOf(family.getParent2());
@@ -366,7 +369,7 @@ export class ViewGraph implements EventTarget {
         c.person2.resource === c2.person2.resource)
     );
 
-    let facts = couple.getFacts();
+    let facts = couple.facts;
     if (facts.length <= 0) {
       return Promise.reject("No facts found.");
     }
@@ -376,7 +379,10 @@ export class ViewGraph implements EventTarget {
       return Promise.reject("No marriage fact found.");
     }
 
-    let date = marriageFact.date;
+    // somehow constructor skips constructing if directly called with data
+    let date = new GDate();
+    date.setFormal(marriageFact.date.formal)
+      .setOriginal(marriageFact.date.original);
     if (!date) return Promise.reject("No marriage date defined.")
     return date;
   }

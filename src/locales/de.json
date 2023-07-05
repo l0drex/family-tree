@@ -1,81 +1,113 @@
 {
+  "header": {
+    "imageAlt": "Ein lächelnder Baum.",
+    "title": "Stammbaum",
+    "navigationMenu": "Menü"
+  },
   "footer": {
     "sourceCode": "Der Quellcode ist auf {0} verfügbar.",
     "imprint": "Impressum & Datenschutzerklärung",
     "bugReport": "Ein Problem melden"
   },
-  "form": {
-    "fileInputLabel": "Gedcom Datei",
-    "continueSession": "Mit letzter Sitzung fortfahren",
-    "noFileError": "Keine Datei ausgewählt",
-    "graphLoadingError": "Der Graph konnte nicht geladen werden."
-  },
-  "header": {
-    "imageAlt": "Ein lächelnder Baum.",
-    "title": "Stammbaum"
-  },
   "home": {
-    "uploadArticle": {
-      "title": "Datei-Upload",
-      "content": "Wähle die Datei über den unteren Knopf aus. Klicke dann auf den grünen Knopf, um den Stammbaum anzuzeigen.",
-      "openButton": "Stammbaum öffnen",
-      "detailSummary": "Woher bekomme ich die Daten?",
-      "detail": "Die Datei muss eine gültige GedcomX Datei im json Format sein, wie {0} beschrieben."
-    },
-    "navigationArticle": {
-      "title": "Bedienung",
-      "content": "Man kann den Stammbaum durch Ziehen mit der Maus verschieben. Hält man {0} gedrückt, kann man mit dem Mausrad rein- bzw. rauszoomen. Klickt man auf eine Person werden weitere Informationen zu dieser angezeigt. An vielen Personen hängen Kreise, in denen \"+\" oder \"-\" steht. Klickt man auf diese, werden weitere Verwandte ein- oder ausgeblendet."
-    }
+    "title": "Startseite",
+    "tryItOut": "Jetzt ausprobieren!",
+    "continueSession": "Sitzung fortsetzen",
+    "deleteButton": "Daten löschen",
+    "openButton": "Datei öffnen"
   },
   "imprint": {
-    "privacyArticle": {
-      "title": "Datenschutzerklärung",
-      "content": "Alle Stammbaum Daten werden ausschließlich lokal verarbeitet und im local Storage des Browsers gespeichert. Der Service wird auf GitHub Pages gehostet, die entsprechende Datenschutzerklärung kann {0} aufgerufen werden."
+    "title": "Datenschutzerklärung",
+    "introduction": "Vielen Dank für Ihren Besuch auf unserer Webseite. Der Schutz Ihrer persönlichen Daten ist uns ein wichtiges Anliegen. Nachfolgend möchten wir Sie darüber informieren, welche Daten während Ihres Besuchs auf unserer Webseite erfasst und wie diese verwendet werden.",
+    "1": {
+      "title": "Verantwortliche Stelle",
+      "content": "Verantwortliche Stelle für die Datenverarbeitung auf dieser Webseite ist:"
     },
-    "imprintArticle": {
-      "title": "Impressum"
-    }
+    "2": {
+      "title": "Erfassung und Verwendung von Daten",
+      "content": {
+        "a": {
+          "title": "Nutzung der Webseite ohne Registrierung",
+          "content": "Sie können unsere Webseite besuchen, ohne personenbezogene Daten anzugeben. Wir erheben und speichern keinerlei persönliche Daten, solange Sie uns diese nicht freiwillig zur Verfügung stellen."
+        },
+        "b": {
+          "title": "Nutzung von Leaflet",
+          "content": "Unsere Webseite verwendet das Leaflet-Kartenframework, um interaktive Karten darzustellen. Dabei werden keine personenbezogenen Daten erfasst oder an Dritte übermittelt. Alle Daten, die Sie über die Kartenfunktion eingeben oder anzeigen lassen, werden ausschließlich lokal in Ihrem Browser gespeichert und verlassen Ihr Gerät nicht."
+        },
+        "c": {
+          "title": "Cookies",
+          "content": "Wir setzen auf unserer Webseite keine Cookies ein. Es werden keine Informationen auf Ihrem Endgerät gespeichert."
+        }
+      }
+    },
+    "3": {
+      "title": "Datensicherheit",
+      "content": "Wir treffen angemessene technische und organisatorische Maßnahmen, um die Sicherheit Ihrer Daten zu gewährleisten und sie vor Manipulation, Verlust, Zerstörung oder dem Zugriff unberechtigter Personen zu schützen. Unsere Sicherheitsmaßnahmen werden entsprechend der technologischen Entwicklung fortlaufend verbessert."
+    },
+    "4": {
+      "title": "Ihre Rechte",
+      "content": "Sie haben das Recht, Auskunft über die zu Ihrer Person gespeicherten Daten zu erhalten. Bei Vorliegen unrichtiger Daten können Sie deren Berichtigung verlangen. Sie können außerdem die Löschung oder Sperrung Ihrer personenbezogenen Daten verlangen, soweit die Speicherung unzulässig oder nicht mehr erforderlich ist. Bitte wenden Sie sich dazu an die oben genannte verantwortliche Stelle."
+    },
+    "5": {
+      "title": "Änderungen dieser Datenschutzerklärung",
+      "content": "Wir behalten uns das Recht vor, diese Datenschutzerklärung bei Bedarf anzupassen, um sie an technische oder rechtliche Entwicklungen anzupassen. Bitte überprüfen Sie diese Datenschutzerklärung regelmäßig, um auf dem neuesten Stand zu bleiben."
+    },
+    "finale": "Wenn Sie Fragen zum Datenschutz auf unserer Webseite haben, können Sie sich gerne an uns wenden. Die Kontaktdaten finden Sie am Anfang dieser Datenschutzerklärung.",
+    "date": "Diese Datenschutzerklärung wurde zuletzt aktualisiert am 05.07.2023."
   },
-  "infoPanel": {
-    "born": "geb.: {0}",
-    "aka": "alias {0}",
-    "nickname": "Spitzname: {0}",
-    "personImageAlt": "Bild von {0}.",
-    "note": "Anmerkung",
-    "source": "Quelle",
-    "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden",
-    "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
-    "confidenceLabel": "Zuversicht: ",
-    "attribution": "Erstellt am {0} von {1}. Bearbeitet am {2} von {3}:",
-    "children": "Kinder",
-    "parents": "Eltern",
-    "partner": "Partner",
-    "godparents": "Paten",
-    "godchildren": "Patenkinder",
-    "enslavedBy": "Versklavt von",
-    "slaves": "Sklaven"
-  },
-  "nodes": {
+  "tree": {
+    "loading": "Lade Stammbaum",
     "lockedFamilyHint": "Diese Familie kann nicht ausgeblendet werden.",
     "hideFamilyHint": "Klicke, um diese Familie auszublenden.",
     "clickPersonHint": "Klicke für weitere Informationen"
   },
   "gedcomX": {
-    "types": {
-      "relationship": {
-        "AncestorDescendant": "Vorfahre - Nachfahre",
-        "Couple": "Paar",
-        "EnslavedBy": "Versklavt von",
-        "Godparent": "Pate",
-        "ParentChild": "Eltern - Kind"
+    "conclusion": {
+      "note": "Anmerkung",
+      "confidence": "Zuversicht",
+      "confidenceExplanation": "Wie sehr kann den Daten vertraut werden",
+      "confidenceLevel": {
+        "High": "Hoch",
+        "Medium": "Mittel",
+        "Low": "Niedrig"
       },
-      "resource": {
-        "Collection": "Sammlung",
-        "PhysicalArtifact": "Physisches Artefakt",
-        "DigitalArtifact": "Digitales Artefakt",
-        "Record": "Aufzeichnung"
+      "attribution": {
+        "created": "Erstellt",
+        "modified": "Geändert",
+        "byPerson": "von {0}"
+      }
+    },
+    "subject": {
+      "evidence": "Beweis",
+      "mediaImageAlt": "Bild von {0}.",
+      "loadingMedia": "Lade Medieninhalt…"
+    },
+    "agent": {
+      "agents": "Agenten",
+      "agent": "Agent",
+      "homepage": "Homepage",
+      "accounts": "Accounts",
+      "onlineAccount": "{0} auf {1}",
+      "person": "Person",
+      "emails": "Emails",
+      "phones": "Telefonnummern",
+      "addresses": "Adressen",
+      "noAgents": "Es sind keine Agenten vorhanden."
+    },
+    "document": {
+      "types": {
+        "Abstract": "Zusammenfassung",
+        "Transcription": "Abschrift",
+        "Translation": "Übersetzung",
+        "Analysis": "Analyse"
       },
-      "event": {
+      "extracted": "extrahiert",
+      "documents": "Dokumente",
+      "document": "Dokument",
+      "noDocuments": "Es sind keine Dokumente vorhanden."
+    },
+    "event": {
+      "types": {
         "Adoption": "Adoption",
         "AdultChristening": "Erwachsenen Taufe",
         "Annulment": "Annulierung",
@@ -111,19 +143,28 @@
         "Ordination": "Priesterweihe",
         "Retirement": "Pensionierung"
       },
-      "document": {
-        "Abstract": "Zusammenfassung",
-        "Transcription": "Abschrift",
-        "Translation": "Übersetzung",
-        "Analysis": "Analyse"
-      },
-      "gender": {
+      "roles": {
+        "Principal": "Auftraggeber / Direktor",
+        "Participant": "Teilnehmer",
+        "Official": "Beamter",
+        "Witness": "Zeuge"
+      }
+    },
+    "person": {
+      "persons": "Personen",
+      "private": "privat",
+      "gender": "Geschlecht",
+      "genderTypes": {
         "Male": "Männlich",
         "Female": "Weiblich",
         "Unknown": "Unbekannt",
         "Intersex": "Intersexuell"
       },
-      "name": {
+      "firstName": "Vorname",
+      "born": "geb.: {0}",
+      "aka": "alias {0}",
+      "nickname": "Spitzname: {0}",
+      "nameTypes": {
         "BirthName": "Geburtsname",
         "MarriedName": "Heiratsname",
         "AlsoKnownAs": "Alias",
@@ -132,144 +173,13 @@
         "FormalName": "Formaler Name",
         "ReligiousName": "Religiöser Name"
       },
-      "fact": {
-        "person": {
-          "Adoption": "Adoption",
-          "AdultChristening": "Erwachsenentaufe",
-          "Amnesty": "Amnestie",
-          "AncestralHall": "Stammeshalle",
-          "AncestralPoem": "Stammesgedicht",
-          "Apprenticeship": "Ausbildung",
-          "Arrest": "Verhaftung",
-          "Award": "Preis",
-          "Baptism": "Taufe",
-          "BarMitzvah": "Bar Mitzvah",
-          "BatMitzvah": "Bat Mitzvah",
-          "Birth": "Geburt",
-          "BirthNotice": "Geburtsanzeige",
-          "Blessing": "Segen",
-          "Branch": "Zweig",
-          "Burial": "Beisetzung",
-          "Caste": "Kaste",
-          "Census": "Volkszählung",
-          "Christening": "Taufe",
-          "Circumcision": "Beschneidung",
-          "Clan": "Clan",
-          "Confirmation": "Konfirmation",
-          "Court": "Gericht",
-          "Cremation": "Einäscherung",
-          "Death": "Tod",
-          "Education": "Ausbildung",
-          "EducationEnrollment": "Einschreibung",
-          "Emigration": "Auswanderung",
-          "Enslavement": "Versklavung",
-          "Ethnicity": "Ethnizität",
-          "Excommunication": "Exkommunikation",
-          "FirstCommunion": "Erstkommunion",
-          "Funeral": "Trauerfeier",
-          "GenderChange": "Geschlechtsänderung",
-          "GenerationNumber": "Generation",
-          "Graduation": "Abschluss",
-          "Heimat": "Heimat",
-          "Immigration": "Einwanderung",
-          "Imprisonment": "Inhaftierung",
-          "Inquest": "Gerichtliche Untersuchung",
-          "LandTransaction": "Grundstückstransaktion",
-          "Language": "Sprache",
-          "Living": "Lebend",
-          "MaritalStatus": "Familienstand",
-          "Medical": "Medizinisch",
-          "MilitaryAward": "Militärauszeichnung",
-          "MilitaryDischarge": "Militär-Entlassung",
-          "MilitaryDraftRegistration": "Militär-Wehrdienst-Registrierung",
-          "MilitaryInduction": "Militär-Einberufung",
-          "MilitaryService": "Militärdienst",
-          "Mission": "Mission",
-          "MoveFrom": "Umzug aus",
-          "MoveTo": "Umzug nach",
-          "MultipleBirth": "Mehrlingsgeburt",
-          "NationalId": "Personalausweisnummer",
-          "Nationality": "Nationalität",
-          "Naturalization": "Einbürgerung",
-          "NumberOfChildren": "Anzahl der Kinder",
-          "NumberOfMarriage": "Anzahl der Eheschließungen",
-          "Obituary": "Todesanzeige",
-          "OfficialPosition": "Offizielle Position",
-          "Occupation": "Beruf",
-          "Ordination": "Ordination",
-          "Pardon": "Begnadigung",
-          "PhysicalDescription": "Körperbeschreibung",
-          "Probate": "Nachlassabwicklung",
-          "Property": "Eigentum",
-          "Race": "Rasse",
-          "Religion": "Religion",
-          "Residence": "Wohnsitz",
-          "Retirement": "Ruhestand",
-          "Stillbirth": "Totgeburt",
-          "TaxAssessment": "Steuerbewertung",
-          "Tribe": "Stamm",
-          "Will": "Testament",
-          "Visit": "Besuch",
-          "Yahrzeit": "Yahrzeit"
-        },
-        "relationship": {
-          "Couple": {
-            "Annulment": "Annullierung",
-            "CommonLawMarriage": "Eingetragene Partnerschaft",
-            "CivilUnion": "Zivilunion",
-            "Divorce": "Scheidung",
-            "DivorceFiling": "Scheidungseinreichung",
-            "DomesticPartnership": "Lebenspartnerschaft",
-            "Engagement": "Verlobung",
-            "Marriage": "Ehe",
-            "MarriageBanns": "Eheaufgebote",
-            "MarriageContract": "Ehevertrag",
-            "MarriageLicense": "Heiratsurkunde",
-            "MarriageNotice": "Heiratsanzeige",
-            "NumberOfChildren": "Anzahl der Kinder",
-            "Separation": "Trennung"
-          },
-          "ParentChild": {
-            "AdoptiveParent": "Adoptiveltern",
-            "BiologicalParent": "Biologische Eltern",
-            "ChildOrder": "Reihenfolge der Kinder",
-            "EnteringHeir": "Eintretender Erbe",
-            "ExitingHeir": "Ausscheidender Erbe",
-            "FosterParent": "Pflegeeltern",
-            "GuardianParent": "Vormund",
-            "StepParent": "Stiefeltern",
-            "SociologicalParent": "Soziologische Eltern",
-            "SurrogateParent": "Ersatzeltern"
-          }
-        }
-      },
-      "role": {
-        "Principal": "Auftraggeber / Direktor",
-        "Participant": "Teilnehmer",
-        "Official": "Beamter",
-        "Witness": "Zeuge"
-      },
-      "namePart": {
+      "namePartTypes": {
         "Prefix": "Präfix",
         "Suffix": "Suffix",
         "Given": "Gegeben",
         "Surname": "Nachname"
-      }
-    },
-    "confidenceLevel": {
-      "High": "Hoch",
-      "Medium": "Mittel",
-      "Low": "Niedrig"
-    },
-    "qualifiers": {
-      "fact": {
-        "Age": "Alter",
-        "Cause": "Ursache",
-        "Religion": "Religion",
-        "Transport": "Transport",
-        "NonConsensual": "Nicht einvernehmlich"
       },
-      "namePart": {
+      "namePartQualifier": {
         "Primary": "primär",
         "Secondary": "sekundär",
         "Middle": "mitte",
@@ -285,29 +195,181 @@
         "Postnom": "Postnom",
         "Particle": "Partikel",
         "RootName": "Wurzelname"
+      },
+      "factTypes": {
+        "Adoption": "Adoption",
+        "AdultChristening": "Erwachsenentaufe",
+        "Amnesty": "Amnestie",
+        "AncestralHall": "Stammeshalle",
+        "AncestralPoem": "Stammesgedicht",
+        "Apprenticeship": "Ausbildung",
+        "Arrest": "Verhaftung",
+        "Award": "Preis",
+        "Baptism": "Taufe",
+        "BarMitzvah": "Bar Mitzvah",
+        "BatMitzvah": "Bat Mitzvah",
+        "Birth": "Geburt",
+        "BirthNotice": "Geburtsanzeige",
+        "Blessing": "Segen",
+        "Branch": "Zweig",
+        "Burial": "Beisetzung",
+        "Caste": "Kaste",
+        "Census": "Volkszählung",
+        "Christening": "Taufe",
+        "Circumcision": "Beschneidung",
+        "Clan": "Clan",
+        "Confirmation": "Konfirmation",
+        "Court": "Gericht",
+        "Cremation": "Einäscherung",
+        "Death": "Tod",
+        "Education": "Ausbildung",
+        "EducationEnrollment": "Einschreibung",
+        "Emigration": "Auswanderung",
+        "Enslavement": "Versklavung",
+        "Ethnicity": "Ethnizität",
+        "Excommunication": "Exkommunikation",
+        "FirstCommunion": "Erstkommunion",
+        "Funeral": "Trauerfeier",
+        "GenderChange": "Geschlechtsänderung",
+        "GenerationNumber": "Generation",
+        "Graduation": "Abschluss",
+        "Heimat": "Heimat",
+        "Immigration": "Einwanderung",
+        "Imprisonment": "Inhaftierung",
+        "Inquest": "Gerichtliche Untersuchung",
+        "LandTransaction": "Grundstückstransaktion",
+        "Language": "Sprache",
+        "Living": "Lebend",
+        "MaritalStatus": "Familienstand",
+        "Medical": "Medizinisch",
+        "MilitaryAward": "Militärauszeichnung",
+        "MilitaryDischarge": "Militär-Entlassung",
+        "MilitaryDraftRegistration": "Militär-Wehrdienst-Registrierung",
+        "MilitaryInduction": "Militär-Einberufung",
+        "MilitaryService": "Militärdienst",
+        "Mission": "Mission",
+        "MoveFrom": "Umzug aus",
+        "MoveTo": "Umzug nach",
+        "MultipleBirth": "Mehrlingsgeburt",
+        "NationalId": "Personalausweisnummer",
+        "Nationality": "Nationalität",
+        "Naturalization": "Einbürgerung",
+        "NumberOfChildren": "Anzahl der Kinder",
+        "NumberOfMarriage": "Anzahl der Eheschließungen",
+        "Obituary": "Todesanzeige",
+        "OfficialPosition": "Offizielle Position",
+        "Occupation": "Beruf",
+        "Ordination": "Ordination",
+        "Pardon": "Begnadigung",
+        "PhysicalDescription": "Körperbeschreibung",
+        "Probate": "Nachlassabwicklung",
+        "Property": "Eigentum",
+        "Race": "Rasse",
+        "Religion": "Religion",
+        "Residence": "Wohnsitz",
+        "Retirement": "Ruhestand",
+        "Stillbirth": "Totgeburt",
+        "TaxAssessment": "Steuerbewertung",
+        "Tribe": "Stamm",
+        "Will": "Testament",
+        "Visit": "Besuch",
+        "Yahrzeit": "Yahrzeit"
+      },
+      "maritalStatus": {
+        "Divorced": "geschieden",
+        "Married": "verheiratet",
+        "Seperated": "getrennt",
+        "Single": "ledig",
+        "Widowed": "verwitwet"
       }
     },
-    "maritalStatus": {
-      "Divorced": "geschieden",
-      "Married": "verheiratet",
-      "Seperated": "getrennt",
-      "Single": "ledig",
-      "Widowed": "verwitwet"
+    "relationship": {
+      "relationships": "Verbundene Personen",
+      "children": "Kinder",
+      "parents": "Eltern",
+      "partner": "Partner",
+      "godparents": "Paten",
+      "godchildren": "Patenkinder",
+      "enslavedBy": "Versklavt von",
+      "slaves": "Sklaven",
+      "types": {
+        "AncestorDescendant": "Vorfahre - Nachfahre",
+        "Couple": "Paar",
+        "EnslavedBy": "Versklavt von",
+        "Godparent": "Pate",
+        "ParentChild": "Eltern - Kind"
+      },
+      "factTypes": {
+        "Couple": {
+          "Annulment": "Annullierung",
+          "CommonLawMarriage": "Eingetragene Partnerschaft",
+          "CivilUnion": "Zivilunion",
+          "Divorce": "Scheidung",
+          "DivorceFiling": "Scheidungseinreichung",
+          "DomesticPartnership": "Lebenspartnerschaft",
+          "Engagement": "Verlobung",
+          "Marriage": "Ehe",
+          "MarriageBanns": "Eheaufgebote",
+          "MarriageContract": "Ehevertrag",
+          "MarriageLicense": "Heiratsurkunde",
+          "MarriageNotice": "Heiratsanzeige",
+          "NumberOfChildren": "Anzahl der Kinder",
+          "Separation": "Trennung"
+        },
+        "ParentChild": {
+          "AdoptiveParent": "Adoptiveltern",
+          "BiologicalParent": "Biologische Eltern",
+          "ChildOrder": "Reihenfolge der Kinder",
+          "EnteringHeir": "Eintretender Erbe",
+          "ExitingHeir": "Ausscheidender Erbe",
+          "FosterParent": "Pflegeeltern",
+          "GuardianParent": "Vormund",
+          "StepParent": "Stiefeltern",
+          "SociologicalParent": "Soziologische Eltern",
+          "SurrogateParent": "Ersatzeltern"
+        }
+      }
     },
-    "gender": "Geschlecht",
-    "confidence": "Zuversicht",
-    "ageQualifier": "mit {0} Jahren",
-    "day": "am {0}",
-    "month": "im {0}",
-    "year": "{0}",
-    "time": "um {0}",
+    "placeDescription": {
+      "places": "Orte",
+      "jurisdiction": "Gerichtsbarkeit",
+      "place": "Externe Beschreibung",
+      "spatialDescription": "KML Datei"
+    },
+    "sourceDescription": {
+      "resourceTypes": {
+        "Collection": "Sammlung",
+        "PhysicalArtifact": "Physisches Artefakt",
+        "DigitalArtifact": "Digitales Artefakt",
+        "Record": "Aufzeichnung"
+      },
+      "sourceDescription": "Quelle",
+      "sourceDescriptions": "Quellen",
+      "coverageTitle": "Abdeckung",
+      "coverage": {
+        "spatial": "räumlich",
+        "temporal": "zeitlich"
+      }
+    },
+    "time": {
+      "year": "{0}",
+      "month": "im {0}",
+      "day": "am {0}",
+      "time": "um {0}"
+    },
     "place": "in {0}",
-    "firstName": "Vorname"
+    "factQualifier": {
+      "Age": "Alter",
+      "ageFormatter": "mit {0} Jahren",
+      "Cause": "Ursache",
+      "Religion": "Religion",
+      "Transport": "Transport",
+      "NonConsensual": "Nicht einvernehmlich"
+    }
   },
   "searchField": {
-    "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
     "searchLabel": "Name:",
-    "searchHint": "Nach einer Person suchen"
+    "searchHint": "Max Mustermann"
   },
   "viewOptions": {
     "filter": {
@@ -323,20 +385,24 @@
     }
   },
   "statistics": {
+    "title": "Statistiken",
+    "loading": "Berechne Statistik",
     "location": "Ort",
     "birth_month": "Geburtsmonat",
     "death_month": "Todesmonat",
     "lifeExpectancy": "Lebenserwartung",
     "marriageAge": "Heiratsalter"
   },
-  "loading": {
-    "familyTree": "Lade Stammbaum",
-    "statistic": "Berechne Statistik"
-  },
   "errors": {
     "title": "Uups, etwas ist schief gelaufen",
-    "no_data": "Wir konnten keine Daten finden. Stelle bitte sicher, dass du eine Datei {0} ausgewählt hast."
+    "noData": "Keine Daten vorhanden.",
+    "stack": "Entwicklerdetails",
+    "noFileError": "Keine Datei ausgewählt",
+    "graphLoadingError": "Der Graph konnte nicht geladen werden.",
+    "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
+    "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden"
   },
   "ctrl": "Strg",
-  "linkContent": "hier"
+  "linkContent": "hier",
+  "externalContentButton": "Externe Inhalte anzeigen"
 }

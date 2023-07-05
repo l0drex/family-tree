@@ -20,8 +20,8 @@ test("finds person", async () => {
   await expect(db.personWithId("1")).resolves.toBeInstanceOf(GedcomX.Person);
   await expect(db.personWithId("13")).resolves.toBeInstanceOf(GedcomX.Person);
 
-  await expect(db.personWithId(undefined)).rejects.toBe(undefined);
-  await expect(db.personWithId("")).rejects.toBe("");
+  await expect(db.personWithId(undefined)).rejects.toThrow("Could not parse resource!");
+  await expect(db.personWithId("")).rejects.toThrow("Could not parse resource!");
 })
 
 test("finds children", async () => {
@@ -134,4 +134,8 @@ test("finds descendants", async () => {
 
   descendants = await db.getDescendants("7");
   expect(descendants).toHaveLength(1);
+})
+
+it("finds person with name", async () => {
+  await expect(db.personWithName("Husband").then(p => p.getId())).resolves.toBe("1");
 })

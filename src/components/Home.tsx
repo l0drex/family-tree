@@ -1,82 +1,101 @@
 import * as React from "react";
-import Header from "./Header";
-import {strings} from "../main";
-import Form from "./Form";
-import "./Article.css";
+import {useEffect, useState} from "react";
+import {hasData, strings} from "../main";
+import {ButtonLike} from "./GeneralComponents";
+import {Main} from "../App";
+import {Link, useNavigate} from "react-router-dom";
+import {db} from "../backend/db";
+import getTestData from "../backend/TestData";
 
 export function Home() {
-  return <>
-    <Header/>
-    <main>
-      <Uploader/>
-      <NavigationTutorial/>
-    </main>
-  </>;
+  return <Main>
+    <div className="flex flex-col h-full justify-center">
+      <h1
+        className="font-bold text-5xl sm:text-6xl text-center bg-gradient-to-r from-green-900 dark:from-green-600 to-green-600 dark:to-green-300 w-fit mx-auto bg-clip-text text-transparent">Stammbaum</h1>
+      <span className="text-xl sm:text-2xl text-center text-neutral-500 block mt-4">Free, Private, Open Source</span>
+
+      <Form submit={strings.home.openButton}/>
+      <div className="bg-transparent h-28"></div>
+    </div>
+  </Main>;
 }
 
-function Uploader() {
-  let root = document.getElementById("root");
-  root.classList.remove("sidebar-visible");
+function Form(props) {
+  const [dataExists, setDataExists] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let familyData = localStorage.getItem("familyData");
+    if (familyData) {
+      db.load(JSON.parse(familyData)).then(() => setDataExists(true));
+      localStorage.removeItem("familyData");
+    } else hasData().then(setDataExists);
+  }, [])
+
+  let input = React.createRef<HTMLInputElement>();
+
+  function loadTestData(e) {
+    e.preventDefault();
+    saveDataAndRedirect(getTestData(), navigate);
+  }
 
   return (
-    <Article title={strings.home.uploadArticle.title} emoji="📁">
-      <p>
-        {strings.home.uploadArticle.content}
-      </p>
-      <Form submit={strings.home.uploadArticle.openButton}/>
-      <details>
-        <summary><span className="emoji">🗒️</span> {strings.home.uploadArticle.detailSummary}</summary>
-        <p>
-          {strings.formatString(strings.home.uploadArticle.detail,
-            <a href="https://github.com/FamilySearch/gedcomx/blob/master/specifications/json-format-specification.md">
-              {strings.linkContent}</a>)}
-        </p>
-      </details>
-    </Article>
+    <form id="upload-form" encType="multipart/form-data" onSubmit={event => {
+      event.preventDefault();
+      parseFile(input.current.files[0])
+        .then(t => JSON.parse(t))
+        .then(data => saveDataAndRedirect(data, navigate));
+    }} className="mt-20 flex flex-col gap-4 items-center">
+      <input type="file" id="gedcom-file" accept="application/json" hidden
+             onChange={() => parseFile(input.current.files[0])
+               .then(t => JSON.parse(t))
+               .then(d => saveDataAndRedirect(d, navigate))}
+             ref={input}/>
+
+      <ButtonLike primary className="mb-4">
+        <button onClick={loadTestData}
+                className="px-8 py-4 text-xl min-w-max w-64">{strings.home.tryItOut}</button>
+      </ButtonLike>
+      {dataExists && <>
+        <ButtonLike><Link to="/persons" className="block px-4 py-2 min-w-max w-48 text-center">
+          {strings.home.continueSession}
+        </Link></ButtonLike>
+        <ButtonLike><button onClick={e => {
+          e.preventDefault();
+          db.clear().then(() => setDataExists(false));
+        }} className="px-4 py-2 min-w-max w-48 text-center">{strings.home.deleteButton}</button></ButtonLike>
+      </>}
+      <ButtonLike>
+        <input type="submit" value={props.submit} className="px-4 py-2 min-w-max w-48 text-center hover:cursor-pointer" onClick={e => {
+          e.preventDefault();
+          input.current?.click();
+        }}/>
+      </ButtonLike>
+    </form>
   );
 }
 
-function Article(props) {
-  return (
-    <article lang={props.lang}>
-      <h1><span className="emoji">{props.emoji}</span> {props.title}</h1>
-      {props.children}
-    </article>
-  );
+export async function parseFile(gedcomFile) {
+  if (!gedcomFile) {
+    return Promise.reject(new Error(strings.errors.noFileError));
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    let readerGedcom = new FileReader();
+    readerGedcom.onload = (file) => {
+      if (typeof file.target.result === "string") {
+        resolve(file.target.result);
+      } else {
+        reject(new Error(strings.errors.graphLoadingError))
+      }
+    }
+    readerGedcom.readAsText(gedcomFile);
+  });
 }
 
+export function saveDataAndRedirect(data: object, navigate: (url: string) => void) {
+  if (typeof data !== "object") throw new Error("Data type is invalid!")
 
-function NavigationTutorial() {
-  return <Article title={strings.home.navigationArticle.title} emoji="🖥">
-  <p>
-    {strings.formatString(strings.home.navigationArticle.content,
-      <kbd>{strings.ctrl}</kbd>)}
-  </p>
-  </Article>
+  db.load(data).then(() => navigate("/persons"));
 }
 
-export function Imprint() {
-  return <>
-    <Header/>
-    <main>
-      <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
-        <p>
-          {strings.formatString(strings.imprint.privacyArticle.content,
-            <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
-              {strings.linkContent}
-            </a>)}
-        </p>
-      </Article>
-      <Article title={strings.imprint.imprintArticle.title} emoji="📇">
-        <p>
-          <address>
-            Hoffmann, Lorenz <br/>
-            Robert-Sterl Str 5c <br/>
-            01219 Dresden <br/>
-            <a href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</a>
-          </address>
-        </p>
-      </Article>
-    </main>
-  </>
-}

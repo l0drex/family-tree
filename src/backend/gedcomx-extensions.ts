@@ -1,12 +1,11 @@
 import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
-import config from "../config";
 import {
-  baseUri,
+  baseUri, DocumentTypes, KnownResourceTypes,
   NameTypes,
   PersonFactQualifiers,
-  PersonFactTypes
+  PersonFactTypes, TextTypes
 } from "./gedcomx-enums";
 import * as factEmojis from './factEmojies.json';
 import {
@@ -14,6 +13,10 @@ import {
 } from "./gedcomx-types";
 
 export class Person extends GedcomX.Person {
+  get isPrivate(): boolean {
+    return Boolean(this.getPrivate());
+  }
+
   get generation(): undefined | number {
     if (!this.facts) return undefined;
     let generationFacts = this.facts.filter(f => f.type === PersonFactTypes.GenerationNumber);
@@ -54,7 +57,7 @@ export class Person extends GedcomX.Person {
       return "?";
     }
     // name form that matches language, or if none matches return the first without lang
-    let nameForm = new GedcomX.NameForm(name.nameForms.find(filterPureLang) ?? name.nameForms[0]);
+    let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
     return nameForm.getFullText(true);
   }
 
@@ -112,7 +115,13 @@ export class Person extends GedcomX.Person {
     return Math.floor((date.getTime() - birthDate.getTime()) / 31536000000);
   }
 
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
+
   setFacts(facts: Fact[] | object[]): Person {
+    if (!facts) return this;
+
     facts = facts.map(f => f instanceof Fact ? f : new Fact(f));
     super.setFacts(facts);
     return this;
@@ -148,7 +157,7 @@ export class Relationship extends GedcomX.Relationship {
 export class GDate extends GedcomX.Date {
   toDateObject() {
     let dateString = this.formal;
-    if (!dateString || !isNaN(Number(dateString.substring(0, 1)))) {
+    if (!dateString) {
       return undefined;
     }
 
@@ -158,7 +167,7 @@ export class GDate extends GedcomX.Date {
         // add minutes if only hour is given to prevent undefined return
         dateString += ":00"
       }
-      dateString += "Z";
+      if (!dateString.endsWith("Z")) dateString += "Z";
     }
     if (dateString[0] === "+") {
       // should be ok, but isn't
@@ -174,55 +183,58 @@ export class GDate extends GedcomX.Date {
   }
 
   toString() {
-    if (!this.formal && this.original) {
-      return this.original;
+    if (!this.formal) {
+      if (this.original) return this.original;
+      else return "";
     }
 
     let dateObject = this.toDateObject();
     if (!dateObject) {
-      return "";
+      return this.formal;
     }
-
-    let options = {};
-    options["year"] = "numeric";
-    switch (this.formal.length) {
-      case 5:
-        break;
-      case 8:
-        // year and month are known
-        options["month"] = "long";
-        break;
-      default:
-        // full date is known
-        options["month"] = "2-digit";
-        options["day"] = "2-digit";
-        break;
-    }
-    let date = dateObject.toLocaleDateString(config.browserLang, options);
-
-    let time = "";
-    if (this.formal.length >= 14) {
-      options = {};
-      options["hour"] = "2-digit";
-
-      if (this.formal.length >= 17) {
-        options["minute"] = "2-digit";
-      }
-      if (this.formal.length >= 20) {
-        options["second"] = "2-digit";
-      }
-      time = dateObject.toLocaleTimeString(config.browserLang, options);
-    }
-
-    const length = this.formal.length;
-
-    return `${strings.formatString(length >= 10 ? strings.gedcomX.day : (length >= 7 ? strings.gedcomX.month : strings.gedcomX.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time, time) : ""}`;
+    else return formatJDate(dateObject, this.formal.length);
   }
 }
 
+export function formatJDate(dateObject: Date, length: number) {
+  let options = {};
+  options["year"] = "numeric";
+  switch (length) {
+    case 5:
+      break;
+    case 8:
+      // year and month are known
+      options["month"] = "long";
+      break;
+    default:
+      // full date is known
+      options["month"] = "2-digit";
+      options["day"] = "2-digit";
+      break;
+  }
+  let date = dateObject.toLocaleDateString(strings.getLanguage(), options);
+
+  let time = "";
+  if (length >= 14) {
+    options = {};
+    options["hour"] = "2-digit";
+
+    if (length >= 17) {
+      options["minute"] = "2-digit";
+    }
+    if (length >= 20) {
+      options["second"] = "2-digit";
+    }
+    time = dateObject.toLocaleTimeString(strings.getLanguage(), options);
+  }
+
+  return `${strings.formatString(length >= 10 ? strings.gedcomX.time.day : (length >= 7 ? strings.gedcomX.time.month : strings.gedcomX.time.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time.time, time) : ""}`;
+}
+
 export class Fact extends GedcomX.Fact {
-  setDate(date: Date | object): Fact {
-    super.setDate(new GDate(date));
+  setDate(date: GedcomX.Date | object): Fact {
+    if (date && !(date instanceof GDate)) date = new GDate(date);
+    super.setDate(date);
     return this;
   }
 
@@ -230,8 +242,9 @@ export class Fact extends GedcomX.Fact {
     return super.getDate() as GDate;
   }
 
-  setPlace(place: PlaceReference | object): Fact {
-    super.setPlace(new PlaceReference(place));
+  setPlace(place: GedcomX.PlaceReference | object): Fact {
+    if (place && !(place instanceof PlaceReference)) place = new PlaceReference(place);
+    super.setPlace(place);
     return this;
   }
 
@@ -244,15 +257,15 @@ export class Fact extends GedcomX.Fact {
   toString(): string {
     let value = this.value;
     const type = this.type;
-    let string = strings.gedcomX.types.fact.person[type.substring(baseUri.length)] ?? type;
+    let string = strings.gedcomX.person.factTypes[type.substring(baseUri.length)] ?? type;
 
-    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.maritalStatus) {
-      value = strings.gedcomX.maritalStatus[value];
+    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.person.maritalStatus) {
+      value = strings.gedcomX.person.maritalStatus[value];
     }
 
     string += ((value || value === "0") ? `: ${value}` : "");
-    string += (this.date !== undefined ? ` ${this.date.toString()}` : "") +
-      (this.place && this.place.toString() ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
+    string += (this.date ? ` ${this.date}` : "") +
+      (this.place ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
 
     if (this.qualifiers && this.qualifiers.length > 0) {
       string += " " + this.qualifiers.map(q => q.toString()).join(" ");
@@ -275,7 +288,7 @@ class Qualifier extends GedcomX.Qualifier {
     let string;
     switch (this.name) {
       case PersonFactQualifiers.Age:
-        string = strings.formatString(strings.gedcomX.ageQualifier, this.value);
+        string = strings.formatString(strings.gedcomX.factQualifier.ageFormatter, this.value);
         break;
       case PersonFactQualifiers.Cause:
         string = `(${this.value})`;
@@ -320,6 +333,73 @@ export class FamilyView extends GedcomX.FamilyView implements Equals {
       parentResources.includes(family.parent2.resource);
     return parentEqual;
   }
+}
+
+export class SourceDescription extends GedcomX.SourceDescription {
+  get title() {
+    if (this.getTitles().length > 0) return this.getTitles()[0].value;
+    return this.getCitations()[0].getValue();
+  }
+
+  get emoji() {
+    switch (this.getResourceType()) {
+      case KnownResourceTypes.Collection:
+        return "📚";
+      case KnownResourceTypes.PhysicalArtifact:
+        return "📖";
+      case KnownResourceTypes.DigitalArtifact:
+        return "💿";
+      case KnownResourceTypes.Record:
+        return "📜";
+    }
+
+    return "📖";
+  }
+}
+
+export class Document extends GedcomX.Document {
+  get isPlainText() {
+    // return true if text type is plain or undefined
+    return !this.getTextType() || this.getTextType() === TextTypes.Plain;
+  }
+
+  get isXHTML() {
+    return this.getTextType() === TextTypes.XHtml;
+  }
+
+  get isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
+
+  // todo get attribution from containing data set
+
+  get emoji(): string {
+    switch (this.getType()) {
+      case DocumentTypes.Abstract:
+        return "📄";
+      case DocumentTypes.Transcription:
+        return "📝";
+      case DocumentTypes.Translation:
+        return "🌍";
+      case DocumentTypes.Analysis:
+        return "🔍";
+      default:
+        return "📄";
+    }
+  }
+}
+
+export class Agent extends GedcomX.Agent {
+  get name(): string {
+    if (!this.names || this.names.length === 0) return undefined;
+    return this.names[0].value;
+  }
+}
+
+export class PlaceDescription extends GedcomX.PlaceDescription {
+ isExtracted(): boolean {
+   return Boolean(this.extracted);
+ }
 }
 
 let referenceAge: { age: number, generation: number } = {
