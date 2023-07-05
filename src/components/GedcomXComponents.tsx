@@ -159,7 +159,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
           <div className="relative">
             <Media mimeType={m.mediaType} url={m.getAbout()} alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
             <div
-              className="absolute bottom-0 py-1 px-4 text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+              className="absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
               © <a href={m.getAbout()}>{credit}</a>
             </div>
           </div>

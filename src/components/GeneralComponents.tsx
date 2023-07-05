@@ -90,7 +90,7 @@ export function Hr() {
 }
 
 export function Loading(props: {text: string, value?: number, max?: number}) {
-  return <div className="text-center">
+  return <div className="text-center h-full py-4 px-4 flex flex-col justify-center items-center">
     <label htmlFor="progress-bar">{props.text}</label>
     <progress id="progress-bar" value={props.value} max={props.max} className="mt-2 rounded-full bg-white dark:bg-opacity-30"></progress>
   </div>
@@ -148,13 +148,13 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
   if (mimeType.startsWith("text")) {
     media = <p>{text}</p>
   } else {
-    media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`} onLoad={e => setLoaded(true)}>
+    media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`} onLoad={() => setLoaded(true)}>
       {alt}
     </object>;
   }
 
   return <ExternalContent>
     {media}
-    {!loaded && <div className="w-full pt-4 pb-28 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">{<Loading text={strings.gedcomX.subject.loadingMedia}/>}</div>}
+    {!loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">{<Loading text={strings.gedcomX.subject.loadingMedia}/>}</div>}
   </ExternalContent>
 }
