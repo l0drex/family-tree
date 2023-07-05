@@ -4,7 +4,7 @@ import {strings} from "./main";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {db} from "./backend/db";
 import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
-import {Home, Imprint} from "./components/Home";
+import {Home} from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
 import {SourceDescriptionOverview, SourceDescriptionView} from "./components/SourceDescriptions";
@@ -14,6 +14,7 @@ import {PlaceDescription} from "gedcomx-js";
 import {PlaceOverview, PlaceView} from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";
+import {Imprint} from "./components/Imprint";
 
 const router = createBrowserRouter([
   {

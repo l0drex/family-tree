@@ -1,8 +1,8 @@
 import * as React from "react";
-import {hasData, strings} from "../main";
-import {Article, ButtonLike, VanillaLink} from "./GeneralComponents";
-import {Main} from "../App";
 import {useEffect, useState} from "react";
+import {hasData, strings} from "../main";
+import {ButtonLike} from "./GeneralComponents";
+import {Main} from "../App";
 import {Link, useNavigate} from "react-router-dom";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";
@@ -99,25 +99,3 @@ export function saveDataAndRedirect(data: object, navigate: (url: string) => voi
   db.load(data).then(() => navigate("/persons"));
 }
 
-export function Imprint() {
-  return <Main>
-    <Article title={strings.imprint.privacyArticle.title} emoji="🔐">
-      <p>
-        {strings.formatString(strings.imprint.privacyArticle.content,
-          <VanillaLink href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
-            {strings.linkContent}
-          </VanillaLink>)}
-      </p>
-    </Article>
-    <Article title={strings.imprint.imprintArticle.title} emoji="📇">
-      <p>
-        <address>
-          Hoffmann, Lorenz <br/>
-          Robert-Sterl Str 5c <br/>
-          01219 Dresden <br/>
-          <VanillaLink href="mailto:hoffmann_lorenz@protonmail.com">hoffmann_lorenz@protonmail.com</VanillaLink>
-        </address>
-      </p>
-    </Article>
-  </Main>
-}
