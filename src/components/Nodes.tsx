@@ -112,21 +112,19 @@ export function Person(
         return d3.scaleSequential()
           .domain([0, 120])
           .interpolator(d => {
-            if (d < 10) return "green-100";
-            if (d < 20) return "green-200";
-            if (d < 30) return "green-300";
-            if (d < 40) return "green-400";
-            if (d < 50) return "green-500";
-            if (d < 60) return "green-600";
-            if (d < 70) return "green-700";
-            if (d < 80) return "green-800";
-            if (d < 90) return "green-900";
-          })(d)
+            // map d of range 0...1 to 100...900
+
+            if (d < .1) return "green-100";
+            if (d > .9) return "green-900";
+
+            let greenValue = (Math.floor(d * 10) + 1) * 100;
+            return `green-${greenValue}`
+          })(d);
       }
 
       const age = graphPerson.data.getAgeAt(new Date());
-      background = `${ageColor(age)}`;
-      foreground = (graphPerson.data.isLiving && age && age > 70) ? "white" : "black";
+      background = ageColor(age);
+      foreground = (age && age > 70) ? "white" : "black";
       break;
 
     case ColorMode.CONFIDENCE:
