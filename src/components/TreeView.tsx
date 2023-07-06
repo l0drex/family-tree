@@ -12,7 +12,7 @@ import {Loading} from "./GeneralComponents";
 import {strings} from "../main";
 import {FocusPersonContext} from "./Persons";
 import {Confidence} from "../backend/gedcomx-enums";
-import {start} from "repl";
+import colors from "tailwindcss/colors";
 
 const d3cola = cola.d3adaptor(d3);
 
@@ -175,16 +175,50 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
   personNode.select(".bg").attr("style", null);
 
   switch (colorMode) {
+    case ColorMode.GENDER: {
+      const genderColor = d => {
+        if (d === "unknown") return "";
+        return d3.scaleOrdinal(["female", "male", "intersex"], [colors.red["500"], colors.blue["500"], colors.green["500"]])(d)
+      };
+      personNode
+        .select(".bg")
+        .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "")
+        .style("border-color", (d: GraphPerson) => genderColor(d.getGender()))
+        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid")
+        .classed("text-white", d => !darkMode && d.data.isLiving && d.getGender() !== "unknown")
+      personNode
+        .select(".focused")
+        .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
+      break;
+    }
     case ColorMode.NAME: {
       let last_names = graph.nodes.filter(n => n instanceof GraphPerson)
         .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
       last_names = Array.from(new Set(last_names));
-      const nameColor = d3.scaleOrdinal(last_names, d3.schemeSet3)
+      const nameColor = d3.scaleOrdinal(last_names, [
+        colors.red["500"],
+        colors.orange["500"],
+        colors.amber["500"],
+        colors.yellow["500"],
+        colors.lime["500"],
+        colors.green["500"],
+        colors.emerald["500"],
+        colors.teal["500"],
+        colors.cyan["500"],
+        colors.sky["500"],
+        colors.blue["500"],
+        colors.indigo["500"],
+        colors.violet["500"],
+        colors.purple["500"],
+        colors.fuchsia["500"],
+        colors.pink["500"],
+        colors.rose["500"]
+      ])
       personNode
         .select(".bg")
         .classed("border-none", true)
         .style("background-color", d => nameColor(d.getName().split(" ").reverse()[0]))
-        .classed("text-black", true)
+        .classed("text-white", true)
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${nameColor(d.getName().split(" ").reverse()[0])}`);
@@ -209,32 +243,17 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
         .style("box-shadow", d => `0 0 1rem ${d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : ""}`);
       break;
     }
-    case ColorMode.GENDER: {
-      const genderColor = d => {
-        if (d === "unknown") return "";
-        return d3.scaleOrdinal(["female", "male", "intersex"], d3.schemeSet1)(d)
-      };
-      personNode
-        .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "")
-        .style("border-color", (d: GraphPerson) => genderColor(d.getGender()))
-        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid")
-        .classed("text-white", d => !darkMode && d.data.isLiving && d.getGender() !== "unknown")
-      personNode
-        .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
-      break;
-    }
     case ColorMode.CONFIDENCE: {
       const confidenceColor = d => {
         if (!d) return "";
-        return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High], d3.schemeRdYlGn[3])(d)
+        return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High],
+          [colors.red["500"], colors.yellow["500"], colors.green["500"]])(d)
       }
       personNode
         .select(".bg")
         .classed("border-none", true)
         .style("background-color", d => confidenceColor(d.data.getConfidence() as Confidence))
-        .classed("text-black", true);
+        .classed("text-white", d => !!d.data.getConfidence());
       personNode
         .select(".focused")
         .style("box-shadow", d => `0 0 1rem ${confidenceColor(d.data.getConfidence() as Confidence)}`);
