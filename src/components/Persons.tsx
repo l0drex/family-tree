@@ -88,7 +88,7 @@ function Persons() {
         return;
       }
 
-      navigate(`/persons/${newFocus.getId()}`);
+      navigate(`/persons/${newFocus.getId()}?${searchParams.toString()}`);
     }
   }, [focusPerson, focusHidden, navigate]);
 

@@ -1,5 +1,5 @@
 import {Node} from "./Nodes";
-import {useContext, useEffect, useMemo, useState} from "react";
+import {createContext, useContext, useEffect, useMemo, useState} from "react";
 import config from "../config";
 import * as d3 from "d3";
 import {Graph} from "@visx/network";
@@ -7,12 +7,10 @@ import * as cola from "webcola";
 import {EventType} from "webcola";
 import * as GedcomX from "gedcomx-js";
 import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
-import {GraphFamily, GraphObject, GraphPerson} from "../backend/graph";
+import {GraphFamily, GraphPerson} from "../backend/graph";
 import {Loading} from "./GeneralComponents";
 import {strings} from "../main";
 import {FocusPersonContext} from "./Persons";
-import {Confidence} from "../backend/gedcomx-enums";
-import colors from "tailwindcss/colors";
 
 const d3cola = cola.d3adaptor(d3);
 
@@ -29,9 +27,10 @@ interface Props {
   viewMode: ViewMode
 }
 
+export const GraphContext = createContext<ViewGraph>(undefined);
+
 function TreeView(props: Props) {
   const [viewGraphState, setViewGraphState] = useState(LoadingState.NOT_STARTED);
-  const [isDarkColorscheme, setIsDarkColorscheme] = useState(window.matchMedia("(prefers-color-scheme: dark)").matches);
   const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
   const [viewGraphProgress, setProgress] = useState(0);
   const startPerson = useContext(FocusPersonContext);
@@ -63,8 +62,8 @@ function TreeView(props: Props) {
       return;
     }
     setupCola()
-      .then(() => animateTree(viewGraph, props.colorMode, isLandscape, isDarkColorscheme));
-  }, [viewGraph, viewGraphState, props.colorMode, isLandscape, isDarkColorscheme, props.focusHidden]);
+      .then(() => animateTree(viewGraph, isLandscape));
+  }, [viewGraph, viewGraphState, isLandscape, props.focusHidden]);
 
   function onEtcClicked(family: GraphFamily) {
     setViewGraphState(LoadingState.LOADING);
@@ -72,26 +71,8 @@ function TreeView(props: Props) {
       .then(() => setViewGraphState(LoadingState.FINISHED));
   }
 
-  function onFamilyClicked(family: GraphFamily) {
-    setViewGraphState(LoadingState.LOADING);
-    viewGraph.hideFamily(family)
-      .then(() => setViewGraphState(LoadingState.FINISHED));
-  }
-
-  window.matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", e => setIsDarkColorscheme(e.matches));
-
   window.matchMedia("(orientation: landscape)")
     .addEventListener("change", (e) => setIsLandscape(e.matches));
-
-  let currentTransform = "";
-  if (svgZoom) {
-    let svg = d3.select<SVGElement, undefined>("#family-tree");
-    let rect = svg.select<SVGRectElement>("rect").node();
-    if (rect) {
-      currentTransform = d3.zoomTransform(rect).toString();
-    }
-  }
 
   if (viewGraphState !== LoadingState.FINISHED) {
     return <Loading text={strings.tree.loading} value={viewGraphProgress}/>
@@ -100,6 +81,7 @@ function TreeView(props: Props) {
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" className="flex-grow rounded-b-2xl">
       <rect id='background' width='100%' height='100%' className="fill-white dark:fill-black"/>
+      <GraphContext.Provider value={viewGraph}>
       <Graph graph={viewGraph}
              nodeComponent={({node}) =>
                <Node data={node}
@@ -107,10 +89,13 @@ function TreeView(props: Props) {
                      onFamilyClick={onEtcClicked}
                      onEtcClick={onEtcClicked}
                      startPerson={startPerson}
-                     focusHidden={props.focusHidden}/>}
+                     focusHidden={props.focusHidden}
+                     colorMode={props.colorMode}
+               />}
              linkComponent={() => (
                <path className="link stroke-2 stroke-black dark:stroke-white fill-none"/>
              )}/>
+      </GraphContext.Provider>
     </svg>
   );
 }
@@ -149,7 +134,7 @@ async function setupCola() {
   svg.select<SVGElement>("rect").call(svgZoom);
 }
 
-async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: boolean, darkMode: boolean) {
+async function animateTree(graph: ViewGraph, isLandscape: boolean) {
   let iterations = graph.nodes.length < 100 ? 10 : 0;
   d3cola
     .symmetricDiffLinkLengths(config.gridSize);
@@ -170,113 +155,6 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
     .data(graph.nodes.filter(n => n.type === "etc"));
   let link = visxGroup.selectAll(".link")
     .data(graph.links);
-
-  // reset style
-  personNode.select(".bg").attr("style", null);
-
-  switch (colorMode) {
-    case ColorMode.GENDER: {
-      const genderColor = d => {
-        if (d === "unknown") return "";
-        return d3.scaleOrdinal(["female", "male", "intersex"], [colors.red["500"], colors.blue["500"], colors.green["500"]])(d)
-      };
-      personNode
-        .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.isLiving ? genderColor(d.getGender()) : "")
-        .style("border-color", (d: GraphPerson) => genderColor(d.getGender()))
-        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid")
-        .classed("text-white", d => !darkMode && d.data.isLiving && d.getGender() !== "unknown")
-      personNode
-        .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${genderColor(d.getGender())}`);
-      break;
-    }
-    case ColorMode.NAME: {
-      let last_names = graph.nodes.filter(n => n instanceof GraphPerson)
-        .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
-      last_names = Array.from(new Set(last_names));
-      const nameColor = n => {
-        if (!n) return "";
-
-        return d3.scaleOrdinal(last_names, [
-          colors.red["500"],
-          colors.orange["500"],
-          colors.amber["500"],
-          colors.yellow["500"],
-          colors.lime["500"],
-          colors.green["500"],
-          colors.emerald["500"],
-          colors.teal["500"],
-          colors.cyan["500"],
-          colors.sky["500"],
-          colors.blue["500"],
-          colors.indigo["500"],
-          colors.violet["500"],
-          colors.purple["500"],
-          colors.fuchsia["500"],
-          colors.pink["500"],
-          colors.rose["500"]
-        ])(n)
-      }
-      personNode
-        .select(".bg")
-        .classed("border-none", true)
-        .style("background-color", d => nameColor(d.data.surname))
-        .classed("text-white", d => !darkMode && d.data.surname !== undefined)
-      personNode
-        .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${nameColor(d.data.surname)}`);
-      break;
-    }
-    case ColorMode.AGE: {
-      const ageColor = d => {
-        if (!d) return "";
-        return d3.scaleSequential()
-          .domain([0, 120])
-          .interpolator((d) => darkMode ? d3.interpolateYlGn(d) : d3.interpolateYlGn(1 - d))(d)
-      }
-      personNode
-        .select(".bg")
-        .style("background-color", (d: GraphPerson) => d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : "")
-        .classed("text-black", (d: GraphPerson) => darkMode && d.data.isLiving)
-        .classed("text-white", (d: GraphPerson) => !darkMode && d.data.isLiving && d.data.getAgeAt(new Date()) < 70)
-        .style("border-color", (d: GraphPerson) => d.data.isLiving ? "" : ageColor(d.data.getAgeAt(new Date())))
-        .style("border-style", (d: GraphPerson) => d.data.isLiving ? "none" : "solid");
-      personNode
-        .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${d.data.isLiving ? ageColor(d.data.getAgeAt(new Date())) : ""}`);
-      break;
-    }
-    case ColorMode.CONFIDENCE: {
-      const confidenceColor = d => {
-        if (!d) return "";
-        return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High],
-          [colors.red["500"], colors.yellow["500"], colors.green["500"]])(d)
-      }
-      personNode
-        .select(".bg")
-        .classed("border-none", true)
-        .style("background-color", d => confidenceColor(d.data.getConfidence() as Confidence))
-        .classed("text-white", d => !!d.data.getConfidence());
-      personNode
-        .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${confidenceColor(d.data.getConfidence() as Confidence)}`);
-    }
-  }
-
-  personNode
-    .transition()
-    .duration(300)
-    .style("opacity", "1")
-
-  link
-    .transition()
-    .duration(600)
-    .style("opacity", "1")
-  etcNode
-    .transition()
-    .duration(300)
-    .style("opacity", "1")
 
   function updateNodes() {
     personNode
