@@ -1,7 +1,28 @@
 import config from "../config";
 import {strings} from "../main";
-import {GraphFamily, GraphPerson} from "../backend/graph";
+import {GraphFamily, GraphObject, GraphPerson} from "../backend/graph";
 import {Person as PersonClass} from "../backend/gedcomx-extensions";
+
+interface NodeProps {
+  data: GraphObject,
+  onPersonClick: (person: PersonClass) => void,
+  onEtcClick: (family: GraphFamily) => void,
+  onFamilyClick: (family: GraphFamily) => void,
+  focusHidden: boolean,
+  startPerson: PersonClass
+}
+
+export function Node({data, onPersonClick, onEtcClick, onFamilyClick, focusHidden, startPerson}: NodeProps) {
+  if (data instanceof GraphPerson)
+    return <Person data={data} onClick={onPersonClick} focused={!focusHidden && data.data.getId() === startPerson.id}/>
+
+  if (data instanceof GraphFamily) {
+    if (data.type === "etc")
+      return <Etc onClick={onEtcClick} family={data}/>
+
+    return <Family data={data} locked={data.involvesPerson(startPerson)} onClicked={onFamilyClick}/>
+  }
+}
 
 export function Family(props: {locked: boolean, data: GraphFamily, onClicked: (a: GraphFamily) => void}) {
   return (
@@ -36,7 +57,6 @@ export function Person(props: {data: GraphPerson, onClick: (person: PersonClass)
   return (
     <foreignObject
       className="person overflow-visible cursor-pointer select-none"
-      x={graphPerson.x - graphPerson.width / 2} y={graphPerson.y - graphPerson.height / 2}
       width={graphPerson.width} height={graphPerson.height}
       onClick={() => props.onClick(graphPerson.data)}>
       <div className={"bg rounded-3xl px-4 py-2 bg-gray-200 dark:bg-neutral-800 border-4 dark:font-white" + (props.focused ? " focused" : "")} title={strings.tree.clickPersonHint}>

@@ -1,16 +1,18 @@
-import {Etc, Family, Person} from "./Nodes";
+import {Node} from "./Nodes";
 import {useContext, useEffect, useMemo, useState} from "react";
 import config from "../config";
 import * as d3 from "d3";
+import {Graph} from "@visx/network";
 import * as cola from "webcola";
 import {EventType} from "webcola";
 import * as GedcomX from "gedcomx-js";
 import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
-import {GraphFamily, GraphPerson} from "../backend/graph";
+import {GraphFamily, GraphObject, GraphPerson} from "../backend/graph";
 import {Loading} from "./GeneralComponents";
 import {strings} from "../main";
 import {FocusPersonContext} from "./Persons";
 import {Confidence} from "../backend/gedcomx-enums";
+import {start} from "repl";
 
 const d3cola = cola.d3adaptor(d3);
 
@@ -98,22 +100,17 @@ function TreeView(props: Props) {
   return (
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" className="flex-grow rounded-b-2xl">
       <rect id='background' width='100%' height='100%' className="fill-white dark:fill-black"/>
-      <g id="vis" transform={currentTransform}>
-        <g id="links">
-          {viewGraph.links.map((l, i) =>
-            <path className="link stroke-2 stroke-black dark:stroke-white fill-none" key={i}/>)}
-        </g>
-        <g id="nodes">
-          {viewGraph.nodes.filter(n => n.type === "family").map((r: GraphFamily, i) =>
-            <Family data={r} key={i} locked={r.involvesPerson(viewGraph.startPerson.data)}
-                    onClicked={onFamilyClicked}/>)}
-          {viewGraph.nodes.filter(n => n.type === "etc").map((r, i) =>
-            <Etc key={i} onClick={onEtcClicked} family={r as GraphFamily}/>)}
-          {viewGraph.nodes.filter(n => n instanceof GraphPerson).map((p, i) =>
-            <Person data={p as GraphPerson} onClick={props.onRefocus} key={i}
-                    focused={!props.focusHidden && (p as GraphPerson).data.getId() === startPerson.id}/>)}
-        </g>
-      </g>
+      <Graph graph={viewGraph}
+             nodeComponent={({node}) =>
+               <Node data={node}
+                     onPersonClick={props.onRefocus}
+                     onFamilyClick={onEtcClicked}
+                     onEtcClick={onEtcClicked}
+                     startPerson={startPerson}
+                     focusHidden={props.focusHidden}/>}
+             linkComponent={() => (
+               <path className="link stroke-2 stroke-black dark:stroke-white fill-none"/>
+             )}/>
     </svg>
   );
 }
@@ -138,7 +135,7 @@ async function setupCola() {
       if (event.sourceEvent && event.sourceEvent.type === "wheel") {
         svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
       }
-      svg.select("#vis").attr("transform", event.transform.toString());
+      svg.select(".visx-group").attr("transform", event.transform.toString());
     })
     .on("end", () => {
       svg.node().style.cursor = "";
@@ -163,16 +160,15 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
   }
   d3cola.start(iterations, 0, iterations);
 
-  let nodesLayer = d3.select("#nodes");
-  let linkLayer = d3.select("#links");
+  const visxGroup = d3.select<SVGGElement, undefined>(".visx-group");
 
-  let personNode = nodesLayer.selectAll(".person")
+  let personNode = visxGroup.selectAll(".person")
     .data(graph.nodes.filter(p => p instanceof GraphPerson) as GraphPerson[])
-  let partnerNode = nodesLayer.selectAll(".partnerNode")
+  let partnerNode = visxGroup.selectAll(".partnerNode")
     .data(graph.nodes.filter(node => node.type === "family"));
-  let etcNode = nodesLayer.selectAll(".etc")
+  let etcNode = visxGroup.selectAll(".etc")
     .data(graph.nodes.filter(n => n.type === "etc"));
-  let link = linkLayer.selectAll(".link")
+  let link = visxGroup.selectAll(".link")
     .data(graph.links);
 
   // reset style
