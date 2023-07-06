@@ -13,12 +13,12 @@ import {
   Relationship,
   ResourceReference,
   Root, SourceCitation, SourceDescription, SourceReference, TextValue,
-  Document, Identifiers, PlaceDescription, Conclusion, Subject, EvidenceReference
+  Document, Identifiers, PlaceDescription, Conclusion, Subject, EvidenceReference, NamePart
 } from "gedcomx-js";
 import {faker} from "@faker-js/faker";
 import {
   Confidence, DocumentTypes,
-  GenderTypes, IdentifierTypes, KnownResourceTypes,
+  GenderTypes, IdentifierTypes, KnownResourceTypes, NamePartTypes,
   NameTypes,
   PersonFactTypes,
   RelationshipFactTypes,
@@ -36,16 +36,21 @@ export default function getTestData(): object {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extensiveData() {
   const lastName = faker.person.lastName();
+  const firstFirstName = faker.person.firstName("male");
   const marriageDate = new GedcomX.Date().setFormal(faker.date.past({years: 10}).toISOString());
   const womanFirstName = faker.person.firstName("female");
 
   return new Root()
     .addPerson(new Person(getSubject("p1"))
       .setPrivate(true)
-      .addName(new Name().addNameForm(new NameForm().setFullText(faker.person.fullName({
-        lastName: lastName,
-        sex: "male"
-      }))))
+      .addName(new Name().addNameForm(new NameForm()
+        .setFullText(faker.person.fullName({
+          firstName: firstFirstName,
+          lastName: lastName,
+          sex: "male"
+        }))
+        .addPart(new NamePart().setType(NamePartTypes.Surname).setValue(lastName))
+        .addPart(new NamePart().setType(NamePartTypes.Given).setValue(firstFirstName))))
       .setGender(new Gender().setType(GenderTypes.Male))
       .addFact(new Fact().setType(PersonFactTypes.Birth)
         .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))

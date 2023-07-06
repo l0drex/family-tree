@@ -2,7 +2,7 @@ import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
 import {
-  baseUri, DocumentTypes, KnownResourceTypes,
+  baseUri, DocumentTypes, KnownResourceTypes, NamePartQualifier, NamePartTypes,
   NameTypes,
   PersonFactQualifiers,
   PersonFactTypes, TextTypes
@@ -11,6 +11,11 @@ import * as factEmojis from './factEmojies.json';
 import {
   INote, ITextValue, ISourceCitation, INameForm, IConclusion
 } from "./gedcomx-types";
+
+// like filterLang, but without entries that don't include a language
+function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
+  return data.lang === strings.getLanguage();
+}
 
 export class Person extends GedcomX.Person {
   get isPrivate(): boolean {
@@ -33,29 +38,25 @@ export class Person extends GedcomX.Person {
   }
 
   get preferredName() {
-    return this.names.find(n => n.preferred);
+    if (!this.names || this.names.length < 1) {
+      return undefined;
+    }
+
+    let preferred = this.names.find(n => n.preferred);
+    if (preferred) return preferred;
+
+    preferred = this.names.filter(filterPureLang)[0];
+    if (preferred) return preferred;
+
+    return this.names[0];
   }
 
   get fullName(): string {
-    if (!this.names || this.names.length < 1) {
+    let name = this.preferredName;
+
+    if (!name || name.nameForms.length === 0)
       return "?";
-    }
 
-    // like filterLang, but without entries that don't include a language
-    let filterPureLang = (data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) =>
-      data.lang === strings.getLanguage();
-
-    let names = [
-      this.preferredName,
-      this.names.filter(filterPureLang)[0],
-      this.names[0]
-    ];
-
-    // first name that is defined
-    let name = names.find(n => n !== undefined);
-    if (!name || name.nameForms.length === 0) {
-      return "?";
-    }
     // name form that matches language, or if none matches return the first without lang
     let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
     return nameForm.getFullText(true);
@@ -95,6 +96,51 @@ export class Person extends GedcomX.Person {
     } else {
       return undefined;
     }
+  }
+
+  get surname(): string | undefined {
+    let name = this.preferredName;
+    if (name && name.nameForms.length > 0) {
+      let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
+      if (nameForm.parts) {
+        let surnameParts = nameForm.parts.filter(n => n.type === NamePartTypes.Surname);
+
+        if (surnameParts.length > 0) {
+          let surname = surnameParts.find(n =>
+            n.qualifiers?.find(q => q.name === NamePartQualifier.Primary)) ?? surnameParts[0];
+
+          if (surname && surname.value)
+            return surname.value;
+        }
+      }
+    }
+
+    let hackySurname = this.fullName.split(" ").reverse()[0];
+    if (hackySurname === "?") return undefined;
+    return hackySurname;
+  }
+
+  get firstName(): string | undefined {
+    // name with qualifier first
+    let name = this.preferredName;
+    if (name && name.nameForms.length > 0) {
+      let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
+      if (nameForm.parts) {
+        let givenParts = nameForm.parts.filter(n => n.type === NamePartTypes.Given);
+
+        if (givenParts.length > 0) {
+          let given = givenParts.find(n =>
+            n.qualifiers?.find(q => q.name === NamePartQualifier.Primary)) ?? givenParts[0];
+
+          if (given && given.value)
+            return given.value;
+        }
+      }
+    }
+
+    let hackySurname = this.fullName.split(" ")[0];
+    if (hackySurname === "?") return undefined;
+    return hackySurname;
   }
 
   getAgeAt(date: Date) {
@@ -191,8 +237,7 @@ export class GDate extends GedcomX.Date {
     let dateObject = this.toDateObject();
     if (!dateObject) {
       return this.formal;
-    }
-    else return formatJDate(dateObject, this.formal.length);
+    } else return formatJDate(dateObject, this.formal.length);
   }
 }
 
@@ -397,9 +442,9 @@ export class Agent extends GedcomX.Agent {
 }
 
 export class PlaceDescription extends GedcomX.PlaceDescription {
- isExtracted(): boolean {
-   return Boolean(this.extracted);
- }
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
 }
 
 let referenceAge: { age: number, generation: number } = {

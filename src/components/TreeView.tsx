@@ -195,33 +195,37 @@ async function animateTree(graph: ViewGraph, colorMode: ColorMode, isLandscape: 
       let last_names = graph.nodes.filter(n => n instanceof GraphPerson)
         .map((p: GraphPerson) => p.getName().split(" ").reverse()[0]);
       last_names = Array.from(new Set(last_names));
-      const nameColor = d3.scaleOrdinal(last_names, [
-        colors.red["500"],
-        colors.orange["500"],
-        colors.amber["500"],
-        colors.yellow["500"],
-        colors.lime["500"],
-        colors.green["500"],
-        colors.emerald["500"],
-        colors.teal["500"],
-        colors.cyan["500"],
-        colors.sky["500"],
-        colors.blue["500"],
-        colors.indigo["500"],
-        colors.violet["500"],
-        colors.purple["500"],
-        colors.fuchsia["500"],
-        colors.pink["500"],
-        colors.rose["500"]
-      ])
+      const nameColor = n => {
+        if (!n) return "";
+
+        return d3.scaleOrdinal(last_names, [
+          colors.red["500"],
+          colors.orange["500"],
+          colors.amber["500"],
+          colors.yellow["500"],
+          colors.lime["500"],
+          colors.green["500"],
+          colors.emerald["500"],
+          colors.teal["500"],
+          colors.cyan["500"],
+          colors.sky["500"],
+          colors.blue["500"],
+          colors.indigo["500"],
+          colors.violet["500"],
+          colors.purple["500"],
+          colors.fuchsia["500"],
+          colors.pink["500"],
+          colors.rose["500"]
+        ])(n)
+      }
       personNode
         .select(".bg")
         .classed("border-none", true)
-        .style("background-color", d => nameColor(d.getName().split(" ").reverse()[0]))
-        .classed("text-white", true)
+        .style("background-color", d => nameColor(d.data.surname))
+        .classed("text-white", d => !darkMode && d.data.surname !== undefined)
       personNode
         .select(".focused")
-        .style("box-shadow", d => `0 0 1rem ${nameColor(d.getName().split(" ").reverse()[0])}`);
+        .style("box-shadow", d => `0 0 1rem ${nameColor(d.data.surname)}`);
       break;
     }
     case ColorMode.AGE: {
