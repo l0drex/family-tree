@@ -107,6 +107,8 @@
       "noDocuments": "Es sind keine Dokumente vorhanden."
     },
     "event": {
+      "events": "Events",
+      "event": "Event",
       "types": {
         "Adoption": "Adoption",
         "AdultChristening": "Erwachsenen Taufe",

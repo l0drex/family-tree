@@ -2,12 +2,13 @@ import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
 import {Equals, filterLang, strings} from "../main";
 import {
-  baseUri, DocumentTypes, KnownResourceTypes, NamePartQualifier, NamePartTypes,
+  baseUri, DocumentTypes, EventRoleTypes, KnownResourceTypes, NamePartQualifier, NamePartTypes,
   NameTypes,
   PersonFactQualifiers,
   PersonFactTypes, TextTypes
 } from "./gedcomx-enums";
 import * as factEmojis from './factEmojies.json';
+import * as eventEmojies from './eventEmojies.json'
 import {
   INote, ITextValue, ISourceCitation, INameForm, IConclusion
 } from "./gedcomx-types";
@@ -442,6 +443,40 @@ export class Agent extends GedcomX.Agent {
 }
 
 export class PlaceDescription extends GedcomX.PlaceDescription {
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
+}
+
+export class EventExtended extends GedcomX.Event {
+  get emoji() {
+    if (this.type) {
+      let emoji = eventEmojies[this.type.substring(baseUri.length)];
+      if (emoji) return emoji;
+    }
+
+    return "📅"
+  }
+
+  get title() {
+    if (this.type)
+      return strings.gedcomX.event.types[this.type.substring(baseUri.length)]
+        + (this.principal ? `: ${this.principal.resource}` : "");
+
+    return strings.gedcomX.event.event;
+  }
+
+  get principal() {
+    return this.roles.find(r => r.type === EventRoleTypes.Principal)?.person;
+  }
+
+  getDate(): GDate {
+    if (!this.date)
+      return undefined;
+
+    return new GDate(this.date.toJSON());
+  }
+
   isExtracted(): boolean {
     return Boolean(this.extracted);
   }

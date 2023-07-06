@@ -105,6 +105,8 @@
       "document": "Document"
     },
     "event": {
+      "events": "Events",
+      "event": "Event",
       "types": {
         "Adoption": "Adoption",
         "AdultChristening": "Adult Christening",

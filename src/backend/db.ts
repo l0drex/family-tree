@@ -6,7 +6,7 @@ import {
 import * as GedcomX from "gedcomx-js";
 import {
   Agent,
-  Document,
+  Document, EventExtended,
   Person,
   PlaceDescription,
   Relationship,
@@ -128,7 +128,7 @@ export class FamilyDB extends Dexie {
           .then(a => a ? new Agent(a) : Promise.reject(new Error(`Agent with id ${id} not found!`)));
       case "event":
         return this.events.get(id)
-          .then(e => e ? new GedcomX.Event(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
+          .then(e => e ? new EventExtended(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
       case "document":
         return this.documents.get(id)
           .then(d => d ? new Document(d) : Promise.reject(new Error(`Document with id ${id} not found!`)));

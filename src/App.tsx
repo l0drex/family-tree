@@ -3,7 +3,7 @@ import {createBrowserRouter, Outlet, RouterProvider, useLocation} from "react-ro
 import {strings} from "./main";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {db} from "./backend/db";
-import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
+import {SourceDescription, Document, Agent, Person, EventExtended} from "./backend/gedcomx-extensions";
 import {Home} from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
@@ -11,10 +11,12 @@ import {SourceDescriptionOverview, SourceDescriptionView} from "./components/Sou
 import {DocumentOverview, DocumentView} from "./components/Documents";
 import {AgentOverview, AgentView} from "./components/Agents";
 import {PlaceDescription} from "gedcomx-js";
+import * as GedcomX from "gedcomx-js";
 import {PlaceOverview, PlaceView} from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";
 import {Imprint} from "./components/Imprint";
+import {EventOverview, EventView} from "./components/Events";
 
 const router = createBrowserRouter([
   {
@@ -81,6 +83,16 @@ const router = createBrowserRouter([
               {path: ":id", Component: AgentView, loader: ({params}) => db.elementWithId(params.id, "agent")}
             ]
           },
+          {
+            path: "events", children: [
+              {
+                index: true,
+                Component: EventOverview,
+                loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")}
+              ]
+          },
           {path: "imprint", Component: Imprint},
           {
             path: "places", children: [
@@ -128,19 +140,33 @@ function Layout() {
 
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
-      <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="">
+          {"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}
+        </ReactNavLink></li>
+      <li><ReactNavLink to="persons">
+          {"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
+        </ReactNavLink>
       </li>
-      <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink
-        to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="stats">
+        {"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="sources">
+        {"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}
+      </ReactNavLink>
       </li>
-      <li><ReactNavLink
-        to="documents">{"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="documents">
+        {"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="agents">
+        {"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
+      </ReactNavLink>
       </li>
-      <li><ReactNavLink
-        to="places">{"🌎" + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="places">
+        {"🌎" + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="events">
+        {"📅" + (navBarExtended ? ` ${strings.gedcomX.event.events}` : "")}
+      </ReactNavLink></li>
     </ul>
   </nav>
 

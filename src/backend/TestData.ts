@@ -5,7 +5,7 @@ import {
   Attribution,
   Conclusion,
   Coverage,
-  Document,
+  Document, EventRole,
   EvidenceReference,
   Fact,
   Gender,
@@ -30,7 +30,7 @@ import {
 import {faker} from "@faker-js/faker";
 import {
   Confidence,
-  DocumentTypes,
+  DocumentTypes, EventRoleTypes, EventTypes,
   GenderTypes,
   IdentifierTypes,
   KnownResourceTypes,
@@ -182,6 +182,18 @@ function extensiveData() {
       .setSpatialDescription(new ResourceReference().setResource(faker.internet.url())))
     .addPlace(new PlaceDescription()
       .addName(new TextValue().setValue(faker.location.city())))
+    .addEvent(new GedcomX.Event(getSubject("e1"))
+      .setType(EventTypes.Birth)
+      .setDate(new GedcomX.Date().setFormal(faker.date.past().toISOString()))
+      .setPlace(new PlaceReference().setDescription("#pd1"))
+      .addRole(new EventRole()
+        .setPerson(new ResourceReference().setResource("#mother"))
+        .setType(EventRoleTypes.Principal))
+      .addRole(new EventRole()
+        .setType(EventRoleTypes.Participant)
+        .setPerson(new ResourceReference().setResource("#father"))
+        .setDetails(faker.lorem.sentence())))
+    .addEvent(new GedcomX.Event())
 }
 
 function getParentChild(parent: string, child: string) {

@@ -25,9 +25,9 @@ export function DocumentOverview() {
   </Article></Main>
 }
 
-function DocumentList(props) {
+function DocumentList({documents}) {
   return <ul>
-    {props.documents?.map(doc =>
+    {documents?.map(doc =>
       <li key={doc.id}><ReactNavLink to={`/documents/${doc.getId()}`}>
         {`${doc.emoji} ${strings.gedcomX.document.document}`}
       </ReactNavLink></li>
@@ -42,6 +42,9 @@ export function DocumentView() {
 
   useEffect(() => {
     db.documents.toArray().then(sds => sds.map(sd => new Document(sd))).then(setOthers);
+  }, []);
+
+  useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [document, layoutContext])
