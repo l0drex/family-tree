@@ -104,6 +104,13 @@ export class ViewGraph implements EventTarget {
       if (hideAll) await this.hideFamily(f);
       this.progress += .5/families.length;
     }
+    if (viewMode === ViewMode.ALL) {
+      let visiblePersonIds = this.nodes.filter(n => n instanceof GraphPerson).map((n: GraphPerson) => n.data.id);
+      await db.persons.filter(p => !visiblePersonIds.includes(p.id)).toArray()
+        .then(ps => ps.map(p => new Person(p)))
+        .then(ps => Promise.all(ps.map(p => this.getGraphPerson(p))))
+        .then(gps => gps.forEach(gp => this.showNode(gp)));
+    }
     if (this.nodes.length === 0) {
       // adding at least the start person
       await this.showNode(await this.getGraphPerson(startPerson));
@@ -186,8 +193,12 @@ export class ViewGraph implements EventTarget {
     graphFamily.type = "family";
 
     this.showNode(graphFamily);
-    await Promise.all([family.parent1, family.parent2].map(id => this.showPerson(id, graphFamily, true)));
-    await Promise.all(graphFamily.children.map(id => this.showPerson(id, graphFamily, false)));
+    await Promise.all([family.parent1, family.parent2].map(id => {
+      if (id === undefined) return undefined;
+      return this.showPerson(id, graphFamily, true)
+    }));
+    if (graphFamily.children)
+      await Promise.all(graphFamily.children.map(id => this.showPerson(id, graphFamily, false)));
 
     this.dispatchEvent(new CustomEvent("add", {
       detail: {

@@ -361,11 +361,11 @@ class PlaceReference extends GedcomX.PlaceReference {
 
 export class FamilyView extends GedcomX.FamilyView implements Equals {
   get parents() {
-    return [this.parent1, this.parent2];
+    return [this.parent1, this.parent2].filter(p => p !== undefined);
   }
 
   get members() {
-    return this.children.concat(this.parents);
+    return (this.children ?? []).concat(this.parents);
   }
 
   involvesPerson(person: GedcomX.Person) {

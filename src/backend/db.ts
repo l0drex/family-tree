@@ -108,7 +108,7 @@ export class FamilyDB extends Dexie {
     // todo find a way to use generics here
 
     try {
-      id = toResource(id).resource.substring(1);
+      id = toId(id);
     } catch (e) {
       return Promise.reject(new Error("Could not parse resource!"));
     }
@@ -375,14 +375,23 @@ export class FamilyDB extends Dexie {
   }
 }
 
+function toId(resource: ResourceReference | string): string {
+  if (resource === undefined || resource === null) throw new Error("Resource is undefined!")
+
+  if (resource instanceof ResourceReference || typeof resource === "object") return resource.resource.substring(1);
+  if (resource.startsWith("#")) return resource.substring(1);
+  if (resource.length === 0) throw new Error("Resource is empty!")
+  return resource;
+}
+
 function toResource(resource: ResourceReference | string): ResourceReference {
-  if (resource === undefined || resource === null) throw new Error("resource is undefined!")
+  if (resource === undefined || resource === null) throw new Error("Resource is undefined!")
 
   if (resource instanceof ResourceReference) return resource;
   if (typeof resource === "object") return new ResourceReference(resource);
 
   if (typeof resource === "string") {
-    if (resource.length === 0) throw new Error("resource is empty")
+    if (resource.length === 0) throw new Error("Resource is empty!")
     if (!resource.startsWith("#")) resource = "#" + resource;
     return new ResourceReference().setResource(resource);
   }

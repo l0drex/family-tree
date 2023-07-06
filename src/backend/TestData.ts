@@ -2,23 +2,39 @@ import * as GedcomX from "gedcomx-js";
 import {
   Address,
   Agent,
-  Attribution, Coverage,
+  Attribution,
+  Conclusion,
+  Coverage,
+  Document,
+  EvidenceReference,
   Fact,
   Gender,
+  Identifiers,
   Name,
   NameForm,
-  Note, OnlineAccount,
+  NamePart,
+  Note,
+  OnlineAccount,
   Person,
+  PlaceDescription,
   PlaceReference,
   Relationship,
   ResourceReference,
-  Root, SourceCitation, SourceDescription, SourceReference, TextValue,
-  Document, Identifiers, PlaceDescription, Conclusion, Subject, EvidenceReference, NamePart
+  Root,
+  SourceCitation,
+  SourceDescription,
+  SourceReference,
+  Subject,
+  TextValue
 } from "gedcomx-js";
 import {faker} from "@faker-js/faker";
 import {
-  Confidence, DocumentTypes,
-  GenderTypes, IdentifierTypes, KnownResourceTypes, NamePartTypes,
+  Confidence,
+  DocumentTypes,
+  GenderTypes,
+  IdentifierTypes,
+  KnownResourceTypes,
+  NamePartTypes,
   NameTypes,
   PersonFactTypes,
   RelationshipFactTypes,
@@ -35,23 +51,11 @@ export default function getTestData(): object {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extensiveData() {
-  const lastName = faker.person.lastName();
-  const firstFirstName = faker.person.firstName("male");
   const marriageDate = new GedcomX.Date().setFormal(faker.date.past({years: 10}).toISOString());
-  const womanFirstName = faker.person.firstName("female");
 
   return new Root()
-    .addPerson(new Person(getSubject("p1"))
+    .addPerson(getPerson("husband", "male")
       .setPrivate(true)
-      .addName(new Name().addNameForm(new NameForm()
-        .setFullText(faker.person.fullName({
-          firstName: firstFirstName,
-          lastName: lastName,
-          sex: "male"
-        }))
-        .addPart(new NamePart().setType(NamePartTypes.Surname).setValue(lastName))
-        .addPart(new NamePart().setType(NamePartTypes.Given).setValue(firstFirstName))))
-      .setGender(new Gender().setType(GenderTypes.Male))
       .addFact(new Fact().setType(PersonFactTypes.Birth)
         .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))
       .addFact(new Fact().setType(PersonFactTypes.MaritalStatus)
@@ -65,16 +69,7 @@ function extensiveData() {
         .setDate(new GedcomX.Date()
           .setFormal(faker.date.birthdate({min: 3, max: 10, mode: "age"}).toISOString())))
       .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(2)))
-    .addPerson(new Person(getSubject("p2"))
-      .addName(new Name()
-        .addNameForm(new NameForm()
-          .setFullText(faker.person.fullName({firstName: womanFirstName, lastName: lastName, sex: "female"})))
-        .setType(NameTypes.MarriedName))
-      .addName(new Name()
-        .addNameForm(new NameForm()
-          .setFullText(faker.person.fullName({firstName: womanFirstName, sex: "female"})))
-        .setType(NameTypes.BirthName))
-      .setGender(new Gender().setType(GenderTypes.Female))
+    .addPerson(getPerson("wife", "female")
       .addFact(new Fact().setType(PersonFactTypes.Birth)
         .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))
       .addFact(new Fact().setType(PersonFactTypes.MaritalStatus)
@@ -84,40 +79,47 @@ function extensiveData() {
       .addFact(new Fact().setType(PersonFactTypes.Occupation)
         .setValue(faker.person.jobTitle()))
       .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(2)))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.Couple)
-      .setPerson1(new ResourceReference().setResource("#p1"))
-      .setPerson2(new ResourceReference().setResource("#p2"))
+    .addRelationship(getCouple("husband", "wife")
       .addFact(new Fact().setType(RelationshipFactTypes.Marriage).setDate(marriageDate)))
+    .addPerson(getPerson("son", "male"))
+    .addRelationship(getParentChild("husband", "son"))
+    .addRelationship(getParentChild("wife", "son"))
+    .addPerson(getPerson("daughter", "female"))
+    .addRelationship(getParentChild("husband", "daughter"))
+    .addRelationship(getParentChild("wife", "daughter"))
+    .addPerson(getPerson("mother", "female"))
+    .addPerson(getPerson("father", "male"))
+    .addRelationship(getCouple("mother", "father"))
+    .addRelationship(getParentChild("mother", "husband"))
+    .addRelationship(getParentChild("father", "husband"))
+    .addPerson(getPerson("sister", "female"))
+    .addRelationship(getParentChild("mother", "sister"))
+    .addRelationship(getParentChild("father", "sister"))
+    .addPerson(getPerson("brother", "male"))
+    .addRelationship(getParentChild("mother", "brother"))
+    .addRelationship(getParentChild("father", "brother"))
+    .addPerson(getPerson("stepFather", "male"))
+    .addRelationship(getCouple("mother", "stepFather"))
+    .addPerson(getPerson("uncle", "male", true))
+    .addPerson(getPerson("aunt", "female", true))
+    .addRelationship(getCouple("uncle", "aunt"))
+    .addPerson(getPerson("cousin", "intersex", true))
+    .addRelationship(getParentChild("uncle", "cousin"))
+    .addRelationship(getParentChild("aunt", "cousin"))
+    .addPerson(getPerson("grandmother", "female"))
+    .addPerson(getPerson("grandfather", "male"))
+    .addRelationship(getCouple("grandmother", "grandfather"))
+    .addRelationship(getParentChild("grandmother", "mother"))
+    .addRelationship(getParentChild("grandmother", "aunt"))
+    .addRelationship(getParentChild("grandfather", "mother"))
+    .addRelationship(getParentChild("grandfather", "aunt"))
     .addPerson(new Person()
-      .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(1))
-      .setId("p3"))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.ParentChild)
-      .setPerson1(new ResourceReference().setResource("#p1"))
-      .setPerson2(new ResourceReference().setResource("#p3")))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.ParentChild)
-      .setPerson1(new ResourceReference().setResource("#p2"))
-      .setPerson2(new ResourceReference().setResource("#p3")))
+      .setId("grandmother2"))
+    .addRelationship(getCouple("grandmother2", "grandfather"))
     .addPerson(new Person()
-      .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(3))
-      .setId("p4"))
-    .addPerson(new Person()
-      .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(3))
-      .setId("p5"))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.Couple)
-      .setPerson1(new ResourceReference().setResource("#p4"))
-      .setPerson2(new ResourceReference().setResource("#p5")))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.ParentChild)
-      .setPerson1(new ResourceReference().setResource("#p4"))
-      .setPerson2(new ResourceReference().setResource("#p1")))
-    .addRelationship(new Relationship()
-      .setType(RelationshipTypes.ParentChild)
-      .setPerson1(new ResourceReference().setResource("#p5"))
-      .setPerson2(new ResourceReference().setResource("#p1")))
+      .addName(new Name()
+        .addNameForm(new NameForm().setFullText("Random Guy")))
+      .setId("random"))
     .addPerson(new Person())
     .addSourceDescription(new SourceDescription()
       .setResourceType(KnownResourceTypes.DigitalArtifact)
@@ -159,7 +161,7 @@ function extensiveData() {
       .addPhone(new ResourceReference().setResource(faker.phone.number()))
       .addAddress(new Address().setValue(faker.location.streetAddress(true)))
       .setIdentifiers(getIdentifiers("a1"))
-      .setPerson(new ResourceReference().setResource("#p1"))
+      .setPerson(new ResourceReference().setResource("#husband"))
       .setId("a1"))
     .addAgent(new Agent())
     .addDocument(new Document(getConclusion("d1"))
@@ -182,9 +184,64 @@ function extensiveData() {
       .addName(new TextValue().setValue(faker.location.city())))
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function minimalData() {
-  return new Root();
+function getParentChild(parent: string, child: string) {
+  return new Relationship()
+    .setType(RelationshipTypes.ParentChild)
+    .setPerson1(new ResourceReference().setResource(`#${parent}`))
+    .setPerson2(new ResourceReference().setResource(`#${child}`));
+}
+
+function getCouple(person1: string, person2: string) {
+  return new Relationship()
+    .setType(RelationshipTypes.Couple)
+    .setPerson1(new ResourceReference().setResource(`#${person1}`))
+    .setPerson2(new ResourceReference().setResource(`#${person2}`));
+}
+
+const lastName = faker.person.lastName();
+const otherLastName = faker.person.lastName();
+function getPerson(id: string, gender?: "male" | "female" | "intersex", otherName?: boolean) {
+  let fakerGender;
+  let genderType;
+  switch (gender) {
+    case "male":
+      genderType = GenderTypes.Male;
+      fakerGender = gender;
+      break;
+    case "female":
+      genderType = GenderTypes.Female;
+      fakerGender = gender;
+      break;
+    case "intersex":
+      genderType = GenderTypes.Intersex;
+      fakerGender = undefined;
+      break;
+    default:
+      genderType = GenderTypes.Unknown;
+      fakerGender = undefined;
+      break;
+  }
+
+  const firstName = faker.person.firstName(fakerGender);
+  const thisLastName = otherName ? otherLastName : lastName;
+
+  let person = new Person(getSubject(id))
+    .setGender(new Gender().setType(genderType))
+    .addName(new Name()
+      .addNameForm(new NameForm().setFullText(faker.person.fullName({sex: fakerGender, firstName: firstName, lastName: thisLastName}))
+        .addPart(new NamePart().setValue(thisLastName).setType(NamePartTypes.Surname))
+        .addPart(new NamePart().setValue(firstName).setType(NamePartTypes.Given))));
+
+  if (gender === "female") {
+    const originalLastName = faker.person.lastName();
+    person.addName(new Name()
+      .addNameForm(new NameForm().setFullText(faker.person.fullName({sex: gender, firstName: firstName, lastName: originalLastName}))
+        .addPart(new NamePart().setValue(firstName).setType(NamePartTypes.Given))
+        .addPart(new NamePart().setValue(originalLastName).setType(NamePartTypes.Surname)))
+      .setType(NameTypes.BirthName));
+  }
+
+  return person;
 }
 
 function getIdentifiers(id) {
