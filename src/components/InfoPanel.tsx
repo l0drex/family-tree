@@ -120,7 +120,7 @@ function Names({names}: { names: Name[] }) {
 }
 
 function Facts({facts}: { facts: Fact[] }) {
-  if (!facts) return <></>
+  if (!facts || facts.length === 0) return <></>
 
   return <section>
     <Title emoji="">{strings.gedcomX.facts}</Title>
