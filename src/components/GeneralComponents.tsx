@@ -1,19 +1,17 @@
 import {Link, NavLink} from "react-router-dom";
 import * as React from "react";
-import {ReactElement, useEffect, useState} from "react";
+import {ReactElement, useEffect, useRef, useState} from "react";
 import {strings} from "../main";
 import {LayoutContext} from "../App";
 
-export function Article(props) {
-  let other = {};
-  Object.assign(other, props);
-  delete other["noMargin"];
-
+export function Article({noMargin, emoji, title, children}:
+                          { noMargin?: boolean, emoji?: string, title?: string, children }) {
   return (
-    <article
-      className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl ${props.noMargin ? "" : "mt-4 first:mt-0"} mx-auto p-4 w-full max-w-3xl`} {...other}>
-      {props.title && <Title emoji={props.emoji}>{props.title}</Title>}
-      {props.children}
+    <article className={`${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
+      {title && <Title emoji={emoji}>{title}</Title>}
+      <div className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full">
+        {children}
+      </div>
     </article>
   );
 }
@@ -36,8 +34,11 @@ export function ReactLink(props) {
 }
 
 export function ReactNavLink(props) {
-  return <NavLink to={props.to}
-                  className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg">{props.children}</NavLink>
+  return <NavLink
+    to={props.to}
+    className="block transition-colors hover:bg-white bg-opacity-100 dark:hover:bg-opacity-10 p-2 rounded-lg">
+    {props.children}
+  </NavLink>
 }
 
 export function Details(props) {
@@ -74,7 +75,7 @@ export function ButtonLike(props: {
   </div>
 }
 
-export function Tag({children, bgColor}: {children, bgColor?: string }) {
+export function Tag({children, bgColor}: { children, bgColor?: string }) {
   bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
 
   return <span
@@ -91,10 +92,11 @@ export function Hr() {
   return <hr className="border-neutral-500 mx-8"/>
 }
 
-export function Loading(props: {text: string, value?: number, max?: number}) {
+export function Loading(props: { text: string, value?: number, max?: number }) {
   return <div className="text-center h-full py-4 px-4 flex flex-col justify-center items-center">
     <label htmlFor="progress-bar">{props.text}</label>
-    <progress id="progress-bar" value={props.value} max={props.max} className="mt-2 rounded-full bg-white dark:bg-opacity-30"></progress>
+    <progress id="progress-bar" value={props.value} max={props.max}
+              className="mt-2 rounded-full bg-white dark:bg-opacity-30"/>
   </div>
 }
 
@@ -150,13 +152,31 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
   if (mimeType.startsWith("text")) {
     media = <p>{text}</p>
   } else {
-    media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`} onLoad={() => setLoaded(true)}>
+    media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`}
+                    onLoad={() => setLoaded(true)}>
       {alt}
     </object>;
   }
 
   return <ExternalContent>
     {media}
-    {!loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">{<Loading text={strings.gedcomX.subject.loadingMedia}/>}</div>}
+    {!loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
+      <Loading text={strings.gedcomX.subject.loadingMedia}/>
+    </div>}
   </ExternalContent>
+}
+
+/**
+ * Button that shows a popup when clicked.
+ * @constructor
+ */
+export function PopupButton({title, children: popupContent}) {
+  const dialog = useRef<HTMLDialogElement>();
+
+  return <>
+    <button onClick={() => dialog.current?.showModal()}>{title}</button>
+    <dialog ref={dialog} className="rounded-2xl">
+      {popupContent}
+    </dialog>
+  </>
 }

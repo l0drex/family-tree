@@ -175,7 +175,33 @@ export class Person extends GedcomX.Person {
   }
 
   getFacts(): Fact[] {
-    return super.getFacts() as Fact[];
+    return super.getFacts().sort((a, b) => {
+      // place birth at top, generation right below
+      if (a.getType() === PersonFactTypes.Birth) {
+        return -1;
+      } else if (b.getType() === PersonFactTypes.Birth) {
+        return 1;
+      } else if (a.getType() === PersonFactTypes.GenerationNumber) {
+        return -1;
+      } else if (b.getType() === PersonFactTypes.GenerationNumber) {
+        return 1;
+      }
+
+      if (a.getDate() && !b.getDate()) {
+        return 1;
+      } else if (!a.getDate() && b.getDate()) {
+        return -1;
+      }
+      if (a.getDate() && b.getDate()) {
+        let aDate = new GDate(a.date).toDateObject();
+        let bDate = new GDate(b.date).toDateObject();
+        if (aDate && bDate) {
+          return aDate.getMilliseconds() - bDate.getMilliseconds();
+        }
+      }
+
+      return 0;
+    }) as Fact[];
   }
 
   getFactsByType(type: string): Fact[] {
@@ -298,26 +324,6 @@ export class Fact extends GedcomX.Fact {
     qualifiers ??= [];
     super.setQualifiers(qualifiers.map(q => new Qualifier(q)));
     return this;
-  }
-
-  toString(): string {
-    let value = this.value;
-    const type = this.type;
-    let string = strings.gedcomX.person.factTypes[type.substring(baseUri.length)] ?? type;
-
-    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.person.maritalStatus) {
-      value = strings.gedcomX.person.maritalStatus[value];
-    }
-
-    string += ((value || value === "0") ? `: ${value}` : "");
-    string += (this.date ? ` ${this.date}` : "") +
-      (this.place ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
-
-    if (this.qualifiers && this.qualifiers.length > 0) {
-      string += " " + this.qualifiers.map(q => q.toString()).join(" ");
-    }
-
-    return string;
   }
 
   get emoji(): string {

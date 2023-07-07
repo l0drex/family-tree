@@ -253,7 +253,7 @@ export function Sidebar(props) {
 
   if (layoutContext.sidebarVisible) {
     return <aside
-      className={`row-start-2 md:row-span-2 mx-4 sm:ml-0 col-start-1 sm:col-start-2 md:col-start-3 col-span-3 sm:col-span-2 md:col-span-1 max-h-64 md:max-h-full md:max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 flex-col dark:text-white`}>
+      className={`row-start-2 md:row-span-2 mx-4 sm:ml-0 col-start-1 sm:col-start-2 md:col-start-3 col-span-3 sm:col-span-2 md:col-span-1 max-h-64 md:max-h-full md:max-w-xs overflow-y-auto overflow-x-scroll flex gap-6 flex-col dark:text-white`}>
       {props.children}
     </aside>
   }

@@ -361,6 +361,7 @@
       "time": "um {0}"
     },
     "place": "in {0}",
+    "facts": "Fakten",
     "factQualifier": {
       "Age": "Alter",
       "ageFormatter": "mit {0} Jahren",

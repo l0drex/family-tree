@@ -8,7 +8,8 @@ import {Link} from "react-router-dom";
 import {Article, ExternalContent, Gallery, Hr, Media, P, ReactLink, Tag} from "./GeneralComponents";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
-  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note} noMargin={props.noMargin}>
+  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note}
+                  noMargin={props.noMargin}>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
   </Article>
@@ -40,7 +41,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   let modified = attribution.getModified();
   let contributorRef = attribution.getContributor();
-  let contributorName = contributor?.names?.filter(filterLang)[0].value ?? attribution.contributor.resource;
+  let contributorName = contributor?.names?.filter(filterLang)[0].value ?? attribution.contributor?.resource ?? "";
   let message = attribution.getChangeMessage();
 
   let modifiedString = "";
@@ -157,17 +158,18 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
         let credit = m.getCitations()[0].getValue();
         return <ExternalContent key={m.id}>
           <div className="relative">
-            <Media mimeType={m.mediaType} url={m.getAbout()} alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
-            <div
-              className="absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+            <Media mimeType={m.mediaType} url={m.getAbout()}
+                   alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
+            <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
+              + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
               © <a href={m.getAbout()}>{credit}</a>
             </div>
           </div>
         </ExternalContent>
       })}
     </Gallery>}
-    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.subject.evidence}
-                                                  key={i}>
+    {subject.getEvidence().map((e, i) =>
+      <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.subject.evidence} key={i}>
       <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
       <Attribution attribution={e.attribution}/>
     </Article>)}
@@ -175,18 +177,20 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
   </>
 }
 
-export function ConclusionMisc({conclusion}: { conclusion: gedcomX.Conclusion }) {
+export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conclusion, bgColor?: string }) {
   return <>
-    {conclusion.analysis && <Tag>{strings.gedcomX.document.types.Analysis}: <ReactLink
+    {conclusion.analysis && <Tag bgColor={bgColor}>{strings.gedcomX.document.types.Analysis}: <ReactLink
       to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
-    {conclusion.confidence && <Tag><Confidence confidence={conclusion.confidence}/></Tag>}
+    {conclusion.confidence && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
   </>
 }
 
 export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
   return <>
-    {conclusion.getSources().map((source, i) => <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
-    {conclusion.getNotes().map((note, i) => <Note key={i} note={note} noMargin={noMargin}/>)}
+    {conclusion.getSources().map((source, i) =>
+      <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
+    {conclusion.getNotes().map((note, i) =>
+      <Note key={i} note={note} noMargin={noMargin}/>)}
   </>
 }
 

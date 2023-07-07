@@ -35,12 +35,11 @@ import {
   IdentifierTypes,
   KnownResourceTypes, NamePartQualifier,
   NamePartTypes,
-  NameTypes,
+  NameTypes, PersonFactQualifiers,
   PersonFactTypes,
   RelationshipFactTypes,
   RelationshipTypes
 } from "./gedcomx-enums";
-import {GDate} from "./gedcomx-extensions";
 
 let testData: Root;
 
@@ -83,12 +82,25 @@ function extensiveData() {
         .setPlace(new PlaceReference().setOriginal(faker.location.city()))
         .setDate(marriageDate))
       .addFact(new Fact().setType(PersonFactTypes.Occupation)
-        .setValue(faker.person.jobTitle()))
+        .setValue(faker.person.jobTitle())
+        .addQualifier(new Qualifier()
+          .setName(PersonFactQualifiers.Age)
+          .setValue(faker.number.int({min: 20, max: 40}).toString())))
       .addFact(new Fact()
         .setType(PersonFactTypes.Death)
         .setDate(new GedcomX.Date()
-          .setFormal(faker.date.birthdate({min: 3, max: 10, mode: "age"}).toISOString())))
-      .addFact(new Fact().setType(PersonFactTypes.GenerationNumber).setValue(2)))
+          .setFormal(faker.date.birthdate({min: 3, max: 10, mode: "age"}).toISOString()))
+        .addQualifier(new Qualifier()
+          .setName(PersonFactQualifiers.Cause)
+          .setValue(faker.lorem.word())))
+      .addFact(new Fact(getConclusion("husbandsGenerationFact"))
+        .setType(PersonFactTypes.GenerationNumber).setValue(2))
+      .addFact(new Fact()
+        .setType(PersonFactTypes.NumberOfMarriage).setValue(1)
+        .addNote(new Note().setText(faker.lorem.sentence()))
+        .addSource(new SourceReference().setDescription("#s1"))
+        .setAttribution(new Attribution()
+          .setCreator(new ResourceReference().setResource("#a1")))))
     .addPerson(getPerson("wife", "female")
       .addFact(new Fact().setType(PersonFactTypes.Birth)
         .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))

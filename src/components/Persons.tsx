@@ -9,7 +9,7 @@ import {Person} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
 import {LayoutContext, Main} from "../App";
-import {Article, ButtonLike, Title} from "./GeneralComponents";
+import {ButtonLike, Title} from "./GeneralComponents";
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -90,7 +90,7 @@ function Persons() {
 
       navigate(`/persons/${newFocus.getId()}?${searchParams.toString()}`);
     }
-  }, [focusPerson, focusHidden, navigate]);
+  }, [focusPerson, navigate, searchParams, focusHidden]);
 
   useEffect(() => {
     if (!focusPerson) {
@@ -112,14 +112,14 @@ function Persons() {
         {!focusHidden && <InfoPanel/>}
       </FocusPersonContext.Provider>
       <Main titleRight={focusPerson.fullName}>
-        <Article id="family-tree-container" className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
+        <article id="family-tree-container" className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
           <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
           <FocusPersonContext.Provider value={focusPerson}>
             <TreeView colorMode={searchParams.get(ColorModeParam) as ColorMode} focusHidden={focusHidden}
                       onRefocus={onRefocus} viewMode={searchParams.get(ViewModeParam) as ViewMode}/>
           </FocusPersonContext.Provider>
-        </Article>
+        </article>
       </Main>
     </>
   );

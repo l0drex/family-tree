@@ -359,6 +359,7 @@
       "time": "at {0}"
     },
     "place": "in {0}",
+    "facts": "Facts",
     "factQualifier": {
       "Age": "Age",
       "ageFormatter": "with {0} years old",
