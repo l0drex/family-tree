@@ -18,6 +18,11 @@ import {Imprint} from "./components/Imprint";
 import {EventOverview, EventView} from "./components/Events";
 import emojis from './backend/emojies.json';
 
+let personCache = {
+  id: undefined,
+  person: undefined
+}
+
 const router = createBrowserRouter([
   {
     path: "*", Component: Layout, children: [
@@ -26,10 +31,16 @@ const router = createBrowserRouter([
           {index: true, Component: Home},
           {
             path: "persons/:id?", Component: Persons, loader: ({params}) => {
+              if (personCache.person !== undefined && personCache.id === params.id) {
+                return personCache.person;
+              }
+
+              personCache.id = params.id;
+
               if (!params.id) {
                 // find a person whose id does not start with "missing-id-" if possible
                 // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
-                return db.persons.toArray().then(ps => ps.sort((a, b) => {
+                personCache.person = db.persons.toArray().then(ps => ps.sort((a, b) => {
                   // Check if either string starts with "missing-id-"
                   const aStartsWithMissingId = a.id.startsWith("missing-id-");
                   const bStartsWithMissingId = b.id.startsWith("missing-id-");
@@ -44,8 +55,11 @@ const router = createBrowserRouter([
                     return a.id.localeCompare(b.id);
                   }
                 })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+              } else {
+                personCache.person = db.personWithId(params.id);
               }
-              return db.personWithId(params.id);
+
+              return personCache.person;
             }
           },
           {path: "stats", Component: Statistics},
@@ -115,10 +129,7 @@ export default function App() {
 interface ILayoutContext {
   setRightTitle: (string) => void,
   setHeaderChildren: (ReactNode) => void,
-  sidebarVisible: boolean,
-  isDark: boolean,
-  allowExternalContent: boolean,
-  toggleExternalContent: (boolean) => void,
+  sidebarVisible: boolean
 }
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
@@ -128,12 +139,8 @@ function Layout() {
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
-  const [allowExternalContent, toggleExternalContent] = useState(false);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
-  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
-  const [isDark, toggleDark] = useState(darkQuery.matches);
-  darkQuery.addEventListener("change", e => toggleDark(e.matches));
   const query = matchMedia("(max-width: 639px)");
   const [isSmallScreen, setSmallScreen] = useState(query.matches);
   query.addEventListener("change", e => setSmallScreen(e.matches));
@@ -174,12 +181,9 @@ function Layout() {
     return {
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
-      sidebarVisible: sidebarExtended,
-      isDark: isDark,
-      allowExternalContent: allowExternalContent,
-      toggleExternalContent: toggleExternalContent
+      sidebarVisible: sidebarExtended
     }
-  }, [allowExternalContent, isDark, sidebarExtended])
+  }, [sidebarExtended])
 
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();

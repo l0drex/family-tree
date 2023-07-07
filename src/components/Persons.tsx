@@ -22,8 +22,10 @@ function ViewOptions(props) {
     <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
       <div>
         <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <ButtonLike primary noHover><select id="view-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.view}
-                onChange={props.onViewChanged}>
+        <ButtonLike primary noHover><select id="view-selector"
+                                            className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
+                                            defaultValue={props.view}
+                                            onChange={props.onViewChanged}>
           <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
           <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
           <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
@@ -34,8 +36,10 @@ function ViewOptions(props) {
 
       <div>
         <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <ButtonLike primary noHover><select id="color-selector" className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer" defaultValue={props.colorMode}
-                onChange={props.onColorChanged}>
+        <ButtonLike primary noHover><select id="color-selector"
+                                            className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
+                                            defaultValue={props.colorMode}
+                                            onChange={props.onColorChanged}>
           <option value={ColorMode.GENDER}>{strings.gedcomX.person.gender}</option>
           <option value={ColorMode.NAME}>{strings.gedcomX.person.namePartTypes.Surname}</option>
           <option value={ColorMode.AGE}>{strings.gedcomX.factQualifier.Age}</option>
@@ -66,18 +70,22 @@ function Persons() {
   const [focusHidden, hideFocus] = useState(false);
   const navigate = useNavigate();
 
-  function onViewChanged(e) {
+  function onViewChanged(e: Event) {
     let view = (e.target as HTMLSelectElement).value;
 
-    searchParams.set(ViewModeParam, view);
-    setSearchParams(searchParams);
+    setSearchParams(searchParams => {
+      searchParams.set(ViewModeParam, view);
+      return searchParams;
+    }, {replace: true});
   }
 
-  function onColorChanged(e) {
+  function onColorChanged(e: Event) {
     let colorMode = (e.target as HTMLSelectElement).value;
 
-    searchParams.set(ColorModeParam, colorMode);
-    setSearchParams(searchParams);
+    setSearchParams(searchParams => {
+      searchParams.set(ColorModeParam, colorMode);
+      return searchParams;
+    }, {replace: true});
   }
 
   const onRefocus = useMemo(() => {
@@ -109,17 +117,16 @@ function Persons() {
 
   return (
     <>
-      <FocusPersonContext.Provider value={focusPerson}>
-        {!focusHidden && <InfoPanel/>}
-      </FocusPersonContext.Provider>
+      {!focusHidden && <InfoPanel person={focusPerson}/>}
       <Main titleRight={focusPerson.fullName}>
-        <article id="family-tree-container" className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
-          <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)} onViewChanged={onViewChanged}
+        <article id="family-tree-container"
+                 className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
+          <ViewOptions view={searchParams.get(ViewModeParam)} colorMode={searchParams.get(ColorModeParam)}
+                       onViewChanged={onViewChanged}
                        onColorChanged={onColorChanged}/>
-          <FocusPersonContext.Provider value={focusPerson}>
-            <TreeView colorMode={searchParams.get(ColorModeParam) as ColorMode} focusHidden={focusHidden}
-                      onRefocus={onRefocus} viewMode={searchParams.get(ViewModeParam) as ViewMode}/>
-          </FocusPersonContext.Provider>
+          <TreeView colorMode={searchParams.get(ColorModeParam) as ColorMode} focusHidden={focusHidden}
+                    onRefocus={onRefocus} viewMode={searchParams.get(ViewModeParam) as ViewMode}
+                    startPerson={focusPerson}/>
         </article>
       </Main>
     </>

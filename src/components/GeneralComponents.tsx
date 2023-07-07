@@ -2,7 +2,6 @@ import {Link, NavLink} from "react-router-dom";
 import * as React from "react";
 import {ReactElement, useEffect, useRef, useState} from "react";
 import {strings} from "../main";
-import {LayoutContext} from "../App";
 
 export function Article({noMargin, emoji, title, children}:
                           { noMargin?: boolean, emoji?: string, title?: string, children }) {
@@ -122,14 +121,14 @@ export function Gallery(props: { children: any[], noMargin?: boolean }) {
 }
 
 export function ExternalContent({children}: { children }) {
-  const layoutContext = React.useContext(LayoutContext);
+  const [allowExternalContent, toggleExternalContent] = useState(false);
 
-  if (layoutContext.allowExternalContent) return children;
+  if (allowExternalContent) return children;
 
   return <div
     className="w-full text-center bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl px-4 py-12 my-4 first:mt-0 last:mb-0">
     <ButtonLike primary>
-      <button onClick={() => layoutContext.toggleExternalContent(true)}
+      <button onClick={() => toggleExternalContent(true)}
               className="px-4 py-2">{strings.externalContentButton}</button>
     </ButtonLike>
   </div>

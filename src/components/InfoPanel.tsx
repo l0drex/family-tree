@@ -2,9 +2,7 @@ import {baseUri} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {Fact, GDate} from "../backend/gedcomx-extensions";
-import {useContext} from "react";
-import {FocusPersonContext} from "./Persons";
+import {Fact, GDate, Person} from "../backend/gedcomx-extensions";
 import {
   Attribution,
   ConclusionMisc, Note, SourceReference,
@@ -17,9 +15,7 @@ import {Article, Details, PopupButton, Tag, Title} from "./GeneralComponents";
 import {Name} from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 
-function InfoPanel() {
-  const person = useContext(FocusPersonContext);
-
+function InfoPanel({person}: {person: Person }) {
   const parents = useLiveQuery(async () => {
     if (!person) return;
 
