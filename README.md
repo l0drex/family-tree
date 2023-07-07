@@ -35,9 +35,6 @@ Due to `gedcomx-js`, the following data can not be stored and therefore not disp
 ### Group
 Not supported at all by `gedcomx-js`
 
-### Event
-Will come in a future release
-
 ### Relationship
 Will come in a future release
 - facts
