@@ -4,7 +4,6 @@ import {Equals, strings} from "../main";
 import {
   baseUri,
   EventRoleTypes,
-  KnownResourceTypes,
   NamePartQualifier,
   NamePartTypes,
   PersonFactQualifiers,
