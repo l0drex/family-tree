@@ -34,9 +34,6 @@ function TreeView(props: Props) {
   const [viewGraphState, setViewGraphState] = useState(LoadingState.NOT_STARTED);
   const [isLandscape, setIsLandscape] = useState(window.matchMedia("(orientation: landscape)").matches);
   const [viewGraphProgress, setProgress] = useState(0);
-  // force rerender on tick
-  const [, update] = useState({});
-  d3cola.on(EventType.tick, () => update({}));
   const startPerson = props.startPerson;
 
   const viewGraph = useMemo(() => {
@@ -66,6 +63,8 @@ function TreeView(props: Props) {
       return;
     }
     setupCola(viewGraph, isLandscape);
+    updatePositions(isLandscape);
+    d3cola.on(EventType.tick, () => updatePositions(isLandscape));
   }, [viewGraph, viewGraphState, isLandscape, props.focusHidden]);
 
   function onEtcClicked(family: GraphFamily) {
@@ -85,25 +84,24 @@ function TreeView(props: Props) {
     <svg id="family-tree" xmlns="http://www.w3.org/2000/svg" className="flex-grow rounded-b-2xl">
       <rect id='background' width='100%' height='100%' className="fill-white dark:fill-black"/>
       <GraphContext.Provider value={viewGraph}>
-      <Graph graph={viewGraph}
-             nodeComponent={({node}) =>
-               <Node data={node}
-                     onPersonClick={props.onRefocus}
-                     onFamilyClick={onEtcClicked}
-                     onEtcClick={onEtcClicked}
-                     startPerson={startPerson}
-                     focusHidden={props.focusHidden}
-                     colorMode={props.colorMode}
-               />}
-             linkComponent={(props) => (
-               <path className="link stroke-2 stroke-black dark:stroke-white fill-none" d={getLinkPath(props.link, isLandscape)}/>
-             )}/>
+        <Graph graph={viewGraph}
+               nodeComponent={({node}) =>
+                 <Node data={node}
+                       onPersonClick={props.onRefocus}
+                       onFamilyClick={onEtcClicked}
+                       onEtcClick={onEtcClicked}
+                       startPerson={startPerson}
+                       focusHidden={props.focusHidden}
+                       colorMode={props.colorMode}
+                 />}
+               linkComponent={(props) => (
+                 <path className="link stroke-2 stroke-black dark:stroke-white fill-none"
+                       d={getLinkPath(props.link, isLandscape)}/>
+               )}/>
       </GraphContext.Provider>
     </svg>
   );
 }
-
-let svgZoom;
 
 function setupCola(graph: ViewGraph, isLandscape: boolean) {
   let svg = d3.select<SVGSVGElement, undefined>("#family-tree");
@@ -111,34 +109,32 @@ function setupCola(graph: ViewGraph, isLandscape: boolean) {
   const viewportSize = [svg.node().getBBox().width, svg.node().getBBox().height];
   d3cola.size(viewportSize);
 
-  if (!svgZoom) {
-    // catch the transformation events
-    /*
-    I have changed the default zoom behavior to the following one:
-     - Nothing on double click
-     - Zoom with Ctrl + wheel
-     - Move with wheel (shift changes the axes)
-    */
-    svgZoom = d3.zoom()
-      .on("zoom", event => {
-        if (event.sourceEvent && event.sourceEvent.type === "wheel") {
-          svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
-        }
-        svg.select(".visx-group").attr("transform", event.transform.toString());
-      })
-      .on("end", () => {
-        svg.node().style.cursor = "";
-      })
-      .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
-      .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent))
-      .wheelDelta(event => {
-        // modified version of https://github.com/d3/d3-zoom#zoom_wheelDelta
-        return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002);
-      });
-    svg.select<SVGElement>("rect").call(svgZoom);
-  }
+  // catch the transformation events
+  /*
+  I have changed the default zoom behavior to the following one:
+   - Nothing on double click
+   - Zoom with Ctrl + wheel
+   - Move with wheel (shift changes the axes)
+  */
+  let svgZoom = d3.zoom()
+    .on("zoom", event => {
+      if (event.sourceEvent && event.sourceEvent.type === "wheel") {
+        svg.node().style.cursor = event.sourceEvent.wheelDelta < 0 ? "zoom-out" : "zoom-in";
+      }
+      svg.select(".visx-group").attr("transform", event.transform.toString());
+    })
+    .on("end", () => {
+      svg.node().style.cursor = "";
+    })
+    .filter(event => event.type !== "dblclick" && (event.type === "wheel" ? event.ctrlKey : true))
+    .touchable(() => ('ontouchstart' in window) || Boolean(window.TouchEvent))
+    .wheelDelta(event => {
+      // modified version of https://github.com/d3/d3-zoom#zoom_wheelDelta
+      return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002);
+    });
+  svg.select<SVGElement>("rect").call(svgZoom);
 
-  let iterations = graph.nodes.length < 100 ? 10 : 0;
+  let iterations = graph.nodes.length < 100 ? 55 : 10;
   d3cola
     .symmetricDiffLinkLengths(config.gridSize);
   if (isLandscape) {
@@ -146,7 +142,17 @@ function setupCola(graph: ViewGraph, isLandscape: boolean) {
   } else {
     d3cola.flowLayout("y", config.gridSize * 3)
   }
-  d3cola.start(iterations, 0, iterations);
+  d3cola.start(iterations, 0, iterations, 0, graph.nodes.length > 19);
+}
+
+function updatePositions(isLandscape: boolean) {
+  let nodes = d3.selectAll<SVGGElement, undefined>(".visx-network-node")
+    .data(d3cola.nodes());
+  let links = d3.selectAll<SVGGElement, undefined>(".visx-network-link path")
+    .data(d3cola.links());
+
+  nodes.attr("transform", d => `translate(${d.x},${d.y})`);
+  links.attr("d", d => getLinkPath(d, isLandscape));
 }
 
 function getLinkPath(d, isLandscape) {
