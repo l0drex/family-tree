@@ -10,6 +10,7 @@ import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
 import {LayoutContext, Main} from "../App";
 import {ButtonLike, Title} from "./GeneralComponents";
+import emojis from '../backend/emojies.json';
 
 export const FocusPersonContext = createContext<Person>(null);
 
@@ -95,7 +96,7 @@ function Persons() {
   useEffect(() => {
     if (!focusPerson) {
       layoutContext.setHeaderChildren([
-        <Title emoji="🌳">{strings.gedcomX.person.persons}</Title>
+        <Title emoji={emojis.tree}>{strings.gedcomX.person.persons}</Title>
       ]);
       return;
     }

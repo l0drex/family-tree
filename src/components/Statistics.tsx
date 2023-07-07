@@ -41,6 +41,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {LayoutContext, Main} from "../App";
 import {Title, Loading} from "./GeneralComponents";
+import emojis from "../backend/emojies.json";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -351,7 +352,7 @@ export default function Statistics() {
   });
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📊">
+    layoutContext.setHeaderChildren(<Title emoji={emojis.stats}>
       {strings.statistics.title}
     </Title>);
     layoutContext.setRightTitle("");

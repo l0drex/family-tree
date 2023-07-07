@@ -16,6 +16,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";
 import {Imprint} from "./components/Imprint";
 import {EventOverview, EventView} from "./components/Events";
+import emojis from './backend/emojies.json';
 
 const router = createBrowserRouter([
   {
@@ -140,31 +141,31 @@ function Layout() {
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
       <li><ReactNavLink to="">
-          {"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}
+          {emojis.home + (navBarExtended ? ` ${strings.home.title}` : "")}
         </ReactNavLink></li>
       <li><ReactNavLink to="persons">
-          {"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
+          {emojis.tree + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
         </ReactNavLink>
       </li>
       <li><ReactNavLink to="stats">
-        {"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}
+        {emojis.stats + (navBarExtended ? ` ${strings.statistics.title}` : "")}
       </ReactNavLink></li>
       <li><ReactNavLink to="sources">
-        {"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}
+        {emojis.source.default + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}
       </ReactNavLink>
       </li>
       <li><ReactNavLink to="documents">
-        {"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
+        {emojis.document.default + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
       </ReactNavLink></li>
       <li><ReactNavLink to="agents">
-        {"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
+        {emojis.agent.agent + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
       </ReactNavLink>
       </li>
       <li><ReactNavLink to="places">
-        {"🌎" + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
+        {emojis.place + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
       </ReactNavLink></li>
       <li><ReactNavLink to="events">
-        {"📅" + (navBarExtended ? ` ${strings.gedcomX.event.events}` : "")}
+        {emojis.event.default + (navBarExtended ? ` ${strings.gedcomX.event.events}` : "")}
       </ReactNavLink></li>
     </ul>
   </nav>
@@ -189,7 +190,7 @@ function Layout() {
 
   return <>
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
-      <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? "⬅️" : "➡️"}</button>
+      <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? emojis.left : emojis.right}</button>
     </div>
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
 
@@ -200,7 +201,7 @@ function Layout() {
     {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
       {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}
       <span className={`lg:hidden`}>
-        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
+        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? emojis.right : emojis.left}</button>
       </span>
     </div>}
 

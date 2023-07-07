@@ -11,13 +11,14 @@ import {LayoutContext, Main, Sidebar} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 import * as sanitize from "sanitize-html";
+import emojis from '../backend/emojies.json';
 
 export function DocumentOverview() {
   const documents = useLoaderData() as Document[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📄">{strings.gedcomX.document.documents}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.document.default}>{strings.gedcomX.document.documents}</Title>);
   }, [layoutContext])
 
   return <Main><Article>

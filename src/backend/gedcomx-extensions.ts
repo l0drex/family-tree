@@ -1,17 +1,18 @@
 import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
-import {Equals, filterLang, strings} from "../main";
+import {Equals, strings} from "../main";
 import {
-  baseUri, DocumentTypes, EventRoleTypes, KnownResourceTypes, NamePartQualifier, NamePartTypes,
-  NameTypes,
+  baseUri,
+  EventRoleTypes,
+  KnownResourceTypes,
+  NamePartQualifier,
+  NamePartTypes,
   PersonFactQualifiers,
-  PersonFactTypes, TextTypes
+  PersonFactTypes,
+  TextTypes
 } from "./gedcomx-enums";
-import * as factEmojis from './factEmojies.json';
-import * as eventEmojies from './eventEmojies.json'
-import {
-  INote, ITextValue, ISourceCitation, INameForm, IConclusion
-} from "./gedcomx-types";
+import emojis from './emojies.json';
+import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./gedcomx-types";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
@@ -61,42 +62,6 @@ export class Person extends GedcomX.Person {
     // name form that matches language, or if none matches return the first without lang
     let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
     return nameForm.getFullText(true);
-  }
-
-  get birthName() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.BirthName)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
-  }
-
-  get marriedName() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.MarriedName)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
-  }
-
-  get alsoKnownAs() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.AlsoKnownAs)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
-  }
-
-  get nickname() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.Nickname)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
   }
 
   get surname(): string | undefined {
@@ -327,11 +292,12 @@ export class Fact extends GedcomX.Fact {
   }
 
   get emoji(): string {
-    const type = this.type.substring(baseUri.length);
-    if (type in factEmojis) {
-      return factEmojis[type];
+    if (this.type) {
+      let emoji = emojis.fact[this.type.substring(baseUri.length)];
+      if (emoji) return emoji;
     }
-    return "•";
+
+    return emojis.fact.default;
   }
 }
 
@@ -381,9 +347,8 @@ export class FamilyView extends GedcomX.FamilyView implements Equals {
 
   equals(family: GedcomX.FamilyView) {
     let parentResources = this.parents.map(p => p.resource);
-    let parentEqual = parentResources.includes(family.parent1.resource) &&
+    return parentResources.includes(family.parent1.resource) &&
       parentResources.includes(family.parent2.resource);
-    return parentEqual;
   }
 }
 
@@ -394,18 +359,10 @@ export class SourceDescription extends GedcomX.SourceDescription {
   }
 
   get emoji() {
-    switch (this.getResourceType()) {
-      case KnownResourceTypes.Collection:
-        return "📚";
-      case KnownResourceTypes.PhysicalArtifact:
-        return "📖";
-      case KnownResourceTypes.DigitalArtifact:
-        return "💿";
-      case KnownResourceTypes.Record:
-        return "📜";
-    }
+    let emoji = emojis.source[this.getResourceType()?.substring(baseUri.length)];
+    if (emoji) return emoji;
 
-    return "📖";
+    return emojis.source.default;
   }
 }
 
@@ -426,18 +383,10 @@ export class Document extends GedcomX.Document {
   // todo get attribution from containing data set
 
   get emoji(): string {
-    switch (this.getType()) {
-      case DocumentTypes.Abstract:
-        return "📄";
-      case DocumentTypes.Transcription:
-        return "📝";
-      case DocumentTypes.Translation:
-        return "🌍";
-      case DocumentTypes.Analysis:
-        return "🔍";
-      default:
-        return "📄";
-    }
+    let emoji = emojis.document[this.getType()?.substring(baseUri.length)];
+    if (emoji) return emoji;
+
+    return emojis.document.default;
   }
 }
 
@@ -457,11 +406,11 @@ export class PlaceDescription extends GedcomX.PlaceDescription {
 export class EventExtended extends GedcomX.Event {
   get emoji() {
     if (this.type) {
-      let emoji = eventEmojies[this.type.substring(baseUri.length)];
+      let emoji = emojis.event[this.type.substring(baseUri.length)];
       if (emoji) return emoji;
     }
 
-    return "📅"
+    return emojis.event.default;
   }
 
   get title() {

@@ -16,13 +16,14 @@ import {
 } from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {db} from "../backend/db";
+import emojis from '../backend/emojies.json';
 
 export function SourceDescriptionOverview() {
   const descriptions = useLoaderData() as SourceDescription[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📚">{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
   }, [layoutContext])
 
   return <Main><Article>

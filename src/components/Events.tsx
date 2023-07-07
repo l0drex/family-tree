@@ -8,13 +8,14 @@ import {Event} from "gedcomx-js";
 import {db} from "../backend/db";
 import {baseUri} from "../backend/gedcomx-enums";
 import {EventExtended} from "../backend/gedcomx-extensions";
+import emojies from '../backend/emojies.json';
 
 export function EventOverview() {
   const events = useLoaderData() as Event[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📅">{strings.gedcomX.event.events}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojies.event.default}>{strings.gedcomX.event.events}</Title>);
   }, [layoutContext])
 
   return <Main><Article>
@@ -42,7 +43,7 @@ export function EventView() {
   }, [])
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📅">{event.title}</Title>)
+    layoutContext.setHeaderChildren(<Title emoji={emojies.event.default}>{event.title}</Title>)
   }, [event, layoutContext])
 
   return <>

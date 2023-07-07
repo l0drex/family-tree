@@ -13,13 +13,14 @@ import {
   SubjectMisc, SubjectSidebar
 } from "./GedcomXComponents";
 import {GDate} from "../backend/gedcomx-extensions";
+import emojis from '../backend/emojies.json';
 
 export function PlaceOverview() {
   const places = useLoaderData() as PlaceDescription[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="🌎">{strings.gedcomX.placeDescription.places}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.place}>{strings.gedcomX.placeDescription.places}</Title>);
   }, [layoutContext]);
 
   return <Main><Article>
@@ -31,7 +32,7 @@ function PlaceList(props: { places: PlaceDescription[] }) {
   return <ul>
     {props.places?.map(place =>
       <li key={place.id}><ReactNavLink to={`/places/${place.id}`}>
-        {`🌎 ${place.names[0].getValue()}`}</ReactNavLink>
+        {`${emojis.place} ${place.names[0].getValue()}`}</ReactNavLink>
       </li>)}
   </ul>;
 }
@@ -42,7 +43,7 @@ export function PlaceView() {
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="🌎">{place.names[0].getValue()}</Title>)
+    layoutContext.setHeaderChildren(<Title emoji={emojis.place}>{place.names[0].getValue()}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.placeDescription.places);
   }, [layoutContext, place])
 

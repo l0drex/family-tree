@@ -15,6 +15,7 @@ import {
 import {Sidebar} from "../App";
 import {Article, Details, PopupButton, Tag, Title} from "./GeneralComponents";
 import {Name} from "gedcomx-js";
+import emojis from '../backend/emojies.json';
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
@@ -79,13 +80,13 @@ function InfoPanel() {
       <Facts facts={person.getFacts()}/>
 
       <Details title={strings.gedcomX.relationship.relationships}>
-        <RelationshipGroup relationships={parents} emoji="👪" title={strings.gedcomX.relationship.parents}/>
-        <RelationshipGroup relationships={children} emoji="🍼" title={strings.gedcomX.relationship.children}/>
-        <RelationshipGroup relationships={partner} emoji="❤️️" title={strings.gedcomX.relationship.partner}/>
-        <RelationshipGroup relationships={godparents} emoji="⛅" title={strings.gedcomX.relationship.godparents}/>
-        <RelationshipGroup relationships={godchildren} emoji="⛅" title={strings.gedcomX.relationship.godchildren}/>
-        <RelationshipGroup relationships={enslavedBy} emoji="🔗" title={strings.gedcomX.relationship.enslavedBy}/>
-        <RelationshipGroup relationships={slaves} emoji="🔗" title={strings.gedcomX.relationship.slaves}/>
+        <RelationshipGroup relationships={parents} emoji={emojis.relationship.parent} title={strings.gedcomX.relationship.parents}/>
+        <RelationshipGroup relationships={children} emoji={emojis.relationship.child} title={strings.gedcomX.relationship.children}/>
+        <RelationshipGroup relationships={partner} emoji={emojis.relationship.partner} title={strings.gedcomX.relationship.partner}/>
+        <RelationshipGroup relationships={godparents} emoji={emojis.relationship.godparent} title={strings.gedcomX.relationship.godparents}/>
+        <RelationshipGroup relationships={godchildren} emoji={emojis.relationship.godchild} title={strings.gedcomX.relationship.godchildren}/>
+        <RelationshipGroup relationships={enslavedBy} emoji={emojis.relationship.enslaver} title={strings.gedcomX.relationship.enslavedBy}/>
+        <RelationshipGroup relationships={slaves} emoji={emojis.relationship.slaves} title={strings.gedcomX.relationship.slaves}/>
       </Details>
 
       <SubjectArticles subject={person} noMargin/>
@@ -146,13 +147,13 @@ function Facts({facts}: { facts: Fact[] }) {
               </section>}
             </div>
             <div className="flex flex-col">
-              {f.notes && <PopupButton title="📝">
+              {f.notes && <PopupButton title={emojis.note}>
                 {f.notes.map((n, i) => <Note key={i} note={n}/>)}
               </PopupButton>}
-              {f.attribution && <PopupButton title="✒️">
+              {f.attribution && <PopupButton title={emojis.attribution}>
                 <Attribution attribution={f.attribution}/>
                 ️</PopupButton>}
-              {f.sources && <PopupButton title="📚">
+              {f.sources && <PopupButton title={emojis.source.default}>
                 {f.sources.map((s, i) => <SourceReference key={i} reference={s}/>)}
               </PopupButton>}
             </div>

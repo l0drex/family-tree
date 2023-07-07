@@ -6,9 +6,10 @@ import {formatJDate, GDate} from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
 import {Link} from "react-router-dom";
 import {Article, ExternalContent, Gallery, Hr, Media, P, ReactLink, Tag} from "./GeneralComponents";
+import emojis from "../backend/emojies.json";
 
 export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
-  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note}
+  return <Article emoji={emojis.note} title={props.note.getSubject() || strings.gedcomX.conclusion.note}
                   noMargin={props.noMargin}>
     <p>{props.note.getText()}</p>
     {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
@@ -68,7 +69,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 }
 
 export function SourceReference(props: { reference: gedcomX.SourceReference, noMargin?: boolean }) {
-  return <Article emoji="📖" title={strings.gedcomX.sourceDescription.sourceDescription} noMargin={props.noMargin}>
+  return <Article emoji={emojis.source.default} title={strings.gedcomX.sourceDescription.sourceDescription} noMargin={props.noMargin}>
     <p><ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
     </p>
     {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
@@ -79,7 +80,7 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <Article emoji="🗺️" title={strings.gedcomX.sourceDescription.coverageTitle}>
+  return <Article emoji={emojis.coverage} title={strings.gedcomX.sourceDescription.coverageTitle}>
     <p>
       {props.coverage.temporal && <>{`${strings.gedcomX.sourceDescription.coverage.temporal}: ${date}`}</>}
       {props.coverage.spatial && <>{strings.gedcomX.sourceDescription.coverage.spatial + ": "} <PlaceReference
@@ -146,6 +147,13 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
   </>
 }
 
+export function Evidence({noMargin, evidenceReference: evidence}) {
+  return <Article noMargin={noMargin} emoji={emojis.evidence} title={strings.gedcomX.subject.evidence}>
+    <ReactLink to={"./" + evidence.resource.substring(1)}>{evidence.resource}</ReactLink>
+    <Attribution attribution={evidence.attribution}/>
+  </Article>
+}
+
 export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
   const media = useLiveQuery(async () => {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
@@ -169,10 +177,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
       })}
     </Gallery>}
     {subject.getEvidence().map((e, i) =>
-      <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.subject.evidence} key={i}>
-      <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
-      <Attribution attribution={e.attribution}/>
-    </Article>)}
+      <Evidence key={i} evidenceReference={e} noMargin={noMargin}/>)}
     <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
   </>
 }
