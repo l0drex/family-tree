@@ -92,8 +92,8 @@ function TreeView(props: Props) {
                      focusHidden={props.focusHidden}
                      colorMode={props.colorMode}
                />}
-             linkComponent={() => (
-               <path className="link stroke-2 stroke-black dark:stroke-white fill-none"/>
+             linkComponent={(props) => (
+               <path className="link stroke-2 stroke-black dark:stroke-white fill-none" d={getLinkPath(props.link, isLandscape)}/>
              )}/>
       </GraphContext.Provider>
     </svg>
@@ -170,50 +170,54 @@ async function animateTree(graph: ViewGraph, isLandscape: boolean) {
     d3cola.on(EventType.tick, () => {
       updateNodes();
 
-      link.attr("d", d => {
-        // 1 or -1
-        let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
-        let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
-
-        if (d.target instanceof GraphPerson) {
-          return `M${d.source.x},${d.source.y} ` +
-            `h${config.gridSize} ` +
-            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
-            `V${d.target.y - (flip) * radius} ` +
-            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
-            `H${d.target.x}`;
-        } else {
-          return `M${d.source.x} ${d.source.y} ` +
-            `H${d.target.x - radius} ` +
-            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
-            `V${d.target.y}`;
-        }
-      });
+      link.attr("d", getLinkPath);
     });
   } else {
     d3cola.on("tick", () => {
       updateNodes();
 
-      link.attr("d", d => {
-        // 1 or -1
-        let flip = -(Number((d.source.x - d.target.x) > 0) * 2 - 1);
-        let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
-
-        if (d.target instanceof GraphPerson) {
-          return `M${d.source.x},${d.source.y} ` +
-            `v${config.gridSize} ` +
-            `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${flip * radius} ${radius} ` +
-            `H${d.target.x - (flip) * radius} ` +
-            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
-            `V${d.target.y}`;
-        } else {
-          return `M${d.source.x} ${d.source.y} ` +
-            `H${d.target.x - flip * radius} ` +
-            `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
-            `V${d.target.y}`;
-        }
-      });
+      link.attr("d", getLinkPath);
     });
+  }
+}
+
+function getLinkPath(d, isLandscape) {
+  if (isLandscape) {
+    // 1 or -1
+    let flip = -(Number((d.source.y - d.target.y) > 0) * 2 - 1);
+    let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
+
+    if (d.target instanceof GraphPerson) {
+      return `M${d.source.x},${d.source.y} ` +
+        `h${config.gridSize} ` +
+        `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+        `V${d.target.y - (flip) * radius} ` +
+        `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${radius} ${flip * radius} ` +
+        `H${d.target.x}`;
+    } else {
+      return `M${d.source.x} ${d.source.y} ` +
+        `H${d.target.x - radius} ` +
+        `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${radius} ${flip * radius} ` +
+        `V${d.target.y}`;
+    }
+  }
+
+  // 1 or -1
+  let flip = -(Number((d.source.x - d.target.x) > 0) * 2 - 1);
+  let radius = Math.min(config.gridSize / 2, Math.abs(d.target.x - d.source.x) / 2, Math.abs(d.target.y - d.source.y) / 2);
+
+  if (d.target instanceof GraphPerson) {
+    return `M${d.source.x},${d.source.y} ` +
+      `v${config.gridSize} ` +
+      `a${radius} ${radius} 0 0 ${(-flip + 1) / 2} ${flip * radius} ${radius} ` +
+      `H${d.target.x - (flip) * radius} ` +
+      `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
+      `V${d.target.y}`;
+  } else {
+    return `M${d.source.x} ${d.source.y} ` +
+      `H${d.target.x - flip * radius} ` +
+      `a${radius} ${radius} 0 0 ${(flip + 1) / 2} ${flip * radius} ${radius} ` +
+      `V${d.target.y}`;
   }
 }
 
