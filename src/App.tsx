@@ -198,7 +198,7 @@ function Layout() {
     </div>
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
 
-    <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
+    <header className="row-start-1 flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
     </header>
 
