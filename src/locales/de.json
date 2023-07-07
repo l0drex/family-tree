@@ -162,6 +162,7 @@
         "Unknown": "Unbekannt",
         "Intersex": "Intersexuell"
       },
+      "names": "Namen",
       "firstName": "Vorname",
       "born": "geb.: {0}",
       "aka": "alias {0}",

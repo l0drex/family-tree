@@ -1,8 +1,8 @@
-import {PersonFactTypes} from "../backend/gedcomx-enums";
+import {baseUri, PersonFactTypes} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {GDate} from "../backend/gedcomx-extensions";
+import {GDate, Person} from "../backend/gedcomx-extensions";
 import {useContext} from "react";
 import {FocusPersonContext} from "./Persons";
 import {
@@ -11,7 +11,9 @@ import {
   SubjectSidebar
 } from "./GedcomXComponents";
 import {Sidebar} from "../App";
-import {Article, Details, Tag} from "./GeneralComponents";
+import {Article, Details, Tag, Title} from "./GeneralComponents";
+import {filter} from "d3";
+import {Name} from "gedcomx-js";
 
 function InfoPanel() {
   const person = useContext(FocusPersonContext);
@@ -71,7 +73,7 @@ function InfoPanel() {
 
   return (
     <Sidebar id="info-panel">
-      <Names person={person}/>
+      <Names names={person.names}/>
 
       <Facts facts={person.facts}/>
 
@@ -96,21 +98,24 @@ function InfoPanel() {
   );
 }
 
-function Names({person}) {
-  const hasMultipleNames = person.names?.length > 1;
-  if (!hasMultipleNames) return <></>
+function Names({names}: { names: Name[] }) {
+  if (!names || names.length === 0) return <></>
 
-  return <Article className="text-lg text-center">
-    {person.marriedName && <h2 className="birth-name">
-      {strings.formatString(strings.gedcomX.person.born, person.birthName)}
-    </h2>}
-    {person.alsoKnownAs && <h2 className="alsoKnownAs">
-      {strings.formatString(strings.gedcomX.person.aka, person.alsoKnownAs)}
-    </h2>}
-    {person.nickname && <h2 className="nickname">
-      {strings.formatString(strings.gedcomX.person.nickname, person.nickname)}
-    </h2>}
-  </Article>
+  return <section>
+    <h2 className="ml-4 text-lg">{strings.gedcomX.person.names}</h2>
+    {names.map(n => {
+      return <Article>
+        {n.nameForms.map(nf => {
+          return <div>{nf.fullText} {nf.lang && `(${nf.lang})`}</div>
+        })}
+        {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
+          {n.type && <Tag
+            bgColor="bg-bg-light dark:bg-bg-dark">{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</Tag>}
+          {n.date && <Tag bgColor="bg-bg-light dark:bg-bg-dark">{new GDate(n.date.toJSON()).toString()}</Tag>}
+        </section>}
+      </Article>
+    })}
+  </section>
 }
 
 function Facts({facts}) {

@@ -11,7 +11,6 @@ import {SourceDescriptionOverview, SourceDescriptionView} from "./components/Sou
 import {DocumentOverview, DocumentView} from "./components/Documents";
 import {AgentOverview, AgentView} from "./components/Agents";
 import {PlaceDescription} from "gedcomx-js";
-import * as GedcomX from "gedcomx-js";
 import {PlaceOverview, PlaceView} from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";

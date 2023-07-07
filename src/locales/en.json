@@ -160,6 +160,7 @@
         "Unknown": "Unknown",
         "Intersex": "Intersex"
       },
+      "names": "Names",
       "firstName": "first name",
       "born": "born: {0}",
       "aka": "aka {0}",

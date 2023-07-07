@@ -17,7 +17,7 @@ import {
   OnlineAccount,
   Person,
   PlaceDescription,
-  PlaceReference,
+  PlaceReference, Qualifier,
   Relationship,
   ResourceReference,
   Root,
@@ -33,13 +33,14 @@ import {
   DocumentTypes, EventRoleTypes, EventTypes,
   GenderTypes,
   IdentifierTypes,
-  KnownResourceTypes,
+  KnownResourceTypes, NamePartQualifier,
   NamePartTypes,
   NameTypes,
   PersonFactTypes,
   RelationshipFactTypes,
   RelationshipTypes
 } from "./gedcomx-enums";
+import {GDate} from "./gedcomx-extensions";
 
 let testData: Root;
 
@@ -56,6 +57,25 @@ function extensiveData() {
   return new Root()
     .addPerson(getPerson("husband", "male")
       .setPrivate(true)
+      .addName(new Name(getConclusion("husbandName"))
+        .setType(NameTypes.Nickname)
+        .setDate(marriageDate)
+        .addNameForm(new NameForm()
+          .setFullText("Husband")
+          .setLang("en")
+          .addPart(new NamePart()
+            .setType(NamePartTypes.Given)
+            .setValue("Husband")
+            .addQualifier(new Qualifier()
+              .setName(NamePartQualifier.Occupational))))
+        .addNameForm(new NameForm()
+          .setFullText("Ehemann")
+          .setLang("de")
+          .addPart(new NamePart()
+            .setType(NamePartTypes.Given)
+            .setValue("Ehemann")
+            .addQualifier(new Qualifier()
+              .setName(NamePartQualifier.Occupational)))))
       .addFact(new Fact().setType(PersonFactTypes.Birth)
         .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))
       .addFact(new Fact().setType(PersonFactTypes.MaritalStatus)
@@ -242,7 +262,8 @@ function getPerson(id: string, gender?: "male" | "female" | "intersex", otherNam
     .addName(new Name()
       .addNameForm(new NameForm().setFullText(faker.person.fullName({sex: fakerGender, firstName: firstName, lastName: thisLastName}))
         .addPart(new NamePart().setValue(thisLastName).setType(NamePartTypes.Surname))
-        .addPart(new NamePart().setValue(firstName).setType(NamePartTypes.Given))));
+        .addPart(new NamePart().setValue(firstName).setType(NamePartTypes.Given)))
+      .setType(gender === "female" ? NameTypes.MarriedName : NameTypes.BirthName));
 
   if (gender === "female") {
     const originalLastName = faker.person.lastName();

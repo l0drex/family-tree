@@ -74,9 +74,11 @@ export function ButtonLike(props: {
   </div>
 }
 
-export function Tag({children}) {
+export function Tag({children, bgColor}: {children, bgColor?: string }) {
+  bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
+
   return <span
-    className="inline-block rounded-full bg-white bg-opacity-50 dark:bg-opacity-10 w-fit px-4 py-1 text-neutral-700 dark:text-neutral-300 text-sm">
+    className={`inline-block rounded-full ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
     {children}
   </span>
 }

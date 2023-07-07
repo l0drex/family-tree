@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./src/**/*.tsx", "./public/*.html"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "bg-light": "#d2e8d2",
+        "bg-dark": "#182118"
+      }
+    },
   },
   plugins: [],
   safelist: [
