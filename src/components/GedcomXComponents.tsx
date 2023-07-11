@@ -71,7 +71,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     if (modified && contributorName) modifiedString += " ";
   }
 
-  return <div className="text-neutral-700">
+  return <div className="text-neutral-700 dark:text-neutral-400">
     <Details title={strings.gedcomX.conclusion.attribution.attribution}>
       {hasCreated && <P>
         {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
