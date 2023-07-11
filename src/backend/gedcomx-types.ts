@@ -257,10 +257,14 @@ export interface IResourceReference {
   resource: URI
 }
 
-export interface IGedcomX {
+export interface IGedcomXData {
   id?: string
   lang?: localeTag
   attribution?: IAttribution
+  description?: URI
+}
+
+export interface IGedcomX extends IGedcomXData {
   persons?: IPerson[]
   relationships?: IRelationship[]
   sourceDescriptions?: ISourceDescription[]
@@ -269,7 +273,6 @@ export interface IGedcomX {
   documents?: IDocument[]
   places?: IPlaceDescription[]
   groups?: IGroup[]
-  description?: URI
 }
 
 // other types
