@@ -20,8 +20,11 @@ import {
 import emojis from "../backend/emojies.json";
 
 export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
+  if (!notes || notes.length === 0)
+    return <></>;
+
   return <ArticleCollection noMargin={noMargin}>
-    <Title emoji={emojis.note}>{strings.gedcomX.conclusion.note}</Title>
+    <Title emoji={emojis.note}>{strings.gedcomX.conclusion.notes}</Title>
     {notes.map((note, i) =>
       <Article emoji="" title={note.getSubject()} key={i}>
         <P>{note.getText()}</P>
@@ -113,6 +116,9 @@ export function SourceReferences({references, noMargin}: {
   references: gedcomX.SourceReference[],
   noMargin?: boolean
 }) {
+  if (!references || references.length === 0)
+    return <></>;
+
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
     {references.map((reference, i) => <SourceReference reference={reference} key={i}/>)}
@@ -192,6 +198,9 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
 
 export function Evidence({evidenceReferences}) {
   const params = useParams();
+
+  if (!evidenceReferences || evidenceReferences.length === 0)
+    return <></>;
 
   let linkTarget = params["id"] ? "../" : "./";
 

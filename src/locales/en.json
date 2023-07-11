@@ -64,6 +64,7 @@
   "gedcomX": {
     "conclusion": {
       "note": "Note",
+      "notes": "Notes",
       "confidence": "Confidence",
       "confidenceExplanation": "How much can the data be trusted",
       "confidenceLevel": {
