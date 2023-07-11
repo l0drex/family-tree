@@ -26,7 +26,7 @@ export function EventOverview() {
 function EventList({events}) {
   return <ul>
     {events?.map(event =>
-      <li key={event.id}><ReactNavLink to={`/events/${event.getId()}`}>
+      <li key={event.id}><ReactNavLink to={`/event/${event.getId()}`}>
         {`${event.emoji} ${event.title}`}
       </ReactNavLink></li>
     )}

@@ -97,7 +97,7 @@ function Persons() {
         return;
       }
 
-      navigate(`/persons/${newFocus.getId()}?${searchParams.toString()}`);
+      navigate(`/person/${newFocus.getId()}?${searchParams.toString()}`);
     }
   }, [focusPerson, navigate, searchParams, focusHidden]);
 

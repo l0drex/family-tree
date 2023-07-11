@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         path: "*", errorElement: <ErrorBoundary/>, children: [
           {index: true, Component: Home},
           {
-            path: "persons/:id?", Component: Persons, loader: ({params}) => {
+            path: "person/:id?", Component: Persons, loader: ({params}) => {
               if (personCache.person !== undefined && personCache.id === params.id) {
                 return personCache.person;
               }
@@ -64,7 +64,7 @@ const router = createBrowserRouter([
           },
           {path: "stats", Component: Statistics},
           {
-            path: "sources", children: [
+            path: "sourceDescription", children: [
               {
                 index: true,
                 Component: SourceDescriptionOverview,
@@ -78,7 +78,7 @@ const router = createBrowserRouter([
             ]
           },
           {
-            path: "documents", children: [
+            path: "document", children: [
               {
                 index: true,
                 Component: DocumentOverview,
@@ -88,7 +88,7 @@ const router = createBrowserRouter([
             ]
           },
           {
-            path: "agents", children: [
+            path: "agent", children: [
               {
                 index: true,
                 Component: AgentOverview,
@@ -98,7 +98,7 @@ const router = createBrowserRouter([
             ]
           },
           {
-            path: "events", children: [
+            path: "event", children: [
               {
                 index: true,
                 Component: EventOverview,
@@ -107,9 +107,8 @@ const router = createBrowserRouter([
               {path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")}
               ]
           },
-          {path: "imprint", Component: Imprint},
           {
-            path: "places", children: [
+            path: "place", children: [
               {
                 index: true,
                 Component: PlaceOverview,
@@ -117,7 +116,8 @@ const router = createBrowserRouter([
               },
               {path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")}
             ]
-          }
+          },
+          {path: "imprint", Component: Imprint}
         ]
       }]
   }], {basename: "/family-tree"});
@@ -150,28 +150,28 @@ function Layout() {
       <li><ReactNavLink to="">
           {emojis.home + (navBarExtended ? ` ${strings.home.title}` : "")}
         </ReactNavLink></li>
-      <li><ReactNavLink to="persons">
+      <li><ReactNavLink to="person">
           {emojis.tree + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
         </ReactNavLink>
       </li>
       <li><ReactNavLink to="stats">
         {emojis.stats + (navBarExtended ? ` ${strings.statistics.title}` : "")}
       </ReactNavLink></li>
-      <li><ReactNavLink to="sources">
+      <li><ReactNavLink to="sourceDescription">
         {emojis.source.default + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}
       </ReactNavLink>
       </li>
-      <li><ReactNavLink to="documents">
+      <li><ReactNavLink to="document">
         {emojis.document.default + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
       </ReactNavLink></li>
-      <li><ReactNavLink to="agents">
+      <li><ReactNavLink to="agent">
         {emojis.agent.agent + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
       </ReactNavLink>
       </li>
-      <li><ReactNavLink to="places">
+      <li><ReactNavLink to="place">
         {emojis.place + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
       </ReactNavLink></li>
-      <li><ReactNavLink to="events">
+      <li><ReactNavLink to="event">
         {emojis.event.default + (navBarExtended ? ` ${strings.gedcomX.event.events}` : "")}
       </ReactNavLink></li>
     </ul>

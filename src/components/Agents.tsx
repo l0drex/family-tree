@@ -25,7 +25,7 @@ function AgentList(props) {
   return <ul>
     {props.agents?.map(agent =>
       <li key={agent.id}><ReactNavLink
-        to={`/agents/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink></li>)}
+        to={`/agent/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink></li>)}
   </ul>;
 }
 

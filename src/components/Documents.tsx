@@ -29,7 +29,7 @@ export function DocumentOverview() {
 function DocumentList({documents}) {
   return <ul>
     {documents?.map(doc =>
-      <li key={doc.id}><ReactNavLink to={`/documents/${doc.getId()}`}>
+      <li key={doc.id}><ReactNavLink to={`/document/${doc.getId()}`}>
         {`${doc.emoji} ${strings.gedcomX.document.document}`}
       </ReactNavLink></li>
     )}

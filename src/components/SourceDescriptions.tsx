@@ -2,7 +2,7 @@ import {SourceDescription} from "../backend/gedcomx-extensions";
 import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
-import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
+import {Alias, Attribution, Coverage, Identifiers, Notes, SourceReferences} from "./GedcomXComponents";
 import {
   Article,
   ExternalContent,
@@ -35,7 +35,7 @@ function SourcesList(props) {
   return <ul>
     {props.descriptions?.map(sd =>
       <li key={sd.id}>
-        <ReactNavLink to={`/sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
+        <ReactNavLink to={`/sourceDescription/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
       </li>
     )}
   </ul>
@@ -100,8 +100,8 @@ export function SourceDescriptionView() {
         </section>}
       </Article>
       {sourceDescription.getCoverage().map((c, i) => <Coverage coverage={c} key={i}/>)}
-      {sourceDescription.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-      {sourceDescription.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
+      <Notes notes={sourceDescription.getNotes()}/>
+      <SourceReferences references={sourceDescription.getSources()}/>
     </Main>
     <Sidebar>
       <SourcesList descriptions={others}/>

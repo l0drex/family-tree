@@ -31,7 +31,7 @@ export function PlaceOverview() {
 function PlaceList(props: { places: PlaceDescription[] }) {
   return <ul>
     {props.places?.map(place =>
-      <li key={place.id}><ReactNavLink to={`/places/${place.id}`}>
+      <li key={place.id}><ReactNavLink to={`/place/${place.id}`}>
         {`${emojis.place} ${place.names[0].getValue()}`}</ReactNavLink>
       </li>)}
   </ul>;

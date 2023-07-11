@@ -80,7 +80,7 @@ export function Person(
 
   return (
     <foreignObject
-      className="person overflow-visible cursor-pointer select-none"
+      className={`person overflow-visible cursor-pointer select-none ${focused && "font-bold"}`}
       width={graphPerson.width} height={graphPerson.height} x={-graphPerson.width / 2} y={-graphPerson.height / 2}
       onClick={() => onClick(graphPerson.data)}>
       <div className={`rounded-3xl px-4 py-2 ` +
