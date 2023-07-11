@@ -55,8 +55,6 @@ export function PlaceView() {
   const hasSidebarContent = place.place || place.spatialDescription;
   const coordinates: LatLngExpression = [place.latitude, place.longitude];
 
-  // TODO type, place, spatial description
-
   return <>
     <Main>
       <section className="mx-auto w-fit flex flex-row gap-4">
