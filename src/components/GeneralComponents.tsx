@@ -82,9 +82,15 @@ export function Tag({children, bgColor}: { children, bgColor?: string }) {
   bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
 
   return <span
-    className={`inline-block rounded-full ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
+    className={`inline-block rounded-full ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm whitespace-nowrap`}>
     {children}
   </span>
+}
+
+export function Tags({children}) {
+  return <section className="mx-auto w-fit flex flex-row gap-4 flex-wrap justify-center">
+    {children}
+  </section>
 }
 
 export function P({children}: { children }) {

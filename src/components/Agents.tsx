@@ -3,7 +3,7 @@ import {strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
-import {useContext, useEffect, useState} from "react";
+import {ReactNode, useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 import {Alias, Identifiers} from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
@@ -29,6 +29,10 @@ function AgentList(props) {
   </ul>;
 }
 
+function Tags(props: { children: ReactNode }) {
+  return null;
+}
+
 export function AgentView() {
   const agent = useLoaderData() as Agent;
   const [others, setOthers] = useState([]);
@@ -42,11 +46,16 @@ export function AgentView() {
 
   const hasData = agent.names?.length > 1 || agent.homepage || agent.openid || agent.accounts || agent.emails || agent.phones || agent.addresses;
 
+  // todo linked person not visible
+
   return <>
     <Main>
-      <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
-        {agent.person && <Tag>{strings.gedcomX.agent.person}: <ReactLink
-          to={`/persons/${agent.person.resource.substring(1)}`}>{agent.person.resource}</ReactLink></Tag>}</section>
+      <Tags>
+        {agent.person && <Tag>
+          {strings.gedcomX.agent.person}: <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
+          {agent.person.resource}</ReactLink>
+        </Tag>}
+      </Tags>
       <Article>
         {!hasData && <p>{strings.errors.noData}</p>}
         {agent.names && <Alias aliases={agent.names}/>}

@@ -11,7 +11,7 @@ import {
   SubjectSidebar
 } from "./GedcomXComponents";
 import {Sidebar} from "../App";
-import {Article, Details, PopupButton, Tag, Title} from "./GeneralComponents";
+import {Article, Details, PopupButton, Tag, Tags, Title} from "./GeneralComponents";
 import {Name} from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 
@@ -93,10 +93,10 @@ function InfoPanel({person}: { person: Person }) {
       </Details>
 
       <SubjectArticles subject={person} noMargin/>
-      <section className="mx-auto w-fit flex flex-row flex-wrap gap-4">
+      <Tags>
         {person.isPrivate && <Tag>{strings.gedcomX.person.private}</Tag>}
         <SubjectMisc subject={person}/>
-      </section>
+      </Tags>
 
       <SubjectSidebar subject={person}/>
     </Sidebar>

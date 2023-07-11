@@ -1,4 +1,4 @@
-import {Article, P, ReactLink, ReactNavLink, Title} from "./GeneralComponents";
+import {Article, P, ReactLink, ReactNavLink, Tags, Title} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {strings} from "../main";
 import {useContext, useEffect, useState} from "react";
@@ -48,9 +48,9 @@ export function EventView() {
 
   return <>
     <Main>
-      <section className="mx-auto w-fit flex flex-row gap-4">
+      <Tags>
         <SubjectMisc subject={event}/>
-      </section>
+      </Tags>
       <Article>
         <P>{event.getDate()?.toString()} {event.place && strings.formatString(strings.gedcomX.place, <ReactLink to={`/places/${event.place.description.substring(1)}`}>{event.place.description}</ReactLink>)}</P>
         {event.roles && <ul>

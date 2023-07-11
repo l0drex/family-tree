@@ -6,7 +6,7 @@ import {
   ConclusionArticles,
   ConclusionMisc
 } from "./GedcomXComponents";
-import {Article, Hr, P, ReactNavLink, Tag, Title} from "./GeneralComponents";
+import {Article, Hr, P, ReactNavLink, Tag, Tags, Title} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
@@ -57,10 +57,10 @@ export function DocumentView() {
 
   return <>
     <Main>
-      <section className="mx-auto w-fit flex flex-row gap-4">
+      <Tags>
         {document.isExtracted && <Tag>{strings.gedcomX.document.extracted}</Tag>}
         <ConclusionMisc conclusion={document}/>
-      </section>
+      </Tags>
       <Article>
         {document.isPlainText && <P>{document.getText()}</P>}
         {document.isXHTML && <div dangerouslySetInnerHTML={{__html: html}}/>}

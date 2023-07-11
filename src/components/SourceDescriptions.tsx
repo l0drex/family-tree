@@ -10,7 +10,7 @@ import {
   Media,
   ReactLink,
   ReactNavLink,
-  Tag,
+  Tag, Tags,
   Title,
   VanillaLink
 } from "./GeneralComponents";
@@ -64,7 +64,7 @@ export function SourceDescriptionView() {
 
   return <>
     <Main>
-      {hasMisc && <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
+      {hasMisc && <Tags>
         {componentOf && <Tag>
           component of: <ReactLink to={`/sources/${componentOf.getDescription().substring(1)}`}>
           {componentOf.getDescriptionId() ?? componentOf.getDescription()}</ReactLink>
@@ -83,7 +83,7 @@ export function SourceDescriptionView() {
         {sourceDescription.getAnalysis() && <Tag>
           <ReactLink to={`/documents/${sourceDescription.getAnalysis().resource.substring(1)}`}>Analysis</ReactLink>
         </Tag>}
-      </section>}
+      </Tags>}
       <Article>
         <Alias aliases={sourceDescription.getTitles()}/>
         {hasMedia && <ExternalContent><figure className="mb-4 last:mb-0">{media}</figure></ExternalContent>}
