@@ -4,16 +4,30 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
 import {formatJDate, GDate} from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
-import {Link} from "react-router-dom";
-import {Article, ExternalContent, Gallery, Hr, Media, P, ReactLink, Tag} from "./GeneralComponents";
+import {Link, useParams} from "react-router-dom";
+import {
+  Article,
+  ArticleCollection, Details,
+  ExternalContent,
+  Gallery,
+  Hr,
+  Media,
+  P,
+  ReactLink,
+  Tag,
+  Title
+} from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
 
-export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
-  return <Article emoji={emojis.note} title={props.note.getSubject() || strings.gedcomX.conclusion.note}
-                  noMargin={props.noMargin}>
-    <p>{props.note.getText()}</p>
-    {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
-  </Article>
+export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
+  return <ArticleCollection noMargin={noMargin}>
+    <Title emoji={emojis.note}>{strings.gedcomX.conclusion.note}</Title>
+    {notes.map((note, i) =>
+      <Article emoji="" title={note.getSubject()} key={i}>
+        <P>{note.getText()}</P>
+        {note.getAttribution() && <P><Attribution attribution={note.getAttribution()}/></P>}
+      </Article>)}
+  </ArticleCollection>
 }
 
 export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
@@ -52,28 +66,48 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     if (modified && contributorName) modifiedString += " ";
   }
 
-  return <>
-    <P noMargin>
-      {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-      <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
-        {creatorName}
-      </ReactLink>)}
-    </P>
-    <P noMargin>
-      {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-      <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
-        {contributorName}
-      </ReactLink>)}
-      {message && <>: <cite> "{message}"</cite></>}
-    </P></>
+  const hasCreated = attribution.created || attribution.creator;
+  const hasModified = attribution.modified || attribution.contributor || attribution.changeMessage;
+
+  return <div className="text-neutral-700">
+    <Details title={strings.gedcomX.conclusion.attribution.attribution}>
+      {hasCreated && <P>
+        {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
+        <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
+          {creatorName}
+        </ReactLink>)}
+      </P>}
+      {hasModified && <P>
+        {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
+        <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
+          {contributorName}
+        </ReactLink>)}
+        {message && <>: <cite> "{message}"</cite></>}
+      </P>}
+    </Details>
+  </div>
 }
 
-export function SourceReference(props: { reference: gedcomX.SourceReference, noMargin?: boolean }) {
-  return <Article emoji={emojis.source.default} title={strings.gedcomX.sourceDescription.sourceDescription} noMargin={props.noMargin}>
-    <p><ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
-    </p>
-    {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
-  </Article>
+export function SourceReferences({references, noMargin}: {
+  references: gedcomX.SourceReference[],
+  noMargin?: boolean
+}) {
+  const sourceTitles = useLiveQuery(async () => Promise.all(
+    references.map(reference =>
+      db.sourceDescriptionWithId(reference.description.substring(1))
+        .then(sd => `${sd.emoji} ${sd.title}`))
+  ), [references]);
+
+  return <ArticleCollection noMargin={noMargin}>
+    <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
+    {references.map((reference, i) =>
+      <Article key={i}>
+        <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
+          {(sourceTitles && sourceTitles[i]) || reference.description}
+        </ReactLink></P>
+        {reference.attribution && <P><Attribution attribution={reference.attribution}/></P>}
+      </Article>)}
+  </ArticleCollection>
 }
 
 export function Coverage(props: { coverage: gedcomX.Coverage }) {
@@ -147,11 +181,19 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
   </>
 }
 
-export function Evidence({noMargin, evidenceReference: evidence}) {
-  return <Article noMargin={noMargin} emoji={emojis.evidence} title={strings.gedcomX.subject.evidence}>
-    <ReactLink to={"./" + evidence.resource.substring(1)}>{evidence.resource}</ReactLink>
-    <Attribution attribution={evidence.attribution}/>
-  </Article>
+export function Evidence({evidenceReferences}) {
+  const params = useParams();
+
+  let linkTarget = params["id"] ? "../" : "./";
+
+  return <ArticleCollection>
+    <Title emoji={emojis.evidence}>{strings.gedcomX.subject.evidence}</Title>
+    {evidenceReferences.map((evidence, i) =>
+      <Article key={i}>
+        <ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink>
+        <Attribution attribution={evidence.attribution}/>
+      </Article>)}
+  </ArticleCollection>
 }
 
 export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
@@ -176,8 +218,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
         </ExternalContent>
       })}
     </Gallery>}
-    {subject.getEvidence().map((e, i) =>
-      <Evidence key={i} evidenceReference={e} noMargin={noMargin}/>)}
+    <Evidence evidenceReferences={subject.getEvidence()}/>
     <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
   </>
 }
@@ -192,10 +233,8 @@ export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conc
 
 export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
   return <>
-    {conclusion.getSources().map((source, i) =>
-      <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
-    {conclusion.getNotes().map((note, i) =>
-      <Note key={i} note={note} noMargin={noMargin}/>)}
+    <SourceReferences references={conclusion.getSources()} noMargin={noMargin}/>
+    <Notes notes={conclusion.getNotes()} noMargin={noMargin}/>
   </>
 }
 

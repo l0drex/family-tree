@@ -151,7 +151,9 @@ function extensiveData() {
     .addPerson(new Person()
       .addName(new Name()
         .addNameForm(new NameForm().setFullText("Random Guy")))
-      .setId("random"))
+      .setId("p1"))
+    .addPerson(new Person()
+      .setId("p2"))
     .addPerson(new Person())
     .addSourceDescription(new SourceDescription()
       .setResourceType(KnownResourceTypes.DigitalArtifact)
@@ -202,7 +204,7 @@ function extensiveData() {
       .setText(faker.lorem.paragraphs(3)))
     .addDocument(new Document()
       .setText(faker.lorem.paragraphs(3)))
-    .addPlace(new PlaceDescription(getSubject("pd1"))
+    .addPlace(new PlaceDescription(getSubject("pd1", "pd"))
       .setType("City")
       .setPlace(new ResourceReference().setResource(faker.internet.url()))
       .addName(new TextValue().setValue(faker.location.city()))
@@ -214,7 +216,7 @@ function extensiveData() {
       .setSpatialDescription(new ResourceReference().setResource(faker.internet.url())))
     .addPlace(new PlaceDescription()
       .addName(new TextValue().setValue(faker.location.city())))
-    .addEvent(new GedcomX.Event(getSubject("e1"))
+    .addEvent(new GedcomX.Event(getSubject("e1", "e"))
       .setType(EventTypes.Birth)
       .setDate(new GedcomX.Date().setFormal(faker.date.past().toISOString()))
       .setPlace(new PlaceReference().setDescription("#pd1"))
@@ -269,7 +271,7 @@ function getPerson(id: string, gender?: "male" | "female" | "intersex", otherNam
   const firstName = faker.person.firstName(fakerGender);
   const thisLastName = otherName ? otherLastName : lastName;
 
-  let person = new Person(getSubject(id))
+  let person = new Person(getSubject(id, "p"))
     .setGender(new Gender().setType(genderType))
     .addName(new Name()
       .addNameForm(new NameForm().setFullText(faker.person.fullName({sex: fakerGender, firstName: firstName, lastName: thisLastName}))
@@ -296,10 +298,11 @@ function getIdentifiers(id) {
     .addValue(faker.internet.url(), IdentifierTypes.Deprecated);
 }
 
-function getSubject(id: string) {
+function getSubject(id: string, evidencePrefix: string) {
   return new Subject(getConclusion(id))
     .setExtracted(faker.datatype.boolean())
-    .addEvidence(new EvidenceReference().setResource("#s1"))
+    .addEvidence(new EvidenceReference().setResource(`#${evidencePrefix}1`))
+    .addEvidence(new EvidenceReference().setResource(`#${evidencePrefix}2`))
     .addMedia(new SourceReference().setDescription("#s1"))
     .addMedia(new SourceReference().setDescription("#s2"))
     .setIdentifiers(getIdentifiers(id))
@@ -318,8 +321,15 @@ function getConclusion(id: string) {
   const confidence = faker.helpers.arrayElement([Confidence.Low, Confidence.Medium, Confidence.High]);
 
   return new Conclusion()
-    .addSource(new SourceReference().setDescription("#s1"))
+    .addSource(new SourceReference()
+      .setDescription("#s1")
+      .setAttribution(getAttribution()))
+    .addSource(new SourceReference().setDescription("#s2"))
     .setAnalysis(new ResourceReference().setResource("#d1"))
+    .addNote(new Note()
+      .setSubject(faker.lorem.words(3))
+      .setText(faker.lorem.paragraphs(1))
+      .setAttribution(getAttribution()))
     .addNote(new Note().setText(faker.lorem.paragraphs(1)))
     .setConfidence(confidence)
     .setAttribution(getAttribution())

@@ -5,7 +5,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {Fact, GDate, Person} from "../backend/gedcomx-extensions";
 import {
   Attribution,
-  ConclusionMisc, Note, SourceReference,
+  ConclusionMisc, Notes, SourceReferences,
   SubjectArticles,
   SubjectMisc,
   SubjectSidebar
@@ -15,7 +15,7 @@ import {Article, Details, PopupButton, Tag, Title} from "./GeneralComponents";
 import {Name} from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 
-function InfoPanel({person}: {person: Person }) {
+function InfoPanel({person}: { person: Person }) {
   const parents = useLiveQuery(async () => {
     if (!person) return;
 
@@ -76,13 +76,20 @@ function InfoPanel({person}: {person: Person }) {
       <Facts facts={person.getFacts()}/>
 
       <Details title={strings.gedcomX.relationship.relationships}>
-        <RelationshipGroup relationships={parents} emoji={emojis.relationship.parent} title={strings.gedcomX.relationship.parents}/>
-        <RelationshipGroup relationships={children} emoji={emojis.relationship.child} title={strings.gedcomX.relationship.children}/>
-        <RelationshipGroup relationships={partner} emoji={emojis.relationship.partner} title={strings.gedcomX.relationship.partner}/>
-        <RelationshipGroup relationships={godparents} emoji={emojis.relationship.godparent} title={strings.gedcomX.relationship.godparents}/>
-        <RelationshipGroup relationships={godchildren} emoji={emojis.relationship.godchild} title={strings.gedcomX.relationship.godchildren}/>
-        <RelationshipGroup relationships={enslavedBy} emoji={emojis.relationship.enslaver} title={strings.gedcomX.relationship.enslavedBy}/>
-        <RelationshipGroup relationships={slaves} emoji={emojis.relationship.slaves} title={strings.gedcomX.relationship.slaves}/>
+        <RelationshipGroup relationships={parents} emoji={emojis.relationship.parent}
+                           title={strings.gedcomX.relationship.parents}/>
+        <RelationshipGroup relationships={children} emoji={emojis.relationship.child}
+                           title={strings.gedcomX.relationship.children}/>
+        <RelationshipGroup relationships={partner} emoji={emojis.relationship.partner}
+                           title={strings.gedcomX.relationship.partner}/>
+        <RelationshipGroup relationships={godparents} emoji={emojis.relationship.godparent}
+                           title={strings.gedcomX.relationship.godparents}/>
+        <RelationshipGroup relationships={godchildren} emoji={emojis.relationship.godchild}
+                           title={strings.gedcomX.relationship.godchildren}/>
+        <RelationshipGroup relationships={enslavedBy} emoji={emojis.relationship.enslaver}
+                           title={strings.gedcomX.relationship.enslavedBy}/>
+        <RelationshipGroup relationships={slaves} emoji={emojis.relationship.slaves}
+                           title={strings.gedcomX.relationship.slaves}/>
       </Details>
 
       <SubjectArticles subject={person} noMargin/>
@@ -100,7 +107,7 @@ function Names({names}: { names: Name[] }) {
   if (!names || names.length === 0) return <></>
 
   return <section>
-    <Title emoji="">{strings.gedcomX.person.names}</Title>
+    <Title emoji={emojis.name}>{strings.gedcomX.person.names}</Title>
     {names.map((n, i) => {
       return <Article key={i}>
         {n.nameForms.map((nf, j) => {
@@ -119,7 +126,7 @@ function Facts({facts}: { facts: Fact[] }) {
   if (!facts || facts.length === 0) return <></>
 
   return <section>
-    <Title emoji="">{strings.gedcomX.facts}</Title>
+    <Title emoji={emojis.fact.default}>{strings.gedcomX.facts}</Title>
     {facts
       .filter(filterLang)
       .map((f, i) => {
@@ -144,13 +151,13 @@ function Facts({facts}: { facts: Fact[] }) {
             </div>
             <div className="flex flex-col">
               {f.notes && <PopupButton title={emojis.note}>
-                {f.notes.map((n, i) => <Note key={i} note={n}/>)}
+                {<Notes notes={f.notes}/>}
               </PopupButton>}
               {f.attribution && <PopupButton title={emojis.attribution}>
                 <Attribution attribution={f.attribution}/>
                 ️</PopupButton>}
               {f.sources && <PopupButton title={emojis.source.default}>
-                {f.sources.map((s, i) => <SourceReference key={i} reference={s}/>)}
+                <SourceReferences references={f.sources}/>
               </PopupButton>}
             </div>
           </div>

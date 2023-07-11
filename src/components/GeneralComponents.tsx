@@ -6,13 +6,17 @@ import {strings} from "../main";
 export function Article({noMargin, emoji, title, children}:
                           { noMargin?: boolean, emoji?: string, title?: string, children }) {
   return (
-    <article className={`${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
+    <article className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
       {title && <Title emoji={emoji}>{title}</Title>}
-      <div className="bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full">
-        {children}
-      </div>
+      {children}
     </article>
   );
+}
+
+export function ArticleCollection({noMargin, children}: {noMargin?: boolean, children}) {
+  return <section className={`mx-auto w-full max-w-3xl ${noMargin ? "" : "mt-4 first:mt-0"}`}>
+    {children}
+  </section>
 }
 
 export function Title(props: { emoji: string, children }) {
@@ -83,8 +87,8 @@ export function Tag({children, bgColor}: { children, bgColor?: string }) {
   </span>
 }
 
-export function P({noMargin, children}: { noMargin?: boolean, children }) {
-  return <p className={"text-block " + (noMargin ? "" : "mb-4 last:mb-0")}>{children}</p>
+export function P({children}: { children }) {
+  return <p className={"text-block mb-4 last:mb-0"}>{children}</p>
 }
 
 export function Hr() {
