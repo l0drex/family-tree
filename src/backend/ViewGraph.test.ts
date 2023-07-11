@@ -43,7 +43,7 @@ test.each([
   [ViewMode.DEFAULT,
     8 + 3,
     10],
-  [ViewMode.ALL, 17 + 6, 20],
+  [ViewMode.ALL, 18 + 6, 20],
   [ViewMode.DESCENDANTS, 4 + 2, 5],
   [ViewMode.ANCESTORS, 10 + 6, 15]
 ])("Builds view graph: %s", async (viewMode: ViewMode, nodes: number, links: number) => {

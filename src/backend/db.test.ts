@@ -10,7 +10,7 @@ beforeAll(async () => {
 })
 
 test("loads data", async () => {
-  await expect(db.persons.count()).resolves.toBe(17);
+  await expect(db.persons.count()).resolves.toBe(18);
   await expect(db.relationships.count()).resolves.toBe(22);
   await expect(db.couples.count()).resolves.toBe(6);
   await expect(db.parentChilds.count()).resolves.toBe(16);
@@ -137,5 +137,5 @@ test("finds descendants", async () => {
 })
 
 it("finds person with name", async () => {
-  await expect(db.personWithName("Random Guy").then(p => p.getId())).resolves.toBe("random");
+  await expect(db.personWithName("Random Guy").then(p => p.getId())).resolves.toBe("p1");
 })
