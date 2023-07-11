@@ -43,9 +43,14 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   if (!attribution) return <></>
 
+  const hasCreated = attribution.created || attribution.creator;
+  const hasModified = attribution.modified || attribution.contributor || attribution.changeMessage;
+  const hasData = hasCreated || hasModified;
+  if (!hasData) return <></>
+
   let created = attribution.getCreated();
   let creatorRef = attribution.getCreator();
-  let creatorName = creator?.names?.filter(filterLang)[0].value ?? attribution.creator.resource;
+  let creatorName = creator?.names?.filter(filterLang)[0].value ?? attribution.creator?.resource;
 
   let createdString = "";
   if (created || creatorName) {
@@ -66,9 +71,6 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     if (modified && contributorName) modifiedString += " ";
   }
 
-  const hasCreated = attribution.created || attribution.creator;
-  const hasModified = attribution.modified || attribution.contributor || attribution.changeMessage;
-
   return <div className="text-neutral-700">
     <Details title={strings.gedcomX.conclusion.attribution.attribution}>
       {hasCreated && <P>
@@ -88,25 +90,32 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   </div>
 }
 
+export function SourceReference({reference}: { reference: gedcomX.SourceReference }) {
+  const sourceTitle = useLiveQuery(() => {
+    if (!reference || !reference.description)
+      return undefined;
+
+    return db.sourceDescriptionWithId(reference.description.substring(1))
+      .then(sd => `${sd.emoji} ${sd.title}`);
+  }, [reference]);
+
+  if (!reference) return <></>;
+
+  return <Article>
+    <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
+      {sourceTitle || reference.description}
+    </ReactLink></P>
+    {reference.attribution && <P><Attribution attribution={reference.attribution}/></P>}
+  </Article>
+}
+
 export function SourceReferences({references, noMargin}: {
   references: gedcomX.SourceReference[],
   noMargin?: boolean
 }) {
-  const sourceTitles = useLiveQuery(async () => Promise.all(
-    references.map(reference =>
-      db.sourceDescriptionWithId(reference.description.substring(1))
-        .then(sd => `${sd.emoji} ${sd.title}`))
-  ), [references]);
-
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
-    {references.map((reference, i) =>
-      <Article key={i}>
-        <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
-          {(sourceTitles && sourceTitles[i]) || reference.description}
-        </ReactLink></P>
-        {reference.attribution && <P><Attribution attribution={reference.attribution}/></P>}
-      </Article>)}
+    {references.map((reference, i) => <SourceReference reference={reference} key={i}/>)}
   </ArticleCollection>
 }
 

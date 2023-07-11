@@ -18,6 +18,12 @@ function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion
   return data.lang === strings.getLanguage();
 }
 
+export class Root extends GedcomX.Root {
+  get hasData(): boolean {
+    return Boolean(this.id || this.description || this.attribution);
+  }
+}
+
 export class Person extends GedcomX.Person {
   get isPrivate(): boolean {
     return Boolean(this.getPrivate());

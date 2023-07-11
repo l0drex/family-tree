@@ -54,6 +54,8 @@ function extensiveData() {
   const marriageDate = new GedcomX.Date().setFormal(faker.date.past({years: 10}).toISOString());
 
   return new Root()
+    .setDescription("#s1")
+    .setAttribution(getAttribution())
     .addPerson(getPerson("husband", "male")
       .setPrivate(true)
       .addName(new Name(getConclusion("husbandName"))

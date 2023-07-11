@@ -118,7 +118,7 @@ export interface IAttribution {
   contributor?: ResourceReference
   modified?: timestamp
   changeMessage?: string
-  creator?: URI
+  creator?: ResourceReference
   created?: timestamp
 }
 

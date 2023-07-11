@@ -1,18 +1,20 @@
 import * as React from "react";
-import {createContext, useContext, useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useMemo, useState} from "react";
 import {strings} from "../main";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
-import {Person} from "../backend/gedcomx-extensions";
+import {Person, Root} from "../backend/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {LayoutContext, Main} from "../App";
-import {ButtonLike, Title} from "./GeneralComponents";
+import {LayoutContext, Main, Sidebar} from "../App";
+import {Article, ButtonLike, ReactLink, Title} from "./GeneralComponents";
 import emojis from '../backend/emojies.json';
-
-export const FocusPersonContext = createContext<Person>(null);
+import {Attribution} from "./GedcomXComponents";
+import * as GedcomX from "gedcomx-js";
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "../backend/db";
 
 function ViewOptions(props) {
   const navigate = useNavigate();
@@ -68,6 +70,7 @@ function Persons() {
   const [searchParams, setSearchParams] = useSearchParams({viewMode: ViewMode.DEFAULT, colorMode: ColorMode.GENDER});
   const focusPerson = useLoaderData() as Person | null;
   const [focusHidden, hideFocus] = useState(false);
+  const root = useLiveQuery(() => db.root);
   const navigate = useNavigate();
 
   function onViewChanged(e: Event) {
@@ -103,6 +106,7 @@ function Persons() {
 
   useEffect(() => {
     if (!focusPerson) {
+      // while search for focus person in db
       layoutContext.setHeaderChildren([
         <Title emoji={emojis.tree}>{strings.gedcomX.person.persons}</Title>
       ]);
@@ -112,12 +116,12 @@ function Persons() {
     layoutContext.setHeaderChildren([
       <SearchField onRefocus={onRefocus}/>
     ])
-    layoutContext.setRightTitle(focusHidden ? "" : focusPerson.fullName)
-  }, [onRefocus, focusPerson, focusHidden, layoutContext]);
+    layoutContext.setRightTitle(focusHidden ? (root?.hasData ? "Root Data" : "") : focusPerson.fullName)
+  }, [onRefocus, focusPerson, focusHidden, layoutContext, root?.hasData]);
 
   return (
     <>
-      {!focusHidden && <InfoPanel person={focusPerson}/>}
+      {focusHidden ? <RootInfo root={root}/> : <InfoPanel person={focusPerson}/>}
       <Main titleRight={focusPerson.fullName}>
         <article id="family-tree-container"
                  className="bg-white dark:bg-black rounded-2xl mx-auto mb-0 p-0 h-full box-border flex flex-col">
@@ -131,6 +135,17 @@ function Persons() {
       </Main>
     </>
   );
+}
+
+function RootInfo({root}: {root: Root}) {
+  return <Sidebar>
+    {root.id}
+    {root.lang}
+    {root.description && <Article noMargin>
+      <ReactLink to={"/sourceDescription/" + root.description}>{strings.gedcomX.sourceDescription.sourceDescription}</ReactLink>
+    </Article>}
+    <Attribution attribution={new GedcomX.Attribution(root.attribution)}/>
+  </Sidebar>
 }
 
 export default Persons;

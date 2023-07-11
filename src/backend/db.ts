@@ -9,7 +9,7 @@ import {
   Document, EventExtended,
   Person,
   PlaceDescription,
-  Relationship,
+  Relationship, Root,
   setReferenceAge,
   SourceDescription
 } from "./gedcomx-extensions";
@@ -65,7 +65,7 @@ export class FamilyDB extends Dexie {
     let promises: PromiseExtended[] = [];
 
     if (data.id || data.lang || data.attribution || data.description) {
-      promises.push(this.gedcomX.add(data));
+      promises.push(this.gedcomX.add(root));
     }
     if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
     if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
@@ -85,7 +85,7 @@ export class FamilyDB extends Dexie {
   }
 
   private sanitizeData(data: IGedcomX) {
-    let root = new GedcomX.Root(data);
+    let root = new Root(data);
 
     function forAll(callback: (items: RootClass[]) => void) {
       callback(root.persons);
@@ -109,6 +109,9 @@ export class FamilyDB extends Dexie {
       console.debug(`Added ${addedIds} missing ids.`);
     }
     forAll(generateIdIfMissing);
+    if (!root.id) {
+      root.setId("missing-id-1");
+    }
 
     return root;
   }
@@ -118,8 +121,8 @@ export class FamilyDB extends Dexie {
   }
 
   get root() {
-    let data = this.gedcomX.toCollection().first();
-    return new GedcomX.Root(data);
+    return this.gedcomX.toCollection().first()
+      .then(r => new Root(r));
   }
 
   get couples() {
