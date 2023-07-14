@@ -86,7 +86,7 @@ export function SourceDescriptionView() {
       </Tags>}
       <Article>
         <Alias aliases={sourceDescription.getTitles()}/>
-        {hasMedia && <ExternalContent><figure className="mb-4 last:mb-0">{media}</figure></ExternalContent>}
+        {hasMedia && <figure className="mb-4 last:mb-0">{media}</figure>}
         {sourceDescription.getDescriptions().filter(filterLang).map((d, i) =>
           <p key={i} className="mb-4 last:mb-0">{d.getValue()}</p>
         )}

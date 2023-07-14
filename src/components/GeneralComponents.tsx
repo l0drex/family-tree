@@ -169,9 +169,7 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
     media = <p>{text}</p>
   } else {
     media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`}
-                    onLoad={() => setLoaded(true)} onError={() => {
-      setError(true);
-    }}>
+                    onLoad={() => setLoaded(true)} onError={() => setError(true)}>
       {alt}
     </object>;
   }
