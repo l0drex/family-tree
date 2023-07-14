@@ -303,7 +303,9 @@ function getIdentifiers(id) {
 function getSubject(id: string, evidencePrefix: string) {
   return new Subject(getConclusion(id))
     .setExtracted(faker.datatype.boolean())
-    .addEvidence(new EvidenceReference().setResource(`#${evidencePrefix}1`))
+    .addEvidence(new EvidenceReference()
+      .setAttribution(getAttribution())
+      .setResource(`#${evidencePrefix}1`))
     .addEvidence(new EvidenceReference().setResource(`#${evidencePrefix}2`))
     .addMedia(new SourceReference().setDescription("#s1"))
     .addMedia(new SourceReference().setDescription("#s2"))

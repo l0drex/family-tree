@@ -5,7 +5,6 @@ import {useContext, useEffect, useState} from "react";
 import {Alias, Attribution, Coverage, Identifiers, Notes, SourceReferences} from "./GedcomXComponents";
 import {
   Article,
-  ExternalContent,
   Hr,
   Media,
   ReactLink,

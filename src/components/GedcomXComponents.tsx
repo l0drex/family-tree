@@ -27,7 +27,7 @@ export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boo
     {notes.map((note, i) =>
       <Article emoji="" title={note.getSubject()} key={i}>
         <P>{note.getText()}</P>
-        {note.getAttribution() && <P><Attribution attribution={note.getAttribution()}/></P>}
+        {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
       </Article>)}
   </ArticleCollection>
 }
@@ -109,7 +109,7 @@ export function SourceReference({reference}: { reference: gedcomX.SourceReferenc
     <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
       {sourceTitle || reference.description}
     </ReactLink></P>
-    {reference.attribution && <P><Attribution attribution={reference.attribution}/></P>}
+    {reference.attribution && <Attribution attribution={reference.attribution}/>}
   </Article>
 }
 
@@ -209,7 +209,7 @@ export function Evidence({evidenceReferences}) {
     <Title emoji={emojis.evidence}>{strings.gedcomX.subject.evidence}</Title>
     {evidenceReferences.map((evidence, i) =>
       <Article key={i}>
-        <ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink>
+        <P><ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink></P>
         <Attribution attribution={evidence.attribution}/>
       </Article>)}
   </ArticleCollection>
@@ -223,9 +223,9 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
 
   return <>
     {media && media.length > 0 && <Gallery noMargin={noMargin}>
-      {media.map(m => {
+      {media.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
-        return <div className="relative">
+        return <div className="relative" key={i}>
             <Media mimeType={m.mediaType} url={m.getAbout()}
                    alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
             <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
