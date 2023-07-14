@@ -104,6 +104,8 @@ export function SourceReference({reference}: { reference: gedcomX.SourceReferenc
 
   if (!reference) return <></>;
 
+  // todo qualifiers
+
   return <Article>
     <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
       {sourceTitle || reference.description}
