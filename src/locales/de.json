@@ -404,6 +404,7 @@
     "noData": "Keine Daten vorhanden.",
     "stack": "Entwicklerdetails",
     "noFileError": "Keine Datei ausgewählt",
+    "fetchError": "Datei konnte nicht geladen werden.",
     "graphLoadingError": "Der Graph konnte nicht geladen werden.",
     "noPersonFound": "Es konnte keine Person mit diesem Namen gefunden werden!",
     "noSourceDescriptionError": "Source description {0} konnte nicht gefunden werden"

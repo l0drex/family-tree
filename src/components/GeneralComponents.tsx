@@ -6,14 +6,15 @@ import {strings} from "../main";
 export function Article({noMargin, emoji, title, children}:
                           { noMargin?: boolean, emoji?: string, title?: string, children }) {
   return (
-    <article className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
+    <article
+      className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
       {title && <Title emoji={emoji}>{title}</Title>}
       {children}
     </article>
   );
 }
 
-export function ArticleCollection({noMargin, children}: {noMargin?: boolean, children}) {
+export function ArticleCollection({noMargin, children}: { noMargin?: boolean, children }) {
   return <section className={`mx-auto w-full max-w-3xl ${noMargin ? "" : "mt-4 first:mt-0"}`}>
     {children}
   </section>
@@ -102,7 +103,7 @@ export function Hr() {
 }
 
 export function Loading(props: { text: string, value?: number, max?: number }) {
-  return <div className="text-center h-full py-4 px-4 flex flex-col justify-center items-center">
+  return <div className="text-center h-full p-4 flex flex-col justify-center items-center">
     <label htmlFor="progress-bar">{props.text}</label>
     <progress id="progress-bar" value={props.value} max={props.max}
               className="mt-2 rounded-full bg-white dark:bg-opacity-30"/>
@@ -147,31 +148,45 @@ export function ExternalContent({children}: { children }) {
 export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt: string }) {
   const [text, setText] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (!mimeType) {
+      setError(true);
+      return;
+    }
+
     let mediaType = mimeType.split('/');
     if (mediaType[0] !== "text") return;
 
     fetch(url)
       .then(r => r.text())
       .then(t => setText(t));
-  }, [mimeType, url])
+  }, [mimeType, url]);
 
   let media: ReactElement;
-  if (mimeType.startsWith("text")) {
+  if (mimeType?.startsWith("text")) {
     media = <p>{text}</p>
   } else {
     media = <object type={mimeType} data={url} className={`m-auto rounded-2xl my-2 max-w-full ${!loaded && "hidden"}`}
-                    onLoad={() => setLoaded(true)}>
+                    onLoad={() => setLoaded(true)} onError={() => {
+      setError(true);
+    }}>
       {alt}
     </object>;
   }
 
+  // if there was an error, show it
+  // else, if loaded show media
+  // else show loading screen
   return <ExternalContent>
-    {media}
-    {!loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
-      <Loading text={strings.gedcomX.subject.loadingMedia}/>
-    </div>}
+    {error ? <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
+      <p className="text-center p-4">⚠️ {strings.errors.fetchError}</p>
+    </div> : loaded ?
+      media :
+      <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
+        <Loading text={strings.gedcomX.subject.loadingMedia}/>
+      </div>}
   </ExternalContent>
 }
 

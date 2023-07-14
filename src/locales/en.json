@@ -399,6 +399,7 @@
   },
   "errors": {
     "title": "Whoops, something went wrong",
+    "fetchError": "Failed to load resource.",
     "noData": "No data available.",
     "stack": "Details for developers",
     "noFileError": "No gedcom file selected",

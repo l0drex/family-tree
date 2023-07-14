@@ -226,8 +226,7 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
     {media && media.length > 0 && <Gallery noMargin={noMargin}>
       {media.map(m => {
         let credit = m.getCitations()[0].getValue();
-        return <ExternalContent key={m.id}>
-          <div className="relative">
+        return <div className="relative">
             <Media mimeType={m.mediaType} url={m.getAbout()}
                    alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
             <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
@@ -235,7 +234,6 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
               © <a href={m.getAbout()}>{credit}</a>
             </div>
           </div>
-        </ExternalContent>
       })}
     </Gallery>}
     <Evidence evidenceReferences={subject.getEvidence()}/>
