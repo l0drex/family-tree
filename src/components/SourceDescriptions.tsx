@@ -2,27 +2,27 @@ import {SourceDescription} from "../backend/gedcomx-extensions";
 import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";
-import {Alias, Attribution, Coverage, Identifiers, Note, SourceReference} from "./GedcomXComponents";
+import {Alias, Attribution, Coverage, Identifiers, Notes, SourceReferences} from "./GedcomXComponents";
 import {
   Article,
-  ExternalContent,
   Hr,
   Media,
   ReactLink,
   ReactNavLink,
-  Tag,
+  Tag, Tags,
   Title,
   VanillaLink
 } from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
 import {db} from "../backend/db";
+import emojis from '../backend/emojies.json';
 
 export function SourceDescriptionOverview() {
   const descriptions = useLoaderData() as SourceDescription[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📚">{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>);
   }, [layoutContext])
 
   return <Main><Article>
@@ -34,7 +34,7 @@ function SourcesList(props) {
   return <ul>
     {props.descriptions?.map(sd =>
       <li key={sd.id}>
-        <ReactNavLink to={`/sources/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
+        <ReactNavLink to={`/sourceDescription/${sd.getId()}`}>{`${sd.emoji} ${sd.title}`}</ReactNavLink>
       </li>
     )}
   </ul>
@@ -63,7 +63,7 @@ export function SourceDescriptionView() {
 
   return <>
     <Main>
-      {hasMisc && <section className="mx-auto w-fit flex flex-wrap flex-row gap-4">
+      {hasMisc && <Tags>
         {componentOf && <Tag>
           component of: <ReactLink to={`/sources/${componentOf.getDescription().substring(1)}`}>
           {componentOf.getDescriptionId() ?? componentOf.getDescription()}</ReactLink>
@@ -82,10 +82,10 @@ export function SourceDescriptionView() {
         {sourceDescription.getAnalysis() && <Tag>
           <ReactLink to={`/documents/${sourceDescription.getAnalysis().resource.substring(1)}`}>Analysis</ReactLink>
         </Tag>}
-      </section>}
+      </Tags>}
       <Article>
         <Alias aliases={sourceDescription.getTitles()}/>
-        {hasMedia && <ExternalContent><figure className="mb-4 last:mb-0">{media}</figure></ExternalContent>}
+        {hasMedia && <figure className="mb-4 last:mb-0">{media}</figure>}
         {sourceDescription.getDescriptions().filter(filterLang).map((d, i) =>
           <p key={i} className="mb-4 last:mb-0">{d.getValue()}</p>
         )}
@@ -99,8 +99,8 @@ export function SourceDescriptionView() {
         </section>}
       </Article>
       {sourceDescription.getCoverage().map((c, i) => <Coverage coverage={c} key={i}/>)}
-      {sourceDescription.getNotes().filter(filterLang).map((n, i) => <Note note={n} key={i}/>)}
-      {sourceDescription.getSources().map((s, i) => <SourceReference reference={s} key={i}/>)}
+      <Notes notes={sourceDescription.getNotes()}/>
+      <SourceReferences references={sourceDescription.getSources()}/>
     </Main>
     <Sidebar>
       <SourcesList descriptions={others}/>

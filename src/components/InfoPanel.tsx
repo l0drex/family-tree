@@ -1,21 +1,21 @@
-import {PersonFactTypes} from "../backend/gedcomx-enums";
+import {baseUri} from "../backend/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {GDate} from "../backend/gedcomx-extensions";
-import {useContext} from "react";
-import {FocusPersonContext} from "./Persons";
+import {Fact, GDate, Person} from "../backend/gedcomx-extensions";
 import {
+  Attribution,
+  ConclusionMisc, Notes, SourceReferences,
   SubjectArticles,
   SubjectMisc,
   SubjectSidebar
 } from "./GedcomXComponents";
 import {Sidebar} from "../App";
-import {Article, Details, Tag} from "./GeneralComponents";
+import {Article, Details, PopupButton, Tag, Tags, Title} from "./GeneralComponents";
+import {Name} from "gedcomx-js";
+import emojis from '../backend/emojies.json';
 
-function InfoPanel() {
-  const person = useContext(FocusPersonContext);
-
+function InfoPanel({person}: { person: Person }) {
   const parents = useLiveQuery(async () => {
     if (!person) return;
 
@@ -65,122 +65,121 @@ function InfoPanel() {
       Promise.all(children.map(r => db.personWithId(r))));
   }, [person])
 
-  // todo:
-  // person.getEvidence()
-  // person.getIdentifiers()
-  // person.getAnalysis()
-  // person.getAttribution()
-
   if (!person) {
     return <aside id={"info-panel"}></aside>
   }
 
-  const hasMultipleNames = person.names?.length > 1;
-
   return (
     <Sidebar id="info-panel">
-      {hasMultipleNames && <Article className="text-lg text-center">
-        {person.marriedName && <h2 className="birth-name">
-          {strings.formatString(strings.gedcomX.person.born, person.birthName)}
-        </h2>}
-        {person.alsoKnownAs && <h2 className="alsoKnownAs">
-          {strings.formatString(strings.gedcomX.person.aka, person.alsoKnownAs)}
-        </h2>}
-        {person.nickname && <h2 className="nickname">
-          {strings.formatString(strings.gedcomX.person.nickname, person.nickname)}
-        </h2>}
-      </Article>}
+      <Names names={person.names}/>
 
-      {person.facts && <Article noMargin>
-        <ul id="factView" className="pl-4">
-          {person.getFacts()
-            .filter(filterLang)
-            .sort((a, b) => {
-              // place birth at top, generation right below
-              if (a.getType() === PersonFactTypes.Birth) {
-                return -1;
-              } else if (b.getType() === PersonFactTypes.Birth) {
-                return 1;
-              } else if (a.getType() === PersonFactTypes.GenerationNumber) {
-                return -1;
-              } else if (b.getType() === PersonFactTypes.GenerationNumber) {
-                return 1;
-              }
-
-              if (a.getDate() && !b.getDate()) {
-                return 1;
-              } else if (!a.getDate() && b.getDate()) {
-                return -1;
-              }
-              if (a.getDate() && b.getDate()) {
-                let aDate = new GDate(a.date).toDateObject();
-                let bDate = new GDate(b.date).toDateObject();
-                if (aDate && bDate) {
-                  return aDate.getMilliseconds() - bDate.getMilliseconds();
-                }
-              }
-
-              return 0;
-            })
-            .map((f, i) => <li key={i} style={{listStyleType: `"${f.emoji} "`}}>
-              {f.toString()}
-            </li>)}
-        </ul>
-      </Article>}
+      <Facts facts={person.getFacts()}/>
 
       <Details title={strings.gedcomX.relationship.relationships}>
-        {parents && parents.length > 0 && <Article emoji="👪" title={strings.gedcomX.relationship.parents}>
-          <ul>
-            {parents?.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {children && children.length > 0 && <Article emoji="🍼" title={strings.gedcomX.relationship.children}>
-          <ul>
-            {children.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {partner && partner.length > 0 && <Article emoji="❤️️" title={strings.gedcomX.relationship.partner}>
-          <ul>
-            {partner.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {godparents && godparents.length > 0 && <Article emoji="⛅" title={strings.gedcomX.relationship.godparents}>
-          <ul>
-            {godparents.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {godchildren && godchildren.length > 0 && <Article emoji="⛅" title={strings.gedcomX.relationship.godchildren}>
-          <ul>
-            {godchildren.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {enslavedBy && enslavedBy.length > 0 && <Article emoji="⛓" title={strings.gedcomX.relationship.enslavedBy}>
-          <ul>
-            {enslavedBy.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
-
-        {slaves && slaves.length > 0 && <Article emoji="⛓" title={strings.gedcomX.relationship.slaves}>
-          <ul>
-            {slaves.map(p => <li key={p.id}>{p.fullName}</li>)}
-          </ul>
-        </Article>}
+        <RelationshipGroup relationships={parents} emoji={emojis.relationship.parent}
+                           title={strings.gedcomX.relationship.parents}/>
+        <RelationshipGroup relationships={children} emoji={emojis.relationship.child}
+                           title={strings.gedcomX.relationship.children}/>
+        <RelationshipGroup relationships={partner} emoji={emojis.relationship.partner}
+                           title={strings.gedcomX.relationship.partner}/>
+        <RelationshipGroup relationships={godparents} emoji={emojis.relationship.godparent}
+                           title={strings.gedcomX.relationship.godparents}/>
+        <RelationshipGroup relationships={godchildren} emoji={emojis.relationship.godchild}
+                           title={strings.gedcomX.relationship.godchildren}/>
+        <RelationshipGroup relationships={enslavedBy} emoji={emojis.relationship.enslaver}
+                           title={strings.gedcomX.relationship.enslavedBy}/>
+        <RelationshipGroup relationships={slaves} emoji={emojis.relationship.slaves}
+                           title={strings.gedcomX.relationship.slaves}/>
       </Details>
 
       <SubjectArticles subject={person} noMargin/>
-      <section className="mx-auto w-fit flex flex-row flex-wrap gap-4">
+      <Tags>
         {person.isPrivate && <Tag>{strings.gedcomX.person.private}</Tag>}
         <SubjectMisc subject={person}/>
-      </section>
+      </Tags>
 
       <SubjectSidebar subject={person}/>
     </Sidebar>
   );
+}
+
+function Names({names}: { names: Name[] }) {
+  if (!names || names.length === 0) return <></>
+
+  return <section>
+    <Title emoji={emojis.name}>{strings.gedcomX.person.names}</Title>
+    {names.map((n, i) => {
+      return <Article key={i}>
+        {n.nameForms.map((nf, j) => {
+          return <div key={j}>{nf.fullText} {nf.lang && `(${nf.lang})`}</div>
+        })}
+        {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
+          {n.type && <ArticleTag>{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</ArticleTag>}
+          {n.date && <ArticleTag>{new GDate(n.date.toJSON()).toString()}</ArticleTag>}
+        </section>}
+      </Article>
+    })}
+  </section>
+}
+
+function Facts({facts}: { facts: Fact[] }) {
+  if (!facts || facts.length === 0) return <></>
+
+  return <section>
+    <Title emoji={emojis.fact.default}>{strings.gedcomX.facts}</Title>
+    {facts
+      .filter(filterLang)
+      .map((f, i) => {
+        const hasMisc = f.getDate() || f.getPlace() || f.getQualifiers().length > 0
+          || f.confidence || f.analysis;
+
+        return <Article key={i}>
+          <div className="flex flex-row gap-4">
+            <div className="flex-grow">
+              {f.emoji} {strings.gedcomX.person.factTypes[f.type.substring(baseUri.length)]
+              + (f.value ? `: ${f.value}` : "")}
+
+              {hasMisc && <section className="mt-2 flex flex-row flex-wrap gap-2">
+                {f.getDate() && <ArticleTag>{f.getDate().toString()}</ArticleTag>}
+                {f.getPlace() && <ArticleTag>{f.getPlace().toString()}</ArticleTag>}
+                {f.getQualifiers().map((q, i) =>
+                  <ArticleTag key={i}>
+                    {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
+                  </ArticleTag>)}
+                <ConclusionMisc conclusion={f} bgColor="bg-bg-light dark:bg-bg-dark"/>
+              </section>}
+            </div>
+            <div className="flex flex-col">
+              {f.notes && <PopupButton title={emojis.note}>
+                {<Notes notes={f.notes}/>}
+              </PopupButton>}
+              {f.attribution && <PopupButton title={emojis.attribution}>
+                <Attribution attribution={f.attribution}/>
+                ️</PopupButton>}
+              {f.sources && <PopupButton title={emojis.source.default}>
+                <SourceReferences references={f.sources}/>
+              </PopupButton>}
+            </div>
+          </div>
+        </Article>
+      })}
+  </section>
+}
+
+function ArticleTag({children}) {
+  if (!children) return <></>
+
+  return <Tag bgColor="bg-bg-light dark:bg-bg-dark">{children}</Tag>
+}
+
+function RelationshipGroup({relationships, emoji, title}) {
+  if (!relationships || relationships.length === 0) return <></>
+
+  return <Article emoji={emoji} title={title}>
+    <ul>
+      {relationships.map(p => <li key={p.id}>{p.fullName}</li>)}
+    </ul>
+  </Article>
 }
 
 export default InfoPanel;

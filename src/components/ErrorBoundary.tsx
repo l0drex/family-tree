@@ -3,6 +3,7 @@ import {Article, Details, Title} from "./GeneralComponents";
 import {LayoutContext, Main} from "../App";
 import {strings} from "../main";
 import {useContext, useEffect} from "react";
+import emojis from '../backend/emojies.json';
 
 export default function ErrorBoundary() {
   const error = useRouteError() as Error;
@@ -10,11 +11,11 @@ export default function ErrorBoundary() {
   console.error(error);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="💥">{strings.errors.title}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.error}>{strings.errors.title}</Title>);
   }, [error, layoutContext]);
 
   return <Main>
-    <Article emoji="💥" title={error.message}>
+    <Article emoji={emojis.error} title={error.message}>
       <Details title={strings.errors.stack}>
         <output className="font-mono text-neutral-700 dark:text-neutral-300">{error.stack}</output>
       </Details>

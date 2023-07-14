@@ -1,5 +1,15 @@
 import {LayoutContext, Main, Sidebar} from "../App";
-import {Article, ExternalContent, Hr, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {
+  Article,
+  ExternalContent,
+  Hr,
+  ReactLink,
+  ReactNavLink,
+  Tag,
+  Tags,
+  Title,
+  VanillaLink
+} from "./GeneralComponents";
 import {useLoaderData} from "react-router-dom";
 import {PlaceDescription} from "gedcomx-js";
 import {useContext, useEffect, useState} from "react";
@@ -13,13 +23,14 @@ import {
   SubjectMisc, SubjectSidebar
 } from "./GedcomXComponents";
 import {GDate} from "../backend/gedcomx-extensions";
+import emojis from '../backend/emojies.json';
 
 export function PlaceOverview() {
   const places = useLoaderData() as PlaceDescription[];
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="🌎">{strings.gedcomX.placeDescription.places}</Title>);
+    layoutContext.setHeaderChildren(<Title emoji={emojis.place}>{strings.gedcomX.placeDescription.places}</Title>);
   }, [layoutContext]);
 
   return <Main><Article>
@@ -30,8 +41,8 @@ export function PlaceOverview() {
 function PlaceList(props: { places: PlaceDescription[] }) {
   return <ul>
     {props.places?.map(place =>
-      <li key={place.id}><ReactNavLink to={`/places/${place.id}`}>
-        {`🌎 ${place.names[0].getValue()}`}</ReactNavLink>
+      <li key={place.id}><ReactNavLink to={`/place/${place.id}`}>
+        {`${emojis.place} ${place.names[0].getValue()}`}</ReactNavLink>
       </li>)}
   </ul>;
 }
@@ -42,7 +53,7 @@ export function PlaceView() {
   const layoutContext = useContext(LayoutContext);
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="🌎">{place.names[0].getValue()}</Title>)
+    layoutContext.setHeaderChildren(<Title emoji={emojis.place}>{place.names[0].getValue()}</Title>)
     layoutContext.setRightTitle(strings.gedcomX.placeDescription.places);
   }, [layoutContext, place])
 
@@ -54,16 +65,14 @@ export function PlaceView() {
   const hasSidebarContent = place.place || place.spatialDescription;
   const coordinates: LatLngExpression = [place.latitude, place.longitude];
 
-  // TODO type, place, spatial description
-
   return <>
     <Main>
-      <section className="mx-auto w-fit flex flex-row gap-4">
+      <Tags>
         {place.type && <Tag>{place.type}</Tag>}
         {place.jurisdiction && <Tag>{strings.gedcomX.placeDescription.jurisdiction}: <ReactLink to={`/places/${place.jurisdiction.resource.substring(1)}`}>{place.jurisdiction.resource}</ReactLink></Tag>}
         {place.temporalDescription && <Tag>{new GDate(place.temporalDescription.toJSON()).toString()}</Tag>}
         <SubjectMisc subject={place}/>
-      </section>
+      </Tags>
       <Article>
         {!hasData && <p>{strings.errors.noData}</p>}
         {place.names && <Alias aliases={place.names}/>}

@@ -4,6 +4,7 @@ import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import * as GedcomX from "gedcomx-js";
 import {Person} from "../backend/gedcomx-extensions";
+import emojis from "../backend/emojies.json";
 
 interface Props {
   onRefocus: (newFocus: GedcomX.Person) => void
@@ -68,7 +69,7 @@ export default function SearchField(props: Props) {
       <label htmlFor="input-name" lang="en" className="sr-only">{strings.searchField.searchLabel}</label>
       <input id="input-name" ref={input} list="names" type="search" placeholder={strings.searchField.searchHint} spellCheck="false" size={isSmall ? 12 : 20}
              className="placeholder-neutral-600 dark:placeholder-neutral-400 dark:caret-white dark:text-white bg-transparent focus:outline-none"/>
-      <input className="font-normal ml-4" type="submit" value="🔍" onInput={resetError}/>
+      <input className="font-normal ml-4" type="submit" value={emojis.search} onInput={resetError}/>
       {persons && <datalist id="names">
         {persons.map((p, i) =>
           <option value={p.fullName} key={i}>{p.fullName}</option>)}

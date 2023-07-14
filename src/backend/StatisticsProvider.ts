@@ -184,11 +184,10 @@ export async function getNames(type: "First" | "Last") {
       persons
         .map(p => new Person(p))
         .map(p => {
-          let names = p.fullName.split(" ");
-          if (type === "Last") return names.pop()
-          else return names.filter(n => n !== "Dr.")[0]
+          if (type === "First") return p.firstName;
+          else return p.surname;
         })
-        .filter(n => n !== "?"))
+        .filter(n => n !== undefined))
       .sort((a, b) => b.count - a.count));
   return data
     .splice(0, 30)

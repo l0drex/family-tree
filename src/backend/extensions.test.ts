@@ -110,15 +110,6 @@ test("get full name returns the correct name", () => {
   expect(person.fullName).toBe("John Smith");
 })
 
-test("toString works", () => {
-  strings.setLanguage("en");
-  let fact = new Fact().setType(PersonFactTypes.Birth);
-  expect(fact.toString()).toBe("Birth")
-
-  fact.setDate(new GDate().setFormal("+2022-01-25T06:55"))
-  expect(fact.toString()).toBe("Birth on 01/25/2022 at 06:55 AM")
-})
-
 test("toDateObject works", () => {
   let gDate = new GDate();
   let date = gDate.toDateObject();

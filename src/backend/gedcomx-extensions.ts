@@ -1,16 +1,28 @@
 import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
-import {Equals, filterLang, strings} from "../main";
+import {Equals, strings} from "../main";
 import {
-  baseUri, DocumentTypes, KnownResourceTypes,
-  NameTypes,
+  baseUri,
+  EventRoleTypes,
+  NamePartQualifier,
+  NamePartTypes,
   PersonFactQualifiers,
-  PersonFactTypes, TextTypes
+  PersonFactTypes,
+  TextTypes
 } from "./gedcomx-enums";
-import * as factEmojis from './factEmojies.json';
-import {
-  INote, ITextValue, ISourceCitation, INameForm, IConclusion
-} from "./gedcomx-types";
+import emojis from './emojies.json';
+import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./gedcomx-types";
+
+// like filterLang, but without entries that don't include a language
+function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
+  return data.lang === strings.getLanguage();
+}
+
+export class Root extends GedcomX.Root {
+  get hasData(): boolean {
+    return Boolean(this.id || this.description || this.attribution);
+  }
+}
 
 export class Person extends GedcomX.Person {
   get isPrivate(): boolean {
@@ -33,68 +45,73 @@ export class Person extends GedcomX.Person {
   }
 
   get preferredName() {
-    return this.names.find(n => n.preferred);
+    if (!this.names || this.names.length < 1) {
+      return undefined;
+    }
+
+    let preferred = this.names.find(n => n.preferred);
+    if (preferred) return preferred;
+
+    preferred = this.names.filter(filterPureLang)[0];
+    if (preferred) return preferred;
+
+    return this.names[0];
   }
 
   get fullName(): string {
-    if (!this.names || this.names.length < 1) {
+    let name = this.preferredName;
+
+    if (!name || name.nameForms.length === 0)
       return "?";
-    }
 
-    // like filterLang, but without entries that don't include a language
-    let filterPureLang = (data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) =>
-      data.lang === strings.getLanguage();
-
-    let names = [
-      this.preferredName,
-      this.names.filter(filterPureLang)[0],
-      this.names[0]
-    ];
-
-    // first name that is defined
-    let name = names.find(n => n !== undefined);
-    if (!name || name.nameForms.length === 0) {
-      return "?";
-    }
     // name form that matches language, or if none matches return the first without lang
     let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
     return nameForm.getFullText(true);
   }
 
-  get birthName() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.BirthName)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
+  get surname(): string | undefined {
+    let name = this.preferredName;
+    if (name && name.nameForms.length > 0) {
+      let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
+      if (nameForm.parts) {
+        let surnameParts = nameForm.parts.filter(n => n.type === NamePartTypes.Surname);
+
+        if (surnameParts.length > 0) {
+          let surname = surnameParts.find(n =>
+            n.qualifiers?.find(q => q.name === NamePartQualifier.Primary)) ?? surnameParts[0];
+
+          if (surname && surname.value)
+            return surname.value;
+        }
+      }
     }
+
+    let hackySurname = this.fullName.split(" ").reverse()[0];
+    if (hackySurname === "?") return undefined;
+    return hackySurname;
   }
 
-  get marriedName() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.MarriedName)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
-  }
+  get firstName(): string | undefined {
+    // name with qualifier first
+    let name = this.preferredName;
+    if (name && name.nameForms.length > 0) {
+      let nameForm = name.nameForms.find(filterPureLang) ?? name.nameForms[0];
+      if (nameForm.parts) {
+        let givenParts = nameForm.parts.filter(n => n.type === NamePartTypes.Given);
 
-  get alsoKnownAs() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.AlsoKnownAs)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
-    }
-  }
+        if (givenParts.length > 0) {
+          let given = givenParts.find(n =>
+            n.qualifiers?.find(q => q.name === NamePartQualifier.Primary)) ?? givenParts[0];
 
-  get nickname() {
-    let name = this.names.filter(filterLang).find(name => name.type && name.type === NameTypes.Nickname)
-    if (name) {
-      return name.nameForms.filter(filterLang)[0].getFullText(true);
-    } else {
-      return undefined;
+          if (given && given.value)
+            return given.value;
+        }
+      }
     }
+
+    let hackySurname = this.fullName.split(" ")[0];
+    if (hackySurname === "?") return undefined;
+    return hackySurname;
   }
 
   getAgeAt(date: Date) {
@@ -128,7 +145,33 @@ export class Person extends GedcomX.Person {
   }
 
   getFacts(): Fact[] {
-    return super.getFacts() as Fact[];
+    return super.getFacts().sort((a, b) => {
+      // place birth at top, generation right below
+      if (a.getType() === PersonFactTypes.Birth) {
+        return -1;
+      } else if (b.getType() === PersonFactTypes.Birth) {
+        return 1;
+      } else if (a.getType() === PersonFactTypes.GenerationNumber) {
+        return -1;
+      } else if (b.getType() === PersonFactTypes.GenerationNumber) {
+        return 1;
+      }
+
+      if (a.getDate() && !b.getDate()) {
+        return 1;
+      } else if (!a.getDate() && b.getDate()) {
+        return -1;
+      }
+      if (a.getDate() && b.getDate()) {
+        let aDate = new GDate(a.date).toDateObject();
+        let bDate = new GDate(b.date).toDateObject();
+        if (aDate && bDate) {
+          return aDate.getMilliseconds() - bDate.getMilliseconds();
+        }
+      }
+
+      return 0;
+    }) as Fact[];
   }
 
   getFactsByType(type: string): Fact[] {
@@ -191,8 +234,7 @@ export class GDate extends GedcomX.Date {
     let dateObject = this.toDateObject();
     if (!dateObject) {
       return this.formal;
-    }
-    else return formatJDate(dateObject, this.formal.length);
+    } else return formatJDate(dateObject, this.formal.length);
   }
 }
 
@@ -254,32 +296,13 @@ export class Fact extends GedcomX.Fact {
     return this;
   }
 
-  toString(): string {
-    let value = this.value;
-    const type = this.type;
-    let string = strings.gedcomX.person.factTypes[type.substring(baseUri.length)] ?? type;
-
-    if (type === PersonFactTypes.MaritalStatus && value in strings.gedcomX.person.maritalStatus) {
-      value = strings.gedcomX.person.maritalStatus[value];
-    }
-
-    string += ((value || value === "0") ? `: ${value}` : "");
-    string += (this.date ? ` ${this.date}` : "") +
-      (this.place ? " " + strings.formatString(strings.gedcomX.place, this.place.toString()) : "");
-
-    if (this.qualifiers && this.qualifiers.length > 0) {
-      string += " " + this.qualifiers.map(q => q.toString()).join(" ");
-    }
-
-    return string;
-  }
-
   get emoji(): string {
-    const type = this.type.substring(baseUri.length);
-    if (type in factEmojis) {
-      return factEmojis[type];
+    if (this.type) {
+      let emoji = emojis.fact[this.type.substring(baseUri.length)];
+      if (emoji) return emoji;
     }
-    return "•";
+
+    return emojis.fact.default;
   }
 }
 
@@ -316,11 +339,11 @@ class PlaceReference extends GedcomX.PlaceReference {
 
 export class FamilyView extends GedcomX.FamilyView implements Equals {
   get parents() {
-    return [this.parent1, this.parent2];
+    return [this.parent1, this.parent2].filter(p => p !== undefined);
   }
 
   get members() {
-    return this.children.concat(this.parents);
+    return (this.children ?? []).concat(this.parents);
   }
 
   involvesPerson(person: GedcomX.Person) {
@@ -329,9 +352,8 @@ export class FamilyView extends GedcomX.FamilyView implements Equals {
 
   equals(family: GedcomX.FamilyView) {
     let parentResources = this.parents.map(p => p.resource);
-    let parentEqual = parentResources.includes(family.parent1.resource) &&
+    return parentResources.includes(family.parent1.resource) &&
       parentResources.includes(family.parent2.resource);
-    return parentEqual;
   }
 }
 
@@ -342,18 +364,10 @@ export class SourceDescription extends GedcomX.SourceDescription {
   }
 
   get emoji() {
-    switch (this.getResourceType()) {
-      case KnownResourceTypes.Collection:
-        return "📚";
-      case KnownResourceTypes.PhysicalArtifact:
-        return "📖";
-      case KnownResourceTypes.DigitalArtifact:
-        return "💿";
-      case KnownResourceTypes.Record:
-        return "📜";
-    }
+    let emoji = emojis.source[this.getResourceType()?.substring(baseUri.length)];
+    if (emoji) return emoji;
 
-    return "📖";
+    return emojis.source.default;
   }
 }
 
@@ -374,18 +388,10 @@ export class Document extends GedcomX.Document {
   // todo get attribution from containing data set
 
   get emoji(): string {
-    switch (this.getType()) {
-      case DocumentTypes.Abstract:
-        return "📄";
-      case DocumentTypes.Transcription:
-        return "📝";
-      case DocumentTypes.Translation:
-        return "🌍";
-      case DocumentTypes.Analysis:
-        return "🔍";
-      default:
-        return "📄";
-    }
+    let emoji = emojis.document[this.getType()?.substring(baseUri.length)];
+    if (emoji) return emoji;
+
+    return emojis.document.default;
   }
 }
 
@@ -397,9 +403,43 @@ export class Agent extends GedcomX.Agent {
 }
 
 export class PlaceDescription extends GedcomX.PlaceDescription {
- isExtracted(): boolean {
-   return Boolean(this.extracted);
- }
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
+}
+
+export class EventExtended extends GedcomX.Event {
+  get emoji() {
+    if (this.type) {
+      let emoji = emojis.event[this.type.substring(baseUri.length)];
+      if (emoji) return emoji;
+    }
+
+    return emojis.event.default;
+  }
+
+  get title() {
+    if (this.type)
+      return strings.gedcomX.event.types[this.type.substring(baseUri.length)]
+        + (this.principal ? `: ${this.principal.resource}` : "");
+
+    return strings.gedcomX.event.event;
+  }
+
+  get principal() {
+    return this.roles.find(r => r.type === EventRoleTypes.Principal)?.person;
+  }
+
+  getDate(): GDate {
+    if (!this.date)
+      return undefined;
+
+    return new GDate(this.date.toJSON());
+  }
+
+  isExtracted(): boolean {
+    return Boolean(this.extracted);
+  }
 }
 
 let referenceAge: { age: number, generation: number } = {

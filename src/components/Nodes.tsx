@@ -1,7 +1,34 @@
 import config from "../config";
 import {strings} from "../main";
-import {GraphFamily, GraphPerson} from "../backend/graph";
+import {GraphFamily, GraphObject, GraphPerson} from "../backend/graph";
 import {Person as PersonClass} from "../backend/gedcomx-extensions";
+import {ColorMode} from "../backend/ViewGraph";
+import * as d3 from "d3";
+import {Confidence} from "../backend/gedcomx-enums";
+import {useContext} from "react";
+import {GraphContext} from "./TreeView";
+
+interface NodeProps {
+  data: GraphObject,
+  onPersonClick: (person: PersonClass) => void,
+  onEtcClick: (family: GraphFamily) => void,
+  onFamilyClick: (family: GraphFamily) => void,
+  focusHidden: boolean,
+  startPerson: PersonClass,
+  colorMode: ColorMode
+}
+
+export function Node({data, onPersonClick, onEtcClick, onFamilyClick, focusHidden, startPerson, colorMode}: NodeProps) {
+  if (data instanceof GraphPerson)
+    return <Person graphPerson={data} onClick={onPersonClick} focused={!focusHidden && data.data.getId() === startPerson.id} colorMode={colorMode}/>
+
+  if (data instanceof GraphFamily) {
+    if (data.type === "etc")
+      return <Etc onClick={onEtcClick} family={data}/>
+
+    return <Family data={data} locked={data.involvesPerson(startPerson)} onClicked={onFamilyClick}/>
+  }
+}
 
 export function Family(props: {locked: boolean, data: GraphFamily, onClicked: (a: GraphFamily) => void}) {
   return (
@@ -31,17 +58,106 @@ export function Etc(props: {onClick: Function, family: GraphFamily}) {
   );
 }
 
-export function Person(props: {data: GraphPerson, onClick: (person: PersonClass) => void, focused: boolean}) {
-  let graphPerson: GraphPerson = props.data;
+export function Person(
+  {graphPerson, onClick, focused, colorMode}:
+    {graphPerson: GraphPerson, onClick: (person: PersonClass) => void, focused: boolean, colorMode: ColorMode}) {
+  const graph = useContext(GraphContext);
+  let background: string = "gray-200";
+  let foreground: string = "";
+
+  background = getBgColor(colorMode, graphPerson, graph) ?? background;
+  if (colorMode === ColorMode.AGE && graphPerson.data.getAgeAt(new Date()) < 60)
+    foreground = "black";
+
+  if (foreground === "") {
+    if (background !== "gray-200")
+      foreground = "white";
+    else
+      foreground = "black";
+  }
+
+  // todo styling when dead?
+
   return (
     <foreignObject
-      className="person overflow-visible cursor-pointer select-none"
-      x={graphPerson.x - graphPerson.width / 2} y={graphPerson.y - graphPerson.height / 2}
-      width={graphPerson.width} height={graphPerson.height}
-      onClick={() => props.onClick(graphPerson.data)}>
-      <div className={"bg rounded-3xl px-4 py-2 bg-gray-200 dark:bg-neutral-800 border-4 dark:font-white" + (props.focused ? " focused" : "")} title={strings.tree.clickPersonHint}>
+      className={`person overflow-visible cursor-pointer select-none ${focused && "font-bold"}`}
+      width={graphPerson.width} height={graphPerson.height} x={-graphPerson.width / 2} y={-graphPerson.height / 2}
+      onClick={() => onClick(graphPerson.data)}>
+      <div className={`rounded-3xl px-4 py-2 ` +
+        ` bg-${background} text-${foreground}${focused ? ` shadow-lg shadow-${background}` : ""}`}
+           title={strings.tree.clickPersonHint}>
         <p className="fullName text-center">{graphPerson.getName()}</p>
       </div>
     </foreignObject>
   );
+}
+
+function getBgColor(colorMode, graphPerson, graph) {
+  switch (colorMode) {
+    case ColorMode.GENDER:
+      const genderColor = d => {
+        if (d === "unknown") return undefined;
+        return d3.scaleOrdinal(["female", "male", "intersex"], ["red-500", "blue-500", "green-500"])(d)
+      };
+
+      return genderColor(graphPerson.getGender());
+
+    case ColorMode.NAME:
+      let lastNames = graph.nodes.filter(n => n instanceof GraphPerson)
+        .map((p: GraphPerson) => p.data.surname);
+      lastNames = Array.from(new Set(lastNames)).sort();
+      const nameColor = n => {
+        if (!n) return undefined;
+
+        return d3.scaleOrdinal(lastNames, [
+          "red-500",
+          "orange-500",
+          "amber-500",
+          "yellow-500",
+          "lime-500",
+          "green-500",
+          "emerald-500",
+          "teal-500",
+          "cyan-500",
+          "sky-500",
+          "blue-500",
+          "indigo-500",
+          "violet-500",
+          "purple-500",
+          "fuchsia-500",
+          "pink-500",
+          "rose-500"
+        ])(n)
+      }
+
+      return nameColor(graphPerson.data.surname);
+
+    case ColorMode.AGE:
+      const ageColor = d => {
+        if (!d) return undefined;
+        return d3.scaleSequential()
+          .domain([0, 120])
+          .interpolator(d => {
+            // map d of range 0...1 to 100...900
+
+            if (d < .1) return "green-100";
+            if (d > .9) return "green-900";
+
+            let greenValue = (Math.floor(d * 10) + 1) * 100;
+            return `green-${greenValue}`
+          })(d);
+      }
+
+      const age = graphPerson.data.getAgeAt(new Date());
+      return ageColor(age);
+
+    case ColorMode.CONFIDENCE:
+      const confidenceColor = d => {
+        if (!d) return undefined;
+        return d3.scaleOrdinal([Confidence.Low, Confidence.Medium, Confidence.High],
+          ["red-500", "yellow-500", "green-500"])(d)
+      }
+
+      return confidenceColor(graphPerson.data.getConfidence());
+  }
 }

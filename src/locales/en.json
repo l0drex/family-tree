@@ -64,6 +64,7 @@
   "gedcomX": {
     "conclusion": {
       "note": "Note",
+      "notes": "Notes",
       "confidence": "Confidence",
       "confidenceExplanation": "How much can the data be trusted",
       "confidenceLevel": {
@@ -72,6 +73,7 @@
         "Low": "Low"
       },
       "attribution": {
+        "attribution": "Attribution",
         "created": "Created",
         "modified": "Modified",
         "byPerson": "by {0}"
@@ -105,6 +107,8 @@
       "document": "Document"
     },
     "event": {
+      "events": "Events",
+      "event": "Event",
       "types": {
         "Adoption": "Adoption",
         "AdultChristening": "Adult Christening",
@@ -158,6 +162,7 @@
         "Unknown": "Unknown",
         "Intersex": "Intersex"
       },
+      "names": "Names",
       "firstName": "first name",
       "born": "born: {0}",
       "aka": "aka {0}",
@@ -356,6 +361,7 @@
       "time": "at {0}"
     },
     "place": "in {0}",
+    "facts": "Facts",
     "factQualifier": {
       "Age": "Age",
       "ageFormatter": "with {0} years old",
@@ -393,6 +399,7 @@
   },
   "errors": {
     "title": "Whoops, something went wrong",
+    "fetchError": "Failed to load resource.",
     "noData": "No data available.",
     "stack": "Details for developers",
     "noFileError": "No gedcom file selected",

@@ -4,14 +4,32 @@ import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
 import {formatJDate, GDate} from "../backend/gedcomx-extensions";
 import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
-import {Link} from "react-router-dom";
-import {Article, ExternalContent, Gallery, Hr, Media, P, ReactLink, Tag} from "./GeneralComponents";
+import {Link, useParams} from "react-router-dom";
+import {
+  Article,
+  ArticleCollection, Details,
+  Gallery,
+  Hr,
+  Media,
+  P,
+  ReactLink,
+  Tag,
+  Title
+} from "./GeneralComponents";
+import emojis from "../backend/emojies.json";
 
-export function Note(props: { note: gedcomX.Note, noMargin?: boolean }) {
-  return <Article emoji={"📝"} title={props.note.getSubject() || strings.gedcomX.conclusion.note} noMargin={props.noMargin}>
-    <p>{props.note.getText()}</p>
-    {props.note.getAttribution() && <p><Attribution attribution={props.note.getAttribution()}/></p>}
-  </Article>
+export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
+  if (!notes || notes.length === 0)
+    return <></>;
+
+  return <ArticleCollection noMargin={noMargin}>
+    <Title emoji={emojis.note}>{strings.gedcomX.conclusion.notes}</Title>
+    {notes.map((note, i) =>
+      <Article emoji="" title={note.getSubject()} key={i}>
+        <P>{note.getText()}</P>
+        {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
+      </Article>)}
+  </ArticleCollection>
 }
 
 export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
@@ -27,9 +45,14 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   if (!attribution) return <></>
 
+  const hasCreated = attribution.created || attribution.creator;
+  const hasModified = attribution.modified || attribution.contributor || attribution.changeMessage;
+  const hasData = hasCreated || hasModified;
+  if (!hasData) return <></>
+
   let created = attribution.getCreated();
   let creatorRef = attribution.getCreator();
-  let creatorName = creator?.names?.filter(filterLang)[0].value ?? attribution.creator.resource;
+  let creatorName = creator?.names?.filter(filterLang)[0].value ?? attribution.creator?.resource;
 
   let createdString = "";
   if (created || creatorName) {
@@ -40,7 +63,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
 
   let modified = attribution.getModified();
   let contributorRef = attribution.getContributor();
-  let contributorName = contributor?.names?.filter(filterLang)[0].value ?? attribution.contributor.resource;
+  let contributorName = contributor?.names?.filter(filterLang)[0].value ?? attribution.contributor?.resource ?? "";
   let message = attribution.getChangeMessage();
 
   let modifiedString = "";
@@ -50,35 +73,64 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     if (modified && contributorName) modifiedString += " ";
   }
 
-  return <>
-    <P noMargin>
-      {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-      <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
-        {creatorName}
-      </ReactLink>)}
-    </P>
-    <P noMargin>
-      {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-      <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
-        {contributorName}
-      </ReactLink>)}
-      {message && <>: <cite> "{message}"</cite></>}
-    </P></>
+  return <div className="text-neutral-700 dark:text-neutral-400">
+    <Details title={strings.gedcomX.conclusion.attribution.attribution}>
+      {hasCreated && <P>
+        {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
+        <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
+          {creatorName}
+        </ReactLink>)}
+      </P>}
+      {hasModified && <P>
+        {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
+        <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
+          {contributorName}
+        </ReactLink>)}
+        {message && <>: <cite> "{message}"</cite></>}
+      </P>}
+    </Details>
+  </div>
 }
 
-export function SourceReference(props: { reference: gedcomX.SourceReference, noMargin?: boolean }) {
-  return <Article emoji="📖" title={strings.gedcomX.sourceDescription.sourceDescription} noMargin={props.noMargin}>
-    <p><ReactLink to={`/sources/${props.reference.description.substring(1)}`}>{props.reference.description}</ReactLink>
-    </p>
-    {props.reference.attribution && <p><Attribution attribution={props.reference.attribution}/></p>}
+export function SourceReference({reference}: { reference: gedcomX.SourceReference }) {
+  const sourceTitle = useLiveQuery(() => {
+    if (!reference || !reference.description)
+      return undefined;
+
+    return db.sourceDescriptionWithId(reference.description.substring(1))
+      .then(sd => `${sd.emoji} ${sd.title}`);
+  }, [reference]);
+
+  if (!reference) return <></>;
+
+  // todo qualifiers
+
+  return <Article>
+    <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
+      {sourceTitle || reference.description}
+    </ReactLink></P>
+    {reference.attribution && <Attribution attribution={reference.attribution}/>}
   </Article>
+}
+
+export function SourceReferences({references, noMargin}: {
+  references: gedcomX.SourceReference[],
+  noMargin?: boolean
+}) {
+  if (!references || references.length === 0)
+    return <></>;
+
+  return <ArticleCollection noMargin={noMargin}>
+    <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
+    {references.map((reference, i) => <SourceReference reference={reference} key={i}/>)}
+  </ArticleCollection>
 }
 
 export function Coverage(props: { coverage: gedcomX.Coverage }) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
-  return <Article emoji="🗺️" title={strings.gedcomX.sourceDescription.coverageTitle}>
+  return <Article emoji={emojis.coverage} title={strings.gedcomX.sourceDescription.coverageTitle}>
     <p>
       {props.coverage.temporal && <>{`${strings.gedcomX.sourceDescription.coverage.temporal}: ${date}`}</>}
       {props.coverage.spatial && <>{strings.gedcomX.sourceDescription.coverage.spatial + ": "} <PlaceReference
@@ -145,6 +197,24 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
   </>
 }
 
+export function Evidence({evidenceReferences}) {
+  const params = useParams();
+
+  if (!evidenceReferences || evidenceReferences.length === 0)
+    return <></>;
+
+  let linkTarget = params["id"] ? "../" : "./";
+
+  return <ArticleCollection>
+    <Title emoji={emojis.evidence}>{strings.gedcomX.subject.evidence}</Title>
+    {evidenceReferences.map((evidence, i) =>
+      <Article key={i}>
+        <P><ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink></P>
+        <Attribution attribution={evidence.attribution}/>
+      </Article>)}
+  </ArticleCollection>
+}
+
 export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
   const media = useLiveQuery(async () => {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
@@ -153,40 +223,35 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
 
   return <>
     {media && media.length > 0 && <Gallery noMargin={noMargin}>
-      {media.map(m => {
+      {media.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
-        return <ExternalContent key={m.id}>
-          <div className="relative">
-            <Media mimeType={m.mediaType} url={m.getAbout()} alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
-            <div
-              className="absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50">
+        return <div className="relative" key={i}>
+            <Media mimeType={m.mediaType} url={m.getAbout()}
+                   alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
+            <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
+              + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
               © <a href={m.getAbout()}>{credit}</a>
             </div>
           </div>
-        </ExternalContent>
       })}
     </Gallery>}
-    {subject.getEvidence().map((e, i) => <Article noMargin={noMargin} emoji="📎" title={strings.gedcomX.subject.evidence}
-                                                  key={i}>
-      <ReactLink to={"./" + e.resource.substring(1)}>{e.resource}</ReactLink>
-      <Attribution attribution={e.attribution}/>
-    </Article>)}
+    <Evidence evidenceReferences={subject.getEvidence()}/>
     <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
   </>
 }
 
-export function ConclusionMisc({conclusion}: { conclusion: gedcomX.Conclusion }) {
+export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conclusion, bgColor?: string }) {
   return <>
-    {conclusion.analysis && <Tag>{strings.gedcomX.document.types.Analysis}: <ReactLink
+    {conclusion.analysis && <Tag bgColor={bgColor}>{strings.gedcomX.document.types.Analysis}: <ReactLink
       to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
-    {conclusion.confidence && <Tag><Confidence confidence={conclusion.confidence}/></Tag>}
+    {conclusion.confidence && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
   </>
 }
 
 export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
   return <>
-    {conclusion.getSources().map((source, i) => <SourceReference key={i} reference={source} noMargin={noMargin}/>)}
-    {conclusion.getNotes().map((note, i) => <Note key={i} note={note} noMargin={noMargin}/>)}
+    <SourceReferences references={conclusion.getSources()} noMargin={noMargin}/>
+    <Notes notes={conclusion.getNotes()} noMargin={noMargin}/>
   </>
 }
 

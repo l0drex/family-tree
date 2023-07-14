@@ -2911,7 +2911,7 @@
     "@types/d3-random" "^2.2.0"
     d3-random "^2.2.2"
 
-"@visx/network@3.0.0":
+"@visx/network@3.0.0", "@visx/network@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@visx/network/-/network-3.0.0.tgz#2429ac4560291e4fbb7200ff368e64400c876519"
   integrity sha512-Yrzef1UUx+Mid4VH4cEv+kImgKdmOfyuHCU1ZrBwKapCW+U8Li+4KO5AzfQWuF8v8iQm+0biZTXjHRTnsaKN/g==

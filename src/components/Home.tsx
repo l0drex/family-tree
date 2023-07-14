@@ -96,6 +96,6 @@ export async function parseFile(gedcomFile) {
 export function saveDataAndRedirect(data: object, navigate: (url: string) => void) {
   if (typeof data !== "object") throw new Error("Data type is invalid!")
 
-  db.load(data).then(() => navigate("/persons"));
+  db.load(data).then(() => navigate("/person"));
 }
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {ReactNode, useContext, useEffect, useState} from "react";
+import {createContext, ReactNode, useContext, useEffect, useState} from "react";
 import {baseUri, Confidence, GenderTypes} from "../backend/gedcomx-enums";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
@@ -41,6 +41,7 @@ import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
 import {LayoutContext, Main} from "../App";
 import {Title, Loading} from "./GeneralComponents";
+import emojis from "../backend/emojies.json";
 
 const width = 200, height = 200;
 const radius = Math.min(width, height) / 2;
@@ -58,7 +59,7 @@ function Stat(props: { title: string, legend?: ReactNode, landscape?: boolean, c
 
 function GenderStats() {
   const data = useLiveQuery(getGenderPerGeneration);
-  const layoutContext = useContext(LayoutContext);
+  const isDark = useContext(ThemeContext);
 
   if (!data) return <Stat title={strings.gedcomX.person.gender}>
     <Loading text={strings.statistics.loading}/>
@@ -80,7 +81,7 @@ function GenderStats() {
   return <Stat title={strings.gedcomX.person.gender} legend={legend}>
     <XYChart height={height} width={width}
              xScale={{type: "linear"}} yScale={{type: "band", padding: 0.2, reverse: true}}
-             margin={{top: 0, left: 45, bottom: 0, right: 0}} theme={layoutContext.isDark ? darkTheme : lightTheme}>
+             margin={{top: 0, left: 45, bottom: 0, right: 0}} theme={isDark ? darkTheme : lightTheme}>
       <BarStack offset="silhouette">
         {keys.map(key => <BarSeries
           data={data} dataKey={key} key={key}
@@ -95,7 +96,7 @@ function GenderStats() {
 }
 
 function ReligionStats() {
-  const layoutContext = useContext(LayoutContext);
+  const isDark = useContext(ThemeContext);
   let data = useLiveQuery(getReligionPerYear);
   if (!data) return <Stat title={strings.gedcomX.person.factTypes.Religion} landscape>
     <Loading text={strings.statistics.loading}/>
@@ -110,7 +111,7 @@ function ReligionStats() {
   return <Stat title={strings.gedcomX.person.factTypes.Religion} landscape>
     <XYChart height={height} width={width * 2}
              xScale={{type: "time"}} yScale={{type: "linear"}}
-             margin={{top: 1, left: 15, right: 0, bottom: 25}} theme={layoutContext.isDark ? darkTheme : lightTheme}>
+             margin={{top: 1, left: 15, right: 0, bottom: 25}} theme={isDark ? darkTheme : lightTheme}>
       <AreaStack order="ascending">
         {keys.map(key =>
           <AreaSeries
@@ -215,7 +216,7 @@ function NameStats(props: { nameType: "First" | "Last" }) {
 
 function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
   let data = useLiveQuery(async () => getBirthDeathMonthOverYears(props.type), [props.type]);
-  const layoutContext = useContext(LayoutContext);
+  const isDark = useContext(ThemeContext);
   const title = props.type === "Birth" ? strings.statistics.birth_month : strings.statistics.death_month;
 
   if (!data) return <Stat title={title}>
@@ -234,7 +235,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
     range: [0, radius]
   })
 
-  const strokeColor = layoutContext.isDark ? "#868686" : "#afafaf";
+  const strokeColor = isDark ? "#868686" : "#afafaf";
 
   return <Stat title={title}>
     <svg height={height} width={width}>
@@ -255,7 +256,7 @@ function BirthOverYearStats(props: { type: "Birth" | "Death" }) {
 }
 
 function LifeExpectancy() {
-  const layoutContext = useContext(LayoutContext);
+  const isDark = useContext(ThemeContext);
   let data = useLiveQuery(getLifeExpectancyOverYears);
   if (!data) return <Stat title={strings.statistics.lifeExpectancy} landscape>
     <Loading text={strings.statistics.loading}/>
@@ -266,7 +267,7 @@ function LifeExpectancy() {
 
   return <Stat title={strings.statistics.lifeExpectancy} landscape>
     <XYChart height={height} width={width * 2 + 60} xScale={{type: "time"}} yScale={{type: "linear"}}
-             margin={{top: 5, left: 30, bottom: 25, right: 5}} theme={layoutContext.isDark ? darkTheme : lightTheme}>
+             margin={{top: 5, left: 30, bottom: 25, right: 5}} theme={isDark ? darkTheme : lightTheme}>
       <Grid/>
       <GlyphSeries data={data} dataKey={"Line 1"} xAccessor={d => d.birth} yAccessor={d => d.age}/>
       <Tooltip renderTooltip={({tooltipData}) =>
@@ -278,7 +279,7 @@ function LifeExpectancy() {
 }
 
 function MarriageAge() {
-  const layoutContext = useContext(LayoutContext);
+  const isDark = useContext(ThemeContext);
   let data = useLiveQuery(getMarriageAge);
   if (!data) return <Stat title={strings.statistics.marriageAge}>
     <Loading text={strings.statistics.loading}/>
@@ -299,11 +300,11 @@ function MarriageAge() {
       <ViolinPlot valueScale={yScale} data={data} fill={"#6ca5e5"} width={width}/>
       <AxisLeft
         scale={yScale} left={25}
-        stroke={layoutContext.isDark ? darkTheme.axisStyles.y.left.axisLine.stroke : lightTheme.axisStyles.y.left.axisLine.stroke}
-        tickStroke={layoutContext.isDark ? darkTheme.axisStyles.y.left.tickLine.stroke : lightTheme.axisStyles.y.left.tickLine.stroke}
+        stroke={isDark ? darkTheme.axisStyles.y.left.axisLine.stroke : lightTheme.axisStyles.y.left.axisLine.stroke}
+        tickStroke={isDark ? darkTheme.axisStyles.y.left.tickLine.stroke : lightTheme.axisStyles.y.left.tickLine.stroke}
         tickLabelProps={{
-          style: layoutContext.isDark ? darkTheme.axisStyles.y.left.tickLabel.style : lightTheme.axisStyles.y.left.tickLabel.style,
-          fill: layoutContext.isDark ? darkTheme.axisStyles.y.left.tickLabel.fill : lightTheme.axisStyles.y.left.tickLabel.fill,
+          style: isDark ? darkTheme.axisStyles.y.left.tickLabel.style : lightTheme.axisStyles.y.left.tickLabel.style,
+          fill: isDark ? darkTheme.axisStyles.y.left.tickLabel.fill : lightTheme.axisStyles.y.left.tickLabel.fill,
         }}
       />
     </svg>
@@ -342,16 +343,21 @@ function ConfidenceStats() {
   </Stat>
 }
 
+const ThemeContext = createContext(false);
+
 export default function Statistics() {
   const [dataExists, setDataExists] = useState(false);
   const layoutContext = useContext(LayoutContext);
+  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+  const [isDark, toggleDark] = useState(darkQuery.matches);
+  darkQuery.addEventListener("change", e => toggleDark(e.matches));
 
   useEffect(() => {
     hasData().then(value => setDataExists(value));
   });
 
   useEffect(() => {
-    layoutContext.setHeaderChildren(<Title emoji="📊">
+    layoutContext.setHeaderChildren(<Title emoji={emojis.stats}>
       {strings.statistics.title}
     </Title>);
     layoutContext.setRightTitle("");
@@ -360,17 +366,19 @@ export default function Statistics() {
   return <>
       <Main skipCleanup>
         {dataExists ?
-        <div className="grid grid-flow-dense gap-4 justify-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <ConfidenceStats/>
-          <GenderStats/>
-          <ReligionStats/>
-          <NameStats nameType={"First"}/>
-          <NameStats nameType={"Last"}/>
-          <BirthOverYearStats type={"Birth"}/>
-          <BirthOverYearStats type={"Death"}/>
-          <LifeExpectancy/>
-          <MarriageAge/>
-        </div> : <NoData/>}
+          <ThemeContext.Provider value={isDark}>
+            <div className="grid grid-flow-dense gap-4 justify-stretch sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              <ConfidenceStats/>
+              <GenderStats/>
+              <ReligionStats/>
+              <NameStats nameType={"First"}/>
+              <NameStats nameType={"Last"}/>
+              <BirthOverYearStats type={"Birth"}/>
+              <BirthOverYearStats type={"Death"}/>
+              <LifeExpectancy/>
+              <MarriageAge/>
+            </div>
+          </ThemeContext.Provider> : <NoData/>}
       </Main>
   </>
 }

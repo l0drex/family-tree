@@ -1,15 +1,15 @@
 import Dexie, {PromiseExtended, Table} from 'dexie';
 import {
-  IGedcomX,
+  IGedcomX, IGedcomXData,
   IGroup
 } from "./gedcomx-types";
 import * as GedcomX from "gedcomx-js";
 import {
   Agent,
-  Document,
+  Document, EventExtended,
   Person,
   PlaceDescription,
-  Relationship,
+  Relationship, Root,
   setReferenceAge,
   SourceDescription
 } from "./gedcomx-extensions";
@@ -20,6 +20,7 @@ export type RootType = "person" | "relationship" | "sourceDescription" | "agent"
 type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;
 
 export class FamilyDB extends Dexie {
+  gedcomX!: Table<IGedcomXData>
   persons!: Table<GedcomX.Person>
   relationships!: Table<GedcomX.Relationship>
   sourceDescriptions!: Table<GedcomX.SourceDescription>
@@ -31,6 +32,7 @@ export class FamilyDB extends Dexie {
 
   constructor() {
     super('familyData');
+    // DONT CHANGE THIS, INTRODUCE NEW VERSIONS INSTEAD
     this.version(1).stores({
       persons: '&id, lang',
       relationships: '&id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
@@ -41,6 +43,18 @@ export class FamilyDB extends Dexie {
       places: '&id, lang',
       groups: '&id, lang'
     });
+
+    this.version(2).stores({
+      gedcomX: '&id',
+      persons: '&id, lang',
+      relationships: '&id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
+      sourceDescriptions: '&id, mediaType',
+      agents: '&id',
+      events: '&id, lang, date',
+      documents: '&id, lang',
+      places: '&id, lang',
+      groups: '&id, lang'
+    })
   }
 
   async load(data: IGedcomX) {
@@ -50,6 +64,9 @@ export class FamilyDB extends Dexie {
 
     let promises: PromiseExtended[] = [];
 
+    if (data.id || data.lang || data.attribution || data.description) {
+      promises.push(this.gedcomX.add(root));
+    }
     if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
     if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
     if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions));
@@ -68,7 +85,18 @@ export class FamilyDB extends Dexie {
   }
 
   private sanitizeData(data: IGedcomX) {
-    let root = new GedcomX.Root(data);
+    let root = new Root(data);
+
+    function forAll(callback: (items: RootClass[]) => void) {
+      callback(root.persons);
+      callback(root.relationships);
+      callback(root.sourceDescriptions);
+      callback(root.agents);
+      callback(root.events);
+      callback(root.documents);
+      callback(root.places);
+      callback(data.groups);
+    }
 
     // generate missing ids
     function generateIdIfMissing(data: RootClass[]) {
@@ -80,20 +108,21 @@ export class FamilyDB extends Dexie {
       });
       console.debug(`Added ${addedIds} missing ids.`);
     }
-    generateIdIfMissing(root.persons);
-    generateIdIfMissing(root.relationships);
-    generateIdIfMissing(root.sourceDescriptions);
-    generateIdIfMissing(root.agents);
-    generateIdIfMissing(root.events);
-    generateIdIfMissing(root.documents);
-    generateIdIfMissing(root.places);
-    generateIdIfMissing(data.groups);
+    forAll(generateIdIfMissing);
+    if (!root.id) {
+      root.setId("missing-id-1");
+    }
 
     return root;
   }
 
   async clear() {
     return Promise.all(this.tables.map(t => t.clear()));
+  }
+
+  get root() {
+    return this.gedcomX.toCollection().first()
+      .then(r => new Root(r));
   }
 
   get couples() {
@@ -108,7 +137,7 @@ export class FamilyDB extends Dexie {
     // todo find a way to use generics here
 
     try {
-      id = toResource(id).resource.substring(1);
+      id = toId(id);
     } catch (e) {
       return Promise.reject(new Error("Could not parse resource!"));
     }
@@ -128,7 +157,7 @@ export class FamilyDB extends Dexie {
           .then(a => a ? new Agent(a) : Promise.reject(new Error(`Agent with id ${id} not found!`)));
       case "event":
         return this.events.get(id)
-          .then(e => e ? new GedcomX.Event(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
+          .then(e => e ? new EventExtended(e) : Promise.reject(new Error(`Event with id ${id} not found!`)));
       case "document":
         return this.documents.get(id)
           .then(d => d ? new Document(d) : Promise.reject(new Error(`Document with id ${id} not found!`)));
@@ -375,14 +404,23 @@ export class FamilyDB extends Dexie {
   }
 }
 
+function toId(resource: ResourceReference | string): string {
+  if (resource === undefined || resource === null) throw new Error("Resource is undefined!")
+
+  if (resource instanceof ResourceReference || typeof resource === "object") return resource.resource.substring(1);
+  if (resource.startsWith("#")) return resource.substring(1);
+  if (resource.length === 0) throw new Error("Resource is empty!")
+  return resource;
+}
+
 function toResource(resource: ResourceReference | string): ResourceReference {
-  if (resource === undefined || resource === null) throw new Error("resource is undefined!")
+  if (resource === undefined || resource === null) throw new Error("Resource is undefined!")
 
   if (resource instanceof ResourceReference) return resource;
   if (typeof resource === "object") return new ResourceReference(resource);
 
   if (typeof resource === "string") {
-    if (resource.length === 0) throw new Error("resource is empty")
+    if (resource.length === 0) throw new Error("Resource is empty!")
     if (!resource.startsWith("#")) resource = "#" + resource;
     return new ResourceReference().setResource(resource);
   }

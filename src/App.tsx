@@ -3,7 +3,7 @@ import {createBrowserRouter, Outlet, RouterProvider, useLocation} from "react-ro
 import {strings} from "./main";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {db} from "./backend/db";
-import {SourceDescription, Document, Agent, Person} from "./backend/gedcomx-extensions";
+import {SourceDescription, Document, Agent, Person, EventExtended} from "./backend/gedcomx-extensions";
 import {Home} from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
@@ -15,6 +15,13 @@ import {PlaceOverview, PlaceView} from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";
 import {Imprint} from "./components/Imprint";
+import {EventOverview, EventView} from "./components/Events";
+import emojis from './backend/emojies.json';
+
+let personCache = {
+  id: undefined,
+  person: undefined
+}
 
 const router = createBrowserRouter([
   {
@@ -23,11 +30,17 @@ const router = createBrowserRouter([
         path: "*", errorElement: <ErrorBoundary/>, children: [
           {index: true, Component: Home},
           {
-            path: "persons/:id?", Component: Persons, loader: ({params}) => {
+            path: "person/:id?", Component: Persons, loader: ({params}) => {
+              if (personCache.person !== undefined && personCache.id === params.id) {
+                return personCache.person;
+              }
+
+              personCache.id = params.id;
+
               if (!params.id) {
                 // find a person whose id does not start with "missing-id-" if possible
                 // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
-                return db.persons.toArray().then(ps => ps.sort((a, b) => {
+                personCache.person = db.persons.toArray().then(ps => ps.sort((a, b) => {
                   // Check if either string starts with "missing-id-"
                   const aStartsWithMissingId = a.id.startsWith("missing-id-");
                   const bStartsWithMissingId = b.id.startsWith("missing-id-");
@@ -42,13 +55,16 @@ const router = createBrowserRouter([
                     return a.id.localeCompare(b.id);
                   }
                 })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+              } else {
+                personCache.person = db.personWithId(params.id);
               }
-              return db.personWithId(params.id);
+
+              return personCache.person;
             }
           },
           {path: "stats", Component: Statistics},
           {
-            path: "sources", children: [
+            path: "sourceDescription", children: [
               {
                 index: true,
                 Component: SourceDescriptionOverview,
@@ -62,7 +78,7 @@ const router = createBrowserRouter([
             ]
           },
           {
-            path: "documents", children: [
+            path: "document", children: [
               {
                 index: true,
                 Component: DocumentOverview,
@@ -72,7 +88,7 @@ const router = createBrowserRouter([
             ]
           },
           {
-            path: "agents", children: [
+            path: "agent", children: [
               {
                 index: true,
                 Component: AgentOverview,
@@ -81,9 +97,18 @@ const router = createBrowserRouter([
               {path: ":id", Component: AgentView, loader: ({params}) => db.elementWithId(params.id, "agent")}
             ]
           },
-          {path: "imprint", Component: Imprint},
           {
-            path: "places", children: [
+            path: "event", children: [
+              {
+                index: true,
+                Component: EventOverview,
+                loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
+              },
+              {path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")}
+              ]
+          },
+          {
+            path: "place", children: [
               {
                 index: true,
                 Component: PlaceOverview,
@@ -91,7 +116,8 @@ const router = createBrowserRouter([
               },
               {path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")}
             ]
-          }
+          },
+          {path: "imprint", Component: Imprint}
         ]
       }]
   }], {basename: "/family-tree"});
@@ -103,10 +129,7 @@ export default function App() {
 interface ILayoutContext {
   setRightTitle: (string) => void,
   setHeaderChildren: (ReactNode) => void,
-  sidebarVisible: boolean,
-  isDark: boolean,
-  allowExternalContent: boolean,
-  toggleExternalContent: (boolean) => void,
+  sidebarVisible: boolean
 }
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
@@ -116,31 +139,41 @@ function Layout() {
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
-  const [allowExternalContent, toggleExternalContent] = useState(false);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
-  const darkQuery = matchMedia("(prefers-color-scheme: dark)");
-  const [isDark, toggleDark] = useState(darkQuery.matches);
-  darkQuery.addEventListener("change", e => toggleDark(e.matches));
   const query = matchMedia("(max-width: 639px)");
   const [isSmallScreen, setSmallScreen] = useState(query.matches);
   query.addEventListener("change", e => setSmallScreen(e.matches));
 
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
-      <li><ReactNavLink to="">{"🏠" + (navBarExtended ? ` ${strings.home.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="persons">{"🌳" + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="">
+          {emojis.home + (navBarExtended ? ` ${strings.home.title}` : "")}
+        </ReactNavLink></li>
+      <li><ReactNavLink to="person">
+          {emojis.tree + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
+        </ReactNavLink>
       </li>
-      <li><ReactNavLink to="stats">{"📊" + (navBarExtended ? ` ${strings.statistics.title}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink
-        to="sources">{"📚" + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="stats">
+        {emojis.stats + (navBarExtended ? ` ${strings.statistics.title}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="sourceDescription">
+        {emojis.source.default + (navBarExtended ? ` ${strings.gedcomX.sourceDescription.sourceDescriptions}` : "")}
+      </ReactNavLink>
       </li>
-      <li><ReactNavLink
-        to="documents">{"📄" + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}</ReactNavLink></li>
-      <li><ReactNavLink to="agents">{"👤" + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}</ReactNavLink>
+      <li><ReactNavLink to="document">
+        {emojis.document.default + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="agent">
+        {emojis.agent.agent + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
+      </ReactNavLink>
       </li>
-      <li><ReactNavLink
-        to="places">{"🌎" + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}</ReactNavLink></li>
+      <li><ReactNavLink to="place">
+        {emojis.place + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
+      </ReactNavLink></li>
+      <li><ReactNavLink to="event">
+        {emojis.event.default + (navBarExtended ? ` ${strings.gedcomX.event.events}` : "")}
+      </ReactNavLink></li>
     </ul>
   </nav>
 
@@ -148,12 +181,9 @@ function Layout() {
     return {
       setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
-      sidebarVisible: sidebarExtended,
-      isDark: isDark,
-      allowExternalContent: allowExternalContent,
-      toggleExternalContent: toggleExternalContent
+      sidebarVisible: sidebarExtended
     }
-  }, [allowExternalContent, isDark, sidebarExtended])
+  }, [sidebarExtended])
 
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();
@@ -164,18 +194,18 @@ function Layout() {
 
   return <>
     <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
-      <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? "⬅️" : "➡️"}</button>
+      <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? emojis.left : emojis.right}</button>
     </div>
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
 
-    <header className="row-start-1 text-xl flex flex-row items-center justify-center gap-4 dark:text-white w-full">
+    <header className="row-start-1 flex flex-row items-center justify-center gap-4 dark:text-white w-full">
       {headerChildren}
     </header>
 
     {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
       {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}
       <span className={`lg:hidden`}>
-        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? "➡️" : "⬅️"}</button>
+        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? emojis.right : emojis.left}</button>
       </span>
     </div>}
 
@@ -228,7 +258,7 @@ export function Sidebar(props) {
 
   if (layoutContext.sidebarVisible) {
     return <aside
-      className={`row-start-2 md:row-span-2 mx-4 sm:ml-0 col-start-1 sm:col-start-2 md:col-start-3 col-span-3 sm:col-span-2 md:col-span-1 max-h-64 md:max-h-full md:max-w-xs overflow-y-auto overflow-x-scroll flex gap-4 flex-col dark:text-white`}>
+      className={`row-start-2 md:row-span-2 mx-4 sm:ml-0 col-start-1 sm:col-start-2 md:col-start-3 col-span-3 sm:col-span-2 md:col-span-1 max-h-64 md:max-h-full md:max-w-xs overflow-y-auto overflow-x-scroll flex gap-6 flex-col dark:text-white`}>
       {props.children}
     </aside>
   }

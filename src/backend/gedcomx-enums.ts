@@ -31,6 +31,25 @@ export enum NameTypes {
   ReligiousName = "http://gedcomx.org/ReligiousName"
 }
 
+export enum NamePartQualifier {
+  Title = "http://gedcomx.org/Title",
+  Primary = "http://gedcomx.org/Primary",
+  Secondary = "http://gedcomx.org/Secondary",
+  Middle = "http://gedcomx.org/Middle",
+  Familiar = "http://gedcomx.org/Familiar",
+  Religious = "http://gedcomx.org/Religious",
+  Family = "http://gedcomx.org/Family",
+  Maiden = "http://gedcomx.org/Maiden",
+  Patronymic = "http://gedcomx.org/Patronymic",
+  Matronymic = "http://gedcomx.org/Matronymic",
+  Geographic = "http://gedcomx.org/Geographic",
+  Occupational = "http://gedcomx.org/Occupational",
+  Characteristic = "http://gedcomx.org/Characteristic",
+  Postnom = "http://gedcomx.org/Postnom",
+  Particle = "http://gedcomx.org/Particle",
+  RootName = "http://gedcomx.org/Root",
+}
+
 export enum PersonFactTypes {
   Adoption = "http://gedcomx.org/Adoption",
   AdultChristening = "http://gedcomx.org/AdultChristening",
