@@ -8,7 +8,6 @@ import {Link, useParams} from "react-router-dom";
 import {
   Article,
   ArticleCollection, Details,
-  ExternalContent,
   Gallery,
   Hr,
   Media,
