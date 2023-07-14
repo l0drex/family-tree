@@ -32,6 +32,9 @@ Due to `gedcomx-js`, the following data can not be stored and therefore not disp
 - modified
 - published
 
+## Source Reference
+- qualifiers
+
 ### Group
 Not supported at all by `gedcomx-js`
 
