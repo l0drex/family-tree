@@ -180,11 +180,11 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
   return <ExternalContent>
     {error ? <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
       <p className="text-center p-4">⚠️ {strings.errors.fetchError}</p>
-    </div> : loaded ?
-      media :
-      <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
+    </div> :
+      !loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
         <Loading text={strings.gedcomX.subject.loadingMedia}/>
       </div>}
+    {media}
   </ExternalContent>
 }
 
