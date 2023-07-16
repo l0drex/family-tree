@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
 import {db} from "./db";
 import * as GedcomX from "gedcomx-js";
-import {FamilyView} from "../gedcomx/gedcomx-extensions";
+import {FamilyView} from "../gedcomx/gedcomx-js-extensions";
 import {unique} from "../main";
 import getTestData from "./TestData";
 

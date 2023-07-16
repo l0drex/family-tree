@@ -39,7 +39,7 @@ import {
   PersonFactTypes,
   RelationshipFactTypes,
   RelationshipTypes
-} from "../gedcomx/gedcomx-enums";
+} from "../gedcomx/types";
 
 let testData: Root;
 

@@ -3,7 +3,7 @@ import {createBrowserRouter, Outlet, RouterProvider, useLocation} from "react-ro
 import {strings} from "./main";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {db} from "./backend/db";
-import {SourceDescription, Document, Agent, Person, EventExtended} from "./gedcomx/gedcomx-extensions";
+import {SourceDescription, Document, Agent, Person, EventExtended} from "./gedcomx/gedcomx-js-extensions";
 import {Home} from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";

@@ -2,8 +2,8 @@ import * as gedcomX from "gedcomx-js";
 import {filterLang, strings} from "../main";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
-import {formatJDate, GDate} from "../gedcomx/gedcomx-extensions";
-import {Confidence as ConfidenceEnum, IdentifierTypes} from "../gedcomx/gedcomx-enums";
+import {formatJDate, GDate} from "../gedcomx/gedcomx-js-extensions";
+import {Confidence as ConfidenceEnum, IdentifierTypes} from "../gedcomx/types";
 import {Link, useParams} from "react-router-dom";
 import {
   Article,

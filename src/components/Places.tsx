@@ -22,7 +22,7 @@ import {
   SubjectArticles,
   SubjectMisc, SubjectSidebar
 } from "./GedcomXComponents";
-import {GDate} from "../gedcomx/gedcomx-extensions";
+import {GDate} from "../gedcomx/gedcomx-js-extensions";
 import emojis from '../backend/emojies.json';
 
 export function PlaceOverview() {

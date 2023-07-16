@@ -6,7 +6,7 @@ import {
   IRelationship,
   ISourceDescription,
   localeTag
-} from "./gedcomx-types";
+} from "./interfaces";
 
 export type URI<T = {}> = string;
 

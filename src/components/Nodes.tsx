@@ -1,10 +1,10 @@
 import config from "../config";
 import {strings} from "../main";
 import {GraphFamily, GraphObject, GraphPerson} from "../backend/graph";
-import {Person as PersonClass} from "../gedcomx/gedcomx-extensions";
+import {Person as PersonClass} from "../gedcomx/gedcomx-js-extensions";
 import {ColorMode} from "../backend/ViewGraph";
 import * as d3 from "d3";
-import {Confidence} from "../gedcomx/gedcomx-enums";
+import {Confidence} from "../gedcomx/types";
 import {useContext} from "react";
 import {GraphContext} from "./TreeView";
 

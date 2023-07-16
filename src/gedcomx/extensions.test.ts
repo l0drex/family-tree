@@ -1,8 +1,8 @@
 import {GraphFamily} from "../backend/graph";
 import * as GedcomX from "gedcomx-js";
-import {Fact, FamilyView, GDate, Person, setReferenceAge} from "./gedcomx-extensions";
+import {Fact, FamilyView, GDate, Person, setReferenceAge} from "./gedcomx-js-extensions";
 import {ResourceReference} from "gedcomx-js";
-import {PersonFactTypes} from "./gedcomx-enums";
+import {PersonFactTypes} from "./types";
 import {strings} from "../main";
 
 test("Graph Family", () => {

@@ -1,7 +1,7 @@
 import Dexie, {PromiseExtended, Table} from 'dexie';
 import {
   IGedcomx, IGedcomxData,
-} from "../gedcomx/JsonTypes";
+} from "../gedcomx/json";
 import * as GedcomX from "gedcomx-js";
 import {
   Agent,
@@ -11,10 +11,10 @@ import {
   Relationship, Root,
   setReferenceAge,
   SourceDescription
-} from "../gedcomx/gedcomx-extensions";
-import {PersonFactTypes, RelationshipTypes} from "../gedcomx/gedcomx-enums";
+} from "../gedcomx/gedcomx-js-extensions";
+import {PersonFactTypes, RelationshipTypes} from "../gedcomx/types";
 import {ResourceReference} from "gedcomx-js";
-import {IGroup} from "../gedcomx/gedcomx-types";
+import {IGroup} from "../gedcomx/interfaces";
 
 export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
 type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;

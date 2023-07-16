@@ -6,8 +6,8 @@ import {
   NameTypes, PlaceTypes,
   QualifierName,
   RelationshipTypes, SourceReferenceQualifier, ValueQualifierName
-} from "./gedcomx-enums";
-import {IResourceReference, URI} from "./JsonTypes";
+} from "./types";
+import {IResourceReference, URI} from "./json";
 import {gedcomxDate} from "./date";
 
 // basic data types

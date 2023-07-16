@@ -6,8 +6,8 @@ import {useLoaderData} from "react-router-dom";
 import {SubjectArticles, SubjectMisc, SubjectSidebar} from "./GedcomXComponents";
 import {Event} from "gedcomx-js";
 import {db} from "../backend/db";
-import {baseUri} from "../gedcomx/gedcomx-enums";
-import {EventExtended} from "../gedcomx/gedcomx-extensions";
+import {baseUri} from "../gedcomx/types";
+import {EventExtended} from "../gedcomx/gedcomx-js-extensions";
 import emojies from '../backend/emojies.json';
 
 export function EventOverview() {

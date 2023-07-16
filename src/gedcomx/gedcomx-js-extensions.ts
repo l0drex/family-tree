@@ -9,9 +9,9 @@ import {
   FactQualifier,
   PersonFactTypes,
   TextTypes
-} from "./gedcomx-enums";
+} from "./types";
 import emojis from '../backend/emojies.json';
-import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./gedcomx-types";
+import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./interfaces";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
