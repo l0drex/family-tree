@@ -1,9 +1,9 @@
 import {Agent} from "../gedcomx/gedcomx-js-extensions";
 import {strings} from "../main";
 import {useLoaderData} from "react-router-dom";
-import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";
+import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Tags, Title, VanillaLink} from "./GeneralComponents";
 import {LayoutContext, Main, Sidebar} from "../App";
-import {ReactNode, useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 import {Alias, Identifiers} from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
@@ -29,10 +29,6 @@ function AgentList(props) {
   </ul>;
 }
 
-function Tags(props: { children: ReactNode }) {
-  return null;
-}
-
 export function AgentView() {
   const agent = useLoaderData() as Agent;
   const [others, setOthers] = useState([]);
@@ -45,8 +41,6 @@ export function AgentView() {
   }, [agent, layoutContext])
 
   const hasData = agent.names?.length > 1 || agent.homepage || agent.openid || agent.accounts || agent.emails || agent.phones || agent.addresses;
-
-  // todo linked person not visible
 
   return <>
     <Main>
