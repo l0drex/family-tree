@@ -37,3 +37,7 @@ Not supported at all by `gedcomx-js`
 ## Relationship
 Will come in a future release
 - facts
+
+## Dates
+
+Only simple dates are supported.
