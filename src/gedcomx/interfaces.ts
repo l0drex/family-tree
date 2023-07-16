@@ -81,7 +81,7 @@ export interface ISourceDescription {
    */
   sources?: ISourceReference[]
   /**
-   * A reference to a document containing analysis about this source.
+   * A reference to a document containing analysis of this source.
    */
   analysis?: IResourceReference<IDocument<DocumentTypes.Analysis>>
   /**
@@ -237,7 +237,7 @@ export interface ITextValue {
 export interface ISourceCitation {
   lang?: localeTag
   /**
-   *  This string is plain text, but MAY include an xhtml cite element.
+   *  This string is plain text, but MAY include a xhtml cite element.
    *  If the value includes a cite element, the text-level semantics defined for cite MUST apply —
    *  i.e., the element MUST represent the title of a work.
    */
