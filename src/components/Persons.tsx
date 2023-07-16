@@ -5,7 +5,7 @@ import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
-import {Person, Root} from "../backend/gedcomx-extensions";
+import {Person, Root} from "../gedcomx/gedcomx-extensions";
 import {parseFile, saveDataAndRedirect} from "./Home";
 import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
 import {LayoutContext, Main, Sidebar} from "../App";

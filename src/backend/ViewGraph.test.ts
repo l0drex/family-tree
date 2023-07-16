@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 import {db} from "./db";
 import {ViewGraph, ViewMode} from "./ViewGraph";
 import * as GedcomX from "gedcomx-js";
-import {Person} from "./gedcomx-extensions";
+import {Person} from "../gedcomx/gedcomx-extensions";
 import getTestData from "./TestData";
 
 beforeAll(async () => {

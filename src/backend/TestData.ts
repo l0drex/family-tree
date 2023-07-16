@@ -35,11 +35,11 @@ import {
   IdentifierTypes,
   KnownResourceTypes, NamePartQualifier,
   NamePartTypes,
-  NameTypes, PersonFactQualifiers,
+  NameTypes, FactQualifier,
   PersonFactTypes,
   RelationshipFactTypes,
   RelationshipTypes
-} from "./gedcomx-enums";
+} from "../gedcomx/gedcomx-enums";
 
 let testData: Root;
 
@@ -86,14 +86,14 @@ function extensiveData() {
       .addFact(new Fact().setType(PersonFactTypes.Occupation)
         .setValue(faker.person.jobTitle())
         .addQualifier(new Qualifier()
-          .setName(PersonFactQualifiers.Age)
+          .setName(FactQualifier.Age)
           .setValue(faker.number.int({min: 20, max: 40}).toString())))
       .addFact(new Fact()
         .setType(PersonFactTypes.Death)
         .setDate(new GedcomX.Date()
           .setFormal(faker.date.birthdate({min: 3, max: 10, mode: "age"}).toISOString()))
         .addQualifier(new Qualifier()
-          .setName(PersonFactQualifiers.Cause)
+          .setName(FactQualifier.Cause)
           .setValue(faker.lorem.word())))
       .addFact(new Fact(getConclusion("husbandsGenerationFact"))
         .setType(PersonFactTypes.GenerationNumber).setValue(2))

@@ -6,11 +6,11 @@ import {
   EventRoleTypes,
   NamePartQualifier,
   NamePartTypes,
-  PersonFactQualifiers,
+  FactQualifier,
   PersonFactTypes,
   TextTypes
 } from "./gedcomx-enums";
-import emojis from './emojies.json';
+import emojis from '../backend/emojies.json';
 import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./gedcomx-types";
 
 // like filterLang, but without entries that don't include a language
@@ -310,10 +310,10 @@ class Qualifier extends GedcomX.Qualifier {
   toString() {
     let string;
     switch (this.name) {
-      case PersonFactQualifiers.Age:
+      case FactQualifier.Age:
         string = strings.formatString(strings.gedcomX.factQualifier.ageFormatter, this.value);
         break;
-      case PersonFactQualifiers.Cause:
+      case FactQualifier.Cause:
         string = `(${this.value})`;
         break;
       default:

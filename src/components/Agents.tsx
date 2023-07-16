@@ -1,4 +1,4 @@
-import {Agent} from "../backend/gedcomx-extensions";
+import {Agent} from "../gedcomx/gedcomx-extensions";
 import {strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Title, VanillaLink} from "./GeneralComponents";

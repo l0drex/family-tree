@@ -1,8 +1,8 @@
-import {baseUri} from "../backend/gedcomx-enums";
+import {baseUri} from "../gedcomx/gedcomx-enums";
 import {filterLang, strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
-import {Fact, GDate, Person} from "../backend/gedcomx-extensions";
+import {Fact, GDate, Person} from "../gedcomx/gedcomx-extensions";
 import {
   Attribution,
   ConclusionMisc, Notes, SourceReferences,
