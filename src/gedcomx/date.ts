@@ -33,7 +33,16 @@ type TimezoneOffset = `${"+" | "-"}${Hour}`;
  * PnnnnYnnMnnDTnnHnnMnnS (n is a digit)
  */
 
-export type Duration = string;
+type YearDuration = `${number}Y` | "";
+type MonthDuration = `${number}M` | "";
+type DayDuration = `${number}D` | "";
+type DateDuration = `${YearDuration}${MonthDuration}${DayDuration}`;
+
+type HourDuration = `${number}H` | "";
+type MinuteDuration = `${number}M` | "";
+type SecondDuration = `${number}S` | "";
+type TimeDuration = `T${HourDuration}${MinuteDuration}${SecondDuration}`;
+export type Duration = `P${DateDuration}${TimeDuration | ""}`;
 
 type DateRange = `${ClosedDateRange | OpenEndedDateRange}`;
 export type ClosedDateRange = `${SimpleDate}/${SimpleDate}` | `${SimpleDate}/${Duration}`;

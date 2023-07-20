@@ -9,12 +9,12 @@ import {
 } from "./date";
 
 it("allows all example simple dates", () => {
-  let timezoneZ: SimpleDate = "+1752-01-18T22:14:03Z"
-  let timezone: SimpleDate = "+1964-11-14T10-07:00"
-  let time: SimpleDate = "+1889-05-17T14:23"
-  let day: SimpleDate = "+1492-07-27"
-  let month: SimpleDate = "+0186-03"
   let year: SimpleDate = "-1321"
+  let month: SimpleDate = "+0186-03"
+  let day: SimpleDate = "+1492-07-27"
+  let time: SimpleDate = "+1889-05-17T14:23"
+  let timezone: SimpleDate = "+1964-11-14T10-07:00"
+  let timezoneZ: SimpleDate = "+1752-01-18T22:14:03Z"
 });
 
 it("allows all example durations", () => {
@@ -31,18 +31,18 @@ it("allows all example closed date ranges", () => {
 })
 
 it("allows all example open-ended date ranges", () => {
+  let startYear: OpenEndedDateRange = "/+0000";
+  let endYear: OpenEndedDateRange = "/-1287";
+  let startMonth = "-0001-04/";
   let endMonth: OpenEndedDateRange = "/+1887-03";
   let startDay: OpenEndedDateRange = "+1976-07-11/";
-  let endYear: OpenEndedDateRange = "/-1287";
-  let startYear: OpenEndedDateRange = "/+0000";
-  let startMonth = "-0001-04/";
 })
 
 it("allows all example approximate dates", () => {
   let year: ApproximateDate = "A+1680";
   let yearNeg: ApproximateDate = "A-1400";
-  let minutes: ApproximateDate = "A+1980-05-18T18:53Z";
   let days: ApproximateDate = "A+2014-08-19";
+  let minutes: ApproximateDate = "A+1980-05-18T18:53Z";
 })
 
 it("allows all example approximate date ranges", () => {
