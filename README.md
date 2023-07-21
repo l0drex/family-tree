@@ -20,6 +20,9 @@ Supported languages[^1]: 🇺🇲/🇬🇧[^2] 🇩🇪
 # 🚧 GedcomX Support
 The following features of GedcomX are not supported:
 
+## NameParts
+Names and their name forms are displayed, but not their name parts nor the name part qualifiers.
+
 ## Source Description
 Due to `gedcomx-js`, the following data can not be stored and therefore not displayed:
 - publisher
