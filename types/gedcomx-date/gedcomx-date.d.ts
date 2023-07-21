@@ -1,24 +1,24 @@
 // noinspection JSUnusedGlobalSymbols
 
 declare module "gedcomx-date" {
-  interface Base {
-    getType(): "simple" | "approximate" | "duration" | "range" | "recurring"
+  export interface BaseDate {
+    getType(): "single" | "approximate" | "duration" | "range" | "recurring"
     toFormalString(): string
     isApproximate(): boolean
   }
 
   function Simple(str?: string): Simple
-  export class Simple<IsApproximate extends boolean = false> implements Base {
-    getType(): "simple"
+  export class Simple<IsApproximate extends boolean = false> implements BaseDate {
+    getType(): "single"
     isApproximate(): IsApproximate
     getYear(): number
-    getMonth(): number
-    getDay(): number
-    getHours(): number
-    getMinutes(): number
-    getSeconds(): number
-    getTZHours(): number
-    getTZMinutes(): number
+    getMonth(): number | undefined
+    getDay(): number | undefined
+    getHours(): number | undefined
+    getMinutes(): number | undefined
+    getSeconds(): number | undefined
+    getTZHours(): number | undefined
+    getTZMinutes(): number | undefined
     toFormalString(): string
   }
 
@@ -28,7 +28,7 @@ declare module "gedcomx-date" {
   }
 
   function Duration(str: string): Duration
-  export class Duration implements Base {
+  export class Duration implements BaseDate {
     getType(): "duration"
     isApproximate(): false
     getYears(): number
@@ -65,7 +65,7 @@ declare module "gedcomx-date" {
   export default GedcomXDate;
 
   function Range(str: string): Range
-  export class Range<T extends "range" | "recurring" = "range"> implements Base {
+  export class Range<T extends "range" | "recurring" = "range"> implements BaseDate {
     getType(): T
     isApproximate(): boolean
     getStart(): Simple | undefined

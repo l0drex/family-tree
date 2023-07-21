@@ -21,18 +21,6 @@ type Timezone = `${TimezoneOffset | "Z"}`;
 // numbers have two digits
 type TimezoneOffset = `${"+" | "-"}${Hour}`;
 
-/**
- * The initial [P] designates the value is a duration. The part including time components MUST be preceded by [T].
- *
- * In the format representations for a duration, a digit is represented by the letter [n]. Letters have specific meaning, are literal, and represent the following units:
- * - [Y] The number of years
- * - [M] The number of months or minutes (determined by context)
- * - [D] The number of days
- * - [H] The number of hours
- * - [S] The number of seconds
- * PnnnnYnnMnnDTnnHnnMnnS (n is a digit)
- */
-
 type YearDuration = `${number}Y` | "";
 type MonthDuration = `${number}M` | "";
 type DayDuration = `${number}D` | "";
@@ -42,6 +30,18 @@ type HourDuration = `${number}H` | "";
 type MinuteDuration = `${number}M` | "";
 type SecondDuration = `${number}S` | "";
 type TimeDuration = `T${HourDuration}${MinuteDuration}${SecondDuration}`;
+/**
+ * The initial [P] designates the value is a duration. The part including time components MUST be preceded by [T].
+ *
+ * In the format representations for a duration, a digit is represented by the letter [n]. Letters have specific meaning, are literal, and represent the following units:
+ * - [Y] The number of years
+ * - [M] The number of months or minutes (determined by context)
+ * - [D] The number of days
+ * - [H] The number of hours
+ * - [S] The number of seconds
+ *
+ * @example PnnnnYnnMnnDTnnHnnMnnS (n is a digit)
+ */
 export type DurationString = `P${DateDuration}${TimeDuration | ""}`;
 
 type DateRange = `${ClosedDateRangeString | OpenEndedDateRangeString}`;
