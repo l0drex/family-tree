@@ -36,6 +36,7 @@
     "d3": "7.6.1",
     "dexie": "^3.2.3",
     "dexie-react-hooks": "^1.1.6",
+    "gedcomx-date": "^0.3.2",
     "gedcomx-js": "^2.8.0",
     "leaflet": "^1.9.4",
     "react": "^18.1.0",

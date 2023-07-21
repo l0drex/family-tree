@@ -1,10 +1,10 @@
-export type gedcomxDate = SimpleDate | DateRange | RecurringDate | ApproximateDate | ApproximateDateRange;
+export type gedcomxDate = SimpleDateString | DateRange | RecurringDateString | ApproximateDateString | ApproximateDateRangeString;
 
 /**
  * ±YYYY[-MM[-DD[Thh:[mm[:ss]][±hh[:mm]|Z]]]]
  */
 // year is in range -9999 to +9999, 4 digits, left padded with zeros
-export type SimpleDate = `${"+" | "-"}${number}${Month | ""}`;
+export type SimpleDateString = `${"+" | "-"}${number}${Month | ""}`;
 // month is in range 1 to 12
 type Month = `-${number}${Day | ""}`;
 // starting at 01
@@ -42,13 +42,13 @@ type HourDuration = `${number}H` | "";
 type MinuteDuration = `${number}M` | "";
 type SecondDuration = `${number}S` | "";
 type TimeDuration = `T${HourDuration}${MinuteDuration}${SecondDuration}`;
-export type Duration = `P${DateDuration}${TimeDuration | ""}`;
+export type DurationString = `P${DateDuration}${TimeDuration | ""}`;
 
-type DateRange = `${ClosedDateRange | OpenEndedDateRange}`;
-export type ClosedDateRange = `${SimpleDate}/${SimpleDate}` | `${SimpleDate}/${Duration}`;
-export type OpenEndedDateRange = `/${SimpleDate}` | `${SimpleDate}/`;
+type DateRange = `${ClosedDateRangeString | OpenEndedDateRangeString}`;
+export type ClosedDateRangeString = `${SimpleDateString}/${SimpleDateString}` | `${SimpleDateString}/${DurationString}`;
+export type OpenEndedDateRangeString = `/${SimpleDateString}` | `${SimpleDateString}/`;
 
-export type ApproximateDate = `A${SimpleDate}`;
-export type ApproximateDateRange = `A${DateRange}`;
+export type ApproximateDateString = `A${SimpleDateString}`;
+export type ApproximateDateRangeString = `A${DateRange}`;
 
-export type RecurringDate = `R${number | ""}/${SimpleDate}/${SimpleDate | Duration}`;
+export type RecurringDateString = `R${number | ""}/${SimpleDateString}/${SimpleDateString | DurationString}`;
