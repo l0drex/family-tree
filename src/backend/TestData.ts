@@ -50,7 +50,6 @@ export default function getTestData(): object {
   return testData.toJSON();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extensiveData() {
   const duration: DurationString = "P8Y";
   const marriageDate = new GedcomX.Date().setFormal(
