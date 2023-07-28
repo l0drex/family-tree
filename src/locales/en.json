@@ -357,7 +357,8 @@
     "date": {
       "approximate": "circa {0}",
       "rangeStart": "since {0}",
-      "rangeEndDate": "until {0}"
+      "rangeEndDate": "until {0}",
+      "recurring": "{0} times {1}"
     },
     "place": "in {0}",
     "facts": "Facts",

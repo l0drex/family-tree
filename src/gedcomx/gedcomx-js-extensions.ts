@@ -12,7 +12,7 @@ import {
 } from "./types";
 import emojis from '../backend/emojies.json';
 import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./interfaces";
-import GedcomXDate, {Range, Simple} from "gedcomx-date";
+import GedcomXDate, { Range, Recurring, Simple } from "gedcomx-date";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
@@ -215,7 +215,7 @@ export class GDate extends GedcomX.Date {
     }
     if (parsedDate.getType() === "single") {
       parsedDate = parsedDate as Simple;
-      return simpleToJDate(parsedDate);
+      return simpleToJsDate(parsedDate);
     } else {
       throw TypeError(`Wanted to parse non-simple date to javascript date: ${this.formal}`);
     }
@@ -236,31 +236,50 @@ export class GDate extends GedcomX.Date {
 
     switch (dateObject.getType()) {
       case "single":
-        return formatJDate(this.toDateObject(), dateObject as Simple);
-
+        return simpleToString(dateObject as Simple);
       case "range":
-        dateObject = dateObject as Range;
-        let start = formatJDate(simpleToJDate(dateObject.getStart()), dateObject.getStart());
-        let end = formatJDate(simpleToJDate(dateObject.getEnd()), dateObject.getEnd());
-
-        let string = "";
-        if (start)
-          string += strings.formatString(strings.gedcomX.date.rangeStart, start);
-        if (end)
-          string += " " + strings.formatString(strings.gedcomX.date.rangeEndDate, end);
-
-        if (dateObject.isApproximate())
-          string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
+        return rangeToString(dateObject as Range);
+      case "recurring": {
+        dateObject = dateObject as Recurring;
+        let string = rangeToString(dateObject);
+        string = strings.formatString(strings.gedcomX.date.recurring, dateObject.getCount().toString(), string) as string;
 
         return string;
-
-      case "recurring":
-        return "";
+      }
     }
   }
 }
 
-function simpleToJDate(parsedDate: Simple) {
+function rangeToString(dateObject: Range | Recurring): string {
+  let start = simpleToString(dateObject.getStart());
+  let end = simpleToString(dateObject.getEnd());
+
+  let string = "";
+  if (start)
+    string += strings.formatString(strings.gedcomX.date.rangeStart, start);
+  if (end)
+    string = (string ? string + " " : "") + strings.formatString(strings.gedcomX.date.rangeEndDate, end);
+
+  if (dateObject.isApproximate())
+    string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
+
+  return string;
+}
+
+function simpleToString(dateObject: Simple): string {
+  if (!dateObject)
+    return "";
+
+  let jsDate = simpleToJsDate(dateObject);
+  let string = jsDate.toLocaleDateString(strings.getLanguage(), getDateFormatOptions(dateObject));
+
+  if (dateObject.isApproximate())
+    string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
+
+  return string;
+}
+
+function simpleToJsDate(parsedDate: Simple) {
   if (!parsedDate)
     return undefined;
 
@@ -303,17 +322,6 @@ export function getDateFormatOptions(date: Simple) {
     options.second = "2-digit";
 
   return options;
-}
-
-function formatJDate(date: Date, gdate: Simple): string {
-  if (!gdate)
-    return undefined;
-
-  let string = date.toLocaleDateString(strings.getLanguage(), getDateFormatOptions(gdate));
-  if (gdate.isApproximate())
-    return strings.formatString(strings.gedcomX.date.approximate, string) as string;
-
-  return string;
 }
 
 export class Fact extends GedcomX.Fact {

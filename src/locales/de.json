@@ -359,7 +359,8 @@
     "date": {
       "approximate": "ca. {0}",
       "rangeStart": "seit {0}",
-      "rangeEndDate": "bis {0}"
+      "rangeEndDate": "bis {0}",
+      "recurring": "{0} mal {1}"
     },
     "place": "in {0}",
     "facts": "Fakten",

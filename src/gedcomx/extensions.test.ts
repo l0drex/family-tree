@@ -178,6 +178,33 @@ test("toString works", () => {
 
   date.setFormal("+2022-01-25T05:06:06")
   expect(date.toString()).toBe("01/25/2022, 05:06:06 AM")
+
+  date.setFormal("A+2022-01")
+  expect(date.toString()).toBe("circa January 2022")
+
+  date.setFormal("+2022/+2025")
+  expect(date.toString()).toBe("since 2022 until 2025")
+
+  date.setFormal("A+2022/+2025")
+  expect(date.toString()).toBe("circa since 2022 until 2025")
+
+  date.setFormal("+2022/")
+  expect(date.toString()).toBe("since 2022")
+
+  date.setFormal("A+2022-01-04/")
+  expect(date.toString()).toBe("circa since 01/04/2022")
+
+  date.setFormal("/+2025")
+  expect(date.toString()).toBe("until 2025")
+
+  date.setFormal("A/+2025")
+  expect(date.toString()).toBe("circa until 2025")
+
+  date.setFormal("+2022/P3Y")
+  expect(date.toString()).toBe("since 2022 until 2025")
+
+  date.setFormal("R3/+1972-02/P0Y2M")
+  expect(date.toString()).toBe("3 times since February 1972 until August 1972")
 })
 
 it("is not extracted", () => {
