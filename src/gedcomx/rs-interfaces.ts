@@ -1,4 +1,5 @@
-import {IDate, IPerson, IPlaceReference, IName, ITextValue, URI, IResourceReference} from "./gedcomx-types";
+import {IDate, IPerson, IPlaceReference, IName, ITextValue} from "./interfaces";
+import {IResourceReference, URI} from "./json";
 
 export interface ILink {
   rel: URI

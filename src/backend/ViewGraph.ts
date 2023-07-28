@@ -1,9 +1,9 @@
 import {GraphFamily, GraphObject, GraphPerson} from "./graph";
-import {RelationshipFactTypes} from "./gedcomx-enums";
+import {RelationshipFactTypes} from "../gedcomx/types";
 import * as GedcomX from "gedcomx-js";
 import config from "../config";
 import {db} from "./db";
-import {FamilyView, GDate, Person} from "./gedcomx-extensions";
+import {FamilyView, GDate, Person} from "../gedcomx/gedcomx-js-extensions";
 import {unique} from "../main";
 
 export enum ViewMode {

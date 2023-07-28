@@ -1,7 +1,16 @@
 // noinspection JSUnusedGlobalSymbols
 
 export type FactType = PersonFactTypes | RelationshipFactTypes;
-export type QualifierName = PersonFactQualifiers;
+
+export type ValueQualifierName = SourceReferenceQualifier | FactQualifier | NamePartQualifierValue;
+export type QualifierName = ValueQualifierName | NamePartQualifier;
+
+export enum SourceReferenceQualifier {
+  CharacterRegion = "http://gedcomx.org/CharacterRegion",
+  RectangleRegion = "http://gedcomx.org/RectangleRegion",
+  TimeRegion = "http://gedcomx.org/TimeRegion",
+  Page = "http://gedcomx.org/Page"
+}
 
 export enum Confidence {
   Low = "http://gedcomx.org/Low", Medium = "http://gedcomx.org/Medium", High = "http://gedcomx.org/High"
@@ -49,6 +58,8 @@ export enum NamePartQualifier {
   Particle = "http://gedcomx.org/Particle",
   RootName = "http://gedcomx.org/Root",
 }
+
+export type NamePartQualifierValue = NamePartQualifier.RootName;
 
 export enum PersonFactTypes {
   Adoption = "http://gedcomx.org/Adoption",
@@ -130,7 +141,7 @@ export enum PersonFactTypes {
   Yahrzeit = "http://gedcomx.org/Yahrzeit"
 }
 
-export enum PersonFactQualifiers {
+export enum FactQualifier {
   Age = "http://gedcomx.org/Age",
   Cause = "http://gedcomx.org/Cause",
   Religion = "http://gedcomx.org/Religion",

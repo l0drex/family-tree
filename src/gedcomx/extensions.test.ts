@@ -1,9 +1,10 @@
-import {GraphFamily} from "./graph";
+import {GraphFamily} from "../backend/graph";
 import * as GedcomX from "gedcomx-js";
-import {Fact, FamilyView, GDate, Person, setReferenceAge} from "./gedcomx-extensions";
+import {Fact, FamilyView, GDate, Person, setReferenceAge} from "./gedcomx-js-extensions";
 import {ResourceReference} from "gedcomx-js";
-import {PersonFactTypes} from "./gedcomx-enums";
+import {PersonFactTypes} from "./types";
 import {strings} from "../main";
+import GedcomXDate from "gedcomx-date";
 
 test("Graph Family", () => {
   let graphFamily = new GraphFamily();
@@ -119,13 +120,10 @@ test("toDateObject works", () => {
   date = gDate.toDateObject();
   expect(date).toBeUndefined();
 
-  gDate.setFormal("2000");
-  date = gDate.toDateObject();
-  expect(date.getTime()).toBe(Date.UTC(2000, 0));
-
   gDate.setFormal("+2000");
   date = gDate.toDateObject();
-  expect(date.getTime()).toBe(Date.UTC(2000, 0));
+  expect(date).toBeDefined();
+  expect(date.valueOf()).toBe(Date.UTC(2000, 0));
 
   gDate.setFormal("+2022-01-05T22:05:31");
   date = gDate.toDateObject();
@@ -142,17 +140,18 @@ test("toDateObject works", () => {
   expect(date.getTime())
     .toBe(Date.UTC(1600, 11, 31, 23, 59, 59));
 
+  gDate.setFormal("+1970")
+  date = gDate.toDateObject();
+  expect(date.getTime()).toBe(0);
+
   gDate.setFormal("+0000");
   date = gDate.toDateObject();
-  let dateExpected = new Date("0000");
-  expect(date.getTime())
-    .toBe(dateExpected.getTime());
+  expect(date.getTime()).toBe(Date.UTC(0, 0));
 
   gDate.setFormal("-0006");
   date = gDate.toDateObject();
-  dateExpected = new Date("-6");
   expect(date.getTime())
-    .toBe(dateExpected.getTime());
+    .toBe(Date.UTC(-6, 0));
 })
 
 test("toString works", () => {
@@ -162,22 +161,50 @@ test("toString works", () => {
   expect(date.toString()).toBe("")
 
   date.setFormal("+2022")
-  expect(date.toString()).toBe("in 2022")
+  expect(date.toString()).toBe("2022")
 
   date.setFormal("+2022-01")
-  expect(date.toString()).toBe("in January 2022")
+  expect(date.toString()).toBe("January 2022")
 
   date.setFormal("+2022-01-25")
-  expect(date.toString()).toBe("on 01/25/2022")
+  expect(date.toString()).toBe("01/25/2022")
 
   date.setFormal("+2022-01-25T05")
-  expect(date.toString()).toBe("on 01/25/2022 at 05 AM")
+  expect(GedcomXDate(date.formal).toFormalString()).toBe("+2022-01-25T05Z")
+  expect(date.toString()).toBe("01/25/2022, 05 AM")
 
   date.setFormal("+2022-01-25T05:05")
-  expect(date.toString()).toBe("on 01/25/2022 at 05:05 AM")
+  expect(date.toString()).toBe("01/25/2022, 05:05 AM")
 
   date.setFormal("+2022-01-25T05:06:06")
-  expect(date.toString()).toBe("on 01/25/2022 at 05:06:06 AM")
+  expect(date.toString()).toBe("01/25/2022, 05:06:06 AM")
+
+  date.setFormal("A+2022-01")
+  expect(date.toString()).toBe("circa January 2022")
+
+  date.setFormal("+2022/+2025")
+  expect(date.toString()).toBe("since 2022 until 2025")
+
+  date.setFormal("A+2022/+2025")
+  expect(date.toString()).toBe("circa since 2022 until 2025")
+
+  date.setFormal("+2022/")
+  expect(date.toString()).toBe("since 2022")
+
+  date.setFormal("A+2022-01-04/")
+  expect(date.toString()).toBe("circa since 01/04/2022")
+
+  date.setFormal("/+2025")
+  expect(date.toString()).toBe("until 2025")
+
+  date.setFormal("A/+2025")
+  expect(date.toString()).toBe("circa until 2025")
+
+  date.setFormal("+2022/P3Y")
+  expect(date.toString()).toBe("since 2022 until 2025")
+
+  date.setFormal("R3/+1972-02/P0Y2M")
+  expect(date.toString()).toBe("3 times since February 1972 until August 1972")
 })
 
 it("is not extracted", () => {

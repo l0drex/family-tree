@@ -1,6 +1,6 @@
 import * as React from "react";
 import {createContext, ReactNode, useContext, useEffect, useState} from "react";
-import {baseUri, Confidence, GenderTypes} from "../backend/gedcomx-enums";
+import {baseUri, Confidence, GenderTypes} from "../gedcomx/types";
 import {LineRadial, Pie} from "@visx/shape";
 import {scaleLinear, scaleLog, scaleOrdinal} from "@visx/scale";
 import {

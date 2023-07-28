@@ -4,14 +4,15 @@ import {Equals, strings} from "../main";
 import {
   baseUri,
   EventRoleTypes,
+  FactQualifier,
   NamePartQualifier,
   NamePartTypes,
-  PersonFactQualifiers,
   PersonFactTypes,
   TextTypes
-} from "./gedcomx-enums";
-import emojis from './emojies.json';
-import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./gedcomx-types";
+} from "./types";
+import emojis from '../backend/emojies.json';
+import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./interfaces";
+import GedcomXDate, { Range, Recurring, Simple } from "gedcomx-date";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
@@ -151,10 +152,6 @@ export class Person extends GedcomX.Person {
         return -1;
       } else if (b.getType() === PersonFactTypes.Birth) {
         return 1;
-      } else if (a.getType() === PersonFactTypes.GenerationNumber) {
-        return -1;
-      } else if (b.getType() === PersonFactTypes.GenerationNumber) {
-        return 1;
       }
 
       if (a.getDate() && !b.getDate()) {
@@ -163,10 +160,16 @@ export class Person extends GedcomX.Person {
         return -1;
       }
       if (a.getDate() && b.getDate()) {
-        let aDate = new GDate(a.date).toDateObject();
-        let bDate = new GDate(b.date).toDateObject();
-        if (aDate && bDate) {
-          return aDate.getMilliseconds() - bDate.getMilliseconds();
+        // todo sort by non-simple dates via start date
+        try {
+          let aDate = new GDate(a.date).toDateObject();
+          let bDate = new GDate(b.date).toDateObject();
+          if (aDate && bDate) {
+            return aDate.valueOf() - bDate.valueOf();
+          }
+        } catch (e) {
+          if (!(e instanceof TypeError))
+            throw e;
         }
       }
 
@@ -199,78 +202,126 @@ export class Relationship extends GedcomX.Relationship {
 
 export class GDate extends GedcomX.Date {
   toDateObject() {
-    let dateString = this.formal;
-    if (!dateString) {
+    if (!this.formal) {
       return undefined;
     }
 
-    // TODO does not respect timezones yet
-    if (dateString.length > 11) {
-      if (dateString.length <= 14) {
-        // add minutes if only hour is given to prevent undefined return
-        dateString += ":00"
-      }
-      if (!dateString.endsWith("Z")) dateString += "Z";
+    let parsedDate;
+    try {
+      parsedDate = GedcomXDate(this.formal);
+    } catch (e) {
+      console.error("Error while parsing formal date:", this.formal);
+      throw e;
     }
-    if (dateString[0] === "+") {
-      // should be ok, but isn't
-      dateString = dateString.substring(1)
+    if (parsedDate.getType() === "single") {
+      parsedDate = parsedDate as Simple;
+      return simpleToJsDate(parsedDate);
+    } else {
+      throw TypeError(`Wanted to parse non-simple date to javascript date: ${this.formal}`);
     }
-
-    let date = new Date(dateString);
-    if (date.toString() === "Invalid Date") {
-      console.error("Invalid Date", dateString)
-      return undefined;
-    }
-    return date;
   }
 
   toString() {
     if (!this.formal) {
-      if (this.original) return this.original;
-      else return "";
+      if (this.original)
+        return this.original;
+      else
+        return "";
     }
 
-    let dateObject = this.toDateObject();
+    let dateObject = GedcomXDate(this.formal);
     if (!dateObject) {
       return this.formal;
-    } else return formatJDate(dateObject, this.formal.length);
+    }
+
+    switch (dateObject.getType()) {
+      case "single":
+        return simpleToString(dateObject as Simple);
+      case "range":
+        return rangeToString(dateObject as Range);
+      case "recurring": {
+        dateObject = dateObject as Recurring;
+        let string = rangeToString(dateObject);
+        string = strings.formatString(strings.gedcomX.date.recurring, dateObject.getCount().toString(), string) as string;
+
+        return string;
+      }
+    }
   }
 }
 
-export function formatJDate(dateObject: Date, length: number) {
-  let options = {};
-  options["year"] = "numeric";
-  switch (length) {
-    case 5:
-      break;
-    case 8:
-      // year and month are known
-      options["month"] = "long";
-      break;
-    default:
-      // full date is known
-      options["month"] = "2-digit";
-      options["day"] = "2-digit";
-      break;
+function rangeToString(dateObject: Range | Recurring): string {
+  let start = simpleToString(dateObject.getStart());
+  let end = simpleToString(dateObject.getEnd());
+
+  let string = "";
+  if (start)
+    string += strings.formatString(strings.gedcomX.date.rangeStart, start);
+  if (end)
+    string = (string ? string + " " : "") + strings.formatString(strings.gedcomX.date.rangeEndDate, end);
+
+  if (dateObject.isApproximate())
+    string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
+
+  return string;
+}
+
+function simpleToString(dateObject: Simple): string {
+  if (!dateObject)
+    return "";
+
+  let jsDate = simpleToJsDate(dateObject);
+  let string = jsDate.toLocaleDateString(strings.getLanguage(), getDateFormatOptions(dateObject));
+
+  if (dateObject.isApproximate())
+    string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
+
+  return string;
+}
+
+function simpleToJsDate(parsedDate: Simple) {
+  if (!parsedDate)
+    return undefined;
+
+  let utc = Date.UTC(
+    parsedDate.getYear(),
+    parsedDate.getMonth() - 1 || 0,
+    parsedDate.getDay() || 1,
+    parsedDate.getHours() || null,
+    parsedDate.getMinutes() || null,
+    parsedDate.getSeconds() || null
+  );
+
+  if (parsedDate.getTZHours()) {
+    utc += Date.UTC(0, 0, 0,
+      parsedDate.getTZHours(), parsedDate.getTZMinutes() || 0)
   }
-  let date = dateObject.toLocaleDateString(strings.getLanguage(), options);
 
-  let time = "";
-  if (length >= 14) {
-    options = {};
-    options["hour"] = "2-digit";
+  return new Date(utc);
+}
 
-    if (length >= 17) {
-      options["minute"] = "2-digit";
-    }
-    if (length >= 20) {
-      options["second"] = "2-digit";
-    }
-    time = dateObject.toLocaleTimeString(strings.getLanguage(), options);
+export function getDateFormatOptions(date: Simple) {
+  let options: Intl.DateTimeFormatOptions = {
+    "year": "numeric"
+  };
+  if (date.getMonth())
+    options.month = "long";
+
+  if (date.getDay()) {
+    options.month = "2-digit";
+    options.day = "2-digit";
   }
 
-  return `${strings.formatString(length >= 10 ? strings.gedcomX.time.day : (length >= 7 ? strings.gedcomX.time.month : strings.gedcomX.time.year), date)}${time ? " " + strings.formatString(strings.gedcomX.time.time, time) : ""}`;
+  if (date.getHours())
+    options.hour = "2-digit";
+
+  if (date.getMinutes())
+    options.minute = "2-digit";
+
+  if (date.getSeconds())
+    options.second = "2-digit";
+
+  return options;
 }
 
 export class Fact extends GedcomX.Fact {
@@ -310,10 +361,10 @@ class Qualifier extends GedcomX.Qualifier {
   toString() {
     let string;
     switch (this.name) {
-      case PersonFactQualifiers.Age:
+      case FactQualifier.Age:
         string = strings.formatString(strings.gedcomX.factQualifier.ageFormatter, this.value);
         break;
-      case PersonFactQualifiers.Cause:
+      case FactQualifier.Cause:
         string = `(${this.value})`;
         break;
       default:

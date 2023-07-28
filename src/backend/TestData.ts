@@ -35,11 +35,12 @@ import {
   IdentifierTypes,
   KnownResourceTypes, NamePartQualifier,
   NamePartTypes,
-  NameTypes, PersonFactQualifiers,
+  NameTypes, FactQualifier,
   PersonFactTypes,
   RelationshipFactTypes,
   RelationshipTypes
-} from "./gedcomx-enums";
+} from "../gedcomx/types";
+import {DurationString} from "../gedcomx/date";
 
 let testData: Root;
 
@@ -51,7 +52,10 @@ export default function getTestData(): object {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function extensiveData() {
-  const marriageDate = new GedcomX.Date().setFormal(faker.date.past({years: 10}).toISOString());
+  const duration: DurationString = "P8Y";
+  const marriageDate = new GedcomX.Date().setFormal(
+    toISOString(faker.date.past({years: 10})) + "/" + duration
+  );
 
   return new Root()
     .setDescription("#s1")
@@ -78,7 +82,7 @@ function extensiveData() {
             .addQualifier(new Qualifier()
               .setName(NamePartQualifier.Occupational)))))
       .addFact(new Fact().setType(PersonFactTypes.Birth)
-        .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))
+        .setDate(new GedcomX.Date().setFormal("A" + toISOString(faker.date.birthdate({min: 30, max: 40, mode: "age"})))))
       .addFact(new Fact().setType(PersonFactTypes.MaritalStatus)
         .setValue("Married")
         .setPlace(new PlaceReference().setOriginal(faker.location.city()))
@@ -86,14 +90,15 @@ function extensiveData() {
       .addFact(new Fact().setType(PersonFactTypes.Occupation)
         .setValue(faker.person.jobTitle())
         .addQualifier(new Qualifier()
-          .setName(PersonFactQualifiers.Age)
-          .setValue(faker.number.int({min: 20, max: 40}).toString())))
+          .setName(FactQualifier.Age)
+          .setValue(faker.number.int({min: 20, max: 40}).toString()))
+        .setDate(new GedcomX.Date().setFormal("A+1990/+1996")))
       .addFact(new Fact()
         .setType(PersonFactTypes.Death)
         .setDate(new GedcomX.Date()
-          .setFormal(faker.date.birthdate({min: 3, max: 10, mode: "age"}).toISOString()))
+          .setFormal(toISOString(faker.date.past({years: 5}))))
         .addQualifier(new Qualifier()
-          .setName(PersonFactQualifiers.Cause)
+          .setName(FactQualifier.Cause)
           .setValue(faker.lorem.word())))
       .addFact(new Fact(getConclusion("husbandsGenerationFact"))
         .setType(PersonFactTypes.GenerationNumber).setValue(2))
@@ -105,7 +110,7 @@ function extensiveData() {
           .setCreator(new ResourceReference().setResource("#a1")))))
     .addPerson(getPerson("wife", "female")
       .addFact(new Fact().setType(PersonFactTypes.Birth)
-        .setDate(new GedcomX.Date().setFormal(faker.date.birthdate({min: 30, max: 40, mode: "age"}).toISOString())))
+        .setDate(new GedcomX.Date().setFormal(toISOString(faker.date.birthdate({min: 30, max: 40, mode: "age"})))))
       .addFact(new Fact().setType(PersonFactTypes.MaritalStatus)
         .setValue("Married")
         .setPlace(new PlaceReference().setOriginal(faker.location.city()))
@@ -214,13 +219,13 @@ function extensiveData() {
       .setLatitude(faker.location.latitude())
       .setLongitude(faker.location.longitude())
       .setJurisdiction(new ResourceReference().setResource("#pd2"))
-      .setTemporalDescription(new GedcomX.Date().setFormal(faker.date.past().toISOString()))
+      .setTemporalDescription(new GedcomX.Date().setFormal(toISOString(faker.date.past())))
       .setSpatialDescription(new ResourceReference().setResource(faker.internet.url())))
     .addPlace(new PlaceDescription()
       .addName(new TextValue().setValue(faker.location.city())))
     .addEvent(new GedcomX.Event(getSubject("e1", "e"))
       .setType(EventTypes.Birth)
-      .setDate(new GedcomX.Date().setFormal(faker.date.past().toISOString()))
+      .setDate(new GedcomX.Date().setFormal(toISOString(faker.date.past())))
       .setPlace(new PlaceReference().setDescription("#pd1"))
       .addRole(new EventRole()
         .setPerson(new ResourceReference().setResource("#mother"))
@@ -338,4 +343,12 @@ function getConclusion(id: string) {
     .setConfidence(confidence)
     .setAttribution(getAttribution())
     .setId(id)
+}
+
+/**
+ * Converts a date to an ISO string without the milliseconds.
+ * @param date
+ */
+function toISOString(date: Date) {
+  return "+" + date.toISOString().split(".")[0] + "Z";
 }

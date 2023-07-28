@@ -2,8 +2,8 @@ import * as gedcomX from "gedcomx-js";
 import {filterLang, strings} from "../main";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
-import {formatJDate, GDate} from "../backend/gedcomx-extensions";
-import {Confidence as ConfidenceEnum, IdentifierTypes} from "../backend/gedcomx-enums";
+import {getDateFormatOptions, GDate} from "../gedcomx/gedcomx-js-extensions";
+import {Confidence as ConfidenceEnum, IdentifierTypes} from "../gedcomx/types";
 import {Link, useParams} from "react-router-dom";
 import {
   Article,
@@ -57,7 +57,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   let createdString = "";
   if (created || creatorName) {
     createdString += strings.gedcomX.conclusion.attribution.created + " ";
-    if (created) createdString += formatJDate(created, 18);
+    if (created) createdString += new Date(created).toLocaleString(strings.getLanguage(), getDateFormatOptions(created));
     if (created && creatorName) createdString += " ";
   }
 
@@ -69,7 +69,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   let modifiedString = "";
   if (modified || contributorName || message) {
     modifiedString += strings.gedcomX.conclusion.attribution.modified + " ";
-    if (modified) modifiedString += formatJDate(modified, 18);
+    if (modified) modifiedString += new Date(modifiedString).toLocaleString(strings.getLanguage(), getDateFormatOptions(modified));
     if (modified && contributorName) modifiedString += " ";
   }
 

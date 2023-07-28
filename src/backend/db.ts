@@ -1,8 +1,7 @@
 import Dexie, {PromiseExtended, Table} from 'dexie';
 import {
-  IGedcomX, IGedcomXData,
-  IGroup
-} from "./gedcomx-types";
+  IGedcomx, IGedcomxData,
+} from "../gedcomx/json";
 import * as GedcomX from "gedcomx-js";
 import {
   Agent,
@@ -12,15 +11,16 @@ import {
   Relationship, Root,
   setReferenceAge,
   SourceDescription
-} from "./gedcomx-extensions";
-import {PersonFactTypes, RelationshipTypes} from "./gedcomx-enums";
+} from "../gedcomx/gedcomx-js-extensions";
+import {PersonFactTypes, RelationshipTypes} from "../gedcomx/types";
 import {ResourceReference} from "gedcomx-js";
+import {IGroup} from "../gedcomx/interfaces";
 
 export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
 type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;
 
 export class FamilyDB extends Dexie {
-  gedcomX!: Table<IGedcomXData>
+  gedcomX!: Table<IGedcomxData>
   persons!: Table<GedcomX.Person>
   relationships!: Table<GedcomX.Relationship>
   sourceDescriptions!: Table<GedcomX.SourceDescription>
@@ -57,7 +57,7 @@ export class FamilyDB extends Dexie {
     })
   }
 
-  async load(data: IGedcomX) {
+  async load(data: IGedcomx) {
     let clear = this.clear();
     let root = this.sanitizeData(data);
     await clear;
@@ -84,7 +84,7 @@ export class FamilyDB extends Dexie {
       .catch(e => this.clear().then(() => Promise.reject(e)));
   }
 
-  private sanitizeData(data: IGedcomX) {
+  private sanitizeData(data: IGedcomx) {
     let root = new Root(data);
 
     function forAll(callback: (items: RootClass[]) => void) {

@@ -354,11 +354,11 @@
         "temporal": "temporal"
       }
     },
-    "time": {
-      "year": "in {0}",
-      "month": "in {0}",
-      "day": "on {0}",
-      "time": "at {0}"
+    "date": {
+      "approximate": "circa {0}",
+      "rangeStart": "since {0}",
+      "rangeEndDate": "until {0}",
+      "recurring": "{0} times {1}"
     },
     "place": "in {0}",
     "facts": "Facts",

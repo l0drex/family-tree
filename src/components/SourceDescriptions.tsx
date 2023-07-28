@@ -1,4 +1,4 @@
-import {SourceDescription} from "../backend/gedcomx-extensions";
+import {SourceDescription} from "../gedcomx/gedcomx-js-extensions";
 import {filterLang, strings} from "../main";
 import {useLoaderData} from "react-router-dom";
 import {useContext, useEffect, useState} from "react";

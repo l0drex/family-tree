@@ -1,5 +1,5 @@
 import {strings} from "../main";
-import {Document} from "../backend/gedcomx-extensions";
+import {Document} from "../gedcomx/gedcomx-js-extensions";
 import {useLoaderData} from "react-router-dom";
 import {
   Attribution,

@@ -10,7 +10,7 @@ import {ColorMode, ViewGraph, ViewMode} from "../backend/ViewGraph";
 import {GraphFamily, GraphPerson} from "../backend/graph";
 import {Loading} from "./GeneralComponents";
 import {strings} from "../main";
-import {Person} from "../backend/gedcomx-extensions";
+import {Person} from "../gedcomx/gedcomx-js-extensions";
 
 const d3cola = cola.d3adaptor(d3);
 

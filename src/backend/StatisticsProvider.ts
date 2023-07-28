@@ -1,6 +1,6 @@
-import {Confidence, GenderTypes, PersonFactQualifiers, PersonFactTypes} from "./gedcomx-enums";
+import {Confidence, GenderTypes, FactQualifier, PersonFactTypes} from "../gedcomx/types";
 import {GeoPermissibleObjects} from "d3";
-import {Person} from "./gedcomx-extensions";
+import {Person} from "../gedcomx/gedcomx-js-extensions";
 import {db} from "./db";
 
 /**
@@ -227,7 +227,7 @@ export async function getLifeExpectancyOverYears() {
         name = p.fullName;
         birth = p.getFactsByType(PersonFactTypes.Birth)[0].getDate().toDateObject();
         let deathFact = p.getFactsByType(PersonFactTypes.Death)[0];
-        age = deathFact.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue();
+        age = deathFact.getQualifiers().find(q => q.getName() === FactQualifier.Age).getValue();
       } catch (e) {
         if (e instanceof TypeError) {
           return;
@@ -248,7 +248,7 @@ export async function getMarriageAge() {
       try {
         return p.getFactsByType(PersonFactTypes.MaritalStatus)
           .filter(f => f.getValue() !== "single")
-          .map(f => Number(f.getQualifiers().find(q => q.getName() === PersonFactQualifiers.Age).getValue()));
+          .map(f => Number(f.getQualifiers().find(q => q.getName() === FactQualifier.Age).getValue()));
       } catch (e) {
         if (!(e instanceof TypeError)) {
           throw e

@@ -3,7 +3,7 @@ import {strings} from "../main";
 import {db} from "../backend/db";
 import {useLiveQuery} from "dexie-react-hooks";
 import * as GedcomX from "gedcomx-js";
-import {Person} from "../backend/gedcomx-extensions";
+import {Person} from "../gedcomx/gedcomx-js-extensions";
 import emojis from "../backend/emojies.json";
 
 interface Props {
