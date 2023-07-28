@@ -7,8 +7,9 @@ import {
   ISourceDescription,
   localeTag
 } from "./interfaces";
+import { gedcomxDate } from "./date";
 
-export type URI<T = {}> = string;
+export type URI<T = {}> = `gedcomx-date:${gedcomxDate}` | string;
 
 export interface IResourceReference<T = {}> {
   resource: string
