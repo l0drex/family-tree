@@ -43,4 +43,4 @@ Will come in a future release
 
 ## Dates
 
-Recurring dates are not supported. Date ranges always show start and end dates, never the duration.
+Date ranges always show start and end dates, never the duration.
