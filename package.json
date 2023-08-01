@@ -85,7 +85,7 @@
     "@types/jest": "^29.5.3",
     "@types/leaflet": "^1.9.3",
     "@types/node": "^20.4.4",
-    "@types/react": "^18.2.15",
+    "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "@types/sanitize-html": "^2.9.0",
     "fake-indexeddb": "^4.0.2"
