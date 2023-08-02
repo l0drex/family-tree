@@ -413,5 +413,8 @@
   },
   "ctrl": "Strg",
   "linkContent": "hier",
-  "externalContentButton": "Externe Inhalte anzeigen"
+  "externalContentButton": "Externe Inhalte anzeigen",
+  "enterFileName": "Wie soll die Datei heißen?",
+  "importFile": "Daten aus JSON Datei importieren",
+  "exportFile": "Daten als JSON Datei exportieren"
 }

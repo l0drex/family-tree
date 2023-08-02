@@ -412,5 +412,8 @@
   },
   "ctrl": "Ctrl",
   "linkContent": "here",
-  "externalContentButton": "Show external content"
+  "externalContentButton": "Show external content",
+  "enterFileName": "How should the file be named?",
+  "importFile": "Import from JSON file",
+  "exportFile": "Export as JSON file"
 }

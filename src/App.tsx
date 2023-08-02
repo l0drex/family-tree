@@ -142,25 +142,32 @@ function FileButtons() {
     promises.push(db.places.toArray().then(places => root.setPlaces(places)));
     promises.push(db.events.toArray().then(events => root.setEvents(events)));
 
+    let fileName = prompt(strings.enterFileName, "GedcomX.json");
+    if (!fileName)
+      return;
+    if (!fileName.endsWith(".json")) {
+      fileName += ".json";
+    }
+
     await Promise.all(promises);
 
     const blob = new Blob([JSON.stringify(root.toJSON())], {type: "application/json"});
     const dataStr = URL.createObjectURL(blob);
     downloadLink.current?.setAttribute("href", dataStr);
-    downloadLink.current?.setAttribute("download", "GedcomX.json");
+    downloadLink.current?.setAttribute("download", fileName);
     downloadLink.current?.click();
   }, [downloadLink]);
 
   return <>
     <input type="file" hidden ref={fileInput} accept="application/json"
            onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
-    <button onClick={e => {
+    <button title={strings.importFile} onClick={e => {
       e.preventDefault();
       fileInput.current.click();
     }}>{emojis.open}
     </button>
     <a hidden ref={downloadLink}>test</a>
-    <button className="mx-4" onClick={e => {
+    <button title={strings.exportFile} className="mx-4" onClick={e => {
       e.preventDefault();
       exportDocument();
     }}>
