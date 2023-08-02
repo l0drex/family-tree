@@ -1,10 +1,10 @@
 import * as React from "react";
-import { createBrowserRouter, Outlet, RouterProvider, useLocation } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigate } from "react-router-dom";
 import { strings } from "./main";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createRef, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { db } from "./backend/db";
 import { SourceDescription, Document, Agent, Person, EventExtended } from "./gedcomx/gedcomx-js-extensions";
-import { Home } from "./components/Home";
+import { Home, parseFile, saveDataAndRedirect } from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
 import { SourceDescriptionOverview, SourceDescriptionView } from "./components/SourceDescriptions";
@@ -126,6 +126,49 @@ export default function App() {
   return <RouterProvider router={router}/>;
 }
 
+function FileButtons() {
+  const navigate = useNavigate();
+  let fileInput = React.createRef<HTMLInputElement>();
+  const downloadLink = createRef<HTMLAnchorElement>();
+
+  const exportDocument = useMemo(() => async function() {
+    let promises: Promise<any>[] = [];
+    const root = await db.root;
+    promises.push(db.persons.toArray().then(persons => root.setPersons(persons)));
+    promises.push(db.relationships.toArray().then(relationships => root.setRelationships(relationships)));
+    promises.push(db.sourceDescriptions.toArray().then(sources => root.setSourceDescriptions(sources)));
+    promises.push(db.documents.toArray().then(documents => root.setDocuments(documents)));
+    promises.push(db.agents.toArray().then(agents => root.setAgents(agents)));
+    promises.push(db.places.toArray().then(places => root.setPlaces(places)));
+    promises.push(db.events.toArray().then(events => root.setEvents(events)));
+
+    await Promise.all(promises);
+
+    const blob = new Blob([JSON.stringify(root.toJSON())], {type: "application/json"});
+    const dataStr = URL.createObjectURL(blob);
+    downloadLink.current?.setAttribute("href", dataStr);
+    downloadLink.current?.setAttribute("download", "GedcomX.json");
+    downloadLink.current?.click();
+  }, [downloadLink]);
+
+  return <>
+    <input type="file" hidden ref={fileInput} accept="application/json"
+           onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
+    <button onClick={e => {
+      e.preventDefault();
+      fileInput.current.click();
+    }}>{emojis.open}
+    </button>
+    <a hidden ref={downloadLink}>test</a>
+    <button className="mx-4" onClick={e => {
+      e.preventDefault();
+      exportDocument();
+    }}>
+      {emojis.save}
+    </button>
+  </>;
+}
+
 interface ILayoutContext {
   setHeaderChildren: (ReactNode) => void,
   sidebarVisible: boolean
@@ -196,6 +239,7 @@ function Layout() {
     </header>
 
     {<div className="row-start-1 text-right mr-4 dark:text-white">
+      <FileButtons/>
       <AgentSelector/>
       <span className={`lg:hidden`}>
         <button onClick={() => toggleSidebar(!sidebarExtended)} className="px-4 py-2 bg-white rounded-full ml-4">

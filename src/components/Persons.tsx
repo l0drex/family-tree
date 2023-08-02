@@ -1,93 +1,50 @@
 import * as React from "react";
 import { createRef, useContext, useEffect, useMemo, useState } from "react";
-import {strings} from "../main";
-import {ColorMode, ViewMode} from "../backend/ViewGraph";
+import { strings } from "../main";
+import { ColorMode, ViewMode } from "../backend/ViewGraph";
 import TreeView from "./TreeView";
 import InfoPanel from "./InfoPanel";
 import SearchField from "./SearchField";
-import {Person, Root} from "../gedcomx/gedcomx-js-extensions";
-import {parseFile, saveDataAndRedirect} from "./Home";
-import {useLoaderData, useNavigate, useSearchParams} from "react-router-dom";
-import {LayoutContext, Main, Sidebar} from "../App";
-import {Article, ButtonLike, ReactLink, Title} from "./GeneralComponents";
+import { Person, Root } from "../gedcomx/gedcomx-js-extensions";
+import { parseFile, saveDataAndRedirect } from "./Home";
+import { useLoaderData, useNavigate, useSearchParams } from "react-router-dom";
+import { LayoutContext, Main, Sidebar } from "../App";
+import { Article, ButtonLike, ReactLink, Title } from "./GeneralComponents";
 import emojis from '../backend/emojies.json';
-import {Attribution} from "./GedcomXComponents";
+import { Attribution } from "./GedcomXComponents";
 import * as GedcomX from "gedcomx-js";
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../backend/db";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../backend/db";
 
 function ViewOptions(props) {
-  const navigate = useNavigate();
-  let fileInput = React.createRef<HTMLInputElement>();
-  const downloadLink = createRef<HTMLAnchorElement>();
+  return <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
+    <div>
+      <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
+      <ButtonLike primary noHover><select id="view-selector"
+                                          className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
+                                          defaultValue={props.view}
+                                          onChange={props.onViewChanged}>
+        <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
+        <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
+        <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
+        <option value={ViewMode.LIVING}>{strings.viewOptions.filter.living}</option>
+        <option value={ViewMode.ALL}>{strings.viewOptions.filter.all}</option>
+      </select></ButtonLike>
+    </div>
 
-  const exportDocument = useMemo(() => async function() {
-    let promises: Promise<any>[] = [];
-    const root = await db.root;
-    promises.push(db.persons.toArray().then(persons => root.setPersons(persons)));
-    promises.push(db.relationships.toArray().then(relationships => root.setRelationships(relationships)));
-    promises.push(db.sourceDescriptions.toArray().then(sources => root.setSourceDescriptions(sources)));
-    promises.push(db.documents.toArray().then(documents => root.setDocuments(documents)));
-    promises.push(db.agents.toArray().then(agents => root.setAgents(agents)));
-    promises.push(db.places.toArray().then(places => root.setPlaces(places)));
-    promises.push(db.events.toArray().then(events => root.setEvents(events)));
-
-    await Promise.all(promises);
-
-    const blob = new Blob([JSON.stringify(root.toJSON())], {type: "application/json"});
-    const dataStr = URL.createObjectURL(blob);
-    downloadLink.current?.setAttribute("href", dataStr);
-    downloadLink.current?.setAttribute("download", "GedcomX.json");
-    downloadLink.current?.click();
-  }, [downloadLink])
-
-  return (
-    <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
-      <div>
-        <label htmlFor="view-selector">{strings.viewOptions.filter.label}</label>
-        <ButtonLike primary noHover><select id="view-selector"
-                                            className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
-                                            defaultValue={props.view}
-                                            onChange={props.onViewChanged}>
-          <option value={ViewMode.DEFAULT}>{strings.viewOptions.filter.default}</option>
-          <option value={ViewMode.DESCENDANTS}>{strings.viewOptions.filter.descendants}</option>
-          <option value={ViewMode.ANCESTORS}>{strings.viewOptions.filter.ancestors}</option>
-          <option value={ViewMode.LIVING}>{strings.viewOptions.filter.living}</option>
-          <option value={ViewMode.ALL}>{strings.viewOptions.filter.all}</option>
-        </select></ButtonLike>
-      </div>
-
-      <div>
-        <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
-        <ButtonLike primary noHover><select id="color-selector"
-                                            className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
-                                            defaultValue={props.colorMode}
-                                            onChange={props.onColorChanged}>
-          <option value={ColorMode.GENDER}>{strings.gedcomX.person.gender}</option>
-          <option value={ColorMode.NAME}>{strings.gedcomX.person.namePartTypes.Surname}</option>
-          <option value={ColorMode.AGE}>{strings.gedcomX.factQualifier.Age}</option>
-          <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.conclusion.confidence}</option>
-        </select></ButtonLike>
-      </div>
-
-      <div id="file-buttons" className="ml-auto">
-        <input type="file" hidden ref={fileInput} accept="application/json"
-               onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
-        <button onClick={e => {
-          e.preventDefault();
-          fileInput.current.click();
-        }}>{emojis.open}
-        </button>
-        <a hidden ref={downloadLink}>test</a>
-        <button className="ml-4" onClick={e => {
-          e.preventDefault();
-          exportDocument();
-        }}>
-          {emojis.save}
-        </button>
-      </div>
-    </form>
-  );
+    <div>
+      <label htmlFor="color-selector">{strings.viewOptions.color.label}</label>
+      <ButtonLike primary noHover><select id="color-selector"
+                                          className="bg-transparent py-1 pl-4 pr-2 mr-4 cursor-pointer"
+                                          defaultValue={props.colorMode}
+                                          onChange={props.onColorChanged}>
+        <option value={ColorMode.GENDER}>{strings.gedcomX.person.gender}</option>
+        <option value={ColorMode.NAME}>{strings.gedcomX.person.namePartTypes.Surname}</option>
+        <option value={ColorMode.AGE}>{strings.gedcomX.factQualifier.Age}</option>
+        <option value={ColorMode.CONFIDENCE}>{strings.gedcomX.conclusion.confidence}</option>
+      </select></ButtonLike>
+    </div>
+  </form>
 }
 
 const ViewModeParam = "viewMode";
@@ -164,12 +121,13 @@ function Persons() {
   );
 }
 
-function RootInfo({root}: {root: Root}) {
+function RootInfo({root}: { root: Root }) {
   return <Sidebar>
     {root.id}
     {root.lang}
     {root.description && <Article noMargin>
-      <ReactLink to={"/sourceDescription/" + root.description}>{strings.gedcomX.sourceDescription.sourceDescription}</ReactLink>
+      <ReactLink
+        to={"/sourceDescription/" + root.description}>{strings.gedcomX.sourceDescription.sourceDescription}</ReactLink>
     </Article>}
     <Attribution attribution={new GedcomX.Attribution(root.attribution)}/>
   </Sidebar>
