@@ -360,7 +360,6 @@ export default function Statistics() {
     layoutContext.setHeaderChildren(<Title emoji={emojis.stats}>
       {strings.statistics.title}
     </Title>);
-    layoutContext.setRightTitle("");
   }, [layoutContext]);
 
   return <>

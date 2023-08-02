@@ -1,21 +1,21 @@
 import * as React from "react";
-import {createBrowserRouter, Outlet, RouterProvider, useLocation} from "react-router-dom";
-import {strings} from "./main";
-import {useContext, useEffect, useMemo, useRef, useState} from "react";
-import {db} from "./backend/db";
-import {SourceDescription, Document, Agent, Person, EventExtended} from "./gedcomx/gedcomx-js-extensions";
-import {Home} from "./components/Home";
+import { createBrowserRouter, Outlet, RouterProvider, useLocation } from "react-router-dom";
+import { strings } from "./main";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { db } from "./backend/db";
+import { SourceDescription, Document, Agent, Person, EventExtended } from "./gedcomx/gedcomx-js-extensions";
+import { Home } from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";
-import {SourceDescriptionOverview, SourceDescriptionView} from "./components/SourceDescriptions";
-import {DocumentOverview, DocumentView} from "./components/Documents";
-import {AgentOverview, AgentView} from "./components/Agents";
-import {PlaceDescription} from "gedcomx-js";
-import {PlaceOverview, PlaceView} from "./components/Places";
+import { SourceDescriptionOverview, SourceDescriptionView } from "./components/SourceDescriptions";
+import { DocumentOverview, DocumentView } from "./components/Documents";
+import { AgentOverview, AgentSelector, AgentView } from "./components/Agents";
+import { PlaceDescription } from "gedcomx-js";
+import { PlaceOverview, PlaceView } from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
-import {ReactLink, ReactNavLink, VanillaLink} from "./components/GeneralComponents";
-import {Imprint} from "./components/Imprint";
-import {EventOverview, EventView} from "./components/Events";
+import { ButtonLike, ReactLink, ReactNavLink, VanillaLink } from "./components/GeneralComponents";
+import { Imprint } from "./components/Imprint";
+import { EventOverview, EventView } from "./components/Events";
 import emojis from './backend/emojies.json';
 
 let personCache = {
@@ -105,7 +105,7 @@ const router = createBrowserRouter([
                 loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
               },
               {path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")}
-              ]
+            ]
           },
           {
             path: "place", children: [
@@ -127,7 +127,6 @@ export default function App() {
 }
 
 interface ILayoutContext {
-  setRightTitle: (string) => void,
   setHeaderChildren: (ReactNode) => void,
   sidebarVisible: boolean
 }
@@ -135,7 +134,6 @@ interface ILayoutContext {
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
 
 function Layout() {
-  const [titleRight, setTitleRight] = useState<React.ReactNode>(undefined);
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
@@ -148,11 +146,11 @@ function Layout() {
   const nav = <nav className="row-start-2 row-span-2 dark:text-white">
     <ul className={`flex flex-col gap-2 ${isSmallScreen ? "" : "ml-2"} text-lg`}>
       <li><ReactNavLink to="">
-          {emojis.home + (navBarExtended ? ` ${strings.home.title}` : "")}
-        </ReactNavLink></li>
+        {emojis.home + (navBarExtended ? ` ${strings.home.title}` : "")}
+      </ReactNavLink></li>
       <li><ReactNavLink to="person">
-          {emojis.tree + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
-        </ReactNavLink>
+        {emojis.tree + (navBarExtended ? ` ${strings.gedcomX.person.persons}` : "")}
+      </ReactNavLink>
       </li>
       <li><ReactNavLink to="stats">
         {emojis.stats + (navBarExtended ? ` ${strings.statistics.title}` : "")}
@@ -164,10 +162,6 @@ function Layout() {
       <li><ReactNavLink to="document">
         {emojis.document.default + (navBarExtended ? ` ${strings.gedcomX.document.documents}` : "")}
       </ReactNavLink></li>
-      <li><ReactNavLink to="agent">
-        {emojis.agent.agent + (navBarExtended ? ` ${strings.gedcomX.agent.agents}` : "")}
-      </ReactNavLink>
-      </li>
       <li><ReactNavLink to="place">
         {emojis.place + (navBarExtended ? ` ${strings.gedcomX.placeDescription.places}` : "")}
       </ReactNavLink></li>
@@ -179,7 +173,6 @@ function Layout() {
 
   const layoutContext = useMemo(() => {
     return {
-      setRightTitle: setTitleRight,
       setHeaderChildren: setChildren,
       sidebarVisible: sidebarExtended
     }
@@ -193,7 +186,7 @@ function Layout() {
   useEffect(() => toggleNavBar(false), [location]);
 
   return <>
-    <div className="row-start-1 ml-4 font-bold text-xl h-full my-1 dark:text-white">
+    <div className="row-start-1 ml-4 font-bold text-xl h-full dark:text-white">
       <button onClick={() => toggleNavBar(!navBarExtended)}>{navBarExtended ? emojis.left : emojis.right}</button>
     </div>
     {isSmallScreen ? <dialog ref={dialog} className="rounded-2xl">{nav}</dialog> : nav}
@@ -202,10 +195,12 @@ function Layout() {
       {headerChildren}
     </header>
 
-    {titleRight && <div className="row-start-1 text-right lg:text-center font-bold text-xl my-1 mr-4 dark:text-white">
-      {sidebarExtended && <span className={`mr-4 hidden md:inline`}>{titleRight}</span>}
+    {<div className="row-start-1 text-right mr-4 dark:text-white">
+      <AgentSelector/>
       <span className={`lg:hidden`}>
-        <button onClick={() => toggleSidebar(!sidebarExtended)}>{sidebarExtended ? emojis.right : emojis.left}</button>
+        <button onClick={() => toggleSidebar(!sidebarExtended)} className="px-4 py-2 bg-white rounded-full ml-4">
+          {sidebarExtended ? emojis.right : emojis.left}
+        </button>
       </span>
     </div>}
 
@@ -232,14 +227,12 @@ function Layout() {
 
 export function Main(props) {
   const layoutContext = React.useContext(LayoutContext);
-  const titleRight = props.titleRight ?? "";
 
   useEffect(() => {
     if (!props.skipCleanup) {
-      layoutContext.setRightTitle(titleRight);
       layoutContext.setHeaderChildren(<></>);
     }
-  }, [layoutContext, props.skipCleanup, titleRight]);
+  }, [layoutContext, props.skipCleanup]);
 
   let className = `row-start-2 mx-4 ${layoutContext.sidebarVisible ? "sm:ml-0 md:mr-0" : "sm:ml-0 lg:mr-0"} dark:text-white overflow-y-auto`;
   if (layoutContext.sidebarVisible)

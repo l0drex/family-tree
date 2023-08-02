@@ -47,7 +47,6 @@ export function DocumentView() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
-    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [document, layoutContext])
 
   let html;

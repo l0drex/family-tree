@@ -54,7 +54,6 @@ export function PlaceView() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji={emojis.place}>{place.names[0].getValue()}</Title>)
-    layoutContext.setRightTitle(strings.gedcomX.placeDescription.places);
   }, [layoutContext, place])
 
   useEffect(() => {

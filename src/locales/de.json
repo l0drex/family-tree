@@ -94,7 +94,8 @@
       "emails": "Emails",
       "phones": "Telefonnummern",
       "addresses": "Adressen",
-      "noAgents": "Es sind keine Agenten vorhanden."
+      "select": "Als Bearbeiter verwenden",
+      "selected": "aktiver Bearbeiter"
     },
     "document": {
       "types": {

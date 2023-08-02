@@ -144,7 +144,6 @@ function Persons() {
     layoutContext.setHeaderChildren([
       <SearchField onRefocus={onRefocus}/>
     ])
-    layoutContext.setRightTitle(focusHidden ? (root?.hasData ? "Root Data" : "") : focusPerson.fullName)
   }, [onRefocus, focusPerson, focusHidden, layoutContext, root?.hasData]);
 
   return (

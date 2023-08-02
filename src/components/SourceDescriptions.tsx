@@ -51,7 +51,6 @@ export function SourceDescriptionView() {
     layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>
       {sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}
     </Title>)
-    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [layoutContext, sourceDescription])
 
   const componentOf = sourceDescription.getComponentOf();

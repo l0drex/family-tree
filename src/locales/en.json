@@ -93,7 +93,9 @@
       "person": "Person",
       "emails": "Emails",
       "phones": "Phones",
-      "addresses": "Addresses"
+      "addresses": "Addresses",
+      "select": "Set as editor",
+      "selected": "Current editor"
     },
     "document": {
       "types": {
