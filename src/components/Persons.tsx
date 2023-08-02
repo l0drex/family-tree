@@ -1,5 +1,5 @@
 import * as React from "react";
-import {useContext, useEffect, useMemo, useState} from "react";
+import { createRef, useContext, useEffect, useMemo, useState } from "react";
 import {strings} from "../main";
 import {ColorMode, ViewMode} from "../backend/ViewGraph";
 import TreeView from "./TreeView";
@@ -19,6 +19,27 @@ import {db} from "../backend/db";
 function ViewOptions(props) {
   const navigate = useNavigate();
   let fileInput = React.createRef<HTMLInputElement>();
+  const downloadLink = createRef<HTMLAnchorElement>();
+
+  const exportDocument = useMemo(() => async function() {
+    let promises: Promise<any>[] = [];
+    const root = await db.root;
+    promises.push(db.persons.toArray().then(persons => root.setPersons(persons)));
+    promises.push(db.relationships.toArray().then(relationships => root.setRelationships(relationships)));
+    promises.push(db.sourceDescriptions.toArray().then(sources => root.setSourceDescriptions(sources)));
+    promises.push(db.documents.toArray().then(documents => root.setDocuments(documents)));
+    promises.push(db.agents.toArray().then(agents => root.setAgents(agents)));
+    promises.push(db.places.toArray().then(places => root.setPlaces(places)));
+    promises.push(db.events.toArray().then(events => root.setEvents(events)));
+
+    await Promise.all(promises);
+
+    const blob = new Blob([JSON.stringify(root.toJSON())], {type: "application/json"});
+    const dataStr = URL.createObjectURL(blob);
+    downloadLink.current?.setAttribute("href", dataStr);
+    downloadLink.current?.setAttribute("download", "GedcomX.json");
+    downloadLink.current?.click();
+  }, [downloadLink])
 
   return (
     <form id="view-all" className="flex gap-4 overflow-x-auto whitespace-nowrap p-4">
@@ -52,10 +73,17 @@ function ViewOptions(props) {
       <div id="file-buttons" className="ml-auto">
         <input type="file" hidden ref={fileInput} accept="application/json"
                onChange={() => parseFile(fileInput.current.files[0]).then(t => JSON.parse(t)).then(d => saveDataAndRedirect(d, navigate))}/>
-        <button className="icon-only" onClick={e => {
+        <button onClick={e => {
           e.preventDefault();
           fileInput.current.click();
-        }}>📁
+        }}>{emojis.open}
+        </button>
+        <a hidden ref={downloadLink}>test</a>
+        <button className="ml-4" onClick={e => {
+          e.preventDefault();
+          exportDocument();
+        }}>
+          {emojis.save}
         </button>
       </div>
     </form>
