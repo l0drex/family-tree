@@ -104,13 +104,13 @@ export class FamilyDB extends Dexie {
 
       let addedIds = 0;
       data.forEach(d => {
-        if (!d.id) d.id = "missing-id-" + addedIds++;
+        if (!d.id) d.id = crypto.randomUUID();
       });
-      console.debug(`Added ${addedIds} missing ids.`);
+      console.info(`Added ${addedIds} missing ids.`);
     }
     forAll(generateIdIfMissing);
     if (!root.id) {
-      root.setId("missing-id-1");
+      root.setId(crypto.randomUUID());
     }
 
     return root;
@@ -193,8 +193,7 @@ export class FamilyDB extends Dexie {
   async createAgent() {
     let agents = await this.agents.toArray();
     let agent = new Agent();
-    // todo assure the id does not exist yet
-    agent.setId(`a${agents.length + 1}`);
+    agent.setId(crypto.randomUUID());
 
     this.agents.put(agent);
     return agent;
