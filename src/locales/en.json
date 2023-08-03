@@ -88,14 +88,17 @@
       "agents": "Agents",
       "agent": "Agent",
       "homepage": "Homepage",
+      "website": "Website",
       "accounts": "Accounts",
       "onlineAccount": "{0} on {1}",
+      "accountName": "Account name",
       "person": "Person",
       "emails": "Emails",
       "phones": "Phones",
       "addresses": "Addresses",
       "select": "Set as editor",
-      "selected": "Current editor"
+      "selected": "Current editor",
+      "new": "Create new agent"
     },
     "document": {
       "types": {
@@ -415,5 +418,8 @@
   "externalContentButton": "Show external content",
   "enterFileName": "How should the file be named?",
   "importFile": "Import from JSON file",
-  "exportFile": "Export as JSON file"
+  "exportFile": "Export as JSON file",
+  "addData": "Add {0}",
+  "save": "Save",
+  "cancel": "Cancel"
 }

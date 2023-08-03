@@ -190,6 +190,15 @@ export class FamilyDB extends Dexie {
     return this.elementWithId(id, "agent").then(a => a as Agent);
   }
 
+  async createAgent() {
+    let agents = await this.agents.toArray();
+    let agent = new Agent();
+    agent.setId(`a${agents.length}`);
+
+    this.agents.put(agent);
+    return agent;
+  }
+
   async getCoupleRelationsOf(person: ResourceReference | string): Promise<GedcomX.Relationship[]> {
     let id = (person instanceof ResourceReference) ? person.resource.substring(1) : person;
 

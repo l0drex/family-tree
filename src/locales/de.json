@@ -88,14 +88,17 @@
       "agents": "Agenten",
       "agent": "Agent",
       "homepage": "Homepage",
+      "website": "Website",
       "accounts": "Accounts",
       "onlineAccount": "{0} auf {1}",
+      "accountName": "Name des Accounts",
       "person": "Person",
       "emails": "Emails",
       "phones": "Telefonnummern",
       "addresses": "Adressen",
       "select": "Als Bearbeiter verwenden",
-      "selected": "aktiver Bearbeiter"
+      "selected": "aktiver Bearbeiter",
+      "new": "Neuen Agenten erstellen"
     },
     "document": {
       "types": {
@@ -416,5 +419,8 @@
   "externalContentButton": "Externe Inhalte anzeigen",
   "enterFileName": "Wie soll die Datei heißen?",
   "importFile": "Daten aus JSON Datei importieren",
-  "exportFile": "Daten als JSON Datei exportieren"
+  "exportFile": "Daten als JSON Datei exportieren",
+  "addData": "{0} hinzufügen",
+  "save": "Speichern",
+  "cancel": "Abbrechen"
 }

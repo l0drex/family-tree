@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createBrowserRouter, Outlet, RouterProvider, useLocation, useNavigate } from "react-router-dom";
+import { createBrowserRouter, Outlet, redirect, RouterProvider, useLocation, useNavigate } from "react-router-dom";
 import { strings } from "./main";
 import { createRef, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { db } from "./backend/db";
@@ -10,7 +10,7 @@ import Statistics from "./components/Statistics";
 import { SourceDescriptionOverview, SourceDescriptionView } from "./components/SourceDescriptions";
 import { DocumentOverview, DocumentView } from "./components/Documents";
 import { AgentOverview, AgentSelector, AgentView } from "./components/Agents";
-import { PlaceDescription } from "gedcomx-js";
+import * as GedcomX from "gedcomx-js";
 import { PlaceOverview, PlaceView } from "./components/Places";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ButtonLike, ReactLink, ReactNavLink, VanillaLink } from "./components/GeneralComponents";
@@ -93,8 +93,57 @@ const router = createBrowserRouter([
                 index: true,
                 Component: AgentOverview,
                 loader: () => db.agents.toArray().then(a => a.length ? a.map(d => new Agent(d)) : Promise.reject(new Error(strings.errors.noData)))
-              },
-              {path: ":id", Component: AgentView, loader: ({params}) => db.elementWithId(params.id, "agent")}
+              }, {
+                path: ":id", Component: AgentView, loader: ({params}) => {
+                  if (params.id === "new") {
+                    return db.createAgent().then(agent => {
+                      return redirect(`/agent/${agent.id}`);
+                    })
+                  }
+
+                  return db.elementWithId(params.id, "agent")
+                }, children: [{
+                  path: "account", action: async ({request, params}) => {
+                    if (request.method !== "POST") {
+                      return;
+                    }
+
+                    const formData = await request.formData();
+                    const agent = await db.agentWithId(params.id);
+
+                    agent.accounts.push(new GedcomX.OnlineAccount()
+                      .setAccountName(formData.get("account") as string)
+                      .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
+
+                    await db.agents.update(params.id, {
+                      accounts: agent.accounts
+                    })
+
+                    return redirect("../");
+                  }, children: [{
+                    path: ":index", action: async ({request, params}) => {
+                      const formData = await request.formData();
+                      const agent = await db.agentWithId(params.id);
+
+                      switch (request.method) {
+                        case "POST":
+                          agent.accounts[params.index] = new GedcomX.OnlineAccount()
+                            .setAccountName(formData.get("account") as string)
+                            .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string));
+                          break;
+                        case "DELETE":
+                          agent.accounts.splice(Number(params.index), 1);
+                          break;
+                      }
+
+                      await db.agents.update(params.id, {
+                        accounts: agent.accounts
+                      })
+                      return redirect("../../");
+                    }
+                  }]
+                }]
+              }
             ]
           },
           {
@@ -112,7 +161,7 @@ const router = createBrowserRouter([
               {
                 index: true,
                 Component: PlaceOverview,
-                loader: () => db.places.toArray().then(p => p.length ? p.map(d => new PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+                loader: () => db.places.toArray().then(p => p.length ? p.map(d => new GedcomX.PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
               },
               {path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")}
             ]
@@ -131,7 +180,7 @@ function FileButtons() {
   let fileInput = React.createRef<HTMLInputElement>();
   const downloadLink = createRef<HTMLAnchorElement>();
 
-  const exportDocument = useMemo(() => async function() {
+  const exportDocument = useMemo(() => async function () {
     let promises: Promise<any>[] = [];
     const root = await db.root;
     promises.push(db.persons.toArray().then(persons => root.setPersons(persons)));

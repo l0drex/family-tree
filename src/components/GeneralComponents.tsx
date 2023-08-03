@@ -1,7 +1,11 @@
-import {Link, NavLink} from "react-router-dom";
+import { Form, Link, NavLink } from "react-router-dom";
 import * as React from "react";
-import {ReactElement, useEffect, useRef, useState} from "react";
-import {strings} from "../main";
+import { ReactElement, ReactNode, useEffect, useRef, useState } from "react";
+import { strings } from "../main";
+import emojies from "../backend/emojies.json";
+import emojis from "../backend/emojies.json";
+import { Simulate } from "react-dom/test-utils";
+import submit = Simulate.submit;
 
 export function Article({noMargin, emoji, title, children}:
                           { noMargin?: boolean, emoji?: string, title?: string, children }) {
@@ -179,8 +183,8 @@ export function Media({mimeType, url, alt}: { mimeType: string, url: string, alt
   // else show loading screen
   return <ExternalContent>
     {error ? <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
-      <p className="text-center p-4">⚠️ {strings.errors.fetchError}</p>
-    </div> :
+        <p className="text-center p-4">⚠️ {strings.errors.fetchError}</p>
+      </div> :
       !loaded && <div className="w-full h-full pb-8 bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl">
         <Loading text={strings.gedcomX.subject.loadingMedia}/>
       </div>}
@@ -201,4 +205,71 @@ export function PopupButton({title, children: popupContent}) {
       {popupContent}
     </dialog>
   </>
+}
+
+export function Li({children}: { children: ReactNode }) {
+  return <li className="mb-2">{children}</li>
+}
+
+export function Td({children}: { children: ReactNode }) {
+  return <td className={`first:pl-0 pl-4 pb-4 first:font-bold align-top`}>{children}</td>
+}
+
+export function DataButton({path, children, buttonLabel}: {
+  path: string,
+  children: ReactNode,
+  buttonLabel: string
+}) {
+  const dialog = useRef<HTMLDialogElement>();
+
+  return <>
+    <button onClick={() => {
+      dialog.current?.showModal();
+    }} className="ml-2 first:ml-0 px-2 py-1 bg-white rounded-2xl">
+      {buttonLabel}
+    </button>
+    <dialog ref={dialog} className="p-4 rounded-2xl">
+      <Form onSubmit={e => dialog.current?.close()} method="post" action={path}>
+        <div className="grid grid-cols-2 gap-2">
+          {children}
+        </div>
+        <div className="w-full flex flex-row justify-end mt-8">
+          <ButtonLike>
+            <button type="submit" className="px-4 py-2">{`${emojis.save} ${strings.save}`}</button>
+          </ButtonLike>
+          <ButtonLike>
+            <button type="button" className="px-4 py-2"
+                    onClick={() => dialog.current?.close()}>{`${emojis.cancel} ${strings.cancel}`}</button>
+          </ButtonLike>
+        </div>
+      </Form>
+    </dialog>
+  </>
+}
+
+export function AddDataButton({dataType, path, children}: {
+  dataType: string,
+  path: string,
+  children: ReactNode
+}) {
+  return <DataButton
+    buttonLabel={`${emojis.new} ${strings.formatString(strings.addData, dataType)}`}
+    path={path} children={children}/>
+}
+
+export function EditDataButton({path, children}: {
+  path: string,
+  children: ReactNode
+}) {
+  return <DataButton buttonLabel={emojis.edit} path={path} children={children}/>
+}
+
+export function DeleteDataButton({path}: {
+  path: string
+}) {
+  return <Form method="delete" action={path} className="inline">
+    <button type="submit" className="ml-2 px-2 py-1 bg-white rounded-2xl">
+      {emojis.delete}
+    </button>
+  </Form>
 }
