@@ -1,5 +1,5 @@
 import {Article, P, ReactLink, ReactNavLink, Tags, Title} from "./GeneralComponents";
-import {LayoutContext, Main, Sidebar} from "../App";
+import {LayoutContext, Main, Sidebar} from "../Layout";
 import {strings} from "../main";
 import {useContext, useEffect, useState} from "react";
 import {useLoaderData} from "react-router-dom";

@@ -1,4 +1,4 @@
-import {LayoutContext, Main, Sidebar} from "../App";
+import {LayoutContext, Main, Sidebar} from "../Layout";
 import {
   Article,
   ExternalContent,

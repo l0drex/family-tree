@@ -2,7 +2,7 @@ import * as React from "react";
 import {useEffect, useState} from "react";
 import {hasData, strings} from "../main";
 import {ButtonLike} from "./GeneralComponents";
-import {Main} from "../App";
+import {Main} from "../Layout";
 import {Link, useNavigate} from "react-router-dom";
 import {db} from "../backend/db";
 import getTestData from "../backend/TestData";

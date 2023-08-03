@@ -13,7 +13,7 @@ import {
   Title,
   VanillaLink
 } from "./GeneralComponents";
-import {LayoutContext, Main, Sidebar} from "../App";
+import {LayoutContext, Main, Sidebar} from "../Layout";
 import {db} from "../backend/db";
 import emojis from '../backend/emojies.json';
 

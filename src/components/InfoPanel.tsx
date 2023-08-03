@@ -10,9 +10,9 @@ import {
   SubjectMisc,
   SubjectSidebar
 } from "./GedcomXComponents";
-import { Sidebar } from "../App";
-import { Article, Details, PopupButton, Tag, Tags, Title } from "./GeneralComponents";
-import { Name } from "gedcomx-js";
+import {Sidebar} from "../Layout";
+import {Article, Details, PopupButton, Tag, Tags, Title} from "./GeneralComponents";
+import {Name} from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 import React, { Fragment } from "react";
 

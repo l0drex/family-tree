@@ -39,7 +39,7 @@ import {hasData, strings} from "../main";
 import {Legend} from "@visx/visx";
 import {useLiveQuery} from "dexie-react-hooks";
 import NoData from "./NoData";
-import {LayoutContext, Main} from "../App";
+import {LayoutContext, Main} from "../Layout";
 import {Title, Loading} from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
 

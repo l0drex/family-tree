@@ -14,7 +14,7 @@ import {
   Title,
   VanillaLink
 } from "./GeneralComponents";
-import { LayoutContext, Main, Sidebar } from "../App";
+import { LayoutContext, Main, Sidebar } from "../Layout";
 import { useContext, useEffect, useRef, useState } from "react";
 import { db } from "../backend/db";
 import * as GedcomX from "gedcomx-js";
