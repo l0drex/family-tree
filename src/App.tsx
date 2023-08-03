@@ -23,299 +23,292 @@ let personCache = {
   person: undefined
 }
 
-const router = createBrowserRouter([
-  {
-    path: "*", Component: Layout, children: [
-      {
-        path: "*", errorElement: <ErrorBoundary/>, children: [
-          {index: true, Component: Home},
-          {
-            path: "person/:id?", Component: Persons, loader: ({params}) => {
-              if (personCache.person !== undefined && personCache.id === params.id) {
-                return personCache.person;
-              }
+const router = createBrowserRouter([{
+  path: "*", Component: Layout, children: [{
+    path: "*", errorElement: <ErrorBoundary/>, children: [{
+      index: true, Component: Home
+    }, {
+      path: "person/:id?", Component: Persons, loader: ({params}) => {
+        if (personCache.person !== undefined && personCache.id === params.id) {
+          return personCache.person;
+        }
 
-              personCache.id = params.id;
+        personCache.id = params.id;
 
-              if (!params.id) {
-                // find a person whose id does not start with "missing-id-" if possible
-                // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
-                personCache.person = db.persons.toArray().then(ps => ps.sort((a, b) => {
-                  // Check if either string starts with "missing-id-"
-                  const aStartsWithMissingId = a.id.startsWith("missing-id-");
-                  const bStartsWithMissingId = b.id.startsWith("missing-id-");
+        if (!params.id) {
+          // find a person whose id does not start with "missing-id-" if possible
+          // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
+          personCache.person = db.persons.toArray().then(ps => ps.sort((a, b) => {
+            // Check if either string starts with "missing-id-"
+            const aStartsWithMissingId = a.id.startsWith("missing-id-");
+            const bStartsWithMissingId = b.id.startsWith("missing-id-");
 
-                  // Sort the strings accordingly
-                  if (aStartsWithMissingId && !bStartsWithMissingId) {
-                    return 1; // a should come after b
-                  } else if (!aStartsWithMissingId && bStartsWithMissingId) {
-                    return -1; // a should come before b
-                  } else {
-                    // If both strings start with "missing-id-" or neither does, perform a regular string comparison
-                    return a.id.localeCompare(b.id);
-                  }
-                })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
-              } else {
-                personCache.person = db.personWithId(params.id);
-              }
-
-              return personCache.person;
+            // Sort the strings accordingly
+            if (aStartsWithMissingId && !bStartsWithMissingId) {
+              return 1; // a should come after b
+            } else if (!aStartsWithMissingId && bStartsWithMissingId) {
+              return -1; // a should come before b
+            } else {
+              // If both strings start with "missing-id-" or neither does, perform a regular string comparison
+              return a.id.localeCompare(b.id);
             }
-          },
-          {path: "stats", Component: Statistics},
-          {
-            path: "sourceDescription", children: [
-              {
-                index: true,
-                Component: SourceDescriptionOverview,
-                loader: () => db.sourceDescriptions.toArray().then(s => s.length ? s.map(d => new SourceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
-              },
-              {
-                path: ":id",
-                Component: SourceDescriptionView,
-                loader: ({params}) => db.sourceDescriptionWithId(params.id)
-              }
-            ]
-          },
-          {
-            path: "document", children: [
-              {
-                index: true,
-                Component: DocumentOverview,
-                loader: () => db.documents.toArray().then(ds => ds.length ? ds.map(d => new Document(d)) : Promise.reject(new Error(strings.errors.noData)))
-              },
-              {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
-            ]
-          },
-          {
-            path: "agent", children: [
-              {
-                index: true,
-                Component: AgentOverview,
-                loader: () => db.agents.toArray().then(a => a.length ? a.map(d => new Agent(d)) : Promise.reject(new Error(strings.errors.noData)))
-              }, {
-                path: ":id", Component: AgentView, loader: ({params}) => {
-                  if (params.id === "new") {
-                    return db.createAgent().then(agent => {
-                      return redirect(`/agent/${agent.id}`);
-                    })
-                  }
+          })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+        } else {
+          personCache.person = db.personWithId(params.id);
+        }
 
-                  return db.elementWithId(params.id, "agent")
-                }, children: [{
-                  path: "homepage", action: async ({request, params}) => {
-                    if (request.method === "DELETE") {
-                      await db.agents.update(params.id, {
-                        homepage: undefined
-                      });
-                    } else if (request.method === "POST") {
-                      const formData = await request.formData();
-
-                      await db.agents.update(params.id, {
-                        homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string)
-                      })
-                    }
-
-                    return redirect("../");
-                  }
-                }, {
-                  path: "openid", action: async ({request, params}) => {
-                    if (request.method === "DELETE") {
-                      await db.agents.update(params.id, {
-                        openid: undefined
-                      });
-                    } else if (request.method === "POST") {
-                      const formData = await request.formData();
-
-                      await db.agents.update(params.id, {
-                        openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string)
-                      })
-                    }
-
-                    return redirect("../");
-                  }
-                }, {
-                  path: "account", action: async ({request, params}) => {
-                    if (request.method !== "POST") {
-                      return;
-                    }
-
-                    const formData = await request.formData();
-                    const agent = await db.agentWithId(params.id);
-
-                    agent.accounts.push(new GedcomX.OnlineAccount()
-                      .setAccountName(formData.get("account") as string)
-                      .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
-
-                    await db.agents.update(params.id, {
-                      accounts: agent.accounts
-                    })
-
-                    return redirect("../");
-                  }, children: [{
-                    path: ":index", action: async ({request, params}) => {
-                      const formData = await request.formData();
-                      const agent = await db.agentWithId(params.id);
-
-                      switch (request.method) {
-                        case "POST":
-                          agent.accounts[params.index] = new GedcomX.OnlineAccount()
-                            .setAccountName(formData.get("account") as string)
-                            .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string));
-                          break;
-                        case "DELETE":
-                          agent.accounts.splice(Number(params.index), 1);
-                          break;
-                      }
-
-                      await db.agents.update(params.id, {
-                        accounts: agent.accounts
-                      })
-                      return redirect("../../");
-                    }
-                  }]
-                }, {
-                  path: "emails", action: async ({request, params}) => {
-                    if (request.method !== "POST") {
-                      return;
-                    }
-
-                    const formData = await request.formData();
-                    const agent = await db.agentWithId(params.id);
-
-                    agent.emails.push(new GedcomX.ResourceReference()
-                      .setResource(formData.get("email") as string));
-
-                    await db.agents.update(params.id, {
-                      emails: agent.emails
-                    })
-
-                    return redirect("../");
-                  }, children: [{
-                    path: ":index", action: async ({request, params}) => {
-                      const formData = await request.formData();
-                      const agent = await db.agentWithId(params.id);
-
-                      switch (request.method) {
-                        case "POST":
-                          agent.emails[params.index] = new GedcomX.ResourceReference()
-                            .setResource(formData.get("email") as string);
-                          break;
-                        case "DELETE":
-                          agent.emails.splice(Number(params.index), 1);
-                          break;
-                      }
-
-                      await db.agents.update(params.id, {
-                        emails: agent.emails
-                      })
-                      return redirect("../../");
-                    }
-                  }]
-                }, {
-                  path: "phones", action: async ({request, params}) => {
-                    if (request.method !== "POST") {
-                      return;
-                    }
-
-                    const formData = await request.formData();
-                    const agent = await db.agentWithId(params.id);
-
-                    agent.phones.push(new GedcomX.ResourceReference()
-                      .setResource(formData.get("phone") as string));
-
-                    await db.agents.update(params.id, {
-                      phones: agent.phones
-                    })
-
-                    return redirect("../");
-                  }, children: [{
-                    path: ":index", action: async ({request, params}) => {
-                      const formData = await request.formData();
-                      const agent = await db.agentWithId(params.id);
-
-                      switch (request.method) {
-                        case "POST":
-                          agent.phones[params.index] = new GedcomX.ResourceReference()
-                            .setResource(formData.get("phone") as string);
-                          break;
-                        case "DELETE":
-                          agent.phones.splice(Number(params.index), 1);
-                          break;
-                      }
-
-                      await db.agents.update(params.id, {
-                        phones: agent.phones
-                      })
-                      return redirect("../../");
-                    }
-                  }]
-                }, {
-                  path: "addresses", action: async ({request, params}) => {
-                    if (request.method !== "POST") {
-                      return;
-                    }
-
-                    const formData = await request.formData();
-                    const agent = await db.agentWithId(params.id);
-
-                    agent.addresses.push(new GedcomX.Address()
-                      .setValue(formData.get("value") as string));
-
-                    await db.agents.update(params.id, {
-                      addresses: agent.addresses
-                    })
-
-                    return redirect("../");
-                  }, children: [{
-                    path: ":index", action: async ({request, params}) => {
-                      const formData = await request.formData();
-                      const agent = await db.agentWithId(params.id);
-
-                      switch (request.method) {
-                        case "POST":
-                          agent.addresses[params.index] = new GedcomX.Address()
-                            .setValue(formData.get("value") as string);
-                          break;
-                        case "DELETE":
-                          agent.addresses.splice(Number(params.index), 1);
-                          break;
-                      }
-
-                      await db.agents.update(params.id, {
-                        addresses: agent.addresses
-                      })
-                      return redirect("../../");
-                    }
-                  }]
-                }]
-              }
-            ]
-          },
-          {
-            path: "event", children: [
-              {
-                index: true,
-                Component: EventOverview,
-                loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
-              },
-              {path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")}
-            ]
-          },
-          {
-            path: "place", children: [
-              {
-                index: true,
-                Component: PlaceOverview,
-                loader: () => db.places.toArray().then(p => p.length ? p.map(d => new GedcomX.PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
-              },
-              {path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")}
-            ]
-          },
-          {path: "imprint", Component: Imprint}
-        ]
+        return personCache.person;
+      }
+    }, {
+      path: "stats", Component: Statistics
+    }, {
+      path: "sourceDescription", children: [{
+        index: true,
+        Component: SourceDescriptionOverview,
+        loader: () => db.sourceDescriptions.toArray().then(s => s.length ? s.map(d => new SourceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+      }, {
+        path: ":id",
+        Component: SourceDescriptionView,
+        loader: ({params}) => db.sourceDescriptionWithId(params.id)
       }]
-  }], {basename: "/family-tree"});
+    }, {
+      path: "document", children: [
+        {
+          index: true,
+          Component: DocumentOverview,
+          loader: () => db.documents.toArray().then(ds => ds.length ? ds.map(d => new Document(d)) : Promise.reject(new Error(strings.errors.noData)))
+        },
+        {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
+      ]
+    }, {
+      path: "agent", children: [{
+        index: true,
+        Component: AgentOverview,
+        loader: () => db.agents.toArray().then(a => a.length ? a.map(d => new Agent(d)) : Promise.reject(new Error(strings.errors.noData)))
+      }, {
+        path: ":id", Component: AgentView, loader: ({params}) => {
+          if (params.id === "new") {
+            return db.createAgent().then(agent => {
+              return redirect(`/agent/${agent.id}`);
+            })
+          }
+
+          return db.elementWithId(params.id, "agent")
+        }, children: [{
+          path: "homepage", action: async ({request, params}) => {
+            if (request.method === "DELETE") {
+              await db.agents.update(params.id, {
+                homepage: undefined
+              });
+            } else if (request.method === "POST") {
+              const formData = await request.formData();
+
+              await db.agents.update(params.id, {
+                homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string)
+              })
+            }
+
+            return redirect("../");
+          }
+        }, {
+          path: "openid", action: async ({request, params}) => {
+            if (request.method === "DELETE") {
+              await db.agents.update(params.id, {
+                openid: undefined
+              });
+            } else if (request.method === "POST") {
+              const formData = await request.formData();
+
+              await db.agents.update(params.id, {
+                openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string)
+              })
+            }
+
+            return redirect("../");
+          }
+        }, {
+          path: "account", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+
+            agent.accounts.push(new GedcomX.OnlineAccount()
+              .setAccountName(formData.get("account") as string)
+              .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
+
+            await db.agents.update(params.id, {
+              accounts: agent.accounts
+            })
+
+            return redirect("../");
+          }, children: [{
+            path: ":index", action: async ({request, params}) => {
+              const formData = await request.formData();
+              const agent = await db.agentWithId(params.id);
+
+              switch (request.method) {
+                case "POST":
+                  agent.accounts[params.index] = new GedcomX.OnlineAccount()
+                    .setAccountName(formData.get("account") as string)
+                    .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string));
+                  break;
+                case "DELETE":
+                  agent.accounts.splice(Number(params.index), 1);
+                  break;
+              }
+
+              await db.agents.update(params.id, {
+                accounts: agent.accounts
+              })
+              return redirect("../../");
+            }
+          }]
+        }, {
+          path: "emails", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+
+            agent.emails.push(new GedcomX.ResourceReference()
+              .setResource(formData.get("email") as string));
+
+            await db.agents.update(params.id, {
+              emails: agent.emails
+            })
+
+            return redirect("../");
+          },
+          children: [{
+            path: ":index", action: async ({request, params}) => {
+              const formData = await request.formData();
+              const agent = await db.agentWithId(params.id);
+
+              switch (request.method) {
+                case "POST":
+                  agent.emails[params.index] = new GedcomX.ResourceReference()
+                    .setResource(formData.get("email") as string);
+                  break;
+                case "DELETE":
+                  agent.emails.splice(Number(params.index), 1);
+                  break;
+              }
+
+              await db.agents.update(params.id, {
+                emails: agent.emails
+              })
+              return redirect("../../");
+            }
+          }]
+        }, {
+          path: "phones", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+
+            agent.phones.push(new GedcomX.ResourceReference()
+              .setResource(formData.get("phone") as string));
+
+            await db.agents.update(params.id, {
+              phones: agent.phones
+            })
+
+            return redirect("../");
+          },
+          children: [{
+            path: ":index", action: async ({request, params}) => {
+              const formData = await request.formData();
+              const agent = await db.agentWithId(params.id);
+
+              switch (request.method) {
+                case "POST":
+                  agent.phones[params.index] = new GedcomX.ResourceReference()
+                    .setResource(formData.get("phone") as string);
+                  break;
+                case "DELETE":
+                  agent.phones.splice(Number(params.index), 1);
+                  break;
+              }
+
+              await db.agents.update(params.id, {
+                phones: agent.phones
+              })
+              return redirect("../../");
+            }
+          }]
+        }, {
+          path: "addresses", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+
+            agent.addresses.push(new GedcomX.Address()
+              .setValue(formData.get("value") as string));
+
+            await db.agents.update(params.id, {
+              addresses: agent.addresses
+            })
+
+            return redirect("../");
+          }, children: [{
+            path: ":index", action: async ({request, params}) => {
+              const formData = await request.formData();
+              const agent = await db.agentWithId(params.id);
+
+              switch (request.method) {
+                case "POST":
+                  agent.addresses[params.index] = new GedcomX.Address()
+                    .setValue(formData.get("value") as string);
+                  break;
+                case "DELETE":
+                  agent.addresses.splice(Number(params.index), 1);
+                  break;
+              }
+
+              await db.agents.update(params.id, {
+                addresses: agent.addresses
+              })
+              return redirect("../../");
+            }
+          }]
+        }]
+      }
+      ]
+    }, {
+      path: "event", children: [{
+        index: true,
+        Component: EventOverview,
+        loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
+      }, {
+        path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")
+      }
+      ]
+    }, {
+      path: "place", children: [{
+        index: true,
+        Component: PlaceOverview,
+        loader: () => db.places.toArray().then(p => p.length ? p.map(d => new GedcomX.PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+      }, {
+        path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")
+      }
+      ]
+    }, {
+      path: "imprint", Component: Imprint
+    }
+    ]
+  }]
+}], {basename: "/family-tree"});
 
 export default function App() {
   return <RouterProvider router={router}/>;
