@@ -1,6 +1,6 @@
 import { Agent } from "../gedcomx/gedcomx-js-extensions";
 import { filterLang, strings } from "../main";
-import { Link, useLoaderData } from "react-router-dom";
+import { Form, Link, useLoaderData } from "react-router-dom";
 import {
   AddDataButton,
   Article,
@@ -69,7 +69,11 @@ function AgentList(props) {
       <li key={agent.id}><ReactNavLink
         to={`/agent/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink>
       </li>)}
-    <li><ReactNavLink to="/agent/new">{`${emojis.new} ${strings.gedcomX.agent.new}`}</ReactNavLink></li>
+    <li><Form method="post" action="/agent" className="mx-auto mt-4 w-fit">
+      <button type="submit" className="bg-white rounded-full px-4 py-2">
+        {`${emojis.new} ${strings.gedcomX.agent.new}`}
+      </button>
+    </Form></li>
   </ul>;
 }
 
@@ -218,6 +222,7 @@ export function AgentView() {
             {isActive ? strings.gedcomX.agent.selected : strings.gedcomX.agent.select}
           </button>
         </ButtonLike>
+        <DeleteDataButton path=""/>
       </div>
     </Sidebar>
   </>

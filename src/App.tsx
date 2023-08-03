@@ -81,19 +81,28 @@ const router = createBrowserRouter([{
         {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
       ]
     }, {
-      path: "agent", children: [{
+      path: "agent",
+      action: async ({request}) => {
+        if (request.method !== "POST")
+          return;
+
+        const agent = await db.createAgent();
+        return redirect(`/agent/${agent.id}`);
+      }, children: [{
         index: true,
         Component: AgentOverview,
-        loader: () => db.agents.toArray().then(a => a.length ? a.map(d => new Agent(d)) : Promise.reject(new Error(strings.errors.noData)))
+        loader: () => db.agents.toArray()
+          .then(a => a.length ?
+            a.map(d => new Agent(d)) :
+            Promise.reject(new Error(strings.errors.noData)))
       }, {
         path: ":id", Component: AgentView, loader: ({params}) => {
-          if (params.id === "new") {
-            return db.createAgent().then(agent => {
-              return redirect(`/agent/${agent.id}`);
-            })
-          }
-
           return db.elementWithId(params.id, "agent")
+        }, action: async ({params, request}) => {
+          if (request.method === "DELETE") {
+            await db.agents.delete(params.id);
+            return redirect("../");
+          }
         }, children: [{
           path: "names", action: async ({request, params}) => {
             if (request.method !== "POST") {

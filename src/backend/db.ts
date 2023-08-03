@@ -193,7 +193,8 @@ export class FamilyDB extends Dexie {
   async createAgent() {
     let agents = await this.agents.toArray();
     let agent = new Agent();
-    agent.setId(`a${agents.length}`);
+    // todo assure the id does not exist yet
+    agent.setId(`a${agents.length + 1}`);
 
     this.agents.put(agent);
     return agent;
