@@ -105,14 +105,22 @@ export function AgentView() {
             <Td>{`${emojis.agent.homepage} ${strings.gedcomX.agent.homepage}`}</Td>
             <Td>
               {agent.homepage ? <VanillaLink href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink>
-                : strings.errors.noData}
+                : <span>{strings.errors.noData}</span>}
+              <EditDataButton path="homepage">
+                <HomepageForm homepage={agent.homepage?.resource}/>
+              </EditDataButton>
+              <DeleteDataButton path="homepage"/>
             </Td>
           </tr>
           <tr>
             <Td>{`${emojis.agent.openid} OpenID`}</Td>
             <Td>
               {agent.openid ? <VanillaLink href={agent.openid?.resource}>{agent.openid?.resource}</VanillaLink>
-                : strings.errors.noData}
+                : <span>{strings.errors.noData}</span>}
+              <EditDataButton path="openid">
+                <OpenIdForm openid={agent.openid?.resource}/>
+              </EditDataButton>
+              <DeleteDataButton path="openid"/>
             </Td>
           </tr>
           <tr>
@@ -207,6 +215,14 @@ export function AgentView() {
       </div>
     </Sidebar>
   </>
+}
+
+function HomepageForm({homepage}: {homepage?: string}) {
+  return <input type="url" name="homepage" defaultValue={homepage} className="rounded-full px-4"/>;
+}
+
+function OpenIdForm({openid}: {openid?: string}) {
+  return <input type="url" name="openid" defaultValue={openid} className="rounded-full px-4"/>;
 }
 
 function AccountForm({name, website}: {name?: string, website?: string}) {

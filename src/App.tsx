@@ -103,6 +103,38 @@ const router = createBrowserRouter([
 
                   return db.elementWithId(params.id, "agent")
                 }, children: [{
+                  path: "homepage", action: async ({request, params}) => {
+                    if (request.method === "DELETE") {
+                      await db.agents.update(params.id, {
+                        homepage: undefined
+                      });
+                    } else if (request.method === "POST") {
+                      const formData = await request.formData();
+
+                      await db.agents.update(params.id, {
+                        homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string)
+                      })
+                    }
+
+                    return redirect("../");
+                  }
+                }, {
+                  path: "openid", action: async ({request, params}) => {
+                    if (request.method === "DELETE") {
+                      await db.agents.update(params.id, {
+                        openid: undefined
+                      });
+                    } else if (request.method === "POST") {
+                      const formData = await request.formData();
+
+                      await db.agents.update(params.id, {
+                        openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string)
+                      })
+                    }
+
+                    return redirect("../");
+                  }
+                }, {
                   path: "account", action: async ({request, params}) => {
                     if (request.method !== "POST") {
                       return;
