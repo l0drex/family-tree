@@ -81,7 +81,7 @@ export function AgentView() {
         </Tag>}
       </Tags>
       <Article>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4" id="agentTable">
           <div>{`${emojis.name} ${strings.gedcomX.person.names}`}</div>
           <div>
             <ul>

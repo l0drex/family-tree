@@ -95,3 +95,7 @@ meter {
 :-moz-meter-sub-sub-optimum::-moz-meter-bar {
   background: #b91c1c;
 }
+
+#agentTable {
+  grid-template-columns: 1fr 2fr;
+}
