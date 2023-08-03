@@ -95,6 +95,48 @@ const router = createBrowserRouter([{
 
           return db.elementWithId(params.id, "agent")
         }, children: [{
+          path: "names", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+            if (agent.names == null) {
+              agent.names = [];
+            }
+            agent.names.push(new GedcomX.TextValue().setValue(formData.get("value") as string));
+
+            await db.agents.update(params.id, {
+              names: agent.names
+            });
+
+            return redirect("../");
+          }, children: [{
+            path: ":index", action: async ({request, params}) => {
+              const formData = await request.formData();
+              const agent = await db.agentWithId(params.id);
+
+              switch (request.method) {
+                case "POST":
+                  agent.names[params.index] = new GedcomX.TextValue()
+                    .setValue(formData.get("value") as string);
+                  break;
+                case "DELETE":
+                  agent.names.splice(Number(params.index), 1);
+                  if (agent.names.length === 0) {
+                    agent.names = undefined;
+                  }
+                  break;
+              }
+
+              await db.agents.update(params.id, {
+                names: agent.names
+              })
+              return redirect("../../");
+            }
+          }]
+        }, {
           path: "homepage", action: async ({request, params}) => {
             if (request.method === "DELETE") {
               await db.agents.update(params.id, {
@@ -135,6 +177,10 @@ const router = createBrowserRouter([{
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
+            if (agent.accounts == null) {
+              agent.accounts = [];
+            }
+
             agent.accounts.push(new GedcomX.OnlineAccount()
               .setAccountName(formData.get("account") as string)
               .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
@@ -157,6 +203,9 @@ const router = createBrowserRouter([{
                   break;
                 case "DELETE":
                   agent.accounts.splice(Number(params.index), 1);
+                  if (agent.accounts.length === 0) {
+                    agent.accounts = undefined;
+                  }
                   break;
               }
 
@@ -174,6 +223,10 @@ const router = createBrowserRouter([{
 
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
+
+            if (agent.emails == null) {
+              agent.emails = [];
+            }
 
             agent.emails.push(new GedcomX.ResourceReference()
               .setResource(formData.get("email") as string));
@@ -196,6 +249,9 @@ const router = createBrowserRouter([{
                   break;
                 case "DELETE":
                   agent.emails.splice(Number(params.index), 1);
+                  if (agent.emails.length === 0) {
+                    agent.emails = undefined;
+                  }
                   break;
               }
 
@@ -213,6 +269,10 @@ const router = createBrowserRouter([{
 
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
+
+            if (agent.phones == null) {
+              agent.phones = [];
+            }
 
             agent.phones.push(new GedcomX.ResourceReference()
               .setResource(formData.get("phone") as string));
@@ -235,6 +295,9 @@ const router = createBrowserRouter([{
                   break;
                 case "DELETE":
                   agent.phones.splice(Number(params.index), 1);
+                  if (agent.phones.length === 0) {
+                    agent.phones = undefined;
+                  }
                   break;
               }
 
@@ -252,6 +315,10 @@ const router = createBrowserRouter([{
 
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
+
+            if (agent.addresses == null) {
+              agent.addresses = [];
+            }
 
             agent.addresses.push(new GedcomX.Address()
               .setValue(formData.get("value") as string));
@@ -273,6 +340,9 @@ const router = createBrowserRouter([{
                   break;
                 case "DELETE":
                   agent.addresses.splice(Number(params.index), 1);
+                  if (agent.addresses.length === 0) {
+                    agent.addresses = undefined;
+                  }
                   break;
               }
 

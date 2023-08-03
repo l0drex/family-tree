@@ -44,7 +44,7 @@ export function AgentSelector() {
 
   return <>
     <Link to={`/agent/${agent?.id}`} className="px-4 bg-white rounded-full py-2">
-      <span className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0).value}</span>
+      <span className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
       {emojis.agent.agent}
     </Link>
   </>
@@ -103,8 +103,17 @@ export function AgentView() {
           <div>
             <ul>
               {agent.names?.map((n, i) => {
-                return <Li key={i}>{n.value}</Li>
+                return <Li key={i}>
+                  <span>{n.value}</span>
+                  <EditDataButton path={`names/${i}`}>
+                    <NameForm name={n.value}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`names/${i}`}/>
+                </Li>
               })}
+              <Li><AddDataButton dataType={strings.gedcomX.person.names} path="names">
+                <NameForm/>
+              </AddDataButton></Li>
             </ul>
           </div>
 
@@ -212,6 +221,10 @@ export function AgentView() {
       </div>
     </Sidebar>
   </>
+}
+
+function NameForm({name}: {name?: string}) {
+  return <input type="text" name="value" defaultValue={name}/>
 }
 
 function HomepageForm({homepage}: { homepage?: string }) {
