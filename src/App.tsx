@@ -142,6 +142,120 @@ const router = createBrowserRouter([
                       return redirect("../../");
                     }
                   }]
+                }, {
+                  path: "emails", action: async ({request, params}) => {
+                    if (request.method !== "POST") {
+                      return;
+                    }
+
+                    const formData = await request.formData();
+                    const agent = await db.agentWithId(params.id);
+
+                    agent.emails.push(new GedcomX.ResourceReference()
+                      .setResource(formData.get("email") as string));
+
+                    await db.agents.update(params.id, {
+                      emails: agent.emails
+                    })
+
+                    return redirect("../");
+                  }, children: [{
+                    path: ":index", action: async ({request, params}) => {
+                      const formData = await request.formData();
+                      const agent = await db.agentWithId(params.id);
+
+                      switch (request.method) {
+                        case "POST":
+                          agent.emails[params.index] = new GedcomX.ResourceReference()
+                            .setResource(formData.get("email") as string);
+                          break;
+                        case "DELETE":
+                          agent.emails.splice(Number(params.index), 1);
+                          break;
+                      }
+
+                      await db.agents.update(params.id, {
+                        emails: agent.emails
+                      })
+                      return redirect("../../");
+                    }
+                  }]
+                }, {
+                  path: "phones", action: async ({request, params}) => {
+                    if (request.method !== "POST") {
+                      return;
+                    }
+
+                    const formData = await request.formData();
+                    const agent = await db.agentWithId(params.id);
+
+                    agent.phones.push(new GedcomX.ResourceReference()
+                      .setResource(formData.get("phone") as string));
+
+                    await db.agents.update(params.id, {
+                      phones: agent.phones
+                    })
+
+                    return redirect("../");
+                  }, children: [{
+                    path: ":index", action: async ({request, params}) => {
+                      const formData = await request.formData();
+                      const agent = await db.agentWithId(params.id);
+
+                      switch (request.method) {
+                        case "POST":
+                          agent.phones[params.index] = new GedcomX.ResourceReference()
+                            .setResource(formData.get("phone") as string);
+                          break;
+                        case "DELETE":
+                          agent.phones.splice(Number(params.index), 1);
+                          break;
+                      }
+
+                      await db.agents.update(params.id, {
+                        phones: agent.phones
+                      })
+                      return redirect("../../");
+                    }
+                  }]
+                }, {
+                  path: "addresses", action: async ({request, params}) => {
+                    if (request.method !== "POST") {
+                      return;
+                    }
+
+                    const formData = await request.formData();
+                    const agent = await db.agentWithId(params.id);
+
+                    agent.addresses.push(new GedcomX.Address()
+                      .setValue(formData.get("value") as string));
+
+                    await db.agents.update(params.id, {
+                      addresses: agent.addresses
+                    })
+
+                    return redirect("../");
+                  }, children: [{
+                    path: ":index", action: async ({request, params}) => {
+                      const formData = await request.formData();
+                      const agent = await db.agentWithId(params.id);
+
+                      switch (request.method) {
+                        case "POST":
+                          agent.addresses[params.index] = new GedcomX.Address()
+                            .setValue(formData.get("value") as string);
+                          break;
+                        case "DELETE":
+                          agent.addresses.splice(Number(params.index), 1);
+                          break;
+                      }
+
+                      await db.agents.update(params.id, {
+                        addresses: agent.addresses
+                      })
+                      return redirect("../../");
+                    }
+                  }]
                 }]
               }
             ]

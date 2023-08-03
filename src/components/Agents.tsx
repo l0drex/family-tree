@@ -138,8 +138,16 @@ export function AgentView() {
             <Td>{`${emojis.agent.email} ${strings.gedcomX.agent.emails}`}</Td>
             <Td>
               <ul>
-                {agent.emails?.map(e => <Li key={e.resource}><VanillaLink
-                  href={`mailto:${e.resource}`}>{e.resource}</VanillaLink></Li>) ?? <Li>{strings.errors.noData}</Li>}
+                {agent.emails?.map((e, i) => <Li key={i}>
+                  <VanillaLink href={`mailto:${e.resource}`}>{e.resource}</VanillaLink>
+                  <EditDataButton path={`emails/${i}`}>
+                    <EmailForm email={e.resource}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`emails/${i}`}/>
+                </Li>) ?? <Li>{strings.errors.noData}</Li>}
+                <Li><AddDataButton dataType={strings.gedcomX.agent.emails} path="emails">
+                  <EmailForm />
+                </AddDataButton></Li>
               </ul>
             </Td>
           </tr>
@@ -147,8 +155,16 @@ export function AgentView() {
             <Td>{`${emojis.agent.phones} ${strings.gedcomX.agent.phones}`}</Td>
             <Td>
               <ul>
-                {agent.phones?.map(p => <Li key={p.resource}><VanillaLink
-                  href={`tel:${p.resource}`}>{p.resource}</VanillaLink></Li>) ?? <Li>{strings.errors.noData}</Li>}
+                {agent.phones?.map((p, i) => <Li key={i}>
+                  <VanillaLink href={`tel:${p.resource}`}>{p.resource}</VanillaLink>
+                  <EditDataButton path={`phones/${i}`}>
+                    <PhoneForm phone={p.resource}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`phones/${i}`}/>
+                </Li>) ?? <Li>{strings.errors.noData}</Li>}
+                <Li><AddDataButton dataType={strings.gedcomX.agent.phones} path="phones">
+                  <PhoneForm />
+                </AddDataButton></Li>
               </ul>
             </Td>
           </tr>
@@ -158,7 +174,16 @@ export function AgentView() {
             </Td>
             <Td>
               <ul>
-                {agent.addresses?.map(a => <Li key={a.value}>{a.value}</Li>) ?? <Li>{strings.errors.noData}</Li>}
+                {agent.addresses?.map((a, i) => <Li key={a.value}>
+                  <span>{a.value}</span>
+                  <EditDataButton path={`addresses/${i}`}>
+                    <AddressForm address={a.value}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`addresses/${i}`}/>
+                </Li>) ?? <Li>{strings.errors.noData}</Li>}
+                <Li><AddDataButton dataType={strings.gedcomX.agent.addresses} path="addresses">
+                  <AddressForm />
+                </AddDataButton></Li>
               </ul>
             </Td>
           </tr>
@@ -192,4 +217,16 @@ function AccountForm({name, website}: {name?: string, website?: string}) {
     <label htmlFor="website" className="mr-2">{strings.gedcomX.agent.website}</label>
     <input id="website" name="serviceHomepage" type="url" defaultValue={website} className="rounded-full px-4"/>
   </>
+}
+
+function EmailForm({email}: {email?: string}) {
+  return <input type="email" name="email" defaultValue={email} className="rounded-full px-4"/>;
+}
+
+function PhoneForm({phone}: {phone?: string}) {
+  return <input type="tel" name="phone" defaultValue={phone} className="rounded-full px-4"/>;
+}
+
+function AddressForm({address}: {address?: string}) {
+  return <input type="text" name="value" defaultValue={address} className="rounded-full px-4"/>;
 }
