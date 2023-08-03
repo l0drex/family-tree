@@ -128,7 +128,7 @@ export function AgentView() {
             <EditDataButton path="homepage">
               <HomepageForm homepage={agent.homepage?.resource}/>
             </EditDataButton>
-            <DeleteDataButton path="homepage"/>
+            {agent.homepage && <DeleteDataButton path="homepage"/>}
           </div>
 
           <div>{`${emojis.agent.openid} OpenID`}</div>
@@ -138,7 +138,7 @@ export function AgentView() {
             <EditDataButton path="openid">
               <OpenIdForm openid={agent.openid?.resource}/>
             </EditDataButton>
-            <DeleteDataButton path="openid"/>
+            {agent.openid && <DeleteDataButton path="openid"/>}
           </div>
 
           <div>{`${emojis.agent.account} ${strings.gedcomX.agent.accounts}`}</div>
