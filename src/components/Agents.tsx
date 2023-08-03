@@ -4,9 +4,8 @@ import { Form, Link, useLoaderData } from "react-router-dom";
 import {
   AddDataButton,
   Article,
-  ButtonLike, DeleteDataButton, EditDataButton,
+  ButtonLike, CreateNewButton, DeleteDataButton, EditDataButton,
   Hr, Li,
-  P,
   ReactLink,
   ReactNavLink,
   Tag,
@@ -15,33 +14,20 @@ import {
   VanillaLink
 } from "./GeneralComponents";
 import { LayoutContext, Main, Sidebar } from "../Layout";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db } from "../backend/db";
-import * as GedcomX from "gedcomx-js";
-import { Alias, Identifiers } from "./GedcomXComponents";
+import { Identifiers } from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
-import { useLiveQuery } from "dexie-react-hooks";
 import * as React from "react";
 import { useLocalStorage, writeStorage } from "@rehooks/local-storage";
 
-const ActiveAgentKey = "activeAgent";
-
-async function getAgent(id: string): Promise<Agent> {
-  return db.agentWithId(id).catch(async e => {
-    const agent = new Agent(await db.agents.toCollection().first());
-    localStorage.setItem("activeAgent", agent?.id);
-    return agent;
-  });
-}
+export const ActiveAgentKey = "activeAgent";
 
 function setActiveAgent(agent: Agent): void {
   return writeStorage(ActiveAgentKey, agent?.id);
 }
 
-export function AgentSelector() {
-  const [agentId] = useLocalStorage<string>(ActiveAgentKey, null);
-  const agent = useLiveQuery(() => getAgent(agentId), [agentId]);
-
+export function AgentSelector({agent}: {agent: Agent}) {
   return <>
     <Link to={`/agent/${agent?.id}`} className="px-4 bg-white rounded-full py-2">
       <span className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
@@ -69,11 +55,7 @@ function AgentList(props) {
       <li key={agent.id}><ReactNavLink
         to={`/agent/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink>
       </li>)}
-    <li><Form method="post" action="/agent" className="mx-auto mt-4 w-fit">
-      <button type="submit" className="bg-white rounded-full px-4 py-2">
-        {`${emojis.new} ${strings.gedcomX.agent.new}`}
-      </button>
-    </Form></li>
+    <li><CreateNewButton path={"/agent"} label={strings.gedcomX.agent.new}/></li>
   </ul>;
 }
 
@@ -82,16 +64,13 @@ export function AgentView() {
   const [others, setOthers] = useState([]);
   const layoutContext = useContext(LayoutContext);
 
-  const [activeAgentId] = useLocalStorage<string>(ActiveAgentKey, null);
-  const isActive = activeAgentId === agent.id;
+  const isActive = useContext(LayoutContext).agent?.id === agent.id;
 
   useEffect(() => {
     db.agents.toArray().then(sds => sds.map(sd => new Agent(sd))).then(setOthers);
     layoutContext.setHeaderChildren(<Title
       emoji={emojis.agent.agent}>{agent.name ?? strings.gedcomX.agent.agent}</Title>)
   }, [agent, layoutContext])
-
-  const hasData = agent.names?.length > 1 || agent.homepage || agent.openid || agent.accounts || agent.emails || agent.phones || agent.addresses;
 
   return <>
     <Main>

@@ -1,11 +1,12 @@
 import { Form, Link, NavLink } from "react-router-dom";
 import * as React from "react";
-import { ReactElement, ReactNode, useEffect, useRef, useState } from "react";
+import { ReactElement, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { strings } from "../main";
 import emojies from "../backend/emojies.json";
 import emojis from "../backend/emojies.json";
 import { Simulate } from "react-dom/test-utils";
 import submit = Simulate.submit;
+import { LayoutContext } from "../Layout";
 
 export function Article({noMargin, emoji, title, children}:
                           { noMargin?: boolean, emoji?: string, title?: string, children }) {
@@ -221,6 +222,10 @@ export function DataButton({path, children, buttonLabel}: {
   buttonLabel: string
 }) {
   const dialog = useRef<HTMLDialogElement>();
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing)
+    return <></>
 
   return <>
     <button onClick={() => {
@@ -267,9 +272,30 @@ export function EditDataButton({path, children}: {
 export function DeleteDataButton({path}: {
   path: string
 }) {
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing)
+    return <></>
+
   return <Form method="delete" action={path} className="inline">
     <button type="submit" className="ml-2 px-2 py-1 bg-white rounded-2xl">
       {emojis.delete}
+    </button>
+  </Form>
+}
+
+export function CreateNewButton({path, label}: {
+  path: string,
+  label: string
+}) {
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing)
+    return <></>
+
+  return <Form method="post" action={path} className="mx-auto mt-4 w-fit">
+    <button type="submit" className="bg-white rounded-full px-4 py-2">
+      {`${emojis.new} ${label}`}
     </button>
   </Form>
 }

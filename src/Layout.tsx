@@ -4,11 +4,15 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ReactLink, ReactNavLink, VanillaLink } from "./components/GeneralComponents";
 import emojis from "./backend/emojies.json";
 import { strings } from "./main";
-import { AgentSelector } from "./components/Agents";
+import { ActiveAgentKey, AgentSelector } from "./components/Agents";
+import * as GedcomX from "gedcomx-js";
 import { db } from "./backend/db";
 import { parseFile, saveDataAndRedirect } from "./components/Home";
+import { useLocalStorage } from "@rehooks/local-storage";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Agent } from "./gedcomx/gedcomx-js-extensions";
 
-function FileButtons() {
+function FileButtons({edit, setEdit}: {edit: boolean, setEdit: (edit: boolean) => void}) {
   const navigate = useNavigate();
   let fileInput = React.createRef<HTMLInputElement>();
   const downloadLink = createRef<HTMLAnchorElement>();
@@ -48,8 +52,9 @@ function FileButtons() {
       fileInput.current.click();
     }}>{emojis.open}
     </button>
+    <button className="mx-4" onClick={e => setEdit(!edit)} type={"button"}>{edit ? emojis.read : emojis.edit}</button>
     <a hidden ref={downloadLink}>test</a>
-    <button title={strings.exportFile} className="mx-4" onClick={e => {
+    <button title={strings.exportFile} className="mr-4" onClick={e => {
       e.preventDefault();
       exportDocument();
     }}>
@@ -58,9 +63,15 @@ function FileButtons() {
   </>;
 }
 
+async function getAgent(id: string): Promise<Agent> {
+  return db.agentWithId(id);
+}
+
 interface ILayoutContext {
   setHeaderChildren: (children) => void,
-  sidebarVisible: boolean
+  sidebarVisible: boolean,
+  edit: boolean,
+  agent: GedcomX.Agent
 }
 
 export const LayoutContext = React.createContext<ILayoutContext>(undefined);
@@ -71,6 +82,14 @@ export function Layout() {
   const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
+  const [agentId, setAgentId] = useLocalStorage<string>(ActiveAgentKey, null);
+  const agent = useLiveQuery(() => getAgent(agentId)
+    .catch(async () => {
+      const agent = new Agent(await db.agents.toCollection().first());
+      setAgentId(agent?.id);
+      return agent;
+    }), [agentId]);
+  const [edit, setEdit] = useLocalStorage("editing", false);
   const query = matchMedia("(max-width: 639px)");
   const [isSmallScreen, setSmallScreen] = useState(query.matches);
   query.addEventListener("change", e => setSmallScreen(e.matches));
@@ -106,9 +125,11 @@ export function Layout() {
   const layoutContext = useMemo(() => {
     return {
       setHeaderChildren: setChildren,
-      sidebarVisible: sidebarExtended
+      sidebarVisible: sidebarExtended,
+      edit: edit,
+      agent: agent
     }
-  }, [sidebarExtended])
+  }, [sidebarExtended, edit, agent]);
 
   useEffect(() => {
     if (navBarExtended && !dialog.current?.open) dialog.current?.showModal();
@@ -128,8 +149,8 @@ export function Layout() {
     </header>
 
     {<div className="row-start-1 text-right mr-4 dark:text-white">
-      <FileButtons/>
-      <AgentSelector/>
+      <FileButtons edit={edit} setEdit={setEdit}/>
+      <AgentSelector agent={agent}/>
       <span className={`lg:hidden`}>
         <button onClick={() => toggleSidebar(!sidebarExtended)} className="px-4 py-2 bg-white rounded-full ml-4">
           {sidebarExtended ? emojis.right : emojis.left}
