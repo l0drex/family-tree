@@ -3,9 +3,10 @@ import {filterLang, strings} from "../main";
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "../backend/db";
 import {getDateFormatOptions, GDate} from "../gedcomx/gedcomx-js-extensions";
-import {Confidence as ConfidenceEnum, IdentifierTypes} from "../gedcomx/types";
+import { baseUri, Confidence as ConfidenceEnum, IdentifierTypes } from "../gedcomx/types";
 import {Link, useParams} from "react-router-dom";
 import {
+  AddDataButton,
   Article,
   ArticleCollection, Details,
   Gallery,
@@ -17,6 +18,8 @@ import {
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
+import { useContext } from "react";
+import { LayoutContext } from "../Layout";
 
 export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
   if (!notes || notes.length === 0)
@@ -263,17 +266,24 @@ export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion
 }
 
 export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers }) {
-  if (!identifiers) return <></>
+  const editing  = useContext(LayoutContext).edit;
 
-  // this is broken, lets fix it
-  let identifierMap = identifiers.identifiers["identifiers"][0];
+  if (!identifiers && !editing) return <></>
 
   return <>
     <ul>
-      {identifierMap[IdentifierTypes.Primary]?.map((id, i) => <li key={i}>{id}</li>)}
-      {identifierMap[IdentifierTypes.Authority]?.map((id, i) => <li key={i} className="italic"><ReactLink
+      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>{id}</li>)}
+      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i} className="italic"><ReactLink
         to={id}>{id}</ReactLink></li>)}
-      {identifierMap[IdentifierTypes.Deprecated]?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
+      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
+      <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
+        <select name="type" className="bg-white rounded-full px-4 py-1">
+          <option value={undefined}>-</option>
+          {Object.entries(strings.gedcomX.identifier.types).map(([type, translation], i) =>
+            <option key={i} value={baseUri + type}>{translation}</option>)}
+        </select>
+        <input type={"text"} name="value" className="rounded-full px-4 py-1"/>
+      </AddDataButton>
     </ul>
   </>
 }

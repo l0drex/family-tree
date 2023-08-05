@@ -359,6 +359,29 @@ const router = createBrowserRouter([{
               return redirect("../../");
             }
           }]
+        }, {
+          path: "identifiers", action: async ({request, params}) => {
+            if (request.method !== "POST") {
+              return;
+            }
+
+            const formData = await request.formData();
+            const agent = await db.agentWithId(params.id);
+
+            const identifier = {value: formData.get("value") as string};
+            if (formData.get("type") != null) {
+                identifier["type"] = formData.get("type") as string;
+            }
+
+            const identifiers = [identifier];
+            console.debug(agent.identifiers?.toJSON())
+
+            await db.agents.update(params.id, {
+              identifiers: identifiers
+            })
+
+            return redirect("../");
+          }
         }]
       }
       ]

@@ -64,7 +64,7 @@ export function AgentView() {
   const [others, setOthers] = useState([]);
   const layoutContext = useContext(LayoutContext);
 
-  const isActive = useContext(LayoutContext).agent?.id === agent.id;
+  const isActive = layoutContext.agent?.id === agent.id;
 
   useEffect(() => {
     db.agents.toArray().then(sds => sds.map(sd => new Agent(sd))).then(setOthers);
@@ -190,7 +190,7 @@ export function AgentView() {
     </Main>
     <Sidebar>
       <AgentList agents={others}/>
-      {agent.identifiers && <>
+      {(agent.identifiers || layoutContext.edit) && <>
         <Hr/>
         <Identifiers identifiers={agent.identifiers}/>
       </>}

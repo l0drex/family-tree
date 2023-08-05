@@ -375,6 +375,14 @@
       "Religion": "Religion",
       "Transport": "Transport",
       "NonConsensual": "Non-Consensual"
+    },
+    "identifier": {
+      "identifier": "Identifier",
+      "types": {
+        "Primary": "Primary",
+        "Authority": "Authority",
+        "Deprecated": "Deprecated"
+      }
     }
   },
   "searchField": {
