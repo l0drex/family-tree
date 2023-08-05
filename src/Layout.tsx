@@ -52,7 +52,7 @@ function FileButtons({edit, setEdit}: {edit: boolean, setEdit: (edit: boolean) =
       fileInput.current.click();
     }}>{emojis.open}
     </button>
-    <button className="mx-4" onClick={e => setEdit(!edit)} type={"button"}>{edit ? emojis.read : emojis.edit}</button>
+    <button className="mx-4" onClick={() => setEdit(!edit)} type={"button"}>{edit ? emojis.read : emojis.edit}</button>
     <a hidden ref={downloadLink}>test</a>
     <button title={strings.exportFile} className="mr-4" onClick={e => {
       e.preventDefault();

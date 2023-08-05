@@ -200,7 +200,6 @@ export class FamilyDB extends Dexie {
   }
 
   async createAgent() {
-    let agents = await this.agents.toArray();
     let agent = new Agent();
     agent.setId(crypto.randomUUID());
 

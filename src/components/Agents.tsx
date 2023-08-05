@@ -1,6 +1,6 @@
 import { Agent } from "../gedcomx/gedcomx-js-extensions";
 import { filterLang, strings } from "../main";
-import { Form, Link, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import {
   AddDataButton,
   Article,
@@ -19,7 +19,7 @@ import { db } from "../backend/db";
 import { Identifiers } from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
 import * as React from "react";
-import { useLocalStorage, writeStorage } from "@rehooks/local-storage";
+import { writeStorage } from "@rehooks/local-storage";
 
 export const ActiveAgentKey = "activeAgent";
 
