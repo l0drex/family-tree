@@ -25,7 +25,7 @@ function FileButtons({edit, setEdit}: {edit: boolean, setEdit: (edit: boolean) =
     promises.push(db.sourceDescriptions.toArray().then(sources => root.setSourceDescriptions(sources)));
     promises.push(db.documents.toArray().then(documents => root.setDocuments(documents)));
     promises.push(db.agents.toArray().then(agents => root.setAgents(agents)));
-    promises.push(db.places.toArray().then(places => root.setPlaces(places)));
+    promises.push(db.places.toArray().then(places => root.setPlaces(places.map(p => new GedcomX.PlaceDescription(p)))));
     promises.push(db.events.toArray().then(events => root.setEvents(events)));
 
     let fileName = prompt(strings.enterFileName, "GedcomX.json");

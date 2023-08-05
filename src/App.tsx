@@ -15,6 +15,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { Imprint } from "./components/Imprint";
 import { EventOverview, EventView } from "./components/Events";
 import { Layout } from "./Layout";
+import { Identifiers } from "gedcomx-js";
 
 let personCache = {
   id: undefined,
@@ -115,7 +116,7 @@ const router = createBrowserRouter([{
             agent.names.push(new GedcomX.TextValue().setValue(formData.get("value") as string));
 
             await db.agents.update(params.id, {
-              names: agent.names
+              names: agent.getNames().map(t => t.toJSON())
             });
 
             return redirect("../");
@@ -138,7 +139,7 @@ const router = createBrowserRouter([{
               }
 
               await db.agents.update(params.id, {
-                names: agent.names
+                names: agent.getNames().map(n => n.toJSON())
               })
               return redirect("../../");
             }
@@ -153,7 +154,7 @@ const router = createBrowserRouter([{
               const formData = await request.formData();
 
               await db.agents.update(params.id, {
-                homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string)
+                homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string).toJSON()
               })
             }
 
@@ -169,7 +170,7 @@ const router = createBrowserRouter([{
               const formData = await request.formData();
 
               await db.agents.update(params.id, {
-                openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string)
+                openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string).toJSON()
               })
             }
 
@@ -193,7 +194,7 @@ const router = createBrowserRouter([{
               .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
 
             await db.agents.update(params.id, {
-              accounts: agent.accounts
+              accounts: agent.accounts.map(a => a.toJSON())
             })
 
             return redirect("../");
@@ -217,7 +218,7 @@ const router = createBrowserRouter([{
               }
 
               await db.agents.update(params.id, {
-                accounts: agent.accounts
+                accounts: agent.accounts?.map(a => a.toJSON())
               })
               return redirect("../../");
             }
@@ -239,7 +240,7 @@ const router = createBrowserRouter([{
               .setResource(formData.get("email") as string));
 
             await db.agents.update(params.id, {
-              emails: agent.emails
+              emails: agent.emails.map(e => e.toJSON())
             })
 
             return redirect("../");
@@ -263,7 +264,7 @@ const router = createBrowserRouter([{
               }
 
               await db.agents.update(params.id, {
-                emails: agent.emails
+                emails: agent.emails?.map(e => e.toJSON())
               })
               return redirect("../../");
             }
@@ -285,7 +286,7 @@ const router = createBrowserRouter([{
               .setResource(formData.get("phone") as string));
 
             await db.agents.update(params.id, {
-              phones: agent.phones
+              phones: agent.phones.map(p => p.toJSON())
             })
 
             return redirect("../");
@@ -309,7 +310,7 @@ const router = createBrowserRouter([{
               }
 
               await db.agents.update(params.id, {
-                phones: agent.phones
+                phones: agent.phones?.map(p => p.toJSON())
               })
               return redirect("../../");
             }
@@ -331,7 +332,7 @@ const router = createBrowserRouter([{
               .setValue(formData.get("value") as string));
 
             await db.agents.update(params.id, {
-              addresses: agent.addresses
+              addresses: agent.addresses.map(a => a.toJSON())
             })
 
             return redirect("../");
@@ -354,7 +355,7 @@ const router = createBrowserRouter([{
               }
 
               await db.agents.update(params.id, {
-                addresses: agent.addresses
+                addresses: agent.addresses?.map(a => a.toJSON())
               })
               return redirect("../../");
             }
@@ -368,16 +369,12 @@ const router = createBrowserRouter([{
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
-            const identifier = {value: formData.get("value") as string};
-            if (formData.get("type") != null) {
-                identifier["type"] = formData.get("type") as string;
-            }
-
-            const identifiers = [identifier];
-            console.debug(agent.identifiers?.toJSON())
+            agent.setIdentifiers(
+                (agent.getIdentifiers() ?? new Identifiers())
+                .addValue(formData.get("value") as string, formData.get("type") as string));
 
             await db.agents.update(params.id, {
-              identifiers: identifiers
+              identifiers: agent.identifiers.toJSON()
             })
 
             return redirect("../");

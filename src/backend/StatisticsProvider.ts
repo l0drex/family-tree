@@ -32,8 +32,7 @@ export async function getGenderPerGeneration() {
   return db.persons.toArray().then(persons => {
     let data: { [generation: number]: { [gender: string]: number } } = {};
 
-    persons.forEach(p => {
-      p = new Person(p);
+    persons.map(p => new Person(p)).forEach(p => {
       let genFact = p.getFactsByType(PersonFactTypes.GenerationNumber)[0];
       let generation;
       try {
@@ -134,7 +133,7 @@ export async function getReligionPerYear() {
 }
 
 export async function getOccupations() {
-  return db.persons.toArray().then(persons => count(persons.map(p => {
+  return db.persons.toArray().then(persons => count(persons.map(p => new Person(p)).map(p => {
     let occupation;
     try {
       occupation = p.getFactsByType(PersonFactTypes.Occupation)[0].getValue()
@@ -152,7 +151,7 @@ export async function getOccupations() {
 export async function getBirthPlace() {
   let birthPlaces = await db.persons.toArray()
     .then(persons => count(
-      persons.map(p => {
+      persons.map(p => new Person(p)).map(p => {
         let birthPlace;
         try {
           birthPlace = p.getFactsByType(PersonFactTypes.Birth)[0].getPlace().getOriginal();

@@ -14,20 +14,29 @@ import {
 } from "../gedcomx/gedcomx-js-extensions";
 import {PersonFactTypes, RelationshipTypes} from "../gedcomx/types";
 import {ResourceReference} from "gedcomx-js";
-import {IGroup} from "../gedcomx/interfaces";
+import {
+  IAgent,
+  IDocument,
+  IEvent,
+  IGroup,
+  IPerson,
+  IPlaceDescription,
+  IRelationship,
+  ISourceDescription
+} from "../gedcomx/interfaces";
 
 export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
 type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;
 
 export class FamilyDB extends Dexie {
   gedcomX!: Table<IGedcomxData>
-  persons!: Table<GedcomX.Person>
-  relationships!: Table<GedcomX.Relationship>
-  sourceDescriptions!: Table<GedcomX.SourceDescription>
-  agents!: Table<GedcomX.Agent>
-  events!: Table<GedcomX.Event>
-  documents!: Table<GedcomX.Document>
-  places!: Table<GedcomX.PlaceDescription>
+  persons!: Table<IPerson>
+  relationships!: Table<IRelationship>
+  sourceDescriptions!: Table<ISourceDescription>
+  agents!: Table<IAgent>
+  events!: Table<IEvent>
+  documents!: Table<IDocument>
+  places!: Table<IPlaceDescription>
   groups!: Table<IGroup>
 
   constructor() {
@@ -67,13 +76,13 @@ export class FamilyDB extends Dexie {
     if (data.id || data.lang || data.attribution || data.description) {
       promises.push(this.gedcomX.add(root));
     }
-    if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
-    if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
-    if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions));
-    if (data.agents) promises.push(this.agents.bulkAdd(root.agents));
-    if (data.events) promises.push(this.events.bulkAdd(root.events));
-    if (data.documents) promises.push(this.documents.bulkAdd(root.documents));
-    if (data.places) promises.push(this.places.bulkAdd(root.places));
+    if (data.persons) promises.push(this.persons.bulkAdd(root.persons.map(p => p.toJSON())));
+    if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships.map(r => r.toJSON() as IRelationship)));
+    if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions.map(s => s.toJSON() as ISourceDescription)));
+    if (data.agents) promises.push(this.agents.bulkAdd(root.agents.map(a => a.toJSON())));
+    if (data.events) promises.push(this.events.bulkAdd(root.events.map(e => e.toJSON())));
+    if (data.documents) promises.push(this.documents.bulkAdd(root.documents.map(d => d.toJSON() as IDocument)));
+    if (data.places) promises.push(this.places.bulkAdd(root.places.map(p => p.toJSON() as IPlaceDescription)));
     if (data.groups) promises.push(this.groups.bulkAdd(data.groups));
 
     console.log(`Found ${data.persons?.length ?? 0} people`);
@@ -195,7 +204,7 @@ export class FamilyDB extends Dexie {
     let agent = new Agent();
     agent.setId(crypto.randomUUID());
 
-    this.agents.put(agent);
+    this.agents.put(agent.toJSON());
     return agent;
   }
 
@@ -292,9 +301,10 @@ export class FamilyDB extends Dexie {
       return person.display.familiesAsParent;
     }
 
-    let couples = await this.couples
+    let couples = (await this.couples
       .filter(r => r.person1.resource.substring(1) === person.id || r.person2.resource.substring(1) === person.id)
-      .toArray();
+      .toArray())
+      .map(c => new Relationship(c));
 
     let families: GedcomX.FamilyView[] = [];
     for (const couple of couples) {
@@ -319,13 +329,13 @@ export class FamilyDB extends Dexie {
       return person.display.familiesAsChild;
     }
 
-    let parentRelations = await this.getParentsOf(person.id)
+    let parentRelations = (await this.getParentsOf(person.id)
       .then(parents => parents.map(p => p.resource))
       .then(parents => {
         return this.couples
           .filter(r => parents.includes(r.person1.resource) && parents.includes(r.person2.resource))
           .toArray()
-      });
+      })).map(p => new Relationship(p));
 
     let families = [];
 
