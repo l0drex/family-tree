@@ -79,7 +79,7 @@ export const LayoutContext = React.createContext<ILayoutContext>(undefined);
 export function Layout() {
   const [headerChildren, setChildren] = useState([]);
   const [navBarExtended, toggleNavBar] = useState(false);
-  const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 768px)").matches);
+  const [sidebarExtended, toggleSidebar] = useState(matchMedia("(min-width: 1024px)").matches);
   const dialog = useRef<HTMLDialogElement>();
   const location = useLocation();
   const [agentId, setAgentId] = useLocalStorage<string>(ActiveAgentKey, null);
