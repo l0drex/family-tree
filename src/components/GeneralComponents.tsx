@@ -209,7 +209,7 @@ export function PopupButton({title, children: popupContent}) {
 }
 
 export function Li({children}: { children: ReactNode }) {
-  return <li className="mb-2">{children}</li>
+  return <li className={"mb-2 last:mb-0" + children ? "" : " hidden"}>{children}</li>
 }
 
 export function Td({children}: { children: ReactNode }) {

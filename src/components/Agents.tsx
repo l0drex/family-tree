@@ -93,7 +93,7 @@ export function AgentView() {
                   </EditDataButton>
                   <DeleteDataButton path={`names/${i}`}/>
                 </Li>
-              })}
+              }) ?? <Li><span>{strings.errors.noData}</span></Li>}
               <Li><AddDataButton dataType={strings.gedcomX.person.names} path="names">
                 <NameForm/>
               </AddDataButton></Li>
