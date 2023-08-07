@@ -16,6 +16,7 @@ import { Imprint } from "./components/Imprint";
 import { EventOverview, EventView } from "./components/Events";
 import { Layout } from "./Layout";
 import { Identifiers } from "gedcomx-js";
+import { baseUri } from "./gedcomx/types";
 
 let personCache = {
   id: undefined,
@@ -376,10 +377,34 @@ const router = createBrowserRouter([{
             })
 
             return redirect("../");
-          }
+          }, children: [
+            {
+              path: ":type/:index", action: async ({request, params}) => {
+                const agent = await db.agentWithId(params.id);
+                const currentIdentifiers = agent.identifiers.getValues(baseUri + params.type);
+                const formData = await request.formData();
+                let identifiers = currentIdentifiers;
+
+                switch (request.method) {
+                  case "DELETE":
+                    identifiers = currentIdentifiers.splice(Number(params.id), 1);
+                    break;
+                  case "POST":
+                    identifiers[params.index] = formData.get("value");
+                    break;
+                }
+
+                agent.identifiers.setValues(identifiers, params.type);
+
+                await db.agents.update(params.id, {
+                  identifiers: agent.identifiers.toJSON()
+                })
+
+                return redirect("../../");
+              }
+            }]
         }]
-      }
-      ]
+      }]
     }, {
       path: "event", children: [{
         index: true,

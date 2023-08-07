@@ -8,7 +8,7 @@ import {Link, useParams} from "react-router-dom";
 import {
   AddDataButton,
   Article,
-  ArticleCollection, Details,
+  ArticleCollection, DeleteDataButton, Details, EditDataButton,
   Gallery,
   Hr,
   Media,
@@ -18,7 +18,7 @@ import {
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
-import { useContext } from "react";
+import { ReactNode, useContext } from "react";
 import { LayoutContext } from "../Layout";
 
 export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
@@ -272,10 +272,32 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
 
   return <>
     <ul>
-      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>{id}</li>)}
-      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i} className="italic"><ReactLink
-        to={id}>{id}</ReactLink></li>)}
-      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
+      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>
+        <span>{id}</span>
+        <EditDataButton path={`identifiers/Primary/${i}`}>
+          <label htmlFor={`primaryIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
+          <input type="text" id={`primaryIdentifier-${i}`} name="value" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Primary/${i}`}/>
+      </li>)}
+
+      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i} className="italic">
+        <span>{id}</span>
+        <EditDataButton path={`identifiers/Authority/${i}`}>
+          <label htmlFor={`authorityIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
+          <input type="text" id={`authorityIdentifier-${i}`} name="value" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Authority/${i}`}/>
+      </li>)}
+
+      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i} className="line-through">
+        <span>{id}</span>
+        <EditDataButton path={`identifiers/Deprecated/${i}`}>
+          <label htmlFor={`deprecatedIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
+          <input type="text" id={`deprecatedIdentifier-${i}`} name="value" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Deprecated/${i}`}/>
+      </li>)}
       <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
         <select name="type" className="bg-white rounded-full px-4 py-1">
           <option value={undefined}>-</option>
