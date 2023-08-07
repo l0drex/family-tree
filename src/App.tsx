@@ -368,41 +368,49 @@ const router = createBrowserRouter([{
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
+            let type = formData.get("type") as string;
+            if (type === "-")
+              type = undefined;
+
             agent.setIdentifiers(
               (agent.getIdentifiers() ?? new Identifiers())
-                .addValue(formData.get("value") as string, formData.get("type") as string));
+                .addValue(formData.get("value") as string, type));
 
             await db.agents.update(params.id, {
               identifiers: agent.identifiers.toJSON()
             })
 
             return redirect("../");
-          }, children: [
-            {
-              path: ":type/:index", action: async ({request, params}) => {
-                const agent = await db.agentWithId(params.id);
-                const currentIdentifiers = agent.identifiers.getValues(baseUri + params.type);
-                const formData = await request.formData();
-                let identifiers = currentIdentifiers;
+          }, children: [{
+            path: ":index", action: async ({request, params}) => {
+              const agent = await db.agentWithId(params.id);
+              const formData = await request.formData();
 
-                switch (request.method) {
-                  case "DELETE":
-                    identifiers = currentIdentifiers.splice(Number(params.id), 1);
-                    break;
-                  case "POST":
-                    identifiers[params.index] = formData.get("value");
-                    break;
-                }
+              let index = Number(params.index);
+              let value = formData?.get("value") as string ?? null;
 
-                agent.identifiers.setValues(identifiers, params.type);
+              await db.agents.update(params.id, {
+                identifiers: updateIdentifiers(agent.getIdentifiers(), undefined, index, value).toJSON()
+              })
 
-                await db.agents.update(params.id, {
-                  identifiers: agent.identifiers.toJSON()
-                })
+              return redirect("../../");
+            }
+          }, {
+            path: ":type/:index", action: async ({request, params}) => {
+              const agent = await db.agentWithId(params.id);
+              const formData = await request.formData();
 
-                return redirect("../../");
-              }
-            }]
+              let index = Number(params.index);
+              let type = baseUri + params.type;
+              let value = formData?.get("value") as string ?? null;
+
+              await db.agents.update(params.id, {
+                identifiers: updateIdentifiers(agent.getIdentifiers(), type, index, value).toJSON()
+              })
+
+              return redirect("../../");
+            }
+          }]
         }]
       }]
     }, {
@@ -432,4 +440,21 @@ const router = createBrowserRouter([{
 
 export default function App() {
   return <RouterProvider router={router}/>;
+}
+
+function updateIdentifiers(identifiers: Identifiers, type: string, index: number, value?: string) {
+  let current = identifiers.getValues(type);
+
+  console.debug(type, value, index)
+
+  if (value != null) {
+    current[index] = value;
+  } else {
+    current.splice(index, 1);
+  }
+
+  identifiers.setValues(current, type);
+  console.debug(identifiers.toJSON())
+
+  return identifiers;
 }

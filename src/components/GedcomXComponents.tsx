@@ -18,7 +18,7 @@ import {
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
-import { ReactNode, useContext } from "react";
+import { useContext } from "react";
 import { LayoutContext } from "../Layout";
 
 export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
@@ -272,7 +272,7 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
 
   return <>
     <ul>
-      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>
+      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i} className="font-bold">
         <span>{id}</span>
         <EditDataButton path={`identifiers/Primary/${i}`}>
           <label htmlFor={`primaryIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
@@ -298,14 +298,26 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
         </EditDataButton>
         <DeleteDataButton path={`identifiers/Deprecated/${i}`}/>
       </li>)}
-      <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
-        <select name="type" className="bg-white rounded-full px-4 py-1">
-          <option value={undefined}>-</option>
-          {Object.entries(strings.gedcomX.identifier.types).map(([type, translation], i) =>
-            <option key={i} value={baseUri + type}>{translation}</option>)}
-        </select>
-        <input type={"text"} name="value" className="rounded-full px-4 py-1"/>
-      </AddDataButton>
+
+      {identifiers?.getValues(undefined)?.map((id, i) => <li key={i}>
+        <span>{id}</span>
+        <EditDataButton path={`identifiers/${i}`}>
+          <label htmlFor={`identifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
+          <input type="text" id={`identifier-${i}`} name="value" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/${i}`}/>
+      </li>)}
+
+      <li className="mt-2 first:mt-0">
+        <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
+          <select name="type" className="bg-white rounded-full px-4 py-1">
+            <option>-</option>
+            {Object.entries(strings.gedcomX.identifier.types).map(([type, translation], i) =>
+              <option key={i} value={baseUri + type}>{translation}</option>)}
+          </select>
+          <input type={"text"} name="value" className="rounded-full px-4 py-1"/>
+        </AddDataButton>
+      </li>
     </ul>
   </>
 }
