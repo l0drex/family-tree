@@ -5,7 +5,7 @@ import {
   AddDataButton,
   Article,
   ButtonLike, CreateNewButton, DeleteDataButton, EditDataButton,
-  Hr, Li,
+  Hr, Input, Li,
   ReactLink,
   ReactNavLink,
   Tag,
@@ -208,36 +208,32 @@ export function AgentView() {
 }
 
 function NameForm({name}: {name?: string}) {
-  return <input type="text" name="value" defaultValue={name}/>
+  return <Input type="text" name="value" label={strings.gedcomX.person.names} defaultValue={name}/>
 }
 
 function HomepageForm({homepage}: { homepage?: string }) {
-  return <input type="url" name="homepage" defaultValue={homepage} className="rounded-full px-4"/>;
+  return <Input type="url" name="homepage" defaultValue={homepage} label={strings.gedcomX.agent.homepage}/>;
 }
 
 function OpenIdForm({openid}: { openid?: string }) {
-  return <input type="url" name="openid" defaultValue={openid} className="rounded-full px-4"/>;
+  return <Input type="url" name="openid" defaultValue={openid} label="OpenID"/>;
 }
 
 function AccountForm({name, website}: { name?: string, website?: string }) {
   return <>
-    <label htmlFor="accountName">{strings.gedcomX.agent.accountName}</label>
-    <input id={"accountName"} name="account" type="text" defaultValue={name} contentEditable={true}
-           className="rounded-full px-4"/>
-
-    <label htmlFor="website" className="mr-2">{strings.gedcomX.agent.website}</label>
-    <input id="website" name="serviceHomepage" type="url" defaultValue={website} className="rounded-full px-4"/>
+    <Input name="account" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name} />
+    <Input name="serviceHomepage" type="url" defaultValue={website} label={strings.gedcomX.agent.website}/>
   </>
 }
 
 function EmailForm({email}: { email?: string }) {
-  return <input type="email" name="email" defaultValue={email} className="rounded-full px-4"/>;
+  return <Input type="email" name="email" defaultValue={email} label={strings.gedcomX.agent.emails}/>;
 }
 
 function PhoneForm({phone}: { phone?: string }) {
-  return <input type="tel" name="phone" defaultValue={phone} className="rounded-full px-4"/>;
+  return <Input type="tel" name="phone" defaultValue={phone} label={strings.gedcomX.agent.phones} />;
 }
 
 function AddressForm({address}: { address?: string }) {
-  return <input type="text" name="value" defaultValue={address} className="rounded-full px-4"/>;
+  return <Input type="text" name="value" defaultValue={address} label={strings.gedcomX.agent.addresses}/>;
 }

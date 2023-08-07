@@ -10,7 +10,7 @@ import {
   Article,
   ArticleCollection, DeleteDataButton, Details, EditDataButton,
   Gallery,
-  Hr,
+  Hr, Input,
   Media,
   P,
   ReactLink,
@@ -272,29 +272,26 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
 
   return <>
     <ul>
-      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i} className="font-bold">
-        <span>{id}</span>
+      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>
+        <span className="font-bold">{id}</span>
         <EditDataButton path={`identifiers/Primary/${i}`}>
-          <label htmlFor={`primaryIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
-          <input type="text" id={`primaryIdentifier-${i}`} name="value" defaultValue={id}/>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
         </EditDataButton>
         <DeleteDataButton path={`identifiers/Primary/${i}`}/>
       </li>)}
 
-      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i} className="italic">
-        <span>{id}</span>
+      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i}>
+        <span className="italic">{id}</span>
         <EditDataButton path={`identifiers/Authority/${i}`}>
-          <label htmlFor={`authorityIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
-          <input type="text" id={`authorityIdentifier-${i}`} name="value" defaultValue={id}/>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
         </EditDataButton>
         <DeleteDataButton path={`identifiers/Authority/${i}`}/>
       </li>)}
 
-      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i} className="line-through">
-        <span>{id}</span>
+      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i}>
+        <span className="line-through">{id}</span>
         <EditDataButton path={`identifiers/Deprecated/${i}`}>
-          <label htmlFor={`deprecatedIdentifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
-          <input type="text" id={`deprecatedIdentifier-${i}`} name="value" defaultValue={id}/>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
         </EditDataButton>
         <DeleteDataButton path={`identifiers/Deprecated/${i}`}/>
       </li>)}
@@ -302,8 +299,7 @@ export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers })
       {identifiers?.getValues(undefined)?.map((id, i) => <li key={i}>
         <span>{id}</span>
         <EditDataButton path={`identifiers/${i}`}>
-          <label htmlFor={`identifier-${i}`}>{strings.gedcomX.identifier.identifier}</label>
-          <input type="text" id={`identifier-${i}`} name="value" defaultValue={id}/>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
         </EditDataButton>
         <DeleteDataButton path={`identifiers/${i}`}/>
       </li>)}

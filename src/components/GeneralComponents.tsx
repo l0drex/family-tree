@@ -299,3 +299,17 @@ export function CreateNewButton({path, label}: {
     </button>
   </Form>
 }
+
+export function Input({type, name, label, defaultValue}: {
+  type: React.HTMLInputTypeAttribute,
+  name: string,
+  label: string,
+  defaultValue?: string
+}) {
+  const id = crypto.randomUUID();
+
+  return <>
+    <label htmlFor={id}>{label}</label>
+    <input id={id} name={name} type={type} defaultValue={defaultValue} className="rounded-full px-4"/>
+  </>
+}
