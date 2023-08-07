@@ -37,21 +37,19 @@ const router = createBrowserRouter([{
         if (!params.id) {
           // find a person whose id does not start with "missing-id-" if possible
           // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
-          personCache.person = db.persons.toArray().then(ps => ps.sort((a, b) => {
-            // Check if either string starts with "missing-id-"
-            const aStartsWithMissingId = a.id.startsWith("missing-id-");
-            const bStartsWithMissingId = b.id.startsWith("missing-id-");
-
-            // Sort the strings accordingly
-            if (aStartsWithMissingId && !bStartsWithMissingId) {
-              return 1; // a should come after b
-            } else if (!aStartsWithMissingId && bStartsWithMissingId) {
-              return -1; // a should come before b
-            } else {
-              // If both strings start with "missing-id-" or neither does, perform a regular string comparison
-              return a.id.localeCompare(b.id);
+          personCache.person = db.persons.toArray().then(async ps => {
+            let startPerson = ps[0];
+            for (let p of ps) {
+              let relations = await db.relationships.where("person1.resource").equals("#" + p.id)
+                .or("person2.resource").equals("#" + p.id).toArray();
+              if (relations.length > 0) {
+                startPerson = p;
+                break;
+              }
             }
-          })[0]).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
+
+            return startPerson;
+          }).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
         } else {
           personCache.person = db.personWithId(params.id);
         }
@@ -370,7 +368,7 @@ const router = createBrowserRouter([{
             const agent = await db.agentWithId(params.id);
 
             agent.setIdentifiers(
-                (agent.getIdentifiers() ?? new Identifiers())
+              (agent.getIdentifiers() ?? new Identifiers())
                 .addValue(formData.get("value") as string, formData.get("type") as string));
 
             await db.agents.update(params.id, {
