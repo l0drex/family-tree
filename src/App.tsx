@@ -144,6 +144,24 @@ const router = createBrowserRouter([{
             }
           }]
         }, {
+          path: "person", action: async ({request, params}) => {
+            const agent = await db.agentWithId(params.id);
+
+            if (request.method === "POST") {
+              const formData = await request.formData();
+              agent.person = new GedcomX.ResourceReference()
+                .setResource(formData.get("person") as string)
+            } else if (request.method === "DELETE") {
+              agent.person = undefined;
+            }
+
+            await db.agents.update(params.id, {
+              person: agent.person?.toJSON()
+            });
+
+            return redirect("../");
+          }
+        }, {
           path: "homepage", action: async ({request, params}) => {
             if (request.method === "DELETE") {
               await db.agents.update(params.id, {

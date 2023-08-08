@@ -1,4 +1,4 @@
-import { Agent } from "../gedcomx/gedcomx-js-extensions";
+import { Agent, Person } from "../gedcomx/gedcomx-js-extensions";
 import { filterLang, strings } from "../main";
 import { Link, useLoaderData } from "react-router-dom";
 import {
@@ -20,6 +20,8 @@ import { Identifiers } from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
 import * as React from "react";
 import { writeStorage } from "@rehooks/local-storage";
+import { useLiveQuery } from "dexie-react-hooks";
+import { ResourceReference } from "gedcomx-js";
 
 export const ActiveAgentKey = "activeAgent";
 
@@ -75,10 +77,16 @@ export function AgentView() {
   return <>
     <Main>
       <Tags>
-        {agent.person && <Tag>
+        {agent.person ? <Tag>
           {strings.gedcomX.agent.person}: <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
           {agent.person.resource}</ReactLink>
-        </Tag>}
+          <EditDataButton path="person">
+            <PersonForm person={agent.person} />
+          </EditDataButton>
+          <DeleteDataButton path="person"/>
+        </Tag> : <AddDataButton dataType={strings.gedcomX.person.persons} path={"person"}>
+          <PersonForm />
+        </AddDataButton>}
       </Tags>
       <Article>
         <div className="grid grid-cols-2 gap-4" id="agentTable">
@@ -236,4 +244,17 @@ function PhoneForm({phone}: { phone?: string }) {
 
 function AddressForm({address}: { address?: string }) {
   return <Input type="text" name="value" defaultValue={address} label={strings.gedcomX.agent.addresses}/>;
+}
+
+function PersonForm({person}: { person?: ResourceReference }) {
+  const persons = useLiveQuery(async () =>
+    db.persons.toArray().then(persons => persons.map(p => new Person(p))),
+    []);
+
+  return <>
+    <input type="search" name="person" list="persons" defaultValue={person?.resource}/>
+    <datalist id="persons">
+      {persons?.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+    </datalist>
+  </>
 }
