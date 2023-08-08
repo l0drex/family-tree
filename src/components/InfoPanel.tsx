@@ -11,9 +11,10 @@ import {
   SubjectSidebar
 } from "./GedcomXComponents";
 import {Sidebar} from "../App";
-import {Article, Details, PopupButton, Tag, Tags, Title} from "./GeneralComponents";
+import { Article, Details, PopupButton, Tag, Tags, Title } from "./GeneralComponents";
 import {Name} from "gedcomx-js";
 import emojis from '../backend/emojies.json';
+import React, { Fragment } from "react";
 
 function InfoPanel({person}: { person: Person }) {
   const parents = useLiveQuery(async () => {
@@ -110,9 +111,30 @@ function Names({names}: { names: Name[] }) {
     <Title emoji={emojis.name}>{strings.gedcomX.person.names}</Title>
     {names.map((n, i) => {
       return <Article key={i}>
-        {n.nameForms.map((nf, j) => {
-          return <div key={j}>{nf.fullText} {nf.lang && `(${nf.lang})`}</div>
-        })}
+        {n.nameForms.map((nf, j) =>
+          <details className="mb-2 last:mb-0 pb-2 last:pb-0" key={j}>
+            <summary>
+              {`${nf.getFullText(true)} ${nf.lang ? `(${nf.lang})` : ""}`}
+            </summary>
+
+            <div className="grid grid-cols-2 mt-2">
+              {nf.parts.map((p, k) => {
+                let type = strings.gedcomX.person.namePartTypes[p.type?.substring(baseUri.length)];
+                if (type != null) {
+                  type += ":";
+                }
+
+                return <Fragment key={k}>
+                  <span>{type}</span>
+                  <span>{p.value}</span>
+                  <div className="col-span-2 mb-2 last:mb-0 flex gap-2">
+                    {p.qualifiers?.length && p.qualifiers?.map(q =>
+                      <ArticleTag>{(strings.gedcomX.person.namePartQualifier[q.name.substring(baseUri.length)] ?? q.name) + (q.value ? `: ${q.value}` : "")}</ArticleTag>)}
+                  </div>
+                </Fragment>;
+              })}
+            </div>
+          </details>)}
         {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
           {n.type && <ArticleTag>{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</ArticleTag>}
           {n.date && <ArticleTag>{new GDate(n.date.toJSON()).toString()}</ArticleTag>}

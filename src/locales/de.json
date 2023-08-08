@@ -185,6 +185,7 @@
         "Surname": "Nachname"
       },
       "namePartQualifier": {
+        "Title": "Titel",
         "Primary": "primär",
         "Secondary": "sekundär",
         "Middle": "mitte",
@@ -199,7 +200,7 @@
         "Characteristic": "charakteristisch",
         "Postnom": "Postnom",
         "Particle": "Partikel",
-        "RootName": "Wurzelname"
+        "RootName": "Wortstamm"
       },
       "factTypes": {
         "Adoption": "Adoption",
