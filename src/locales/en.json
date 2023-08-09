@@ -183,6 +183,7 @@
         "Surname": "Surname"
       },
       "namePartQualifier": {
+        "Title": "Title",
         "Primary": "Primary",
         "Secondary": "Secondary",
         "Middle": "Middle",

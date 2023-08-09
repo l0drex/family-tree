@@ -83,7 +83,7 @@ export function Tag({children, bgColor}: { children, bgColor?: string }) {
   bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
 
   return <span
-    className={`inline-block rounded-full ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm whitespace-nowrap`}>
+    className={`inline-block rounded-2xl ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
     {children}
   </span>
 }

@@ -56,7 +56,7 @@ export enum NamePartQualifier {
   Characteristic = "http://gedcomx.org/Characteristic",
   Postnom = "http://gedcomx.org/Postnom",
   Particle = "http://gedcomx.org/Particle",
-  RootName = "http://gedcomx.org/Root",
+  RootName = "http://gedcomx.org/RootName",
 }
 
 export type NamePartQualifierValue = NamePartQualifier.RootName;
