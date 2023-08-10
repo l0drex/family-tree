@@ -2,7 +2,7 @@ import * as React from "react";
 import { createBrowserRouter, redirect, RouterProvider } from "react-router-dom";
 import { strings } from "./main";
 import { db } from "./backend/db";
-import { Agent, Document, EventExtended, Person, SourceDescription } from "./gedcomx/gedcomx-js-extensions";
+import { Agent, Document, EventExtended, SourceDescription } from "./gedcomx/gedcomx-js-extensions";
 import { Home } from "./components/Home";
 import Persons from "./components/Persons";
 import Statistics from "./components/Statistics";

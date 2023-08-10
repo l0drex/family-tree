@@ -18,7 +18,7 @@ import {
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
-import { ReactNode, useContext, useState } from "react";
+import { useContext } from "react";
 import { LayoutContext } from "../Layout";
 import * as React from "react";
 import { UpdateAttribution } from "./Agents";
