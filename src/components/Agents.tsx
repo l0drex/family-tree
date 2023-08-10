@@ -282,8 +282,6 @@ export function UpdateAttribution({attribution}: { attribution?: Attribution }) 
 
   return <>
     <Input type={"text"} name={"changeMessage"} label={strings.gedcomX.conclusion.attribution.changeMessage}/>
-    <textarea hidden name="attribution">
-    {JSON.stringify(attribution.toJSON())}
-  </textarea>
+    <textarea hidden readOnly name="attribution" value={JSON.stringify(attribution.toJSON())} />
   </>
 }
