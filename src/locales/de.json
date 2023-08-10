@@ -76,7 +76,8 @@
         "attribution": "Änderungen",
         "created": "Erstellt",
         "modified": "Geändert",
-        "byPerson": "von {0}"
+        "byPerson": "von {0}",
+        "changeMessage": "Änderungsbeschreibung"
       }
     },
     "subject": {
@@ -98,7 +99,8 @@
       "addresses": "Adressen",
       "select": "Als Bearbeiter verwenden",
       "selected": "aktiver Bearbeiter",
-      "new": "Neuen Agenten erstellen"
+      "new": "Neuen Agenten erstellen",
+      "changeMessage": "Beschreibung der Änderungen (optional)"
     },
     "document": {
       "types": {
@@ -430,5 +432,7 @@
   "exportFile": "Daten als JSON Datei exportieren",
   "addData": "{0} hinzufügen",
   "save": "Speichern",
-  "cancel": "Abbrechen"
+  "cancel": "Abbrechen",
+  "edit": "Bearbeiten",
+  "delete": "Löschen"
 }

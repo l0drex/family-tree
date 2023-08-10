@@ -4,8 +4,13 @@ import { Link, useLoaderData } from "react-router-dom";
 import {
   AddDataButton,
   Article,
-  ButtonLike, CreateNewButton, DeleteDataButton, EditDataButton,
-  Hr, Input, Li,
+  ButtonLike,
+  CreateNewButton,
+  DeleteDataButton,
+  EditDataButton,
+  Hr,
+  Input,
+  Li,
   ReactLink,
   ReactNavLink,
   Tag,
@@ -14,14 +19,14 @@ import {
   VanillaLink
 } from "./GeneralComponents";
 import { LayoutContext, Main, Sidebar } from "../Layout";
+import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { db } from "../backend/db";
 import { Identifiers } from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
-import * as React from "react";
 import { writeStorage } from "@rehooks/local-storage";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ResourceReference } from "gedcomx-js";
+import { Attribution, ResourceReference } from "gedcomx-js";
 
 export const ActiveAgentKey = "activeAgent";
 
@@ -256,5 +261,29 @@ function PersonForm({person}: { person?: ResourceReference }) {
     <datalist id="persons">
       {persons?.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
     </datalist>
+  </>
+}
+
+export function UpdateAttribution({attribution}: { attribution?: Attribution }) {
+  const agent = useContext(LayoutContext).agent;
+
+  if (!agent) {
+    return <></>;
+  }
+
+  if (attribution == null) {
+    attribution = new Attribution()
+      .setCreator(new ResourceReference().setResource("#" + agent.id))
+      .setCreated(Date.now());
+  }
+
+  attribution.setModified(Date.now())
+    .setContributor(new ResourceReference().setResource("#" + agent.id));
+
+  return <>
+    <Input type={"text"} name={"changeMessage"} label={strings.gedcomX.conclusion.attribution.changeMessage}/>
+    <textarea hidden name="attribution">
+    {JSON.stringify(attribution.toJSON())}
+  </textarea>
   </>
 }

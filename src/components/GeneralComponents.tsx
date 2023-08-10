@@ -1,11 +1,16 @@
 import { Form, Link, NavLink } from "react-router-dom";
 import * as React from "react";
-import { ReactElement, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  ReactElement,
+  ReactNode,
+  useContext,
+  useEffect, useMemo,
+  useRef,
+  useState
+} from "react";
 import { strings } from "../main";
-import emojies from "../backend/emojies.json";
 import emojis from "../backend/emojies.json";
-import { Simulate } from "react-dom/test-utils";
-import submit = Simulate.submit;
 import { LayoutContext } from "../Layout";
 
 export function Article({noMargin, emoji, title, children}:
@@ -230,7 +235,7 @@ export function DataButton({path, children, buttonLabel}: {
   return <>
     <button onClick={() => {
       dialog.current?.showModal();
-    }} className="ml-2 first:ml-0 px-2 py-1 bg-white rounded-2xl">
+    }} className="ml-2 first:ml-0 px-4 py-1 bg-white rounded-2xl">
       {buttonLabel}
     </button>
     <dialog ref={dialog} className="p-4 rounded-2xl">
@@ -257,20 +262,22 @@ export function AddDataButton({dataType, path, children}: {
   path: string,
   children: ReactNode
 }) {
-  return <DataButton
+  return <div className="mt-2 text-center"><DataButton
     buttonLabel={`${emojis.new} ${strings.formatString(strings.addData, dataType)}`}
-    path={path} children={children}/>
+    path={path} children={children}/></div>
 }
 
-export function EditDataButton({path, children}: {
+export function EditDataButton({path, label, children}: {
   path: string,
+  label?: boolean,
   children: ReactNode
 }) {
-  return <DataButton buttonLabel={emojis.edit} path={path} children={children}/>
+  return <DataButton buttonLabel={`${label ? `${strings.edit} ` : ""}${emojis.edit}`} path={path} children={children}/>
 }
 
-export function DeleteDataButton({path}: {
-  path: string
+export function DeleteDataButton({path, label}: {
+  path: string,
+  label?: boolean
 }) {
   const editing = useContext(LayoutContext).edit;
 
@@ -278,7 +285,8 @@ export function DeleteDataButton({path}: {
     return <></>
 
   return <Form method="delete" action={path} className="inline">
-    <button type="submit" className="ml-2 px-2 py-1 bg-white rounded-2xl">
+    <button type="submit" className="ml-2 px-4 py-1 bg-white rounded-2xl">
+      {label ? `${strings.delete} ` : ""}
       {emojis.delete}
     </button>
   </Form>

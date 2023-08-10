@@ -76,7 +76,8 @@
         "attribution": "Attribution",
         "created": "Created",
         "modified": "Modified",
-        "byPerson": "by {0}"
+        "byPerson": "by {0}",
+        "changeMessage": "Change message"
       }
     },
     "subject": {
@@ -98,7 +99,8 @@
       "addresses": "Addresses",
       "select": "Set as editor",
       "selected": "Current editor",
-      "new": "Create new agent"
+      "new": "Create new agent",
+      "changeMessage": "Describe your changes (optional)"
     },
     "document": {
       "types": {
@@ -429,5 +431,7 @@
   "exportFile": "Export as JSON file",
   "addData": "Add {0}",
   "save": "Save",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "delete": "Delete"
 }

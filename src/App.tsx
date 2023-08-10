@@ -18,45 +18,88 @@ import { Layout } from "./Layout";
 import { Identifiers } from "gedcomx-js";
 import { baseUri } from "./gedcomx/types";
 
-let personCache = {
-  id: undefined,
-  person: undefined
-}
-
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
     path: "*", errorElement: <ErrorBoundary/>, children: [{
       index: true, Component: Home
     }, {
-      path: "person/:id?", Component: Persons, loader: ({params}) => {
-        if (personCache.person !== undefined && personCache.id === params.id) {
-          return personCache.person;
+      path: "person/:id?", Component: Persons, loader: async ({params}) => {
+        if (!params.id) {
+          let persons = await db.persons.toArray();
+
+          let startPerson = persons[0];
+          for (let p of persons) {
+            let relations = await db.relationships.where("person1.resource").equals("#" + p.id)
+              .or("person2.resource").equals("#" + p.id).toArray();
+            if (relations.length > 0) {
+              startPerson = p;
+              break;
+            }
+          }
+
+          return redirect("/person/" + startPerson.id);
         }
 
-        personCache.id = params.id;
+        return db.personWithId(params.id);
+      }, children: [{
+        path: "notes", action: async ({params, request}) => {
+          if (request.method !== "POST")
+            return;
 
-        if (!params.id) {
-          // find a person whose id does not start with "missing-id-" if possible
-          // persons with missing ids are not connected to any other persons, as they cannot be referenced in relationships
-          personCache.person = db.persons.toArray().then(async ps => {
-            let startPerson = ps[0];
-            for (let p of ps) {
-              let relations = await db.relationships.where("person1.resource").equals("#" + p.id)
-                .or("person2.resource").equals("#" + p.id).toArray();
-              if (relations.length > 0) {
-                startPerson = p;
+          const formData = await request.formData();
+
+          let note = new GedcomX.Note()
+            .setSubject(formData.get("subject") as string)
+            .setText(formData.get("text") as string);
+
+          if (formData.has("attribution"))
+            note.setAttribution(JSON.parse(formData.get("attribution") as string));
+
+          const person = await db.personWithId(params.id);
+          person.addNote(note);
+
+          db.persons.update(params.id, {
+            notes: person.getNotes().map(n => n.toJSON())
+          });
+
+          return redirect("../")
+        }, children: [{
+          path: ":index", action: async ({params, request}) => {
+            const formData = await request.formData();
+            const person = await db.personWithId(params.id);
+
+            switch (request.method) {
+              case "POST":
+                let note = new GedcomX.Note()
+                  .setSubject(formData.get("subject") as string)
+                  .setText(formData.get("text") as string);
+
+                if (formData.has("attribution")) {
+                  note.setAttribution(JSON.parse(formData.get("attribution") as string));
+
+                  let changeMessage = formData.get("changeMessage") as string;
+                  if (changeMessage != null && changeMessage != "") {
+                    note.attribution.changeMessage = changeMessage;
+                  }
+                }
+
+                person.notes[params.index] = note
                 break;
-              }
+              case "DELETE":
+                person.notes.splice(Number(params.index), 1);
+                if (person.notes.length === 0) {
+                  person.notes = undefined;
+                }
+                break;
             }
 
-            return startPerson;
-          }).then(p => p ? new Person(p) : Promise.reject(new Error(strings.errors.noData)));
-        } else {
-          personCache.person = db.personWithId(params.id);
-        }
-
-        return personCache.person;
-      }
+            await db.persons.update(params.id, {
+              notes: person.getNotes().map(n => n.toJSON())
+            })
+            return redirect("../../");
+          }
+        }]
+      }]
     }, {
       path: "stats", Component: Statistics
     }, {

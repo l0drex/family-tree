@@ -1,10 +1,10 @@
 import * as gedcomX from "gedcomx-js";
-import {filterLang, strings} from "../main";
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../backend/db";
-import {getDateFormatOptions, GDate} from "../gedcomx/gedcomx-js-extensions";
+import { filterLang, strings } from "../main";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../backend/db";
+import { getDateFormatOptions, GDate } from "../gedcomx/gedcomx-js-extensions";
 import { baseUri, Confidence as ConfidenceEnum, IdentifierTypes } from "../gedcomx/types";
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   AddDataButton,
   Article,
@@ -18,21 +18,43 @@ import {
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
-import { useContext } from "react";
+import { ReactNode, useContext, useState } from "react";
 import { LayoutContext } from "../Layout";
+import * as React from "react";
+import { UpdateAttribution } from "./Agents";
 
 export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
+  const editing = useContext(LayoutContext)?.edit;
+
   if (!notes || notes.length === 0)
     return <></>;
 
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.note}>{strings.gedcomX.conclusion.notes}</Title>
-    {notes.map((note, i) =>
-      <Article emoji="" title={note.getSubject()} key={i}>
-        <P>{note.getText()}</P>
-        {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
-      </Article>)}
+    {notes.map((note, i) => <Article emoji="" title={note.getSubject()} key={i}>
+      <P>{note.getText()}</P>
+
+      {editing && <div className="mb-2 last:mb-0">
+        <EditDataButton path={`notes/${i}`} label={true}>
+          <NoteForm note={note} />
+        </EditDataButton>
+        <DeleteDataButton path={`notes/${i}`} label={true}/>
+      </div>}
+
+      {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
+    </Article>)}
+    <AddDataButton dataType={strings.gedcomX.conclusion.note} path={"notes"}>
+      <NoteForm />
+    </AddDataButton>
   </ArticleCollection>
+}
+
+function NoteForm({note}: {note?: gedcomX.Note}) {
+  return <>
+    <Input label={strings.gedcomX.conclusion.note} type="text" name="subject" defaultValue={note?.subject}/>
+    <textarea name="text" className="rounded-2xl rounded-br-none p-2 col-span-2" rows={3} defaultValue={note?.text}/>
+    <UpdateAttribution attribution={note?.attribution} />
+  </>;
 }
 
 export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
@@ -72,7 +94,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   let modifiedString = "";
   if (modified || contributorName || message) {
     modifiedString += strings.gedcomX.conclusion.attribution.modified + " ";
-    if (modified) modifiedString += new Date(modifiedString).toLocaleString(strings.getLanguage(), getDateFormatOptions(modified));
+    if (modified) modifiedString += new Date(modified).toLocaleString(strings.getLanguage(), getDateFormatOptions(modified));
     if (modified && contributorName) modifiedString += " ";
   }
 
@@ -80,13 +102,13 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     <Details title={strings.gedcomX.conclusion.attribution.attribution}>
       {hasCreated && <P>
         {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-        <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
+        <ReactLink to={`/agent/${creatorRef.resource.substring(1)}`}>
           {creatorName}
         </ReactLink>)}
       </P>}
       {hasModified && <P>
         {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-        <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
+        <ReactLink to={`/agent/${contributorRef.resource.substring(1)}`}>
           {contributorName}
         </ReactLink>)}
         {message && <>: <cite> "{message}"</cite></>}
@@ -229,13 +251,13 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
       {media.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
         return <div className="relative" key={i}>
-            <Media mimeType={m.mediaType} url={m.getAbout()}
-                   alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
-            <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
-              + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
-              © <a href={m.getAbout()}>{credit}</a>
-            </div>
+          <Media mimeType={m.mediaType} url={m.getAbout()}
+                 alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
+          <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
+            + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
+            © <a href={m.getAbout()}>{credit}</a>
           </div>
+        </div>
       })}
     </Gallery>}
     <Evidence evidenceReferences={subject.getEvidence()}/>
@@ -266,7 +288,7 @@ export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion
 }
 
 export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers }) {
-  const editing  = useContext(LayoutContext).edit;
+  const editing = useContext(LayoutContext).edit;
 
   if (!identifiers && !editing) return <></>
 
