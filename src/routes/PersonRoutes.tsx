@@ -2,10 +2,11 @@ import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
 import { getSubjectRoutes } from "./general";
+import FactComponent from "../components/FactComponent";
 
 export const personRoutes: RouteObject = {
-  path: "person/:id?", Component: Persons, loader: async ({params}) => {
-    if (!params.id) {
+  path: "person", children: [{
+    index: true, loader: async ({params}) => {
       let persons = await db.persons.toArray();
 
       let startPerson = persons[0];
@@ -20,9 +21,15 @@ export const personRoutes: RouteObject = {
 
       return redirect("/person/" + startPerson.id);
     }
-
-    return db.personWithId(params.id);
-  }, children: [
-    ...getSubjectRoutes(db.persons)
-  ]
+  }, {
+    path: ":id", children: [
+      {index: true, Component: Persons, loader: async ({params}) => db.personWithId(params.id)},
+      {
+        path: "facts/:index", Component: FactComponent, loader: async ({params}) => {
+          let person = await db.personWithId(params.id);
+          return person.getFacts();
+        }
+      }, ...getSubjectRoutes(db.persons)
+    ]
+  }]
 };

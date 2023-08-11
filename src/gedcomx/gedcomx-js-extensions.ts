@@ -1,6 +1,6 @@
 import * as GedcomX from "gedcomx-js";
 import "./gedcomx-js-rs";
-import {Equals, strings} from "../main";
+import { Equals, strings } from "../main";
 import {
   baseUri,
   EventRoleTypes,
@@ -11,7 +11,7 @@ import {
   TextTypes
 } from "./types";
 import emojis from '../backend/emojies.json';
-import {IConclusion, INameForm, INote, ISourceCitation, ITextValue} from "./interfaces";
+import { IConclusion, INameForm, INote, ISourceCitation, ITextValue } from "./interfaces";
 import GedcomXDate, { Range, Recurring, Simple } from "gedcomx-date";
 
 // like filterLang, but without entries that don't include a language
@@ -345,6 +345,14 @@ export class Fact extends GedcomX.Fact {
     qualifiers ??= [];
     super.setQualifiers(qualifiers.map(q => new Qualifier(q)));
     return this;
+  }
+
+  get localType(): string {
+    const originalType = this.type.substring(baseUri.length);
+    return strings.gedcomX.person.factTypes[originalType]
+      ?? strings.gedcomX.relationship.factTypes.Couple[originalType]
+      ?? strings.gedcomX.relationship.factTypes.ParentChild[originalType]
+      ?? originalType;
   }
 
   get emoji(): string {

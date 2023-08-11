@@ -5,11 +5,17 @@ import { strings } from "../main";
 import emojis from "../backend/emojies.json";
 import { LayoutContext } from "../Layout";
 
-export function Article({noMargin, emoji, title, children}:
-                          { noMargin?: boolean, emoji?: string, title?: string, children }) {
+export function Article({noMargin, emoji, title, onClick, children}: {
+  noMargin?: boolean,
+  emoji?: string,
+  title?: string,
+  onClick?: () => void,
+  children: ReactNode
+}) {
   return (
     <article
-      className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`} mx-auto w-full max-w-3xl`}>
+      className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full mx-auto max-w-3xl ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`}`
+    + (onClick ? " hover:bg-opacity-100 hover:cursor-pointer transition-colors" : "")} onClick={onClick}>
       {title && <Title emoji={emoji}>{title}</Title>}
       {children}
     </article>
@@ -20,6 +26,12 @@ export function ArticleCollection({noMargin, children}: { noMargin?: boolean, ch
   return <section className={`mx-auto w-full max-w-3xl ${noMargin ? "" : "mt-4 first:mt-0"}`}>
     {children}
   </section>
+}
+
+export function ArticleTag({children}) {
+  if (!children) return <></>
+
+  return <Tag bgColor="bg-bg-light dark:bg-bg-dark">{children}</Tag>
 }
 
 export function Title(props: { emoji: string, children }) {
@@ -203,7 +215,7 @@ export function PopupButton({title, children: popupContent}) {
 
   return <>
     <button onClick={() => dialog.current?.showModal()}>{title}</button>
-    <dialog ref={dialog} className="rounded-2xl">
+    <dialog ref={dialog} className="rounded-2xl p-4">
       {popupContent}
     </dialog>
   </>

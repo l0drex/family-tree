@@ -34,7 +34,7 @@ export function Notes({noMargin, notes}: {
 }) {
   const editing = useContext(LayoutContext)?.edit;
 
-  if (!notes || notes.length === 0)
+  if (!editing && (!notes || notes.length === 0))
     return <></>;
 
   return <ArticleCollection noMargin={noMargin}>
@@ -325,7 +325,7 @@ export function SubjectArticles({subject, noMargin}: {
 
   return <>
     {(editing || (media && media.length > 0)) && <Gallery noMargin={noMargin}>
-      {media.map((m, i) => {
+      {media?.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
         return <div className="relative" key={i}>
           {editing && <div className="absolute right-0 mr-4 mt-2">
