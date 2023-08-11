@@ -3,9 +3,8 @@ import { db } from "../backend/db";
 import { AgentOverview, AgentView } from "../components/Agents";
 import { Agent } from "../gedcomx/gedcomx-js-extensions";
 import * as GedcomX from "gedcomx-js";
-import { baseUri } from "../gedcomx/types";
-import { getAll, pushArray, updateArray, updateDB, updateIdentifiers, updateObject } from "./utils";
-import { Identifiers } from "gedcomx-js";
+import { getAll, pushArray, updateArray, updateDB, updateObject } from "./utils";
+import { getIdentifierRoute } from "./general";
 
 export const agentRoutes: RouteObject = {
     path: "agent", action: async ({request}) => {
@@ -181,51 +180,6 @@ export const agentRoutes: RouteObject = {
                     return updateArray(db.agents, params.id, "addresses", agent.addresses, Number(params.index), address);
                 }
             }]
-        }, {
-            path: "identifiers", action: async ({request, params}) => {
-                if (request.method !== "POST") {
-                    return;
-                }
-
-                const formData = await request.formData();
-                const agent = await db.agentWithId(params.id);
-
-                let type = formData.get("type") as string;
-                if (type === "-")
-                    type = undefined;
-
-                agent.setIdentifiers(
-                    (agent.getIdentifiers() ?? new Identifiers())
-                        .addValue(formData.get("value") as string, type));
-
-                await updateDB(db.agents, params.id, "identifiers", agent.identifiers);
-                return redirect("../");
-            }, children: [{
-                path: ":index", action: async ({request, params}) => {
-                    const agent = await db.agentWithId(params.id);
-                    const formData = await request.formData();
-
-                    let index = Number(params.index);
-                    let value = formData?.get("value") as string ?? null;
-
-                    await updateDB(db.agents, params.id, "identifiers",
-                        updateIdentifiers(agent.getIdentifiers(), undefined, index, value));
-                    return redirect("../../");
-                }
-            }, {
-                path: ":type/:index", action: async ({request, params}) => {
-                    const agent = await db.agentWithId(params.id);
-                    const formData = await request.formData();
-
-                    let index = Number(params.index);
-                    let type = baseUri + params.type;
-                    let value = formData?.get("value") as string ?? null;
-
-                    await updateDB(db.agents, params.id, "identifiers",
-                        updateIdentifiers(agent.getIdentifiers(), type, index, value));
-                    return redirect("../../");
-                }
-            }]
-        }]
+        }, getIdentifierRoute(db.agents)]
     }]
 }

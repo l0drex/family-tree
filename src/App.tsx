@@ -15,7 +15,7 @@ import { Layout } from "./Layout";
 import { agentRoutes } from "./routes/AgentRoutes";
 import { personRoutes } from "./routes/PersonRoutes";
 import { getAll } from "./routes/utils";
-import { getNotesRoute } from "./routes/general";
+import { getIdentifierRoute, getNotesRoute } from "./routes/general";
 
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
@@ -30,7 +30,10 @@ const router = createBrowserRouter([{
       }, {
         path: ":id", Component: SourceDescriptionView,
         loader: ({params}) => db.sourceDescriptionWithId(params.id),
-        children: [getNotesRoute(db.sourceDescriptions)]
+        children: [
+            getNotesRoute(db.sourceDescriptions),
+            getIdentifierRoute(db.sourceDescriptions)
+        ]
       }]
     }, {
       path: "document", children: [{
@@ -48,7 +51,10 @@ const router = createBrowserRouter([{
       }, {
         path: ":id", Component: EventView,
         loader: ({params}) => db.elementWithId(params.id, "event"),
-        children: [getNotesRoute(db.events)]
+        children: [
+            getNotesRoute(db.events),
+            getIdentifierRoute(db.events)
+        ]
       }]
     }, {
       path: "place", children: [{

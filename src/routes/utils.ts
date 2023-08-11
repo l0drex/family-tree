@@ -1,4 +1,4 @@
-import { Base, Identifiers } from "gedcomx-js";
+import { Base } from "gedcomx-js";
 import { Table } from "dexie";
 import { redirect } from "react-router-dom";
 import { strings } from "../main";
@@ -8,19 +8,6 @@ export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]>
     data.length
       ? data.map(d => new Constructor(d))
       : Promise.reject(new Error(strings.errors.noData)));
-}
-
-export function updateIdentifiers(identifiers: Identifiers, type: string, index: number, value?: string) {
-  let current = identifiers.getValues(type);
-
-  if (value != null) {
-    current[index] = value;
-  } else {
-    current.splice(index, 1);
-  }
-
-  identifiers.setValues(current, type);
-  return identifiers;
 }
 
 /**
