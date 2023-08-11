@@ -1,8 +1,7 @@
 import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
-import { getSubjectRoutes } from "./general";
-import FactComponent from "../components/FactComponent";
+import { getFactRoute, getSubjectRoutes } from "./general";
 
 export const personRoutes: RouteObject = {
   path: "person", children: [{
@@ -24,12 +23,8 @@ export const personRoutes: RouteObject = {
   }, {
     path: ":id", children: [
       {index: true, Component: Persons, loader: async ({params}) => db.personWithId(params.id)},
-      {
-        path: "facts/:index", Component: FactComponent, loader: async ({params}) => {
-          let person = await db.personWithId(params.id);
-          return person.getFacts();
-        }
-      }, ...getSubjectRoutes(db.persons)
+      getFactRoute(db.persons),
+      ...getSubjectRoutes(db.persons)
     ]
   }]
 };

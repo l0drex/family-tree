@@ -1,11 +1,13 @@
 import { Table } from "dexie";
 import { pushArray, updateArray, updateDB, updateObject } from "./utils";
-import { Params, redirect } from "react-router-dom";
+import { Params, redirect, RouteObject } from "react-router-dom";
 import * as GedcomX from "gedcomx-js";
 import { baseUri } from "../gedcomx/types";
-import { IAgent, IConclusion, ISourceDescription, ISubject } from "../gedcomx/interfaces";
+import { IAgent, IConclusion, IPerson, IRelationship, ISourceDescription, ISubject } from "../gedcomx/interfaces";
+import FactComponent from "../components/FactComponent";
+import { Fact, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
 
-export function getNotesRoute(table: Table<IConclusion>) {
+export function getNotesRoute(table: Table<IConclusion>): RouteObject {
   async function updateNotes({params, request}: { params: Params<string>, request: Request }) {
     let conclusion = new GedcomX.Conclusion(await table.get(params.id));
 
@@ -37,7 +39,7 @@ export function getNotesRoute(table: Table<IConclusion>) {
 
 type hasIdentifiers = IAgent | ISourceDescription | ISubject;
 
-export function getIdentifierRoute(table: Table<hasIdentifiers>) {
+export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
   function updateIdentifiers(identifiers: GedcomX.Identifiers, type: string, index: number, value?: string) {
     let current = identifiers.getValues(type);
 
@@ -105,7 +107,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>) {
   }
 }
 
-export function getSourceReferenceRoutes(table: Table<IConclusion>) {
+export function getSourceReferenceRoutes(table: Table<IConclusion>): RouteObject {
   async function pushSourceReference({params, request}) {
     if (request.method !== "POST")
       return;
@@ -136,7 +138,7 @@ export function getSourceReferenceRoutes(table: Table<IConclusion>) {
   }
 }
 
-export function getEvidenceRoutes(table: Table<ISubject>) {
+export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
   async function pushEvidence({params, request}) {
     if (request.method !== "POST")
       return;
@@ -167,7 +169,7 @@ export function getEvidenceRoutes(table: Table<ISubject>) {
   }
 }
 
-export function getMediaRoutes(table: Table<ISubject>) {
+export function getMediaRoutes(table: Table<ISubject>): RouteObject {
   async function pushMedia({params, request}) {
     if (request.method !== "POST")
       return;
@@ -198,14 +200,44 @@ export function getMediaRoutes(table: Table<ISubject>) {
   }
 }
 
-export function getConclusionRoutes(table: Table<IConclusion>) {
+export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject {
+  async function updateFact({params, request}) {
+    if (request.method !== "POST")
+      return;
+
+    const formData = await request.formData();
+    let fact = new GedcomX.Fact(updateObject(formData));
+
+    let datum = await table.get(params.id);
+    let instance;
+    if (datum satisfies IPerson)
+      instance = new Person(datum);
+    else
+      instance = new Relationship(datum);
+
+    updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    return redirect("");
+  }
+
+  return {
+    path: "facts/:index", children: [{
+      index: true, Component: FactComponent,
+      loader: async ({params}) => {
+        let datum = await table.get(params.id);
+        return datum.facts.map(f => new Fact(f));
+      }, action: updateFact
+    }]
+  }
+}
+
+export function getConclusionRoutes(table: Table<IConclusion>): RouteObject[] {
   return [
     getNotesRoute(table),
     getSourceReferenceRoutes(table)
   ]
 }
 
-export function getSubjectRoutes(table: Table<ISubject>) {
+export function getSubjectRoutes(table: Table<ISubject>): RouteObject[] {
   return [
     ...getConclusionRoutes(table),
     getIdentifierRoute(table),
