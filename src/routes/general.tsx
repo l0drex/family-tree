@@ -167,6 +167,37 @@ export function getEvidenceRoutes(table: Table<ISubject>) {
   }
 }
 
+export function getMediaRoutes(table: Table<ISubject>) {
+  async function pushMedia({params, request}) {
+    if (request.method !== "POST")
+      return;
+
+    const formData = await request.formData();
+    let media = new GedcomX.SourceReference(updateObject(formData));
+
+    const subject = new GedcomX.Subject(await table.get(params.id));
+    return pushArray(table, params.id, "media", subject.media, media);
+  }
+
+  async function updateMedia({params, request}) {
+    let subject = new GedcomX.Subject(await table.get(params.id));
+
+    let media: GedcomX.SourceReference = null;
+    if (request.method === "POST") {
+      media = new GedcomX.SourceReference(updateObject(await request.formData()));
+    }
+
+    return updateArray(table, params.id, "media", subject.media, Number(params.index), media);
+  }
+
+  return {
+    path: "media", action: pushMedia,
+    children: [
+      {path: ":index", action: updateMedia}
+    ]
+  }
+}
+
 export function getConclusionRoutes(table: Table<IConclusion>) {
   return [
     getNotesRoute(table),
@@ -178,6 +209,7 @@ export function getSubjectRoutes(table: Table<ISubject>) {
   return [
     ...getConclusionRoutes(table),
     getIdentifierRoute(table),
-    getEvidenceRoutes(table)
+    getEvidenceRoutes(table),
+    getMediaRoutes(table)
   ]
 }

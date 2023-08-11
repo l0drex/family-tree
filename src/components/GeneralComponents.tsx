@@ -115,18 +115,22 @@ export function Loading(props: { text: string, value?: number, max?: number }) {
 export function Gallery(props: { children: any[], noMargin?: boolean }) {
   const [index, scroll] = useState(0);
 
+  const flatChildren = props.children.flat();
+
+  console.debug("children", props.children);
+
   return <article className={`rounded-2xl ${props.noMargin ? "" : "mt-4 first:mt-0"} mx-auto w-fit max-w-3xl`}>
-    {props.children[index]}
-    {props.children.length > 1 && <span className="w-full flex justify-between items-center px-4 mt-2">
+    {flatChildren[index]}
+    {flatChildren.length > 1 && <span className="w-full flex justify-between items-center px-4 mt-2">
       {<ButtonLike enabled={index > 0}>
         <button className={`px-3 ${index > 0 ? "" : "hover:cursor-not-allowed"}`} onClick={() =>
           scroll(i => Math.max(0, --i))}>⬅
         </button>
       </ButtonLike>}
-      <span>{index + 1} / {props.children.length}</span>
-      {<ButtonLike enabled={index < props.children.length - 1}>
-        <button className={`px-3 ${index < props.children.length - 1 ? "" : "hover:cursor-not-allowed"}`} onClick={() =>
-          scroll(i => Math.min(props.children.length - 1, ++i))}>➡
+      <span>{index + 1} / {flatChildren.length}</span>
+      {<ButtonLike enabled={index < flatChildren.length - 1}>
+        <button className={`px-3 ${index < flatChildren.length - 1 ? "" : "hover:cursor-not-allowed"}`} onClick={() =>
+          scroll(i => Math.min(flatChildren.length - 1, ++i))}>➡
         </button>
       </ButtonLike>}
     </span>}

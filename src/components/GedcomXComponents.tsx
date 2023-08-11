@@ -301,6 +301,18 @@ export function Evidence({evidenceReferences}: {evidenceReferences: gedcomX.Evid
   </ArticleCollection>
 }
 
+function MediaForm({media}: {media?: gedcomX.SourceReference}) {
+  const sources = useLiveQuery(async () => db.sourceDescriptions.toArray())
+
+  return <>
+    <Search name="resource" label={strings.gedcomX.sourceDescription.sourceDescription} values={sources?.map(s => ({
+      display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
+      value: "#" + s.id
+    }))} defaultValue={media?.description} />
+    <UpdateAttribution attribution={media?.attribution} />
+  </>
+}
+
 export function SubjectArticles({subject, noMargin}: {
   subject: gedcomX.Subject,
   noMargin?: boolean
@@ -309,12 +321,16 @@ export function SubjectArticles({subject, noMargin}: {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
     return await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)))
   }, [subject])
+  const editing = useContext(LayoutContext).edit;
 
   return <>
-    {media && media.length > 0 && <Gallery noMargin={noMargin}>
+    {(editing || (media && media.length > 0)) && <Gallery noMargin={noMargin}>
       {media.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
         return <div className="relative" key={i}>
+          {editing && <div className="absolute right-0 mr-4 mt-2">
+            <EditButtons path={`media/${i}`} form={<MediaForm media={subject.getMedia()?.at(i)} />} />
+          </div>}
           <Media mimeType={m.mediaType} url={m.getAbout()}
                  alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
           <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
@@ -323,6 +339,11 @@ export function SubjectArticles({subject, noMargin}: {
           </div>
         </div>
       })}
+      <div className="relative">
+        <AddDataButton dataType={strings.gedcomX.subject.media} path="media">
+          <MediaForm />
+        </AddDataButton>
+      </div>
     </Gallery>}
     <Evidence evidenceReferences={subject.getEvidence()}/>
     <ConclusionArticles conclusion={subject} noMargin={noMargin}/>

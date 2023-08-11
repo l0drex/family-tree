@@ -83,7 +83,8 @@
     "subject": {
       "evidence": "Beweise",
       "mediaImageAlt": "Bild von {0}.",
-      "loadingMedia": "Lade Medieninhalt…"
+      "loadingMedia": "Lade Medieninhalt…",
+      "media": "Medien"
     },
     "agent": {
       "agents": "Agenten",
