@@ -15,6 +15,7 @@ import { Layout } from "./Layout";
 import { agentRoutes } from "./routes/AgentRoutes";
 import { personRoutes } from "./routes/PersonRoutes";
 import { getAll } from "./routes/utils";
+import { getNotesRoute } from "./routes/general";
 
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
@@ -28,7 +29,8 @@ const router = createBrowserRouter([{
         loader: getAll(db.sourceDescriptions, SourceDescription)
       }, {
         path: ":id", Component: SourceDescriptionView,
-        loader: ({params}) => db.sourceDescriptionWithId(params.id)
+        loader: ({params}) => db.sourceDescriptionWithId(params.id),
+        children: [getNotesRoute(db.sourceDescriptions)]
       }]
     }, {
       path: "document", children: [{
@@ -36,7 +38,8 @@ const router = createBrowserRouter([{
         loader: getAll(db.documents, Document)
       }, {
         path: ":id", Component: DocumentView,
-        loader: ({params}) => db.elementWithId(params.id, "document")
+        loader: ({params}) => db.elementWithId(params.id, "document"),
+        children: [getNotesRoute(db.documents)]
       }]
     }, agentRoutes, {
       path: "event", children: [{
@@ -44,15 +47,17 @@ const router = createBrowserRouter([{
         loader: getAll(db.events, EventExtended)
       }, {
         path: ":id", Component: EventView,
-        loader: ({params}) => db.elementWithId(params.id, "event")
+        loader: ({params}) => db.elementWithId(params.id, "event"),
+        children: [getNotesRoute(db.events)]
       }]
     }, {
       path: "place", children: [{
         index: true, Component: PlaceOverview,
-        loader: getAll(db.places, GedcomX.PlaceReference)
+        loader: getAll(db.places, GedcomX.PlaceDescription)
       }, {
         path: ":id", Component: PlaceView,
-        loader: ({params}) => db.elementWithId(params.id, "place")
+        loader: ({params}) => db.elementWithId(params.id, "place"),
+        children: [getNotesRoute(db.places)]
       }]
     }, {
       path: "imprint", Component: Imprint

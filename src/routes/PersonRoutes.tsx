@@ -1,8 +1,7 @@
 import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
-import * as GedcomX from "gedcomx-js";
-import { pushArray, updateArray, updateObject } from "./utils";
+import { getNotesRoute } from "./general";
 
 export const personRoutes: RouteObject = {
   path: "person/:id?", Component: Persons, loader: async ({params}) => {
@@ -23,27 +22,5 @@ export const personRoutes: RouteObject = {
     }
 
     return db.personWithId(params.id);
-  }, children: [{
-    path: "notes", action: async ({params, request}) => {
-      if (request.method !== "POST")
-        return;
-
-      const formData = await request.formData();
-      let note = new GedcomX.Note(updateObject(formData));
-
-      const person = await db.personWithId(params.id);
-      return pushArray(db.persons, params.id, "notes", person.notes, note);
-    }, children: [{
-      path: ":index", action: async ({params, request}) => {
-        const formData = await request.formData();
-        const person = await db.personWithId(params.id);
-
-        let note = null;
-        if (request.method === "POST") {
-          note = new GedcomX.Note(updateObject(formData));
-        }
-        return updateArray(db.persons, params.id, "notes", person.notes, Number(params.index), note);
-      }
-    }]
-  }]
+  }, children: [getNotesRoute(db.persons)]
 };
