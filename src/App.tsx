@@ -1,6 +1,5 @@
 import * as React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { strings } from "./main";
 import { db } from "./backend/db";
 import { Document, EventExtended, SourceDescription } from "./gedcomx/gedcomx-js-extensions";
 import { Home } from "./components/Home";
@@ -15,6 +14,7 @@ import { EventOverview, EventView } from "./components/Events";
 import { Layout } from "./Layout";
 import { agentRoutes } from "./routes/AgentRoutes";
 import { personRoutes } from "./routes/PersonRoutes";
+import { getAll } from "./routes/utils";
 
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
@@ -24,45 +24,39 @@ const router = createBrowserRouter([{
       path: "stats", Component: Statistics
     }, {
       path: "sourceDescription", children: [{
-        index: true,
-        Component: SourceDescriptionOverview,
-        loader: () => db.sourceDescriptions.toArray().then(s => s.length ? s.map(d => new SourceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+        index: true, Component: SourceDescriptionOverview,
+        loader: getAll(db.sourceDescriptions, SourceDescription)
       }, {
-        path: ":id",
-        Component: SourceDescriptionView,
+        path: ":id", Component: SourceDescriptionView,
         loader: ({params}) => db.sourceDescriptionWithId(params.id)
       }]
     }, {
-      path: "document", children: [
-        {
-          index: true,
-          Component: DocumentOverview,
-          loader: () => db.documents.toArray().then(ds => ds.length ? ds.map(d => new Document(d)) : Promise.reject(new Error(strings.errors.noData)))
-        },
-        {path: ":id", Component: DocumentView, loader: ({params}) => db.elementWithId(params.id, "document")}
-      ]
+      path: "document", children: [{
+        index: true, Component: DocumentOverview,
+        loader: getAll(db.documents, Document)
+      }, {
+        path: ":id", Component: DocumentView,
+        loader: ({params}) => db.elementWithId(params.id, "document")
+      }]
     }, agentRoutes, {
       path: "event", children: [{
-        index: true,
-        Component: EventOverview,
-        loader: () => db.events.toArray().then(e => e.length ? e.map(d => new EventExtended(d)) : Promise.reject(new Error(strings.errors.noData)))
+        index: true, Component: EventOverview,
+        loader: getAll(db.events, EventExtended)
       }, {
-        path: ":id", Component: EventView, loader: ({params}) => db.elementWithId(params.id, "event")
-      }
-      ]
+        path: ":id", Component: EventView,
+        loader: ({params}) => db.elementWithId(params.id, "event")
+      }]
     }, {
       path: "place", children: [{
-        index: true,
-        Component: PlaceOverview,
-        loader: () => db.places.toArray().then(p => p.length ? p.map(d => new GedcomX.PlaceDescription(d)) : Promise.reject(new Error(strings.errors.noData)))
+        index: true, Component: PlaceOverview,
+        loader: getAll(db.places, GedcomX.PlaceReference)
       }, {
-        path: ":id", Component: PlaceView, loader: ({params}) => db.elementWithId(params.id, "place")
-      }
-      ]
+        path: ":id", Component: PlaceView,
+        loader: ({params}) => db.elementWithId(params.id, "place")
+      }]
     }, {
       path: "imprint", Component: Imprint
-    }
-    ]
+    }]
   }]
 }], {basename: "/family-tree"});
 
