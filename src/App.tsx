@@ -15,7 +15,7 @@ import { Layout } from "./Layout";
 import { agentRoutes } from "./routes/AgentRoutes";
 import { personRoutes } from "./routes/PersonRoutes";
 import { getAll } from "./routes/utils";
-import { getIdentifierRoute, getNotesRoute } from "./routes/general";
+import { getConclusionRoutes, getIdentifierRoute, getNotesRoute, getSubjectRoutes } from "./routes/general";
 
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
@@ -31,8 +31,8 @@ const router = createBrowserRouter([{
         path: ":id", Component: SourceDescriptionView,
         loader: ({params}) => db.sourceDescriptionWithId(params.id),
         children: [
-            getNotesRoute(db.sourceDescriptions),
-            getIdentifierRoute(db.sourceDescriptions)
+          getNotesRoute(db.sourceDescriptions),
+          getIdentifierRoute(db.sourceDescriptions)
         ]
       }]
     }, {
@@ -42,7 +42,7 @@ const router = createBrowserRouter([{
       }, {
         path: ":id", Component: DocumentView,
         loader: ({params}) => db.elementWithId(params.id, "document"),
-        children: [getNotesRoute(db.documents)]
+        children: [...getConclusionRoutes(db.documents)]
       }]
     }, agentRoutes, {
       path: "event", children: [{
@@ -52,8 +52,7 @@ const router = createBrowserRouter([{
         path: ":id", Component: EventView,
         loader: ({params}) => db.elementWithId(params.id, "event"),
         children: [
-            getNotesRoute(db.events),
-            getIdentifierRoute(db.events)
+          ...getSubjectRoutes(db.events)
         ]
       }]
     }, {
@@ -63,7 +62,7 @@ const router = createBrowserRouter([{
       }, {
         path: ":id", Component: PlaceView,
         loader: ({params}) => db.elementWithId(params.id, "place"),
-        children: [getNotesRoute(db.places)]
+        children: [...getSubjectRoutes(db.places)]
       }]
     }, {
       path: "imprint", Component: Imprint

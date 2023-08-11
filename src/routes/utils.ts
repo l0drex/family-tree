@@ -16,13 +16,13 @@ export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]>
  * @param data to be updated
  */
 export function updateObject(formData: FormData, data: object = {}): object {
+  let changeMessage = undefined;
+
   formData.forEach((value, key) => {
     if (key === "attribution") {
       value = JSON.parse(value as string);
     } else if (key === "changeMessage") {
-      data["attribution"] ??= {};
-      data["attribution"]["changeMessage"] = value;
-      return;
+      changeMessage = value;
     } else if (key.endsWith(".resource")) {
       data[key.split(".")[0]] = { resource: value };
       return;
@@ -30,6 +30,11 @@ export function updateObject(formData: FormData, data: object = {}): object {
 
     data[key] = value;
   });
+
+  if (changeMessage) {
+    data["attribution"] ??= {};
+    data["attribution"]["changeMessage"] = changeMessage;
+  }
 
   return data;
 }

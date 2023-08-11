@@ -13,6 +13,7 @@ import {
   Li,
   ReactLink,
   ReactNavLink,
+  Search,
   Tag,
   Tags,
   Title,
@@ -34,10 +35,11 @@ function setActiveAgent(agent: Agent): void {
   return writeStorage(ActiveAgentKey, agent?.id);
 }
 
-export function AgentSelector({agent}: {agent: Agent}) {
+export function AgentSelector({agent}: { agent: Agent }) {
   return <>
     <Link to={`/agent/${agent?.id}`} className="px-4 bg-white rounded-full py-2">
-      <span className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
+            <span
+              className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
       {emojis.agent.agent}
     </Link>
   </>
@@ -86,11 +88,11 @@ export function AgentView() {
           {strings.gedcomX.agent.person}: <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
           {agent.person.resource}</ReactLink>
           <EditDataButton path="person">
-            <PersonForm person={agent.person} />
+            <PersonForm person={agent.person}/>
           </EditDataButton>
           <DeleteDataButton path="person"/>
         </Tag> : <AddDataButton dataType={strings.gedcomX.person.persons} path={"person"}>
-          <PersonForm />
+          <PersonForm/>
         </AddDataButton>}
       </Tags>
       <Article>
@@ -115,7 +117,8 @@ export function AgentView() {
 
           <div>{`${emojis.agent.homepage} ${strings.gedcomX.agent.homepage}`}</div>
           <div>
-            {agent.homepage ? <VanillaLink href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink>
+            {agent.homepage ?
+              <VanillaLink href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink>
               : <span>{strings.errors.noData}</span>}
             <EditDataButton path="homepage">
               <HomepageForm homepage={agent.homepage?.resource}/>
@@ -125,7 +128,8 @@ export function AgentView() {
 
           <div>{`${emojis.agent.openid} OpenID`}</div>
           <div>
-            {agent.openid ? <VanillaLink href={agent.openid?.resource}>{agent.openid?.resource}</VanillaLink>
+            {agent.openid ?
+              <VanillaLink href={agent.openid?.resource}>{agent.openid?.resource}</VanillaLink>
               : <span>{strings.errors.noData}</span>}
             <EditDataButton path="openid">
               <OpenIdForm openid={agent.openid?.resource}/>
@@ -139,7 +143,8 @@ export function AgentView() {
               {agent.accounts?.map((a, i) =>
                 <Li key={i}>{strings.formatString(strings.gedcomX.agent.onlineAccount,
                   <span className="italic">{a.accountName}</span>,
-                  <VanillaLink href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</VanillaLink>)}
+                  <VanillaLink
+                    href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</VanillaLink>)}
                   <EditDataButton path={`account/${i}`}>
                     <AccountForm name={a.accountName} website={a.serviceHomepage.resource}/>
                   </EditDataButton>
@@ -220,7 +225,7 @@ export function AgentView() {
   </>
 }
 
-function NameForm({name}: {name?: string}) {
+function NameForm({name}: { name?: string }) {
   return <Input type="text" name="value" label={strings.gedcomX.person.names} defaultValue={name}/>
 }
 
@@ -234,7 +239,7 @@ function OpenIdForm({openid}: { openid?: string }) {
 
 function AccountForm({name, website}: { name?: string, website?: string }) {
   return <>
-    <Input name="accountName" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name} />
+    <Input name="accountName" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name}/>
     <Input name="serviceHomepage.resource" type="url" defaultValue={website} label={strings.gedcomX.agent.website}/>
   </>
 }
@@ -244,7 +249,7 @@ function EmailForm({email}: { email?: string }) {
 }
 
 function PhoneForm({phone}: { phone?: string }) {
-  return <Input type="tel" name="resource" defaultValue={phone} label={strings.gedcomX.agent.phones} />;
+  return <Input type="tel" name="resource" defaultValue={phone} label={strings.gedcomX.agent.phones}/>;
 }
 
 function AddressForm({address}: { address?: string }) {
@@ -253,15 +258,13 @@ function AddressForm({address}: { address?: string }) {
 
 function PersonForm({person}: { person?: ResourceReference }) {
   const persons = useLiveQuery(async () =>
-    db.persons.toArray().then(persons => persons.map(p => new Person(p))),
+      db.persons.toArray().then(persons => persons.map(p => new Person(p))),
     []);
 
-  return <>
-    <input type="search" name="resource" list="persons" defaultValue={person?.resource}/>
-    <datalist id="persons">
-      {persons?.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
-    </datalist>
-  </>
+  return <Search name={"resource"} label={strings.gedcomX.agent.person} values={persons?.map(p => ({
+    display: p.fullName,
+    value: p.id
+  }))} defaultValue={person.resource} />
 }
 
 export function UpdateAttribution({attribution}: { attribution?: Attribution }) {
@@ -282,6 +285,6 @@ export function UpdateAttribution({attribution}: { attribution?: Attribution }) 
 
   return <>
     <Input type={"text"} name={"changeMessage"} label={strings.gedcomX.conclusion.attribution.changeMessage}/>
-    <textarea hidden readOnly name="attribution" value={JSON.stringify(attribution.toJSON())} />
+    <textarea hidden readOnly name="attribution" value={JSON.stringify(attribution.toJSON())}/>
   </>
 }

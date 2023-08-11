@@ -2,28 +2,36 @@ import * as gedcomX from "gedcomx-js";
 import { filterLang, strings } from "../main";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../backend/db";
-import { getDateFormatOptions, GDate } from "../gedcomx/gedcomx-js-extensions";
+import { GDate, getDateFormatOptions } from "../gedcomx/gedcomx-js-extensions";
 import { baseUri, Confidence as ConfidenceEnum, IdentifierTypes } from "../gedcomx/types";
 import { Link, useParams } from "react-router-dom";
 import {
   AddDataButton,
   Article,
-  ArticleCollection, DeleteDataButton, Details, EditDataButton,
+  ArticleCollection,
+  DeleteDataButton,
+  Details, EditButtons,
+  EditDataButton,
   Gallery,
-  Hr, Input,
+  Hr,
+  Input,
   Media,
   P,
   ReactLink,
+  Search,
   Tag,
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
+import * as React from "react";
 import { useContext } from "react";
 import { LayoutContext } from "../Layout";
-import * as React from "react";
 import { UpdateAttribution } from "./Agents";
 
-export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
+export function Notes({noMargin, notes}: {
+  notes: gedcomX.Note[],
+  noMargin?: boolean
+}) {
   const editing = useContext(LayoutContext)?.edit;
 
   if (!notes || notes.length === 0)
@@ -36,7 +44,7 @@ export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boo
 
       {editing && <div className="mb-2 last:mb-0">
         <EditDataButton path={`notes/${i}`} label={true}>
-          <NoteForm note={note} />
+          <NoteForm note={note}/>
         </EditDataButton>
         <DeleteDataButton path={`notes/${i}`} label={true}/>
       </div>}
@@ -44,20 +52,25 @@ export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boo
       {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
     </Article>)}
     <AddDataButton dataType={strings.gedcomX.conclusion.note} path={"notes"}>
-      <NoteForm />
+      <NoteForm/>
     </AddDataButton>
   </ArticleCollection>
 }
 
-function NoteForm({note}: {note?: gedcomX.Note}) {
+function NoteForm({note}: {
+  note?: gedcomX.Note
+}) {
   return <>
     <Input label={strings.gedcomX.conclusion.note} type="text" name="subject" defaultValue={note?.subject}/>
-    <textarea name="text" className="rounded-2xl rounded-br-none p-2 col-span-2" rows={3} defaultValue={note?.text}/>
-    <UpdateAttribution attribution={note?.attribution} />
+    <textarea name="text" className="rounded-2xl rounded-br-none p-2 col-span-2" rows={3}
+              defaultValue={note?.text}/>
+    <UpdateAttribution attribution={note?.attribution}/>
   </>;
 }
 
-export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
+export function Attribution({attribution}: {
+  attribution: gedcomX.Attribution
+}) {
   const creator = useLiveQuery(async () => {
     if (!attribution?.getCreator()) return undefined;
     return db.agentWithId(attribution.getCreator());
@@ -117,7 +130,10 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   </div>
 }
 
-export function SourceReference({reference}: { reference: gedcomX.SourceReference }) {
+export function SourceReference({reference, index}: {
+  reference: gedcomX.SourceReference,
+  index: number
+}) {
   const sourceTitle = useLiveQuery(() => {
     if (!reference || !reference.description)
       return undefined;
@@ -134,6 +150,7 @@ export function SourceReference({reference}: { reference: gedcomX.SourceReferenc
     <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
       {sourceTitle || reference.description}
     </ReactLink></P>
+    <EditButtons path={`sources/${index}`} form={<SourceReferenceForm reference={reference}/>} />
     {reference.attribution && <Attribution attribution={reference.attribution}/>}
   </Article>
 }
@@ -142,16 +159,38 @@ export function SourceReferences({references, noMargin}: {
   references: gedcomX.SourceReference[],
   noMargin?: boolean
 }) {
-  if (!references || references.length === 0)
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing && (!references || references.length === 0))
     return <></>;
 
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
-    {references.map((reference, i) => <SourceReference reference={reference} key={i}/>)}
+    {references.map((reference, i) => <SourceReference reference={reference} index={i} key={i}/>)}
+    <AddDataButton dataType={strings.gedcomX.sourceDescription.sourceDescription} path={"sources"}>
+      <SourceReferenceForm/>
+    </AddDataButton>
   </ArticleCollection>
 }
 
-export function Coverage(props: { coverage: gedcomX.Coverage }) {
+function SourceReferenceForm({reference}: {
+  reference?: gedcomX.SourceReference
+}) {
+  const sources = useLiveQuery(async () => db.sourceDescriptions.toArray())
+
+  return <>
+    <Search name={"description"} label={strings.gedcomX.sourceDescription.sourceDescription}
+                 values={sources?.map(s => ({
+                   display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
+                   value: "#" + s.id
+                 }))} defaultValue={reference?.description} />
+    <UpdateAttribution attribution={reference?.attribution} />
+  </>
+}
+
+export function Coverage(props: {
+  coverage: gedcomX.Coverage
+}) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
@@ -164,7 +203,9 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
   </Article>
 }
 
-export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
+export function PlaceReference(props: {
+  reference: gedcomX.PlaceReference
+}) {
   let original = props.reference.original ?? props.reference.description ?? "?";
   if (props.reference.description) {
     return <Link to={"/places/" + props.reference.description.substring(1)}>{original}</Link>
@@ -172,7 +213,9 @@ export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
   return <span>{original}</span>
 }
 
-export function Confidence(props: { confidence: ConfidenceEnum | string }) {
+export function Confidence(props: {
+  confidence: ConfidenceEnum | string
+}) {
   let confidenceLevel;
   switch (props.confidence) {
     case ConfidenceEnum.Low:
@@ -196,7 +239,9 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
   </div>
 }
 
-export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
+export function Alias({aliases}: {
+  aliases: gedcomX.TextValue[]
+}) {
   if (aliases.length < 2) return <></>;
 
   return <P>
@@ -207,14 +252,18 @@ export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
   </P>
 }
 
-export function SubjectMisc({subject}: { subject: gedcomX.Subject }) {
+export function SubjectMisc({subject}: {
+  subject: gedcomX.Subject
+}) {
   return <>
     {subject.isExtracted() && <Tag>{strings.gedcomX.document.extracted}</Tag>}
     <ConclusionMisc conclusion={subject}/>
   </>
 }
 
-export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
+export function SubjectSidebar({subject}: {
+  subject: gedcomX.Subject
+}) {
   return <>
     {subject.getIdentifiers() && <Hr/>}
     <Identifiers identifiers={subject.getIdentifiers()}/>
@@ -240,7 +289,10 @@ export function Evidence({evidenceReferences}) {
   </ArticleCollection>
 }
 
-export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
+export function SubjectArticles({subject, noMargin}: {
+  subject: gedcomX.Subject,
+  noMargin?: boolean
+}) {
   const media = useLiveQuery(async () => {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
     return await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)))
@@ -265,7 +317,10 @@ export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject,
   </>
 }
 
-export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conclusion, bgColor?: string }) {
+export function ConclusionMisc({conclusion, bgColor}: {
+  conclusion: gedcomX.Conclusion,
+  bgColor?: string
+}) {
   return <>
     {conclusion.analysis && <Tag bgColor={bgColor}>{strings.gedcomX.document.types.Analysis}: <ReactLink
       to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
@@ -273,21 +328,28 @@ export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conc
   </>
 }
 
-export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
+export function ConclusionArticles({conclusion, noMargin}: {
+  conclusion: gedcomX.Conclusion,
+  noMargin?: boolean
+}) {
   return <>
     <SourceReferences references={conclusion.getSources()} noMargin={noMargin}/>
     <Notes notes={conclusion.getNotes()} noMargin={noMargin}/>
   </>
 }
 
-export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion }) {
+export function ConclusionSidebar({conclusion}: {
+  conclusion: gedcomX.Conclusion
+}) {
   return <>
     {conclusion.getAttribution() && <Hr/>}
     <Attribution attribution={conclusion.getAttribution()}/>
   </>
 }
 
-export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers }) {
+export function Identifiers({identifiers}: {
+  identifiers: gedcomX.Identifiers
+}) {
   const editing = useContext(LayoutContext).edit;
 
   if (!identifiers && !editing) return <></>

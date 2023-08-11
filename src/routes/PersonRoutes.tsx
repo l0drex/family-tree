@@ -1,7 +1,7 @@
 import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
-import { getIdentifierRoute, getNotesRoute } from "./general";
+import { getSubjectRoutes } from "./general";
 
 export const personRoutes: RouteObject = {
   path: "person/:id?", Component: Persons, loader: async ({params}) => {
@@ -23,7 +23,6 @@ export const personRoutes: RouteObject = {
 
     return db.personWithId(params.id);
   }, children: [
-      getNotesRoute(db.persons),
-      getIdentifierRoute(db.persons)
+    ...getSubjectRoutes(db.persons)
   ]
 };

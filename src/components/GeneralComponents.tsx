@@ -1,13 +1,6 @@
 import { Form, Link, NavLink } from "react-router-dom";
 import * as React from "react";
-import {
-  ReactElement,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { ReactElement, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { strings } from "../main";
 import emojis from "../backend/emojies.json";
 import { LayoutContext } from "../Layout";
@@ -238,7 +231,7 @@ export function DataButton({path, children, buttonLabel}: {
       {buttonLabel}
     </button>
     <dialog ref={dialog} className="p-4 rounded-2xl">
-      <Form onSubmit={e => dialog.current?.close()} method="post" action={path}>
+      <Form onSubmit={() => dialog.current?.close()} method="post" action={path}>
         <div className="grid grid-cols-2 gap-2">
           {children}
         </div>
@@ -291,6 +284,17 @@ export function DeleteDataButton({path, label}: {
   </Form>
 }
 
+export function EditButtons({path, label, form}: {
+  path: string,
+  label?: boolean,
+  form: ReactNode
+}) {
+  return <>
+    <EditDataButton path={path} label={label}>{form}</EditDataButton>
+    <DeleteDataButton path={path} label={label} />
+  </>
+}
+
 export function CreateNewButton({path, label}: {
   path: string,
   label: string
@@ -307,16 +311,31 @@ export function CreateNewButton({path, label}: {
   </Form>
 }
 
-export function Input({type, name, label, defaultValue}: {
+export function Input({type, name, list, label, defaultValue}: {
   type: React.HTMLInputTypeAttribute,
   name: string,
   label: string,
+  list?: string,
   defaultValue?: string
 }) {
   const id = crypto.randomUUID();
 
   return <>
     <label htmlFor={id}>{label}</label>
-    <input id={id} name={name} type={type} defaultValue={defaultValue} className="rounded-full px-4"/>
+    <input id={id} name={name} type={type} defaultValue={defaultValue} list={list} className="rounded-full px-4"/>
+  </>
+}
+
+export function Search({name, label, values, defaultValue}: {
+  name: string,
+  label: string,
+  values: { display: string, value: string }[],
+  defaultValue?: string
+}) {
+  return <>
+    <Input type="search" name={name} label={label} list={`${name}-list`} defaultValue={defaultValue}/>
+    <datalist id={`${name}-list`}>
+      {values?.map((v, i) => <option key={i} value={v.value}>{v.display}</option>)}
+    </datalist>
   </>
 }
