@@ -15,8 +15,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { Imprint } from "./components/Imprint";
 import { EventOverview, EventView } from "./components/Events";
 import { Layout } from "./Layout";
-import { Identifiers } from "gedcomx-js";
+import { Base, Identifiers } from "gedcomx-js";
 import { baseUri } from "./gedcomx/types";
+import { Table } from "dexie";
 
 const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
@@ -47,56 +48,20 @@ const router = createBrowserRouter([{
             return;
 
           const formData = await request.formData();
-
-          let note = new GedcomX.Note()
-            .setSubject(formData.get("subject") as string)
-            .setText(formData.get("text") as string);
-
-          if (formData.has("attribution"))
-            note.setAttribution(JSON.parse(formData.get("attribution") as string));
+          let note = new GedcomX.Note(updateObject(formData));
 
           const person = await db.personWithId(params.id);
-          person.addNote(note);
-
-          db.persons.update(params.id, {
-            notes: person.getNotes().map(n => n.toJSON())
-          });
-
-          return redirect("../")
+          return pushArray(db.persons, params.id, "notes", person.notes, note);
         }, children: [{
           path: ":index", action: async ({params, request}) => {
             const formData = await request.formData();
             const person = await db.personWithId(params.id);
 
-            switch (request.method) {
-              case "POST":
-                let note = new GedcomX.Note()
-                  .setSubject(formData.get("subject") as string)
-                  .setText(formData.get("text") as string);
-
-                if (formData.has("attribution")) {
-                  note.setAttribution(JSON.parse(formData.get("attribution") as string));
-
-                  let changeMessage = formData.get("changeMessage") as string;
-                  if (changeMessage != null && changeMessage != "") {
-                    note.attribution.changeMessage = changeMessage;
-                  }
-                }
-
-                person.notes[params.index] = note
-                break;
-              case "DELETE":
-                person.notes.splice(Number(params.index), 1);
-                if (person.notes.length === 0) {
-                  person.notes = undefined;
-                }
-                break;
+            let note = null;
+            if (request.method === "POST") {
+              note = new GedcomX.Note(updateObject(formData));
             }
-
-            await db.persons.update(params.id, {
-              notes: person.getNotes().map(n => n.toJSON())
-            })
-            return redirect("../../");
+            return updateArray(db.persons, params.id, "notes", person.notes, Number(params.index), note);
           }
         }]
       }]
@@ -152,88 +117,55 @@ const router = createBrowserRouter([{
 
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
-            if (agent.names == null) {
-              agent.names = [];
-            }
-            agent.names.push(new GedcomX.TextValue().setValue(formData.get("value") as string));
 
-            await db.agents.update(params.id, {
-              names: agent.getNames().map(t => t.toJSON())
-            });
-
-            return redirect("../");
+            let name = new GedcomX.TextValue(updateObject(formData));
+            return pushArray(db.agents, params.id, "names", agent.names, name);
           }, children: [{
             path: ":index", action: async ({request, params}) => {
               const formData = await request.formData();
               const agent = await db.agentWithId(params.id);
 
-              switch (request.method) {
-                case "POST":
-                  agent.names[params.index] = new GedcomX.TextValue()
-                    .setValue(formData.get("value") as string);
-                  break;
-                case "DELETE":
-                  agent.names.splice(Number(params.index), 1);
-                  if (agent.names.length === 0) {
-                    agent.names = undefined;
-                  }
-                  break;
+              let name = null;
+              if (request.method === "POST") {
+                name = new GedcomX.TextValue(updateObject(formData));
               }
-
-              await db.agents.update(params.id, {
-                names: agent.getNames().map(n => n.toJSON())
-              })
-              return redirect("../../");
+              return updateArray(db.agents, params.id, "names", agent.names, Number(params.index), name);
             }
           }]
         }, {
           path: "person", action: async ({request, params}) => {
-            const agent = await db.agentWithId(params.id);
+            let person = undefined;
 
             if (request.method === "POST") {
               const formData = await request.formData();
-              agent.person = new GedcomX.ResourceReference()
-                .setResource(formData.get("person") as string)
-            } else if (request.method === "DELETE") {
-              agent.person = undefined;
+              person = new GedcomX.ResourceReference(updateObject(formData));
             }
 
-            await db.agents.update(params.id, {
-              person: agent.person?.toJSON()
-            });
-
+            await updateDB(db.agents, params.id, "person", person);
             return redirect("../");
           }
         }, {
           path: "homepage", action: async ({request, params}) => {
-            if (request.method === "DELETE") {
-              await db.agents.update(params.id, {
-                homepage: undefined
-              });
-            } else if (request.method === "POST") {
-              const formData = await request.formData();
+            let homepage = undefined;
 
-              await db.agents.update(params.id, {
-                homepage: new GedcomX.ResourceReference().setResource(formData.get("homepage") as string).toJSON()
-              })
+            if (request.method === "POST") {
+              const formData = await request.formData();
+              homepage = new GedcomX.ResourceReference(updateObject(formData));
             }
 
+            await updateDB(db.agents, params.id, "homepage", homepage);
             return redirect("../");
           }
         }, {
           path: "openid", action: async ({request, params}) => {
-            if (request.method === "DELETE") {
-              await db.agents.update(params.id, {
-                openid: undefined
-              });
-            } else if (request.method === "POST") {
-              const formData = await request.formData();
+            let openid = undefined;
 
-              await db.agents.update(params.id, {
-                openid: new GedcomX.ResourceReference().setResource(formData.get("openid") as string).toJSON()
-              })
+            if (request.method === "POST") {
+              const formData = await request.formData();
+              openid = new GedcomX.ResourceReference(updateObject(formData));
             }
 
+            await updateDB(db.agents, params.id, "openid", openid);
             return redirect("../");
           }
         }, {
@@ -245,42 +177,19 @@ const router = createBrowserRouter([{
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
-            if (agent.accounts == null) {
-              agent.accounts = [];
-            }
-
-            agent.accounts.push(new GedcomX.OnlineAccount()
-              .setAccountName(formData.get("account") as string)
-              .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string)));
-
-            await db.agents.update(params.id, {
-              accounts: agent.accounts.map(a => a.toJSON())
-            })
-
-            return redirect("../");
+            let account = new GedcomX.OnlineAccount(updateObject(formData));
+            return pushArray(db.agents, params.id, "accounts", agent.accounts, account);
           }, children: [{
             path: ":index", action: async ({request, params}) => {
               const formData = await request.formData();
               const agent = await db.agentWithId(params.id);
 
-              switch (request.method) {
-                case "POST":
-                  agent.accounts[params.index] = new GedcomX.OnlineAccount()
-                    .setAccountName(formData.get("account") as string)
-                    .setServiceHomepage(new GedcomX.ResourceReference().setResource(formData.get("serviceHomepage") as string));
-                  break;
-                case "DELETE":
-                  agent.accounts.splice(Number(params.index), 1);
-                  if (agent.accounts.length === 0) {
-                    agent.accounts = undefined;
-                  }
-                  break;
+              let account = null;
+              if (request.method === "POST") {
+                account = new GedcomX.OnlineAccount(updateObject(formData));
               }
 
-              await db.agents.update(params.id, {
-                accounts: agent.accounts?.map(a => a.toJSON())
-              })
-              return redirect("../../");
+              return updateArray(db.agents, params.id, "accounts", agent.accounts, Number(params.index), account);
             }
           }]
         }, {
@@ -292,41 +201,20 @@ const router = createBrowserRouter([{
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
-            if (agent.emails == null) {
-              agent.emails = [];
-            }
-
-            agent.emails.push(new GedcomX.ResourceReference()
-              .setResource(formData.get("email") as string));
-
-            await db.agents.update(params.id, {
-              emails: agent.emails.map(e => e.toJSON())
-            })
-
-            return redirect("../");
+            let mail = new GedcomX.ResourceReference(updateObject(formData));
+            return pushArray(db.agents, params.id, "emails", agent.emails, mail);
           },
           children: [{
             path: ":index", action: async ({request, params}) => {
               const formData = await request.formData();
               const agent = await db.agentWithId(params.id);
 
-              switch (request.method) {
-                case "POST":
-                  agent.emails[params.index] = new GedcomX.ResourceReference()
-                    .setResource(formData.get("email") as string);
-                  break;
-                case "DELETE":
-                  agent.emails.splice(Number(params.index), 1);
-                  if (agent.emails.length === 0) {
-                    agent.emails = undefined;
-                  }
-                  break;
+              let mail = null;
+              if (request.method === "POST") {
+                mail = new GedcomX.ResourceReference(updateObject(formData));
               }
 
-              await db.agents.update(params.id, {
-                emails: agent.emails?.map(e => e.toJSON())
-              })
-              return redirect("../../");
+              return updateArray(db.agents, params.id, "emails", agent.emails, Number(params.index), mail);
             }
           }]
         }, {
@@ -334,45 +222,22 @@ const router = createBrowserRouter([{
             if (request.method !== "POST") {
               return;
             }
-
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
-            if (agent.phones == null) {
-              agent.phones = [];
-            }
-
-            agent.phones.push(new GedcomX.ResourceReference()
-              .setResource(formData.get("phone") as string));
-
-            await db.agents.update(params.id, {
-              phones: agent.phones.map(p => p.toJSON())
-            })
-
-            return redirect("../");
+            let phone = new GedcomX.ResourceReference(updateObject(formData));
+            return pushArray(db.agents, params.id, "phones", agent.phones, phone);
           },
           children: [{
             path: ":index", action: async ({request, params}) => {
               const formData = await request.formData();
               const agent = await db.agentWithId(params.id);
 
-              switch (request.method) {
-                case "POST":
-                  agent.phones[params.index] = new GedcomX.ResourceReference()
-                    .setResource(formData.get("phone") as string);
-                  break;
-                case "DELETE":
-                  agent.phones.splice(Number(params.index), 1);
-                  if (agent.phones.length === 0) {
-                    agent.phones = undefined;
-                  }
-                  break;
+              let phone = null;
+              if (request.method === "POST") {
+                phone = new GedcomX.ResourceReference(updateObject(formData));
               }
-
-              await db.agents.update(params.id, {
-                phones: agent.phones?.map(p => p.toJSON())
-              })
-              return redirect("../../");
+              return updateArray(db.agents, params.id, "phones", agent.phones, Number(params.index), phone);
             }
           }]
         }, {
@@ -380,44 +245,22 @@ const router = createBrowserRouter([{
             if (request.method !== "POST") {
               return;
             }
-
             const formData = await request.formData();
             const agent = await db.agentWithId(params.id);
 
-            if (agent.addresses == null) {
-              agent.addresses = [];
-            }
-
-            agent.addresses.push(new GedcomX.Address()
-              .setValue(formData.get("value") as string));
-
-            await db.agents.update(params.id, {
-              addresses: agent.addresses.map(a => a.toJSON())
-            })
-
-            return redirect("../");
+            let address = new GedcomX.Address(updateObject(formData));
+            return pushArray(db.agents, params.id, "addresses", agent.addresses, address);
           }, children: [{
             path: ":index", action: async ({request, params}) => {
               const formData = await request.formData();
               const agent = await db.agentWithId(params.id);
 
-              switch (request.method) {
-                case "POST":
-                  agent.addresses[params.index] = new GedcomX.Address()
-                    .setValue(formData.get("value") as string);
-                  break;
-                case "DELETE":
-                  agent.addresses.splice(Number(params.index), 1);
-                  if (agent.addresses.length === 0) {
-                    agent.addresses = undefined;
-                  }
-                  break;
+              let address = null;
+              if (request.method === "POST") {
+                address = new GedcomX.Address(updateObject(formData));
               }
 
-              await db.agents.update(params.id, {
-                addresses: agent.addresses?.map(a => a.toJSON())
-              })
-              return redirect("../../");
+              return updateArray(db.agents, params.id, "addresses", agent.addresses, Number(params.index), address);
             }
           }]
         }, {
@@ -437,10 +280,7 @@ const router = createBrowserRouter([{
               (agent.getIdentifiers() ?? new Identifiers())
                 .addValue(formData.get("value") as string, type));
 
-            await db.agents.update(params.id, {
-              identifiers: agent.identifiers.toJSON()
-            })
-
+            await updateDB(db.agents, params.id, "identifiers", agent.identifiers);
             return redirect("../");
           }, children: [{
             path: ":index", action: async ({request, params}) => {
@@ -450,10 +290,8 @@ const router = createBrowserRouter([{
               let index = Number(params.index);
               let value = formData?.get("value") as string ?? null;
 
-              await db.agents.update(params.id, {
-                identifiers: updateIdentifiers(agent.getIdentifiers(), undefined, index, value).toJSON()
-              })
-
+              await updateDB(db.agents, params.id, "identifiers",
+                updateIdentifiers(agent.getIdentifiers(), undefined, index, value));
               return redirect("../../");
             }
           }, {
@@ -465,10 +303,8 @@ const router = createBrowserRouter([{
               let type = baseUri + params.type;
               let value = formData?.get("value") as string ?? null;
 
-              await db.agents.update(params.id, {
-                identifiers: updateIdentifiers(agent.getIdentifiers(), type, index, value).toJSON()
-              })
-
+              await updateDB(db.agents, params.id, "identifiers",
+                updateIdentifiers(agent.getIdentifiers(), type, index, value));
               return redirect("../../");
             }
           }]
@@ -506,8 +342,6 @@ export default function App() {
 function updateIdentifiers(identifiers: Identifiers, type: string, index: number, value?: string) {
   let current = identifiers.getValues(type);
 
-  console.debug(type, value, index)
-
   if (value != null) {
     current[index] = value;
   } else {
@@ -515,7 +349,90 @@ function updateIdentifiers(identifiers: Identifiers, type: string, index: number
   }
 
   identifiers.setValues(current, type);
-  console.debug(identifiers.toJSON())
-
   return identifiers;
+}
+
+/**
+ * Sets the values of the given object to the values of the given form data.
+ * @param formData where keys match the keys in the data object (not all have to be present)
+ * @param data to be updated
+ */
+function updateObject(formData: FormData, data: object = {}): object {
+  formData.forEach((value, key) => {
+    if (key === "attribution") {
+      value = JSON.parse(value as string);
+    } else if (key === "changeMessage") {
+      data["attribution"] ??= {};
+      data["attribution"]["changeMessage"] = value;
+      return;
+    } else if (key.endsWith(".resource")) {
+      data[key.split(".")[0]] = { resource: value };
+      return;
+    }
+
+    data[key] = value;
+  });
+
+  return data;
+}
+
+/**
+ * Pushes the given value to the given array and updates the database.
+ * @param table database table
+ * @param id primary index of the value in the database table
+ * @param key property of the database instance to be updated
+ * @param array value behind key
+ * @param newValue value to be added to the array
+ *
+ * @example table.get(id)[key].push(newValue);
+ */
+async function pushArray<T extends Base>(table: Table, id: string, key: string, array: T[], newValue: T) {
+  array ??= [];
+
+  array.push(newValue);
+  await updateDB(table, id, key, array);
+  return redirect("../");
+}
+
+/**
+ * Updates the given value in the given array and updates the database.
+ * @param table database table
+ * @param id primary index of the value in the database table
+ * @param key property of the database instance to be updated
+ * @param array value behind key
+ * @param index index of newValue in the array
+ * @param newValue updated value
+ *
+ * @example table.get(id)[key][index] = newValue;
+ */
+async function updateArray<T extends Base>(table: Table, id: string, key: string, array: T[], index: number, newValue?: T) {
+  if (newValue != null) {
+    array[index] = newValue;
+  } else {
+    array.splice(index, 1);
+    if (array.length === 0) {
+      array = null;
+    }
+  }
+
+  await updateDB(table, id, key, array);
+  return redirect("../../")
+}
+
+/**
+ * Updates key of instance id with value in the table.
+ * @param table database table
+ * @param id primary index of the value in the database table
+ * @param key property of the database instance to be updated
+ * @param newValue updated value
+ */
+async function updateDB(table: Table, id: string, key: string, newValue: any[] | any): Promise<number> {
+  let changes = {};
+
+  if (newValue instanceof Array)
+    changes[key] = newValue?.map(d => d.toJSON());
+  else
+    changes[key] = newValue?.toJSON();
+
+  return table.update(id, changes)
 }

@@ -225,26 +225,26 @@ function NameForm({name}: {name?: string}) {
 }
 
 function HomepageForm({homepage}: { homepage?: string }) {
-  return <Input type="url" name="homepage" defaultValue={homepage} label={strings.gedcomX.agent.homepage}/>;
+  return <Input type="url" name="resource" defaultValue={homepage} label={strings.gedcomX.agent.homepage}/>;
 }
 
 function OpenIdForm({openid}: { openid?: string }) {
-  return <Input type="url" name="openid" defaultValue={openid} label="OpenID"/>;
+  return <Input type="url" name="resource" defaultValue={openid} label="OpenID"/>;
 }
 
 function AccountForm({name, website}: { name?: string, website?: string }) {
   return <>
-    <Input name="account" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name} />
-    <Input name="serviceHomepage" type="url" defaultValue={website} label={strings.gedcomX.agent.website}/>
+    <Input name="accountName" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name} />
+    <Input name="serviceHomepage.resource" type="url" defaultValue={website} label={strings.gedcomX.agent.website}/>
   </>
 }
 
 function EmailForm({email}: { email?: string }) {
-  return <Input type="email" name="email" defaultValue={email} label={strings.gedcomX.agent.emails}/>;
+  return <Input type="email" name="resource" defaultValue={email} label={strings.gedcomX.agent.emails}/>;
 }
 
 function PhoneForm({phone}: { phone?: string }) {
-  return <Input type="tel" name="phone" defaultValue={phone} label={strings.gedcomX.agent.phones} />;
+  return <Input type="tel" name="resource" defaultValue={phone} label={strings.gedcomX.agent.phones} />;
 }
 
 function AddressForm({address}: { address?: string }) {
@@ -257,7 +257,7 @@ function PersonForm({person}: { person?: ResourceReference }) {
     []);
 
   return <>
-    <input type="search" name="person" list="persons" defaultValue={person?.resource}/>
+    <input type="search" name="resource" list="persons" defaultValue={person?.resource}/>
     <datalist id="persons">
       {persons?.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
     </datalist>

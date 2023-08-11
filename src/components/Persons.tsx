@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createRef, useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { strings } from "../main";
 import { ColorMode, ViewMode } from "../backend/ViewGraph";
 import TreeView from "./TreeView";
