@@ -271,10 +271,18 @@ export function SubjectSidebar({subject}: {
   </>
 }
 
-export function Evidence({evidenceReferences}) {
-  const params = useParams();
+function EvidenceForm({evidence}: {evidence?: gedcomX.EvidenceReference}) {
+  return <>
+    <Input name={"resource"} type="text" label={strings.gedcomX.subject.evidence} defaultValue={evidence?.resource}/>
+    <UpdateAttribution attribution={evidence?.attribution} />
+  </>
+}
 
-  if (!evidenceReferences || evidenceReferences.length === 0)
+export function Evidence({evidenceReferences}: {evidenceReferences: gedcomX.EvidenceReference[]}) {
+  const params = useParams();
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing && (!evidenceReferences || evidenceReferences.length === 0))
     return <></>;
 
   let linkTarget = params["id"] ? "../" : "./";
@@ -284,8 +292,12 @@ export function Evidence({evidenceReferences}) {
     {evidenceReferences.map((evidence, i) =>
       <Article key={i}>
         <P><ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink></P>
+        <EditButtons path={`evidence/${i}`} form={<EvidenceForm evidence={evidence}/>} />
         <Attribution attribution={evidence.attribution}/>
       </Article>)}
+    <AddDataButton dataType={strings.gedcomX.subject.evidence} path="evidence">
+      <EvidenceForm />
+    </AddDataButton>
   </ArticleCollection>
 }
 

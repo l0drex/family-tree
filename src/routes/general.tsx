@@ -125,8 +125,6 @@ export function getSourceReferenceRoutes(table: Table<IConclusion>) {
       sourceReference = new GedcomX.SourceReference(updateObject(await request.formData()));
     }
 
-    console.debug("sourceReference: ", sourceReference);
-
     return updateArray(table, params.id, "sources", conclusion.sources, Number(params.index), sourceReference);
   }
 
@@ -134,6 +132,37 @@ export function getSourceReferenceRoutes(table: Table<IConclusion>) {
     path: "sources", action: pushSourceReference,
     children: [
       {path: ":index", action: updateSourceReference}
+    ]
+  }
+}
+
+export function getEvidenceRoutes(table: Table<ISubject>) {
+  async function pushEvidence({params, request}) {
+    if (request.method !== "POST")
+      return;
+
+    const formData = await request.formData();
+    let evidence = new GedcomX.EvidenceReference(updateObject(formData));
+
+    const subject = new GedcomX.Subject(await table.get(params.id));
+    return pushArray(table, params.id, "evidence", subject.evidence, evidence);
+  }
+
+  async function updateEvidence({params, request}) {
+    let subject = new GedcomX.Subject(await table.get(params.id));
+
+    let evidence: GedcomX.EvidenceReference = null;
+    if (request.method === "POST") {
+      evidence = new GedcomX.EvidenceReference(updateObject(await request.formData()));
+    }
+
+    return updateArray(table, params.id, "evidence", subject.evidence, Number(params.index), evidence);
+  }
+
+  return {
+    path: "evidence", action: pushEvidence,
+    children: [
+      {path: ":index", action: updateEvidence}
     ]
   }
 }
@@ -148,6 +177,7 @@ export function getConclusionRoutes(table: Table<IConclusion>) {
 export function getSubjectRoutes(table: Table<ISubject>) {
   return [
     ...getConclusionRoutes(table),
-    getIdentifierRoute(table)
+    getIdentifierRoute(table),
+    getEvidenceRoutes(table)
   ]
 }
