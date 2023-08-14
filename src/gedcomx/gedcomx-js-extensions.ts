@@ -13,6 +13,7 @@ import {
 import emojis from '../backend/emojies.json';
 import { IConclusion, INameForm, INote, ISourceCitation, ITextValue } from "./interfaces";
 import GedcomXDate, { Range, Recurring, Simple } from "gedcomx-date";
+import { DateTime } from "luxon";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
@@ -130,7 +131,7 @@ export class Person extends GedcomX.Person {
     let birthDate = birthGDate.toDateObject();
 
     // subtraction returns milliseconds, have to convert to year
-    return Math.floor((date.getTime() - birthDate.getTime()) / 31536000000);
+    return Math.floor((date.getTime() - birthDate.valueOf()) / 31536000000);
   }
 
   isExtracted(): boolean {
@@ -271,7 +272,7 @@ function simpleToString(dateObject: Simple): string {
     return "";
 
   let jsDate = simpleToJsDate(dateObject);
-  let string = jsDate.toLocaleDateString(strings.getLanguage(), getDateFormatOptions(dateObject));
+  let string = jsDate.setLocale(strings.getLanguage()).toLocaleString(getDateFormatOptions(dateObject));
 
   if (dateObject.isApproximate())
     string = strings.formatString(strings.gedcomX.date.approximate, string) as string;
@@ -279,25 +280,29 @@ function simpleToString(dateObject: Simple): string {
   return string;
 }
 
-function simpleToJsDate(parsedDate: Simple) {
+export function simpleToJsDate(parsedDate: Simple): DateTime {
   if (!parsedDate)
     return undefined;
 
-  let utc = Date.UTC(
-    parsedDate.getYear(),
-    parsedDate.getMonth() - 1 || 0,
-    parsedDate.getDay() || 1,
-    parsedDate.getHours() || null,
-    parsedDate.getMinutes() || null,
-    parsedDate.getSeconds() || null
-  );
+  let isoString = toFormalString(parsedDate);
+  // remove approximate tag
+  if (parsedDate.isApproximate())
+    isoString = isoString.substring(1);
 
-  if (parsedDate.getTZHours()) {
-    utc += Date.UTC(0, 0, 0,
-      parsedDate.getTZHours(), parsedDate.getTZMinutes() || 0)
+  // iso doesn't allow signs when the year is only 4 digits long
+  isoString = isoString.substring(1);
+
+  let date = DateTime.fromISO(isoString);
+  // deal with negative years
+  if (parsedDate.getYear() < 0) {
+    date = date.set({year: parsedDate.getYear()})
   }
 
-  return new Date(utc);
+  if (date.toString() === "Invalid DateTime") {
+    console.warn("error while formatting date", date, isoString, parsedDate);
+  }
+
+  return date;
 }
 
 export function getDateFormatOptions(date: Simple) {
@@ -517,4 +522,34 @@ export function setReferenceAge(age: number, generation: number, forceUpdate = f
   if (referenceAge.generation === undefined && generation !== undefined) {
     referenceAge.generation = generation;
   }
+}
+
+function toFormalString(simple: Simple): string {
+  let formalString = simple.toFormalString();
+
+  if (formalString.endsWith("Z")){
+    // remove the z, will be added in the next step if applicable
+    formalString = formalString.substring(0, formalString.length - 1);
+
+    if (simple.getHours() && (simple.getTZHours() !== 0 || simple.getTZMinutes() !== 0)) {
+      formalString += getOffset(simple);
+    }
+  }
+
+  return formalString;
+}
+
+export function getOffset(date: Simple): string {
+  let hours = date.getTZHours() ?? 0;
+  let minutes = date.getTZMinutes();
+
+  if (date.getTZHours() === 0 && date.getTZMinutes() === 0) return DateTime.local().toFormat("ZZ")
+
+  let offset = (hours >= 0 ? "+" : "-") + Math.abs(hours).toString().padStart(2, "0");
+
+  if (minutes != null) {
+    offset += ':' + Math.abs(minutes).toString().padStart(2, "0");
+  }
+
+  return offset;
 }

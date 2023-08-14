@@ -1,8 +1,10 @@
 // noinspection JSUnusedGlobalSymbols
 
 declare module "gedcomx-date" {
+  export type DateType = "single" | "range" | "recurring";
+
   export interface BaseDate {
-    getType(): "single" | "approximate" | "duration" | "range" | "recurring"
+    getType(): DateType | "duration"
     toFormalString(): string
     isApproximate(): boolean
   }
@@ -19,6 +21,10 @@ declare module "gedcomx-date" {
     getSeconds(): number | undefined
     getTZHours(): number | undefined
     getTZMinutes(): number | undefined
+
+    /**
+     * @deprecated use toFormalString(simple) instead
+     */
     toFormalString(): string
   }
 

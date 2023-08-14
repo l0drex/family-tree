@@ -72,8 +72,8 @@ function getLifeSpanDecades(person: Person): [birthDecade: number, deathDecade: 
   let deathDecade: number;
 
   try {
-    birthDecade = Math.floor(birthFact.getDate().toDateObject().getFullYear() / 10) * 10;
-    deathDecade = Math.floor(deathFact.getDate().toDateObject().getFullYear() / 10) * 10;
+    birthDecade = Math.floor(birthFact.getDate().toDateObject().year / 10) * 10;
+    deathDecade = Math.floor(deathFact.getDate().toDateObject().year / 10) * 10;
   } catch (e) {
     if (e instanceof TypeError) {
       if (birthDecade === undefined) {

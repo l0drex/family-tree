@@ -367,7 +367,21 @@
       "approximate": "circa {0}",
       "rangeStart": "since {0}",
       "rangeEndDate": "until {0}",
-      "recurring": "{0} times {1}"
+      "recurring": "{0} times {1}",
+      "form": {
+        "original": "Original notation",
+        "mode": {
+          "label": "Mode",
+          "single": "Simple",
+          "range": "Range",
+          "recurring": "Recurring"
+        },
+        "approximate": "Approximate",
+        "date": "Date",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "repetitions": "Repetitions"
+      }
     },
     "place": "in {0}",
     "facts": "Facts",

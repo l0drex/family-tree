@@ -41,6 +41,7 @@ import {
   RelationshipTypes
 } from "../gedcomx/types";
 import {DurationString} from "../gedcomx/date";
+import { DateTime } from "luxon";
 
 let testData: Root;
 
@@ -367,5 +368,6 @@ function getConclusion(id: string) {
  * @param date
  */
 function toISOString(date: Date) {
-  return "+" + date.toISOString().split(".")[0] + "Z";
+  date.setMilliseconds(0);
+  return "+" + DateTime.fromJSDate(date).toISO({suppressMilliseconds: true});
 }

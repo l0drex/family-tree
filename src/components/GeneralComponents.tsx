@@ -4,6 +4,7 @@ import { ReactElement, ReactNode, useContext, useEffect, useRef, useState } from
 import { strings } from "../main";
 import emojis from "../backend/emojies.json";
 import { LayoutContext } from "../Layout";
+import { DateTime } from "luxon";
 
 export function Article({noMargin, emoji, title, onClick, children}: {
   noMargin?: boolean,
@@ -327,18 +328,52 @@ export function CreateNewButton({path, label}: {
   </Form>
 }
 
-export function Input({type, name, list, label, defaultValue}: {
+export function Input({type, name, list, label, defaultValue, integer, checked}: {
   type: React.HTMLInputTypeAttribute,
   name: string,
   label: string,
   list?: string,
-  defaultValue?: string
+  defaultValue?: string,
+  integer?: boolean,
+  checked?: boolean
 }) {
   const id = crypto.randomUUID();
 
   return <>
     <label htmlFor={id}>{label}</label>
-    <input id={id} name={name} type={type} defaultValue={defaultValue} list={list} className="rounded-full px-4"/>
+    <input id={id} name={name} type={type} defaultValue={defaultValue} list={list} className="rounded-full px-4" min={integer ? 0 : undefined} step={integer ? 1 : undefined} defaultChecked={checked}/>
+  </>
+}
+
+export function DateTimeInput({namePrefix, label, defaultValue}: {
+  namePrefix: string,
+  label: string,
+  defaultValue?: DateTime
+}) {
+  const id = crypto.randomUUID();
+
+  let datetime = defaultValue;
+  const defaultDate = datetime?.toISODate()?.toString() ?? "";
+  const defaultTime = datetime?.toISOTime({suppressMilliseconds: true, includeOffset: false})?.toString() ?? "";
+  let offsetTime = "";
+  if (datetime?.offset) {
+    offsetTime = DateTime.fromObject({
+      hour: Math.abs(Math.floor(datetime?.offset / 60)),
+      minute: datetime?.offset % 60
+    }).toISOTime({suppressSeconds: true, includeOffset: false});
+  }
+
+  return <>
+    <label htmlFor={id}>{label}</label>
+    <div>
+      <input id={id} name={namePrefix + "-date"} type="date" defaultValue={defaultDate} className="rounded-full px-4 mr-2"/>
+      <input name={namePrefix + "-time"} type="time" step={1} defaultValue={defaultTime} className="rounded-full px-4 mr-4"/>
+      <select name={namePrefix + "-tz-sign"} className="bg-white px-2 py-1 mr-2 rounded-full" defaultValue={datetime?.offset > 0 ? "+" : "-"}>
+        <option>+</option>
+        <option>-</option>
+      </select>
+      <input type="time" name={namePrefix + "-tz"} defaultValue={offsetTime} className="rounded-full px-2" required />
+    </div>
   </>
 }
 

@@ -6,9 +6,10 @@ import { baseUri } from "../gedcomx/types";
 import { IAgent, IConclusion, IPerson, IRelationship, ISourceDescription, ISubject } from "../gedcomx/interfaces";
 import FactComponent from "../components/FactComponent";
 import { Fact, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
+import GedcomXDate from "gedcomx-date";
 
 export function getNotesRoute(table: Table<IConclusion>): RouteObject {
-  async function updateNotes({params, request}: { params: Params<string>, request: Request }) {
+  async function updateNotes({params, request}: { params: Params, request: Request }) {
     let conclusion = new GedcomX.Conclusion(await table.get(params.id));
 
     let note = null;
@@ -18,7 +19,7 @@ export function getNotesRoute(table: Table<IConclusion>): RouteObject {
     return updateArray(table, params.id, "notes", conclusion.notes, Number(params.index), note);
   }
 
-  async function pushNote({params, request}: { params: Params<string>, request: Request }) {
+  async function pushNote({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
 
@@ -53,7 +54,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
     return identifiers;
   }
 
-  async function pushIdentifier({request, params}) {
+  async function pushIdentifier({request, params}: { params: Params, request: Request }) {
     if (request.method !== "POST") {
       return;
     }
@@ -72,7 +73,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
     return redirect("../");
   }
 
-  async function editIdentifier({request, params}) {
+  async function editIdentifier({request, params}: { params: Params, request: Request }) {
     const datum = await table.get(params.id);
     const formData = await request.formData();
 
@@ -85,7 +86,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
     return redirect("../../");
   }
 
-  async function editTypedIdentifier({request, params}) {
+  async function editTypedIdentifier({request, params}: { params: Params, request: Request }) {
     const datum = await table.get(params.id);
     const formData = await request.formData();
 
@@ -108,7 +109,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
 }
 
 export function getSourceReferenceRoutes(table: Table<IConclusion>): RouteObject {
-  async function pushSourceReference({params, request}) {
+  async function pushSourceReference({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
 
@@ -139,7 +140,7 @@ export function getSourceReferenceRoutes(table: Table<IConclusion>): RouteObject
 }
 
 export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
-  async function pushEvidence({params, request}) {
+  async function pushEvidence({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
 
@@ -150,7 +151,7 @@ export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
     return pushArray(table, params.id, "evidence", subject.evidence, evidence);
   }
 
-  async function updateEvidence({params, request}) {
+  async function updateEvidence({params, request}: { params: Params, request: Request }) {
     let subject = new GedcomX.Subject(await table.get(params.id));
 
     let evidence: GedcomX.EvidenceReference = null;
@@ -170,7 +171,7 @@ export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
 }
 
 export function getMediaRoutes(table: Table<ISubject>): RouteObject {
-  async function pushMedia({params, request}) {
+  async function pushMedia({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
 
@@ -200,8 +201,66 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
   }
 }
 
+export function formToFormal(formData: FormData) {
+  let date = new GedcomX.Date()
+    .setOriginal(formData.get("original") as string);
+
+  let formal = "";
+  if (formData.has("approximate")) {
+    formal = "A";
+  }
+
+  console.debug(formData);
+
+  function formToFormalSimple(prefix: string): string {
+    let string = "";
+
+    if (!formData.get(prefix + "-date")) {
+      return string;
+    }
+    string += `+${formData.get(prefix + "-date")}`;
+
+    if (!formData.get(prefix + "-time")) {
+      return string;
+    }
+    string += `T${formData.get(prefix + "-time")}`;
+
+    if (!formData.get(prefix + "-tz")) {
+      return string;
+    }
+    string += formData.get(prefix + "-tz-sign") as string + formData.get(prefix + "-tz");
+
+    return string;
+  }
+
+  switch (formData.get("mode")) {
+    case "single":
+      formal += formToFormalSimple("start");
+      break;
+    case "recurring":
+      formal = `R${Number(formData.get("count")) > 1 ? formData.get("count") : ""}/` + formal;
+    // intentionally no break
+    // noinspection FallThroughInSwitchStatementJS
+    case "range":
+      formal += `${formToFormalSimple("start")}/${formToFormalSimple("end")}`;
+      break;
+  }
+
+  // validate that it is a valid string
+  try {
+    GedcomXDate(formal);
+  } catch(e) {
+    console.error(formal)
+    throw e;
+  }
+
+  console.debug(formal);
+  date.setFormal(formal);
+  return date;
+}
+
 export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject {
-  async function updateFact({params, request}) {
+  async function updateFact({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
 
@@ -209,14 +268,31 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     let fact = new GedcomX.Fact(updateObject(formData));
 
     let datum = await table.get(params.id);
-    let instance;
+    let instance: Person | Relationship;
     if (datum satisfies IPerson)
       instance = new Person(datum);
     else
       instance = new Relationship(datum);
 
-    updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
     return redirect("");
+  }
+
+  async function updateDate({params, request}: { params: Params, request: Request }) {
+    if (request.method !== "POST")
+      return;
+
+    let datum = await table.get(params.id);
+    let instance: Person | Relationship;
+    if (datum satisfies IPerson)
+      instance = new Person(datum);
+    else
+      instance = new Relationship(datum);
+
+    let fact = instance.getFacts()[Number(params.index)];
+    fact.setDate(formToFormal(await request.formData()));
+    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    return redirect("../");
   }
 
   return {
@@ -226,6 +302,8 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
         let datum = await table.get(params.id);
         return datum.facts.map(f => new Fact(f));
       }, action: updateFact
+    }, {
+      path: "date", action: updateDate
     }]
   }
 }

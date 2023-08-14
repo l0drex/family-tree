@@ -5,6 +5,7 @@ import {ResourceReference} from "gedcomx-js";
 import {PersonFactTypes} from "./types";
 import {strings} from "../main";
 import GedcomXDate from "gedcomx-date";
+import { DateTime } from "luxon";
 
 test("Graph Family", () => {
   let graphFamily = new GraphFamily();
@@ -127,31 +128,62 @@ test("toDateObject works", () => {
 
   gDate.setFormal("+2022-01-05T22:05:31");
   date = gDate.toDateObject();
-  expect(date.getTime())
+  expect(date.valueOf())
     .toBe(Date.UTC(2022, 0, 5, 22, 5, 31));
 
   gDate.setFormal("+1970-01-01")
   date = gDate.toDateObject();
-  expect(date.getTime())
+  expect(date.valueOf())
     .toBe(Date.UTC(1970,0,1))
 
   gDate.setFormal("+1600-12-31T23:59:59");
   date = gDate.toDateObject();
-  expect(date.getTime())
+  expect(date.valueOf())
     .toBe(Date.UTC(1600, 11, 31, 23, 59, 59));
 
   gDate.setFormal("+1970")
   date = gDate.toDateObject();
-  expect(date.getTime()).toBe(0);
+  expect(date.valueOf()).toBe(0);
 
+  // javascript dates are weird with these
   gDate.setFormal("+0000");
   date = gDate.toDateObject();
-  expect(date.getTime()).toBe(Date.UTC(0, 0));
+  expect(date.valueOf()).toBe(DateTime.fromObject({year: 0}).valueOf());
 
   gDate.setFormal("-0006");
   date = gDate.toDateObject();
-  expect(date.getTime())
-    .toBe(Date.UTC(-6, 0));
+  expect(date.valueOf())
+    .toBe(DateTime.fromObject({year: -6}).valueOf());
+
+  gDate.setFormal("+2020-12-01T04:00Z");
+  date = gDate.toDateObject();
+  expect(date.valueOf())
+    .toBe(DateTime.fromObject({
+      year: 2020,
+      month: 12,
+      day: 1,
+      hour: 4
+    }, {zone: "UTC"}).valueOf())
+
+  gDate.setFormal("+2020-12-01T04+01");
+  date = gDate.toDateObject();
+  expect(date.valueOf())
+    .toBe(DateTime.fromObject({
+      year: 2020,
+      month: 12,
+      day: 1,
+      hour: 4
+    }, {zone: "UTC+1"}).valueOf())
+
+  gDate.setFormal("+2020-12-01T04:00-05:12");
+  date = gDate.toDateObject();
+  expect(date.valueOf())
+    .toBe(DateTime.fromObject({
+      year: 2020,
+      month: 12,
+      day: 1,
+      hour: 4
+    }, {zone: "UTC-05:12"}).valueOf())
 })
 
 test("toString works", () => {

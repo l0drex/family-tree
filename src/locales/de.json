@@ -368,7 +368,21 @@
       "approximate": "ca. {0}",
       "rangeStart": "seit {0}",
       "rangeEndDate": "bis {0}",
-      "recurring": "{0} mal {1}"
+      "recurring": "{0} mal {1}",
+      "form": {
+        "original": "Originale Notation",
+        "mode": {
+          "label": "Modus",
+          "single": "Einfach",
+          "range": "Zeitspanne",
+          "recurring": "Wiederholend"
+        },
+        "approximate": "Ungefähr",
+        "date": "Datum",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum",
+        "repetitions": "Wiederholungen"
+      }
     },
     "place": "in {0}",
     "facts": "Fakten",

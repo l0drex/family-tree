@@ -7,6 +7,7 @@ import { Fact } from "../gedcomx/gedcomx-js-extensions";
 import { LayoutContext, Main, Sidebar } from "../Layout";
 import emojies from "../backend/emojies.json";
 import { baseUri } from "../gedcomx/types";
+import DateForm from "./GeneralForms";
 
 
 function FactForm({types, fact}: { types: object, fact?: Fact }) {
@@ -51,7 +52,9 @@ export default function FactComponent() {
         </div>
         <div className="grid grid-cols-2">
           <span>Date</span>
-          <span>{fact.getDate()?.toString() ?? "-"}</span>
+          <span>{fact.getDate()?.toString() ?? "-"} <EditDataButton path={"date"}>
+            <DateForm date={fact.getDate()} />
+          </EditDataButton></span>
           <span>Place</span>
           <span>{fact.getPlace()?.toString() ?? "-"}</span>
         </div>
