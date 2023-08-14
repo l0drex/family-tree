@@ -365,6 +365,7 @@
     },
     "date": {
       "approximate": "circa {0}",
+      "date": "Date",
       "rangeStart": "since {0}",
       "rangeEndDate": "until {0}",
       "recurring": "{0} times {1}",
@@ -383,7 +384,10 @@
         "repetitions": "Repetitions"
       }
     },
-    "place": "in {0}",
+    "place": {
+      "format": "in {0}",
+      "place": "place"
+    },
     "facts": "Facts",
     "factQualifier": {
       "Age": "Age",

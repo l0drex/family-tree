@@ -51,11 +51,11 @@ export default function FactComponent() {
           </EditDataButton>
         </div>
         <div className="grid grid-cols-2">
-          <span>Date</span>
+          <span>{strings.gedcomX.date.date}</span>
           <span>{fact.getDate()?.toString() ?? "-"} <EditDataButton path={"date"}>
             <DateForm date={fact.getDate()} />
           </EditDataButton></span>
-          <span>Place</span>
+          <span>{strings.gedcomX.place.place}</span>
           <span>{fact.getPlace()?.toString() ?? "-"}</span>
         </div>
       </Article>

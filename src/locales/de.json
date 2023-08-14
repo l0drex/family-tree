@@ -366,6 +366,7 @@
     },
     "date": {
       "approximate": "ca. {0}",
+      "date": "Datum",
       "rangeStart": "seit {0}",
       "rangeEndDate": "bis {0}",
       "recurring": "{0} mal {1}",
@@ -384,7 +385,10 @@
         "repetitions": "Wiederholungen"
       }
     },
-    "place": "in {0}",
+    "place": {
+      "format": "in {0}",
+      "place": "Ort"
+    },
     "facts": "Fakten",
     "factQualifier": {
       "Age": "Alter",
