@@ -150,7 +150,7 @@ export function SourceReference({reference, index}: {
     <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
       {sourceTitle || reference.description}
     </ReactLink></P>
-    <EditButtons path={`sources/${index}`} form={<SourceReferenceForm reference={reference}/>} />
+    <EditButtons path={`sources/${index}`} form={<SourceReferenceForm reference={reference}/>}/>
     {reference.attribution && <Attribution attribution={reference.attribution}/>}
   </Article>
 }
@@ -180,11 +180,11 @@ function SourceReferenceForm({reference}: {
 
   return <>
     <Search name={"description"} label={strings.gedcomX.sourceDescription.sourceDescription}
-                 values={sources?.map(s => ({
-                   display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
-                   value: "#" + s.id
-                 }))} defaultValue={reference?.description} />
-    <UpdateAttribution attribution={reference?.attribution} />
+            values={sources?.map(s => ({
+              display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
+              value: "#" + s.id
+            }))} defaultValue={reference?.description}/>
+    <UpdateAttribution attribution={reference?.attribution}/>
   </>
 }
 
@@ -271,14 +271,14 @@ export function SubjectSidebar({subject}: {
   </>
 }
 
-function EvidenceForm({evidence}: {evidence?: gedcomX.EvidenceReference}) {
+function EvidenceForm({evidence}: { evidence?: gedcomX.EvidenceReference }) {
   return <>
     <Input name={"resource"} type="text" label={strings.gedcomX.subject.evidence} defaultValue={evidence?.resource}/>
-    <UpdateAttribution attribution={evidence?.attribution} />
+    <UpdateAttribution attribution={evidence?.attribution}/>
   </>
 }
 
-export function Evidence({evidenceReferences}: {evidenceReferences: gedcomX.EvidenceReference[]}) {
+export function Evidence({evidenceReferences}: { evidenceReferences: gedcomX.EvidenceReference[] }) {
   const params = useParams();
   const editing = useContext(LayoutContext).edit;
 
@@ -292,24 +292,24 @@ export function Evidence({evidenceReferences}: {evidenceReferences: gedcomX.Evid
     {evidenceReferences.map((evidence, i) =>
       <Article key={i}>
         <P><ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink></P>
-        <EditButtons path={`evidence/${i}`} form={<EvidenceForm evidence={evidence}/>} />
+        <EditButtons path={`evidence/${i}`} form={<EvidenceForm evidence={evidence}/>}/>
         <Attribution attribution={evidence.attribution}/>
       </Article>)}
     <AddDataButton dataType={strings.gedcomX.subject.evidence} path="evidence">
-      <EvidenceForm />
+      <EvidenceForm/>
     </AddDataButton>
   </ArticleCollection>
 }
 
-function MediaForm({media}: {media?: gedcomX.SourceReference}) {
+function MediaForm({media}: { media?: gedcomX.SourceReference }) {
   const sources = useLiveQuery(async () => db.sourceDescriptions.toArray())
 
   return <>
     <Search name="resource" label={strings.gedcomX.sourceDescription.sourceDescription} values={sources?.map(s => ({
       display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
       value: "#" + s.id
-    }))} defaultValue={media?.description} />
-    <UpdateAttribution attribution={media?.attribution} />
+    }))} defaultValue={media?.description}/>
+    <UpdateAttribution attribution={media?.attribution}/>
   </>
 }
 
@@ -329,7 +329,7 @@ export function SubjectArticles({subject, noMargin}: {
         let credit = m.getCitations()[0].getValue();
         return <div className="relative" key={i}>
           {editing && <div className="absolute right-0 mr-4 mt-2">
-            <EditButtons path={`media/${i}`} form={<MediaForm media={subject.getMedia()?.at(i)} />} />
+            <EditButtons path={`media/${i}`} form={<MediaForm media={subject.getMedia()?.at(i)}/>}/>
           </div>}
           <Media mimeType={m.mediaType} url={m.getAbout()}
                  alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
@@ -341,7 +341,7 @@ export function SubjectArticles({subject, noMargin}: {
       })}
       <div className="relative">
         <AddDataButton dataType={strings.gedcomX.subject.media} path="media">
-          <MediaForm />
+          <MediaForm/>
         </AddDataButton>
       </div>
     </Gallery>}

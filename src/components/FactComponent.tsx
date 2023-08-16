@@ -1,13 +1,23 @@
 import { useLoaderData, useParams } from "react-router-dom";
 import { filterLang, strings } from "../main";
 import { ConclusionArticles, ConclusionMisc, ConclusionSidebar, } from "./GedcomXComponents";
-import { Article, EditDataButton, Input, ReactLink, ReactNavLink, Tags, Title } from "./GeneralComponents";
+import {
+  AddDataButton,
+  Article,
+  EditDataButton,
+  Input,
+  ReactLink,
+  ReactNavLink,
+  Tag,
+  Tags,
+  Title
+} from "./GeneralComponents";
 import React, { useContext, useEffect } from "react";
 import { Fact, PlaceDescription } from "../gedcomx/gedcomx-js-extensions";
 import { LayoutContext, Main, Sidebar } from "../Layout";
 import emojies from "../backend/emojies.json";
 import { baseUri } from "../gedcomx/types";
-import DateForm, { PlaceForm } from "./GeneralForms";
+import DateForm, { PlaceForm, QualifierForm } from "./GeneralForms";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../backend/db";
 import { UpdateAttribution } from "./Agents";
@@ -46,9 +56,21 @@ export default function FactComponent() {
     layoutContext.setHeaderChildren(<Title emoji={emojies.event.default}>{strings.gedcomX.facts}</Title>)
   }, [fact, layoutContext])
 
+  const qualifierForm = (qualifier?) => <>
+    <QualifierForm types={strings.gedcomX.factQualifier} qualifier={qualifier}/>
+    <UpdateAttribution attribution={fact.getAttribution()} />
+  </>
+
   return <>
     <Main>
       <Tags>
+        {fact.getQualifiers().map((q, i) =>
+          <Tag key={i} form={qualifierForm(q)} path={`qualifier/${i}`}>
+            {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
+          </Tag>)}
+        <AddDataButton dataType={strings.gedcomX.qualifier.qualifier} path="qualifier">
+          {qualifierForm()}
+        </AddDataButton>
         <ConclusionMisc conclusion={fact}/>
       </Tags>
       <Article>

@@ -393,7 +393,6 @@
     "facts": "Fakten",
     "factQualifier": {
       "Age": "Alter",
-      "ageFormatter": "mit {0} Jahren",
       "Cause": "Ursache",
       "Religion": "Religion",
       "Transport": "Transport",
@@ -406,6 +405,11 @@
         "Authority": "Autorität",
         "Deprecated": "Veraltet"
       }
+    },
+    "qualifier": {
+      "qualifier": "Kennzeichnung",
+      "name": "Name",
+      "value": "Wert"
     }
   },
   "searchField": {

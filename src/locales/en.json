@@ -392,7 +392,6 @@
     "facts": "Facts",
     "factQualifier": {
       "Age": "Age",
-      "ageFormatter": "with {0} years old",
       "Cause": "Cause",
       "Religion": "Religion",
       "Transport": "Transport",
@@ -405,6 +404,11 @@
         "Authority": "Authority",
         "Deprecated": "Deprecated"
       }
+    },
+    "qualifier": {
+      "qualifier": "qualifier",
+      "name": "name",
+      "value": "Value"
     }
   },
   "searchField": {

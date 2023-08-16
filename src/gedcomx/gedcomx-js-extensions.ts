@@ -4,7 +4,6 @@ import { Equals, strings } from "../main";
 import {
   baseUri,
   EventRoleTypes,
-  FactQualifier,
   NamePartQualifier,
   NamePartTypes,
   PersonFactTypes,
@@ -371,24 +370,6 @@ export class Fact extends GedcomX.Fact {
 }
 
 class Qualifier extends GedcomX.Qualifier {
-  toString() {
-    let string;
-    switch (this.name) {
-      case FactQualifier.Age:
-        string = strings.formatString(strings.gedcomX.factQualifier.ageFormatter, this.value);
-        break;
-      case FactQualifier.Cause:
-        string = `(${this.value})`;
-        break;
-      default:
-        string = this.name;
-        if (this.value) {
-          string += ": " + this.value;
-        }
-    }
-
-    return string;
-  }
 }
 
 class PlaceReference extends GedcomX.PlaceReference {

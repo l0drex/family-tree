@@ -94,26 +94,28 @@ export function ButtonLike(props: {
   </div>
 }
 
-export function Tag({form, children, bgColor}: { form?: ReactNode, children: ReactNode, bgColor?: string }) {
+export function Tag({form, path, children, bgColor}: { children: ReactNode, bgColor?: string } & ({form: ReactNode, path: string} | {form?: never, path?: never})) {
   bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
 
   return <span
-    className={`inline-block rounded-2xl ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
+    className={`inline-block rounded-full ${bgColor} w-fit h-min px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
+    <span>
     {children}
+    </span>
     {form && <>
-      <EditDataButton path="person">{form}</EditDataButton>
-      <DeleteDataButton path="person"/>
+      <EditDataButton path={path}>{form}</EditDataButton>
+      <DeleteDataButton path={path}/>
     </>}
   </span>
 }
 
-export function Tags({children}) {
-  return <section className="mx-auto w-fit flex flex-row gap-4 flex-wrap justify-center">
+export function Tags({children}: { children: ReactNode }) {
+  return <section className="mx-auto w-fit flex flex-row gap-4 flex-wrap justify-center items-baseline">
     {children}
   </section>
 }
 
-export function P({children}: { children }) {
+export function P({children}: { children: ReactNode }) {
   return <p className={"text-block mb-4 last:mb-0"}>{children}</p>
 }
 
@@ -154,7 +156,7 @@ export function Gallery(props: { children: any[], noMargin?: boolean }) {
   </article>;
 }
 
-export function ExternalContent({children}: { children }) {
+export function ExternalContent({children}: { children: ReactNode }) {
   const [allowExternalContent, toggleExternalContent] = useState(false);
 
   if (allowExternalContent) return children;
@@ -228,10 +230,6 @@ export function PopupButton({title, children: popupContent}) {
 
 export function Li({children}: { children: ReactNode }) {
   return <li className={"mb-2 last:mb-0" + children ? "" : " hidden"}>{children}</li>
-}
-
-export function Td({children}: { children: ReactNode }) {
-  return <td className={`first:pl-0 pl-4 pb-4 first:font-bold align-top`}>{children}</td>
 }
 
 export function DataButton({path, children, buttonLabel}: {

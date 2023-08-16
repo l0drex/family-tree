@@ -2,12 +2,12 @@ import { Table } from "dexie";
 import { pushArray, updateArray, updateDB, updateObject } from "./utils";
 import { Params, redirect, RouteObject } from "react-router-dom";
 import * as GedcomX from "gedcomx-js";
+import { PlaceReference } from "gedcomx-js";
 import { baseUri } from "../gedcomx/types";
 import { IAgent, IConclusion, IPerson, IRelationship, ISourceDescription, ISubject } from "../gedcomx/interfaces";
 import FactComponent from "../components/FactComponent";
 import { Fact, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
 import GedcomXDate from "gedcomx-date";
-import { PlaceReference } from "gedcomx-js";
 
 export function getNotesRoute(table: Table<IConclusion>): RouteObject {
   async function updateNotes({params, request}: { params: Params, request: Request }) {
@@ -248,7 +248,7 @@ export function formToFormalDate(formData: object) {
   // validate that it is a valid string
   try {
     GedcomXDate(formal);
-  } catch(e) {
+  } catch (e) {
     console.error(formal)
     throw e;
   }
@@ -289,7 +289,6 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const instance = await getFactInstance(params);
     let fact = instance.getFacts()[Number(params.index)];
 
-
     const formObject = updateObject(await request.formData());
     fact.setDate(formToFormalDate(formObject));
     fact.setAttribution(formObject["attribution"]);
@@ -311,6 +310,34 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     return redirect("../");
   }
 
+  async function updateQualifier({params, request}: { params: Params, request: Request }) {
+    const instance = await getFactInstance(params);
+    let fact = instance.getFacts()[Number(params.index)];
+
+    if (request.method === "POST") {
+      const formObject = updateObject(await request.formData());
+      const qualifier = new GedcomX.Qualifier(formObject);
+
+      if (params.qIndex) {
+        fact.getQualifiers()[Number(params.qIndex)] = qualifier;
+      } else {
+        fact.getQualifiers().push(qualifier);
+      }
+      fact.setAttribution(formObject["attribution"]);
+    } else if (request.method === "DELETE") {
+      console.debug(Number(params.qIndex));
+      let qualifiers = fact.getQualifiers();
+      qualifiers.splice(Number(params.qIndex), 1);
+      if (qualifiers.length === 0)
+        qualifiers = undefined;
+
+      fact.setQualifiers(qualifiers)
+    }
+
+    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    return redirect("../")
+  }
+
   return {
     path: "facts/:index", children: [{
       index: true, Component: FactComponent,
@@ -322,6 +349,8 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
       path: "date", action: updateDate
     }, {
       path: "place", action: updatePlace
+    }, {
+      path: "qualifier/:qIndex?", action: updateQualifier
     }]
   }
 }
