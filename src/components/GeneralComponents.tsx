@@ -94,12 +94,16 @@ export function ButtonLike(props: {
   </div>
 }
 
-export function Tag({children, bgColor}: { children, bgColor?: string }) {
+export function Tag({form, children, bgColor}: { form?: ReactNode, children: ReactNode, bgColor?: string }) {
   bgColor ??= "bg-white bg-opacity-50 dark:bg-opacity-10";
 
   return <span
     className={`inline-block rounded-2xl ${bgColor} w-fit px-3 py-1 text-neutral-700 dark:text-neutral-300 text-sm`}>
     {children}
+    {form && <>
+      <EditDataButton path="person">{form}</EditDataButton>
+      <DeleteDataButton path="person"/>
+    </>}
   </span>
 }
 

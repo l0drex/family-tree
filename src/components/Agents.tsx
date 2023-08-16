@@ -83,21 +83,9 @@ export function AgentView() {
 
   return <>
     <Main>
-      <Tags>
-        {agent.person ? <Tag>
-          {strings.gedcomX.agent.person}: <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
-          {agent.person.resource}</ReactLink>
-          <EditDataButton path="person">
-            <PersonForm person={agent.person}/>
-          </EditDataButton>
-          <DeleteDataButton path="person"/>
-        </Tag> : <AddDataButton dataType={strings.gedcomX.person.persons} path={"person"}>
-          <PersonForm/>
-        </AddDataButton>}
-      </Tags>
       <Article>
         <div className="grid grid-cols-2 gap-4" id="agentTable">
-          <div>{`${emojis.name} ${strings.gedcomX.person.names}`}</div>
+          <div>{emojis.name} {strings.gedcomX.person.names}</div>
           <div>
             <ul>
               {agent.names?.map((n, i) => {
@@ -113,6 +101,17 @@ export function AgentView() {
                 <NameForm/>
               </AddDataButton></Li>
             </ul>
+          </div>
+
+          <div>{emojis.tree} {strings.gedcomX.agent.person}</div>
+          <div>
+            {agent.person ? <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
+              {agent.person.resource}
+            </ReactLink> : <span>{strings.errors.noData}</span>}
+            <EditDataButton path="person">
+              <PersonForm person={agent.person}/>
+            </EditDataButton>
+            {agent.person && <DeleteDataButton path="person"/>}
           </div>
 
           <div>{`${emojis.agent.homepage} ${strings.gedcomX.agent.homepage}`}</div>
@@ -264,7 +263,7 @@ function PersonForm({person}: { person?: ResourceReference }) {
   return <Search name={"resource"} label={strings.gedcomX.agent.person} values={persons?.map(p => ({
     display: p.fullName,
     value: p.id
-  }))} defaultValue={person.resource} />
+  }))} defaultValue={person?.resource}/>
 }
 
 export function UpdateAttribution({attribution}: { attribution?: Attribution }) {
