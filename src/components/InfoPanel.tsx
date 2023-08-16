@@ -113,30 +113,16 @@ function FactContent({fact}: {
     ?? originalType;
 
   return <>
-    <div className="flex flex-row gap-4 mb-4">
-      <div className="flex-grow">
-        {fact.emoji} {type + (fact.value ? `: ${fact.value}` : "")}
+    {fact.emoji} {type + (fact.value ? `: ${fact.value}` : "")}
 
-        {hasMisc && <section className="mt-2 flex flex-row flex-wrap gap-2">
-          {fact.getDate() && <ArticleTag>{fact.getDate().toString()}</ArticleTag>}
-          {fact.getPlace() && <ArticleTag>{fact.getPlace().toString()}</ArticleTag>}
-          {fact.getQualifiers().map((q, i) =>
-            <ArticleTag key={i}>
-              {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
-            </ArticleTag>)}
-          <ConclusionMisc conclusion={fact} bgColor="bg-bg-light dark:bg-bg-dark"/>
-        </section>}
-      </div>
-      <div className="flex flex-col">
-        {fact.notes && <PopupButton title={emojis.note}>
-          {<Notes notes={fact.notes}/>}
-        </PopupButton>}
-        {fact.sources && <PopupButton title={emojis.source.default}>
-          <SourceReferences references={fact.sources}/>
-        </PopupButton>}
-      </div>
-    </div>
-    <Attribution attribution={fact.attribution} />
+    {hasMisc && <section className="mt-2 flex flex-row flex-wrap gap-2">
+      {fact.getDate() && <ArticleTag>{fact.getDate().toString()}</ArticleTag>}
+      {fact.getPlace() && <ArticleTag>{fact.getPlace().toString()}</ArticleTag>}
+      {fact.getQualifiers().map((q, i) =>
+        <ArticleTag key={i}>
+          {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
+        </ArticleTag>)}
+    </section>}
   </>;
 }
 
