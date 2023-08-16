@@ -10,6 +10,7 @@ import { baseUri } from "../gedcomx/types";
 import DateForm, { PlaceForm } from "./GeneralForms";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../backend/db";
+import { UpdateAttribution } from "./Agents";
 
 
 function FactForm({types, fact}: { types: object, fact?: Fact }) {
@@ -54,13 +55,15 @@ export default function FactComponent() {
         <div className="flex flex-row">
           <Title emoji={fact.emoji}>{fact.localType}{fact.value && ": " + fact.value}</Title>
           <EditDataButton path=".">
-            <FactForm types={types} fact={fact}/>
+            <FactForm types={types} fact={fact} />
+            <UpdateAttribution attribution={fact.getAttribution()} />
           </EditDataButton>
         </div>
         <div className="grid grid-cols-2">
           <span>{strings.gedcomX.date.date}</span>
           <span>{fact.getDate()?.toString() ?? "-"} <EditDataButton path={"date"}>
             <DateForm date={fact.getDate()} />
+            <UpdateAttribution attribution={fact.getAttribution()} />
           </EditDataButton></span>
           <span>{strings.gedcomX.place.place}</span>
           <span>{fact.getPlace()?.getDescription()
@@ -68,6 +71,7 @@ export default function FactComponent() {
             : <>{placeString ?? "-"}</>
             ?? "-"} <EditDataButton path={"place"}>
             <PlaceForm place={fact.getPlace()} />
+            <UpdateAttribution attribution={fact.getAttribution()} />
           </EditDataButton></span>
         </div>
       </Article>

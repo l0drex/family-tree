@@ -202,44 +202,42 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
   }
 }
 
-export function formToFormalDate(formData: FormData) {
+export function formToFormalDate(formData: object) {
   let date = new GedcomX.Date()
-    .setOriginal(formData.get("original") as string);
+    .setOriginal(formData["original"] as string);
 
   let formal = "";
-  if (formData.has("approximate")) {
+  if (formData["approximate"]) {
     formal = "A";
   }
-
-  console.debug(formData);
 
   function formToFormalSimple(prefix: string): string {
     let string = "";
 
-    if (!formData.get(prefix + "-date")) {
+    if (!formData[prefix + "-date"]) {
       return string;
     }
-    string += `+${formData.get(prefix + "-date")}`;
+    string += `+${formData[prefix + "-date"]}`;
 
-    if (!formData.get(prefix + "-time")) {
+    if (!formData[prefix + "-time"]) {
       return string;
     }
-    string += `T${formData.get(prefix + "-time")}`;
+    string += `T${formData[prefix + "-time"]}`;
 
-    if (!formData.get(prefix + "-tz")) {
+    if (!formData[prefix + "-tz"]) {
       return string;
     }
-    string += formData.get(prefix + "-tz-sign") as string + formData.get(prefix + "-tz");
+    string += formData[prefix + "-tz-sign"] + formData[prefix + "-tz"];
 
     return string;
   }
 
-  switch (formData.get("mode")) {
+  switch (formData["mode"]) {
     case "single":
       formal += formToFormalSimple("start");
       break;
     case "recurring":
-      formal = `R${Number(formData.get("count")) > 1 ? formData.get("count") : ""}/` + formal;
+      formal = `R${Number(formData["count"]) > 1 ? formData["count"] : ""}/` + formal;
     // intentionally no break
     // noinspection FallThroughInSwitchStatementJS
     case "range":
@@ -255,7 +253,6 @@ export function formToFormalDate(formData: FormData) {
     throw e;
   }
 
-  console.debug(formal);
   date.setFormal(formal);
   return date;
 }
@@ -292,7 +289,10 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const instance = await getFactInstance(params);
     let fact = instance.getFacts()[Number(params.index)];
 
-    fact.setDate(formToFormalDate(await request.formData()));
+
+    const formObject = updateObject(await request.formData());
+    fact.setDate(formToFormalDate(formObject));
+    fact.setAttribution(formObject["attribution"]);
     await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
     return redirect("../");
   }
@@ -304,7 +304,9 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const instance = await getFactInstance(params);
     let fact = instance.getFacts()[Number(params.index)];
 
-    fact.setPlace(new PlaceReference(updateObject(await request.formData())));
+    const formObject = updateObject(await request.formData());
+    fact.setPlace(new PlaceReference(formObject));
+    fact.setAttribution(formObject["attribution"]);
     await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
     return redirect("../");
   }
