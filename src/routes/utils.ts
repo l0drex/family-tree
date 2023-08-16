@@ -27,6 +27,8 @@ export function updateObject(formData: FormData, data: object = {}): object {
       data[key.split(".")[0]] = { resource: value };
       return;
     }
+    if (value === "" || value == null)
+      return;
 
     data[key] = value;
   });

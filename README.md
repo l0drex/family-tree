@@ -41,3 +41,8 @@ Will come in a future release
 ## Dates
 
 Date ranges always show start and end dates, never the duration.
+
+
+## Place References
+
+The `descriptionRef` property is named `description` (error in `gedcomx-js`).

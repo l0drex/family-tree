@@ -386,7 +386,8 @@
     },
     "place": {
       "format": "in {0}",
-      "place": "place"
+      "place": "place",
+      "description": "Description"
     },
     "facts": "Facts",
     "factQualifier": {

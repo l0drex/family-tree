@@ -148,7 +148,7 @@ export class FamilyDB extends Dexie {
     try {
       id = toId(id);
     } catch (e) {
-      return Promise.reject(new Error("Could not parse resource!"));
+      return Promise.reject(new Error("Could not parse resource: " + (e as Error).message));
     }
 
     switch (type) {

@@ -7,6 +7,7 @@ import { IAgent, IConclusion, IPerson, IRelationship, ISourceDescription, ISubje
 import FactComponent from "../components/FactComponent";
 import { Fact, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
 import GedcomXDate from "gedcomx-date";
+import { PlaceReference } from "gedcomx-js";
 
 export function getNotesRoute(table: Table<IConclusion>): RouteObject {
   async function updateNotes({params, request}: { params: Params, request: Request }) {
@@ -201,7 +202,7 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
   }
 }
 
-export function formToFormal(formData: FormData) {
+export function formToFormalDate(formData: FormData) {
   let date = new GedcomX.Date()
     .setOriginal(formData.get("original") as string);
 
@@ -260,19 +261,25 @@ export function formToFormal(formData: FormData) {
 }
 
 export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject {
-  async function updateFact({params, request}: { params: Params, request: Request }) {
-    if (request.method !== "POST")
-      return;
-
-    const formData = await request.formData();
-    let fact = new GedcomX.Fact(updateObject(formData));
-
+  async function getFactInstance(params: Params): Promise<Person | Relationship> {
     let datum = await table.get(params.id);
     let instance: Person | Relationship;
     if (datum satisfies IPerson)
       instance = new Person(datum);
     else
       instance = new Relationship(datum);
+
+    return instance;
+  }
+
+  async function updateFact({params, request}: { params: Params, request: Request }) {
+    if (request.method !== "POST")
+      return;
+
+    const instance = await getFactInstance(params);
+
+    const formData = await request.formData();
+    let fact = new GedcomX.Fact(updateObject(formData));
 
     await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
     return redirect("");
@@ -282,15 +289,22 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     if (request.method !== "POST")
       return;
 
-    let datum = await table.get(params.id);
-    let instance: Person | Relationship;
-    if (datum satisfies IPerson)
-      instance = new Person(datum);
-    else
-      instance = new Relationship(datum);
-
+    const instance = await getFactInstance(params);
     let fact = instance.getFacts()[Number(params.index)];
-    fact.setDate(formToFormal(await request.formData()));
+
+    fact.setDate(formToFormalDate(await request.formData()));
+    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    return redirect("../");
+  }
+
+  async function updatePlace({params, request}: { params: Params, request: Request }) {
+    if (request.method !== "POST")
+      return;
+
+    const instance = await getFactInstance(params);
+    let fact = instance.getFacts()[Number(params.index)];
+
+    fact.setPlace(new PlaceReference(updateObject(await request.formData())));
     await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
     return redirect("../");
   }
@@ -304,6 +318,8 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
       }, action: updateFact
     }, {
       path: "date", action: updateDate
+    }, {
+      path: "place", action: updatePlace
     }]
   }
 }

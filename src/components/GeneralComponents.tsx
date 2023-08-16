@@ -328,20 +328,16 @@ export function CreateNewButton({path, label}: {
   </Form>
 }
 
-export function Input({type, name, list, label, defaultValue, integer, checked}: {
+export function Input({label, integer, ...props}: {
   type: React.HTMLInputTypeAttribute,
-  name: string,
   label: string,
-  list?: string,
-  defaultValue?: string,
-  integer?: boolean,
-  checked?: boolean
-}) {
+  integer?: boolean
+} & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
   const id = crypto.randomUUID();
 
   return <>
     <label htmlFor={id}>{label}</label>
-    <input id={id} name={name} type={type} defaultValue={defaultValue} list={list} className="rounded-full px-4" min={integer ? 0 : undefined} step={integer ? 1 : undefined} defaultChecked={checked}/>
+    <input id={id} className="rounded-full px-4" min={integer ? 0 : undefined} step={integer ? 1 : undefined} {...props} />
   </>
 }
 
@@ -377,15 +373,15 @@ export function DateTimeInput({namePrefix, label, defaultValue}: {
   </>
 }
 
-export function Search({name, label, values, defaultValue}: {
+export function Search({label, values, ...props}: {
   name: string,
   label: string,
   values: { display: string, value: string }[],
   defaultValue?: string
-}) {
+} & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
   return <>
-    <Input type="search" name={name} label={label} list={`${name}-list`} defaultValue={defaultValue}/>
-    <datalist id={`${name}-list`}>
+    <Input type="search" label={label} list={`${props.name}-list`} autoComplete="off" {...props} />
+    <datalist id={`${props.name}-list`}>
       {values?.map((v, i) => <option key={i} value={v.value}>{v.display}</option>)}
     </datalist>
   </>

@@ -1,13 +1,15 @@
 import { useLoaderData, useParams } from "react-router-dom";
-import { strings } from "../main";
+import { filterLang, strings } from "../main";
 import { ConclusionArticles, ConclusionMisc, ConclusionSidebar, } from "./GedcomXComponents";
-import { Article, EditDataButton, Input, ReactNavLink, Tags, Title } from "./GeneralComponents";
+import { Article, EditDataButton, Input, ReactLink, ReactNavLink, Tags, Title } from "./GeneralComponents";
 import React, { useContext, useEffect } from "react";
-import { Fact } from "../gedcomx/gedcomx-js-extensions";
+import { Fact, PlaceDescription } from "../gedcomx/gedcomx-js-extensions";
 import { LayoutContext, Main, Sidebar } from "../Layout";
 import emojies from "../backend/emojies.json";
 import { baseUri } from "../gedcomx/types";
-import DateForm from "./GeneralForms";
+import DateForm, { PlaceForm } from "./GeneralForms";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../backend/db";
 
 
 function FactForm({types, fact}: { types: object, fact?: Fact }) {
@@ -27,12 +29,17 @@ export default function FactComponent() {
   const facts = useLoaderData() as Fact[];
   const params = useParams();
   const layoutContext = useContext(LayoutContext);
+  const placeDescription = useLiveQuery(async () =>
+    db.elementWithId(fact.getPlace()?.getDescription(), "place").catch(() => undefined), [facts]) as PlaceDescription;
 
   const fact = facts[Number(params.index)];
   const type = params["*"].split("/")[0];
   const types = type === "person" ? strings.gedcomX.person.factTypes
     : type === "couple" ? strings.gedcomX.relationship.factTypes.Couple
       : strings.gedcomX.relationship.factTypes.ParentChild;
+  const placeString = fact.getPlace()?.getOriginal()
+      ?? placeDescription?.getNames().filter(filterLang)[0].getValue()
+      ?? fact.getPlace()?.getDescription();
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji={emojies.event.default}>{strings.gedcomX.facts}</Title>)
@@ -56,7 +63,12 @@ export default function FactComponent() {
             <DateForm date={fact.getDate()} />
           </EditDataButton></span>
           <span>{strings.gedcomX.place.place}</span>
-          <span>{fact.getPlace()?.toString() ?? "-"}</span>
+          <span>{fact.getPlace()?.getDescription()
+            ? <ReactLink to={`/place/${fact.getPlace()?.getDescription().substring(1)}`}>{placeString}</ReactLink>
+            : <>{placeString ?? "-"}</>
+            ?? "-"} <EditDataButton path={"place"}>
+            <PlaceForm place={fact.getPlace()} />
+          </EditDataButton></span>
         </div>
       </Article>
       <ConclusionArticles conclusion={fact}/>
