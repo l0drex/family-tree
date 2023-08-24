@@ -391,6 +391,10 @@
       "description": "Beschreibung"
     },
     "facts": "Fakten",
+    "fact": {
+      "type": "Typ",
+      "value": "Wert"
+    },
     "factQualifier": {
       "Age": "Alter",
       "Cause": "Ursache",

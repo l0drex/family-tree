@@ -251,7 +251,7 @@ export function DataButton({path, children, buttonLabel}: {
     </button>
     <dialog ref={dialog} className="p-4 rounded-2xl">
       <Form onSubmit={() => dialog.current?.close()} method="post" action={path}>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 odd:text-right event:text-left">
           {children}
         </div>
         <div className="w-full flex flex-row justify-end mt-8">

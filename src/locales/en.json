@@ -390,6 +390,10 @@
       "description": "Description"
     },
     "facts": "Facts",
+    "fact": {
+      "type": "Type",
+      "value": "Value"
+    },
     "factQualifier": {
       "Age": "Age",
       "Cause": "Cause",

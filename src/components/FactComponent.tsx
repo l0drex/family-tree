@@ -25,14 +25,14 @@ import { UpdateAttribution } from "./Agents";
 
 function FactForm({types, fact}: { types: object, fact?: Fact }) {
   return <>
-    <label htmlFor="type">type</label>
+    <label htmlFor="type">{strings.gedcomX.fact.type}</label>
     <select id="type" name="type" defaultValue={fact.type} className="bg-white rounded-full px-4">
       {Object.keys(types)
         .sort((a, b) => (types[a] as string).localeCompare(types[b]))
         .map(type =>
           <option key={type} value={baseUri + type}>{emojies.fact[type]} {types[type]}</option>)}
     </select>
-    <Input type="text" name="value" label={"value"} defaultValue={fact?.value}/>
+    <Input type="text" name="value" label={strings.gedcomX.fact.value} defaultValue={fact?.value}/>
   </>
 }
 
