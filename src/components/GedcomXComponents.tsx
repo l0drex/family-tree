@@ -3,7 +3,7 @@ import { filterLang, strings } from "../main";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../backend/db";
 import { GDate, getDateFormatOptions } from "../gedcomx/gedcomx-js-extensions";
-import { baseUri, Confidence as ConfidenceEnum, IdentifierTypes } from "../gedcomx/types";
+import { baseUri, Confidence as ConfidenceEnum, DocumentTypes, IdentifierTypes } from "../gedcomx/types";
 import { Link, useParams } from "react-router-dom";
 import {
   AddDataButton,
@@ -354,10 +354,27 @@ export function ConclusionMisc({conclusion, bgColor}: {
   conclusion: gedcomX.Conclusion,
   bgColor?: string
 }) {
+  const layoutContext = useContext(LayoutContext);
+  const analysis = useLiveQuery(async ()=> db.documents.where({
+    type: DocumentTypes.Analysis
+  }).toArray().then(ds => ds.map(d => ({
+    value: "#" + d.id,
+    display: d.id
+  }))))
+
   return <>
-    {conclusion.analysis && <Tag bgColor={bgColor}>{strings.gedcomX.document.types.Analysis}: <ReactLink
-      to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
-    {conclusion.confidence && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
+    {(conclusion.analysis || layoutContext.edit) &&
+      <Tag bgColor={bgColor}>
+        {strings.gedcomX.document.types.Analysis}: <ReactLink
+        to={`/document/${conclusion.analysis?.resource.substring(1)}`}>
+        {conclusion.analysis?.resource}
+      </ReactLink>
+        {!conclusion.analysis && "-"}
+        <EditDataButton path="analysis">
+          <Search name="resource" label={strings.gedcomX.document.types.Analysis} values={analysis} defaultValue={conclusion.analysis?.resource}/>
+        </EditDataButton>
+      </Tag>}
+    {(conclusion.confidence || layoutContext.edit) && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
   </>
 }
 

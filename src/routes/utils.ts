@@ -1,6 +1,5 @@
 import { Base } from "gedcomx-js";
 import { Table } from "dexie";
-import { redirect } from "react-router-dom";
 import { strings } from "../main";
 
 export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]> {
@@ -43,34 +42,26 @@ export function updateObject(formData: FormData, data: object = {}): object {
 
 /**
  * Pushes the given value to the given array and updates the database.
- * @param table database table
- * @param id primary index of the value in the database table
- * @param key property of the database instance to be updated
  * @param array value behind key
  * @param newValue value to be added to the array
  *
  * @example table.get(id)[key].push(newValue);
  */
-export async function pushArray<T extends Base>(table: Table, id: string, key: string, array: T[], newValue: T) {
+export function pushArray<T>(array: T[], newValue: T): T[] {
   array ??= [];
-
   array.push(newValue);
-  await updateDB(table, id, key, array);
-  return redirect("../");
+  return array;
 }
 
 /**
  * Updates the given value in the given array and updates the database.
- * @param table database table
- * @param id primary index of the value in the database table
- * @param key property of the database instance to be updated
  * @param array value behind key
  * @param index index of newValue in the array
  * @param newValue updated value
  *
  * @example table.get(id)[key][index] = newValue;
  */
-export async function updateArray<T extends Base>(table: Table, id: string, key: string, array: T[], index: number, newValue?: T) {
+export function updateArray<T>(array: T[], index: number, newValue?: T): T[] {
   if (newValue != null) {
     array[index] = newValue;
   } else {
@@ -80,8 +71,7 @@ export async function updateArray<T extends Base>(table: Table, id: string, key:
     }
   }
 
-  await updateDB(table, id, key, array);
-  return redirect("../../")
+  return array;
 }
 
 /**
@@ -99,5 +89,6 @@ export async function updateDB(table: Table, id: string, key: string, newValue: 
   else
     changes[key] = newValue?.toJSON();
 
+  console.debug(`Performing DB update to ${id}`, changes);
   return table.update(id, changes)
 }

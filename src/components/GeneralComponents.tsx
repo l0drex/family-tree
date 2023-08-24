@@ -381,9 +381,11 @@ export function Search({label, values, ...props}: {
   values: { display: string, value: string }[],
   defaultValue?: string
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>) {
+  const id = crypto.randomUUID();
+
   return <>
-    <Input type="search" label={label} list={`${props.name}-list`} autoComplete="off" {...props} />
-    <datalist id={`${props.name}-list`}>
+    <Input type="search" label={label} list={id} autoComplete="off" {...props} />
+    <datalist id={id}>
       {values?.map((v, i) => <option key={i} value={v.value}>{v.display}</option>)}
     </datalist>
   </>

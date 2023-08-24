@@ -330,7 +330,7 @@ export interface IName extends IConclusion {
   date?: IDate
 }
 
-export interface IFact {
+export interface IFact extends IConclusion {
   type: `${FactType}` | string
   date?: IDate
   place?: IPlaceReference

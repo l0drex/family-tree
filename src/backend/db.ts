@@ -64,6 +64,18 @@ export class FamilyDB extends Dexie {
       places: '&id, lang',
       groups: '&id, lang'
     })
+
+    this.version(3).stores({
+      gedcomX: '&id',
+      persons: '&id, lang',
+      relationships: '&id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
+      sourceDescriptions: '&id, mediaType',
+      agents: '&id',
+      events: '&id, lang, date',
+      documents: '&id, lang, type',
+      places: '&id, lang',
+      groups: '&id, lang'
+    })
   }
 
   async load(data: IGedcomx) {

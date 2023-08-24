@@ -24,7 +24,7 @@ export const agentRoutes: RouteObject = {
         action: async ({params, request}) => {
             if (request.method === "DELETE") {
                 await db.agents.delete(params.id);
-                return redirect("../");
+                return redirect("..");
             }
         }, children: [{
             path: "names", action: async ({request, params}) => {
@@ -36,7 +36,9 @@ export const agentRoutes: RouteObject = {
                 const agent = await db.agentWithId(params.id);
 
                 let name = new GedcomX.TextValue(updateObject(formData));
-                return pushArray(db.agents, params.id, "names", agent.names, name);
+                pushArray(agent.names, name);
+                await updateDB(db.agents, params.id, "names", agent.names);
+                return redirect("..");
             }, children: [{
                 path: ":index", action: async ({request, params}) => {
                     const formData = await request.formData();
@@ -46,7 +48,9 @@ export const agentRoutes: RouteObject = {
                     if (request.method === "POST") {
                         name = new GedcomX.TextValue(updateObject(formData));
                     }
-                    return updateArray(db.agents, params.id, "names", agent.names, Number(params.index), name);
+                    updateArray(agent.names, Number(params.index), name);
+                    await updateDB(db.agents, params.id, "names", agent.names);
+                    return redirect("../..")
                 }
             }]
         }, {
@@ -95,7 +99,9 @@ export const agentRoutes: RouteObject = {
                 const agent = await db.agentWithId(params.id);
 
                 let account = new GedcomX.OnlineAccount(updateObject(formData));
-                return pushArray(db.agents, params.id, "accounts", agent.accounts, account);
+                pushArray(agent.accounts, account);
+                await updateDB(db.agents, params.id, "accounts", agent.accounts);
+                return redirect("..")
             }, children: [{
                 path: ":index", action: async ({request, params}) => {
                     const formData = await request.formData();
@@ -106,7 +112,9 @@ export const agentRoutes: RouteObject = {
                         account = new GedcomX.OnlineAccount(updateObject(formData));
                     }
 
-                    return updateArray(db.agents, params.id, "accounts", agent.accounts, Number(params.index), account);
+                    updateArray(agent.accounts, Number(params.index), account);
+                    await updateDB(db.agents, params.id, "accounts", agent.accounts);
+                    return redirect("../..")
                 }
             }]
         }, {
@@ -119,7 +127,9 @@ export const agentRoutes: RouteObject = {
                 const agent = await db.agentWithId(params.id);
 
                 let mail = new GedcomX.ResourceReference(updateObject(formData));
-                return pushArray(db.agents, params.id, "emails", agent.emails, mail);
+                pushArray(agent.emails, mail);
+                await updateDB(db.agents, params.id, "emails", agent.emails);
+                return redirect("..")
             },
             children: [{
                 path: ":index", action: async ({request, params}) => {
@@ -131,7 +141,9 @@ export const agentRoutes: RouteObject = {
                         mail = new GedcomX.ResourceReference(updateObject(formData));
                     }
 
-                    return updateArray(db.agents, params.id, "emails", agent.emails, Number(params.index), mail);
+                    updateArray(agent.emails, Number(params.index), mail);
+                    await updateDB(db.agents, params.id, "emails", agent.emails);
+                    return redirect("../..");
                 }
             }]
         }, {
@@ -143,7 +155,9 @@ export const agentRoutes: RouteObject = {
                 const agent = await db.agentWithId(params.id);
 
                 let phone = new GedcomX.ResourceReference(updateObject(formData));
-                return pushArray(db.agents, params.id, "phones", agent.phones, phone);
+                pushArray(agent.phones, phone);
+                await updateDB(db.agents, params.id, "phones", agent.phones);
+                return redirect("..")
             },
             children: [{
                 path: ":index", action: async ({request, params}) => {
@@ -154,7 +168,9 @@ export const agentRoutes: RouteObject = {
                     if (request.method === "POST") {
                         phone = new GedcomX.ResourceReference(updateObject(formData));
                     }
-                    return updateArray(db.agents, params.id, "phones", agent.phones, Number(params.index), phone);
+                    updateArray(agent.phones, Number(params.index), phone);
+                    await updateDB(db.agents, params.id, "phones", agent.phones);
+                    return redirect("../..");
                 }
             }]
         }, {
@@ -166,7 +182,9 @@ export const agentRoutes: RouteObject = {
                 const agent = await db.agentWithId(params.id);
 
                 let address = new GedcomX.Address(updateObject(formData));
-                return pushArray(db.agents, params.id, "addresses", agent.addresses, address);
+                pushArray(agent.addresses, address);
+                await updateDB(db.agents, params.id, "addresses", agent.addresses);
+                return redirect("..");
             }, children: [{
                 path: ":index", action: async ({request, params}) => {
                     const formData = await request.formData();
@@ -177,7 +195,9 @@ export const agentRoutes: RouteObject = {
                         address = new GedcomX.Address(updateObject(formData));
                     }
 
-                    return updateArray(db.agents, params.id, "addresses", agent.addresses, Number(params.index), address);
+                    updateArray(agent.addresses, Number(params.index), address);
+                    await updateDB(db.agents, params.id, "addresses", agent.addresses);
+                    return redirect("../..");
                 }
             }]
         }, getIdentifierRoute(db.agents)]

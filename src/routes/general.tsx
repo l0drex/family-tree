@@ -4,20 +4,44 @@ import { Params, redirect, RouteObject } from "react-router-dom";
 import * as GedcomX from "gedcomx-js";
 import { PlaceReference } from "gedcomx-js";
 import { baseUri } from "../gedcomx/types";
-import { IAgent, IConclusion, IPerson, IRelationship, ISourceDescription, ISubject } from "../gedcomx/interfaces";
+import {
+  IAgent,
+  IConclusion,
+  IFact, INote,
+  IPerson,
+  IRelationship,
+  ISourceDescription, ISourceReference,
+  ISubject
+} from "../gedcomx/interfaces";
 import FactComponent from "../components/FactComponent";
 import { Fact, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
 import GedcomXDate from "gedcomx-date";
+import { IResourceReference } from "../gedcomx/json";
 
-export function getNotesRoute(table: Table<IConclusion>): RouteObject {
+type Accessor = (parent: IConclusion, params: Params) => IConclusion;
+type Updater = <T extends IConclusion>(parent: IConclusion, data: T, params: Params) => Promise<number>;
+const identity: Accessor = d => d;
+
+export function getNotesRoute(
+  table: Table<IConclusion>,
+  accessor: Accessor = identity,
+  updater?: Updater): RouteObject {
+
+  updater ??= async (parent, _, params) => {
+    return updateDB(table, params.id, "notes", parent.notes.map(n => new GedcomX.Note(n)));
+  }
+
   async function updateNotes({params, request}: { params: Params, request: Request }) {
-    let conclusion = new GedcomX.Conclusion(await table.get(params.id));
+    let parent = await table.get(params.id);
+    let conclusion = accessor(parent, params);
 
     let note = null;
     if (request.method === "POST") {
       note = new GedcomX.Note(updateObject(await request.formData()));
     }
-    return updateArray(table, params.id, "notes", conclusion.notes, Number(params.index), note);
+    conclusion.notes = updateArray(conclusion.notes, Number(params.index), note);
+    await updater(parent, conclusion, params);
+    return redirect("../..")
   }
 
   async function pushNote({params, request}: { params: Params, request: Request }) {
@@ -27,8 +51,12 @@ export function getNotesRoute(table: Table<IConclusion>): RouteObject {
     const formData = await request.formData();
     let note = new GedcomX.Note(updateObject(formData));
 
-    const conclusion = new GedcomX.Conclusion(await table.get(params.id));
-    return pushArray(table, params.id, "notes", conclusion.notes, note);
+    let parent = await table.get(params.id);
+    const conclusion = accessor(parent, params);
+
+    conclusion.notes = pushArray<INote>(conclusion.notes, note.toJSON() as INote);
+    await updater(parent, conclusion, params);
+    return redirect("..");
   }
 
   return {
@@ -71,7 +99,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
       .addValue(formData.get("value") as string, type);
 
     await updateDB(table, params.id, "identifiers", identifiers);
-    return redirect("../");
+    return redirect("..");
   }
 
   async function editIdentifier({request, params}: { params: Params, request: Request }) {
@@ -84,7 +112,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
 
     await updateDB(table, params.id, "identifiers",
       updateIdentifiers(identifiers, undefined, index, value));
-    return redirect("../../");
+    return redirect("../..");
   }
 
   async function editTypedIdentifier({request, params}: { params: Params, request: Request }) {
@@ -98,7 +126,7 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
 
     await updateDB(table, params.id, "identifiers",
       updateIdentifiers(identifiers, type, index, value));
-    return redirect("../../");
+    return redirect("../..");
   }
 
   return {
@@ -109,7 +137,15 @@ export function getIdentifierRoute(table: Table<hasIdentifiers>): RouteObject {
   }
 }
 
-export function getSourceReferenceRoutes(table: Table<IConclusion>): RouteObject {
+export function getSourceReferenceRoutes(
+  table: Table<IConclusion>,
+  accessor: Accessor = identity,
+  updater?: Updater): RouteObject {
+
+  updater ??= async (parent, _, params) => {
+    return updateDB(table, params.id, "sources", parent.sources.map(n => new GedcomX.SourceReference(n)));
+  }
+
   async function pushSourceReference({params, request}: { params: Params, request: Request }) {
     if (request.method !== "POST")
       return;
@@ -117,19 +153,25 @@ export function getSourceReferenceRoutes(table: Table<IConclusion>): RouteObject
     const formData = await request.formData();
     let sourceReference = new GedcomX.SourceReference(updateObject(formData));
 
-    const conclusion = new GedcomX.Conclusion(await table.get(params.id));
-    return pushArray(table, params.id, "sources", conclusion.sources, sourceReference);
+    const parent = await table.get(params.id);
+    const conclusion = accessor(parent, params);
+
+    conclusion.sources = pushArray<ISourceReference>(conclusion.sources, sourceReference as ISourceReference);
+    await updater(parent, conclusion, params);
+    return redirect("..")
   }
 
   async function updateSourceReference({params, request}) {
-    let conclusion = new GedcomX.Conclusion(await table.get(params.id));
+    let parent = await table.get(params.id);
+    let conclusion = accessor(parent, params);
 
     let sourceReference: GedcomX.SourceReference = null;
     if (request.method === "POST") {
       sourceReference = new GedcomX.SourceReference(updateObject(await request.formData()));
     }
-
-    return updateArray(table, params.id, "sources", conclusion.sources, Number(params.index), sourceReference);
+    conclusion.sources = updateArray(conclusion.sources, Number(params.index), sourceReference);
+    await updater(parent, conclusion, params);
+    return redirect("../..");
   }
 
   return {
@@ -149,7 +191,9 @@ export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
     let evidence = new GedcomX.EvidenceReference(updateObject(formData));
 
     const subject = new GedcomX.Subject(await table.get(params.id));
-    return pushArray(table, params.id, "evidence", subject.evidence, evidence);
+    pushArray(subject.evidence, evidence);
+    await updateDB(table, params.id, "evidence", subject.evidence);
+    return redirect("..")
   }
 
   async function updateEvidence({params, request}: { params: Params, request: Request }) {
@@ -160,7 +204,9 @@ export function getEvidenceRoutes(table: Table<ISubject>): RouteObject {
       evidence = new GedcomX.EvidenceReference(updateObject(await request.formData()));
     }
 
-    return updateArray(table, params.id, "evidence", subject.evidence, Number(params.index), evidence);
+    updateArray(subject.evidence, Number(params.index), evidence);
+    await updateDB(table, params.id, "evidence", subject.evidence);
+    return redirect("../..");
   }
 
   return {
@@ -180,7 +226,9 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
     let media = new GedcomX.SourceReference(updateObject(formData));
 
     const subject = new GedcomX.Subject(await table.get(params.id));
-    return pushArray(table, params.id, "media", subject.media, media);
+    pushArray(subject.media, media);
+    await updateDB(table, params.id, "media", subject.media);
+    redirect("..")
   }
 
   async function updateMedia({params, request}) {
@@ -191,7 +239,9 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
       media = new GedcomX.SourceReference(updateObject(await request.formData()));
     }
 
-    return updateArray(table, params.id, "media", subject.media, Number(params.index), media);
+    updateArray(subject.media, Number(params.index), media);
+    await updateDB(table, params.id, "media", subject.media);
+    return redirect("../..");
   }
 
   return {
@@ -258,6 +308,10 @@ export function formToFormalDate(formData: object) {
 }
 
 export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject {
+  async function updateFacts(params: Params, instance: GedcomX.Person | GedcomX.Relationship) {
+    return updateDB(table, params.id, "facts", instance.getFacts());
+  }
+
   async function getFactInstance(params: Params): Promise<Person | Relationship> {
     let datum = await table.get(params.id);
     let instance: Person | Relationship;
@@ -278,7 +332,8 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const formData = await request.formData();
     let fact = new GedcomX.Fact(updateObject(formData));
 
-    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    updateArray(instance.getFacts(), Number(params.index), fact);
+    await updateFacts(params, instance);
     return redirect("");
   }
 
@@ -292,7 +347,9 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const formObject = updateObject(await request.formData());
     fact.setDate(formToFormalDate(formObject));
     fact.setAttribution(formObject["attribution"]);
-    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+
+    updateArray(instance.getFacts(), Number(params.index), fact);
+    await updateFacts(params, instance);
     return redirect("../");
   }
 
@@ -306,7 +363,9 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
     const formObject = updateObject(await request.formData());
     fact.setPlace(new PlaceReference(formObject));
     fact.setAttribution(formObject["attribution"]);
-    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+
+    updateArray(instance.getFacts(), Number(params.index), fact);
+    await updateFacts(params, instance);
     return redirect("../");
   }
 
@@ -334,7 +393,8 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
       fact.setQualifiers(qualifiers)
     }
 
-    await updateArray(table, params.id, "facts", instance.getFacts(), Number(params.index), fact);
+    updateArray(instance.getFacts(), Number(params.index), fact);
+    await updateFacts(params, instance);
     return redirect("../")
   }
 
@@ -351,14 +411,51 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
       path: "place", action: updatePlace
     }, {
       path: "qualifier/:qIndex?", action: updateQualifier
-    }]
+    }, ...getConclusionRoutes(
+      table,
+      (d: IPerson | IRelationship, params) => d.facts[Number(params.index)],
+      (parent: IPerson | IRelationship, data, params) => {
+        parent.facts[Number(params.index)] = data as unknown as IFact;
+        return updateDB(table, params.id, "facts", parent.facts.map(f => new GedcomX.Fact(f)))
+      })]
   }
 }
 
-export function getConclusionRoutes(table: Table<IConclusion>): RouteObject[] {
+export function getAnalysisRoute(
+  table: Table<IConclusion>,
+  accessor: Accessor = identity,
+  updater?: Updater): RouteObject {
+
+  updater ??= async (_, data, params) => {
+    return updateDB(table, params.id, "analysis", new GedcomX.ResourceReference(data.analysis));
+  }
+
+  async function updateAnalysis({params, request}: {params: Params, request: Request}) {
+    const parent = await table.get(params.id);
+    const conclusion = accessor(parent, params);
+
+    conclusion.analysis = updateObject(await request.formData()) as IResourceReference;
+    if (conclusion.analysis.resource == null) {
+      conclusion.analysis = null;
+    }
+    await updater(parent, conclusion, params);
+    return redirect("..");
+  }
+
+  return {
+    path: "analysis", action: updateAnalysis
+  }
+}
+
+export function getConclusionRoutes(
+  table: Table<IConclusion>,
+  accessor: Accessor = identity,
+  updater?: Updater
+  ): RouteObject[] {
   return [
-    getNotesRoute(table),
-    getSourceReferenceRoutes(table)
+    getNotesRoute(table, accessor, updater),
+    getSourceReferenceRoutes(table, accessor, updater),
+    getAnalysisRoute(table, accessor, updater)
   ]
 }
 
