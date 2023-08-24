@@ -447,6 +447,32 @@ export function getAnalysisRoute(
   }
 }
 
+export function getConfidenceRoute(
+  table: Table<IConclusion>,
+  accessor: Accessor = identity,
+  updater?: Updater): RouteObject {
+
+  updater ??= async (_, data, params) => {
+    return updateDB(table, params.id, "confidence", data.confidence);
+  }
+
+  async function updateConfidence({params, request}: {params: Params, request: Request}) {
+    const parent = await table.get(params.id);
+    const conclusion = accessor(parent, params);
+
+    conclusion.confidence = updateObject(await request.formData())["confidence"];
+    if (conclusion.confidence == "-") {
+      delete conclusion.confidence;
+    }
+    await updater(parent, conclusion, params);
+    return redirect("..");
+  }
+
+  return {
+    path: "confidence", action: updateConfidence
+  }
+}
+
 export function getConclusionRoutes(
   table: Table<IConclusion>,
   accessor: Accessor = identity,
@@ -455,7 +481,8 @@ export function getConclusionRoutes(
   return [
     getNotesRoute(table, accessor, updater),
     getSourceReferenceRoutes(table, accessor, updater),
-    getAnalysisRoute(table, accessor, updater)
+    getAnalysisRoute(table, accessor, updater),
+    getConfidenceRoute(table, accessor, updater)
   ]
 }
 

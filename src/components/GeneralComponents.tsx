@@ -136,8 +136,6 @@ export function Gallery(props: { children: any[], noMargin?: boolean }) {
 
   const flatChildren = props.children.flat();
 
-  console.debug("children", props.children);
-
   return <article className={`rounded-2xl ${props.noMargin ? "" : "mt-4 first:mt-0"} mx-auto w-fit max-w-3xl`}>
     {flatChildren[index]}
     {flatChildren.length > 1 && <span className="w-full flex justify-between items-center px-4 mt-2">

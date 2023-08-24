@@ -84,10 +84,17 @@ export function updateArray<T>(array: T[], index: number, newValue?: T): T[] {
 export async function updateDB(table: Table, id: string, key: string, newValue: any[] | any): Promise<number> {
   let changes = {};
 
+  console.debug(newValue);
+
   if (newValue instanceof Array)
     changes[key] = newValue?.map(d => d.toJSON());
-  else
-    changes[key] = newValue?.toJSON();
+  else {
+    try {
+      changes[key] = newValue?.toJSON();
+    } catch (e) {
+      changes[key] = newValue;
+    }
+  }
 
   console.debug(`Performing DB update to ${id}`, changes);
   return table.update(id, changes)

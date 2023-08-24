@@ -216,7 +216,7 @@ export function PlaceReference(props: {
 export function Confidence(props: {
   confidence: ConfidenceEnum | string
 }) {
-  let confidenceLevel;
+  let confidenceLevel: number;
   switch (props.confidence) {
     case ConfidenceEnum.Low:
       confidenceLevel = 1;
@@ -232,11 +232,10 @@ export function Confidence(props: {
       break;
   }
 
-  return <div className={"text-center"}>
-    <span title={strings.gedcomX.conclusion.confidenceExplanation}>{strings.gedcomX.conclusion.confidence}: </span>
-    <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}
-           className="rounded-full bg-white dark:bg-opacity-30">{props.confidence}</meter>
-  </div>
+  return <meter value={confidenceLevel} max={3} low={2} high={2} optimum={3}
+                className="rounded-full bg-white dark:bg-opacity-30">
+    {props.confidence}
+  </meter>
 }
 
 export function Alias({aliases}: {
@@ -374,7 +373,18 @@ export function ConclusionMisc({conclusion, bgColor}: {
           <Search name="resource" label={strings.gedcomX.document.types.Analysis} values={analysis} defaultValue={conclusion.analysis?.resource}/>
         </EditDataButton>
       </Tag>}
-    {(conclusion.confidence || layoutContext.edit) && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
+    {(conclusion.confidence || layoutContext.edit) && <Tag bgColor={bgColor}>
+      {strings.gedcomX.conclusion.confidence}: {conclusion.confidence
+      ? <Confidence confidence={conclusion.confidence}/>
+      : "- "}
+      <EditDataButton path="confidence">
+        <label>{strings.gedcomX.conclusion.confidence}</label>
+        <select name="confidence" className="bg-white rounded-full px-4" defaultValue={conclusion.confidence}>
+          {Object.keys(strings.gedcomX.conclusion.confidenceLevel).map(k => <option value={baseUri + k} key={k}>{strings.gedcomX.conclusion.confidenceLevel[k]}</option>)}
+          <option>-</option>
+        </select>
+      </EditDataButton>
+    </Tag>}
   </>
 }
 
