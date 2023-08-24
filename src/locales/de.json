@@ -76,25 +76,32 @@
         "attribution": "Änderungen",
         "created": "Erstellt",
         "modified": "Geändert",
-        "byPerson": "von {0}"
+        "byPerson": "von {0}",
+        "changeMessage": "Änderungsbeschreibung"
       }
     },
     "subject": {
       "evidence": "Beweise",
       "mediaImageAlt": "Bild von {0}.",
-      "loadingMedia": "Lade Medieninhalt…"
+      "loadingMedia": "Lade Medieninhalt…",
+      "media": "Medien"
     },
     "agent": {
       "agents": "Agenten",
       "agent": "Agent",
       "homepage": "Homepage",
+      "website": "Website",
       "accounts": "Accounts",
       "onlineAccount": "{0} auf {1}",
+      "accountName": "Name des Accounts",
       "person": "Person",
       "emails": "Emails",
       "phones": "Telefonnummern",
       "addresses": "Adressen",
-      "noAgents": "Es sind keine Agenten vorhanden."
+      "select": "Als Bearbeiter verwenden",
+      "selected": "aktiver Bearbeiter",
+      "new": "Neuen Agenten erstellen",
+      "changeMessage": "Beschreibung der Änderungen (optional)"
     },
     "document": {
       "types": {
@@ -208,7 +215,7 @@
         "Amnesty": "Amnestie",
         "AncestralHall": "Stammeshalle",
         "AncestralPoem": "Stammesgedicht",
-        "Apprenticeship": "Ausbildung",
+        "Apprenticeship": "Lehre",
         "Arrest": "Verhaftung",
         "Award": "Preis",
         "Baptism": "Taufe",
@@ -359,19 +366,54 @@
     },
     "date": {
       "approximate": "ca. {0}",
+      "date": "Datum",
       "rangeStart": "seit {0}",
       "rangeEndDate": "bis {0}",
-      "recurring": "{0} mal {1}"
+      "recurring": "{0} mal {1}",
+      "form": {
+        "original": "Originale Notation",
+        "mode": {
+          "label": "Modus",
+          "single": "Einfach",
+          "range": "Zeitspanne",
+          "recurring": "Wiederholend"
+        },
+        "approximate": "Ungefähr",
+        "date": "Datum",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum",
+        "repetitions": "Wiederholungen"
+      }
     },
-    "place": "in {0}",
+    "place": {
+      "format": "in {0}",
+      "place": "Ort",
+      "description": "Beschreibung"
+    },
     "facts": "Fakten",
+    "fact": {
+      "type": "Typ",
+      "value": "Wert"
+    },
     "factQualifier": {
       "Age": "Alter",
-      "ageFormatter": "mit {0} Jahren",
       "Cause": "Ursache",
       "Religion": "Religion",
       "Transport": "Transport",
       "NonConsensual": "Nicht einvernehmlich"
+    },
+    "identifier": {
+      "identifier": "Identifikatoren",
+      "types": {
+        "Primary": "Primär",
+        "Authority": "Autorität",
+        "Deprecated": "Veraltet"
+      }
+    },
+    "qualifier": {
+      "qualifier": "Kennzeichnung",
+      "name": "Name",
+      "value": "Wert"
     }
   },
   "searchField": {
@@ -412,5 +454,13 @@
   },
   "ctrl": "Strg",
   "linkContent": "hier",
-  "externalContentButton": "Externe Inhalte anzeigen"
+  "externalContentButton": "Externe Inhalte anzeigen",
+  "enterFileName": "Wie soll die Datei heißen?",
+  "importFile": "Daten aus JSON Datei importieren",
+  "exportFile": "Daten als JSON Datei exportieren",
+  "addData": "{0} hinzufügen",
+  "save": "Speichern",
+  "cancel": "Abbrechen",
+  "edit": "Bearbeiten",
+  "delete": "Löschen"
 }

@@ -1,4 +1,4 @@
-import {LayoutContext, Main} from "../App";
+import {LayoutContext, Main} from "../Layout";
 import {P, Subtitle, Title} from "./GeneralComponents";
 import {strings} from "../main";
 import * as React from "react";

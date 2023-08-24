@@ -5,16 +5,19 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Fact, GDate, Person } from "../gedcomx/gedcomx-js-extensions";
 import {
   Attribution,
-  ConclusionMisc, Notes, SourceReferences,
+  ConclusionMisc,
+  Notes,
+  SourceReferences,
   SubjectArticles,
   SubjectMisc,
   SubjectSidebar
 } from "./GedcomXComponents";
-import { Sidebar } from "../App";
-import { Article, Details, PopupButton, Tag, Tags, Title } from "./GeneralComponents";
+import { Sidebar } from "../Layout";
+import { Article, ArticleTag, Details, PopupButton, Tag, Tags, Title } from "./GeneralComponents";
 import { Name } from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 import React, { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 
 function InfoPanel({person}: { person: Person }) {
   if (!person) {
@@ -81,6 +84,8 @@ function Names({names}: { names: Name[] }) {
 }
 
 function Facts({facts}: { facts: Fact[] }) {
+  const navigate = useNavigate();
+
   if (!facts || facts.length === 0) return <></>
 
   return <section>
@@ -88,8 +93,8 @@ function Facts({facts}: { facts: Fact[] }) {
     {facts
       .filter(filterLang)
       .map((f, i) => {
-        return <Article key={i}>
-          <FactContent fact={f} />
+        return <Article key={i} onClick={() => navigate(`facts/${i}`)}>
+          <FactContent fact={f}/>
         </Article>
       })}
   </section>
@@ -107,38 +112,18 @@ function FactContent({fact}: {
     ?? strings.gedcomX.relationship.factTypes.ParentChild[originalType]
     ?? originalType;
 
-  return <div className="flex flex-row gap-4">
-    <div className="flex-grow">
-      {fact.emoji} {type + (fact.value ? `: ${fact.value}` : "")}
+  return <>
+    {fact.emoji} {type + (fact.value ? `: ${fact.value}` : "")}
 
-      {hasMisc && <section className="mt-2 flex flex-row flex-wrap gap-2">
-        {fact.getDate() && <ArticleTag>{fact.getDate().toString()}</ArticleTag>}
-        {fact.getPlace() && <ArticleTag>{fact.getPlace().toString()}</ArticleTag>}
-        {fact.getQualifiers().map((q, i) =>
-          <ArticleTag key={i}>
-            {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
-          </ArticleTag>)}
-        <ConclusionMisc conclusion={fact} bgColor="bg-bg-light dark:bg-bg-dark"/>
-      </section>}
-    </div>
-    <div className="flex flex-col">
-      {fact.notes && <PopupButton title={emojis.note}>
-        {<Notes notes={fact.notes}/>}
-      </PopupButton>}
-      {fact.attribution && <PopupButton title={emojis.attribution}>
-        <Attribution attribution={fact.attribution}/>
-        ️</PopupButton>}
-      {fact.sources && <PopupButton title={emojis.source.default}>
-        <SourceReferences references={fact.sources}/>
-      </PopupButton>}
-    </div>
-  </div>;
-}
-
-function ArticleTag({children}) {
-  if (!children) return <></>
-
-  return <Tag bgColor="bg-bg-light dark:bg-bg-dark">{children}</Tag>
+    {hasMisc && <section className="mt-2 flex flex-row flex-wrap gap-2">
+      {fact.getDate() && <ArticleTag>{fact.getDate().toString()}</ArticleTag>}
+      {fact.getPlace() && <ArticleTag>{fact.getPlace().toString()}</ArticleTag>}
+      {fact.getQualifiers().map((q, i) =>
+        <ArticleTag key={i}>
+          {strings.gedcomX.factQualifier[q.name.substring(baseUri.length)]}: {q.value}
+        </ArticleTag>)}
+    </section>}
+  </>;
 }
 
 function Relationships({person}: { person: Person }) {
@@ -193,19 +178,19 @@ function Relationships({person}: { person: Person }) {
 
   return <Details title={strings.gedcomX.relationship.relationships}>
     <RelationshipType others={partner} emoji={emojis.relationship.partner}
-                      title={strings.gedcomX.relationship.partner} />
+                      title={strings.gedcomX.relationship.partner}/>
     <RelationshipType others={parents} emoji={emojis.relationship.parent}
-                      title={strings.gedcomX.relationship.parents} />
+                      title={strings.gedcomX.relationship.parents}/>
     <RelationshipType others={children} emoji={emojis.relationship.child}
-                      title={strings.gedcomX.relationship.children} />
+                      title={strings.gedcomX.relationship.children}/>
     <RelationshipType others={godparents} emoji={emojis.relationship.godparent}
-                      title={strings.gedcomX.relationship.godparents} />
+                      title={strings.gedcomX.relationship.godparents}/>
     <RelationshipType others={godchildren} emoji={emojis.relationship.godchild}
-                      title={strings.gedcomX.relationship.godchildren} />
+                      title={strings.gedcomX.relationship.godchildren}/>
     <RelationshipType others={enslavedBy} emoji={emojis.relationship.enslaver}
-                      title={strings.gedcomX.relationship.enslavedBy} />
+                      title={strings.gedcomX.relationship.enslavedBy}/>
     <RelationshipType others={slaves} emoji={emojis.relationship.slaves}
-                      title={strings.gedcomX.relationship.slaves} />
+                      title={strings.gedcomX.relationship.slaves}/>
   </Details>
 }
 

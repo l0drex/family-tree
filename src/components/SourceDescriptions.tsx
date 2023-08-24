@@ -13,7 +13,7 @@ import {
   Title,
   VanillaLink
 } from "./GeneralComponents";
-import {LayoutContext, Main, Sidebar} from "../App";
+import {LayoutContext, Main, Sidebar} from "../Layout";
 import {db} from "../backend/db";
 import emojis from '../backend/emojies.json';
 
@@ -51,7 +51,6 @@ export function SourceDescriptionView() {
     layoutContext.setHeaderChildren(<Title emoji={sourceDescription?.emoji}>
       {sourceDescription.title ?? strings.gedcomX.sourceDescription.sourceDescription}
     </Title>)
-    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [layoutContext, sourceDescription])
 
   const componentOf = sourceDescription.getComponentOf();

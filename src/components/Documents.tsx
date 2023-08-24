@@ -7,7 +7,7 @@ import {
   ConclusionMisc
 } from "./GedcomXComponents";
 import {Article, Hr, P, ReactNavLink, Tag, Tags, Title} from "./GeneralComponents";
-import {LayoutContext, Main, Sidebar} from "../App";
+import {LayoutContext, Main, Sidebar} from "../Layout";
 import {useContext, useEffect, useState} from "react";
 import {db} from "../backend/db";
 import * as sanitize from "sanitize-html";
@@ -47,7 +47,6 @@ export function DocumentView() {
 
   useEffect(() => {
     layoutContext.setHeaderChildren(<Title emoji={document?.emoji}>{strings.gedcomX.document.document}</Title>)
-    layoutContext.setRightTitle(strings.gedcomX.sourceDescription.sourceDescriptions);
   }, [document, layoutContext])
 
   let html;

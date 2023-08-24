@@ -14,20 +14,29 @@ import {
 } from "../gedcomx/gedcomx-js-extensions";
 import {PersonFactTypes, RelationshipTypes} from "../gedcomx/types";
 import {ResourceReference} from "gedcomx-js";
-import {IGroup} from "../gedcomx/interfaces";
+import {
+  IAgent,
+  IDocument,
+  IEvent,
+  IGroup,
+  IPerson,
+  IPlaceDescription,
+  IRelationship,
+  ISourceDescription
+} from "../gedcomx/interfaces";
 
 export type RootType = "person" | "relationship" | "sourceDescription" | "agent" | "event" | "document" | "place" | "group";
 type RootClass = GedcomX.Person | GedcomX.Relationship | GedcomX.SourceDescription | GedcomX.Agent | GedcomX.Event | GedcomX.Document | GedcomX.PlaceDescription | IGroup;
 
 export class FamilyDB extends Dexie {
   gedcomX!: Table<IGedcomxData>
-  persons!: Table<GedcomX.Person>
-  relationships!: Table<GedcomX.Relationship>
-  sourceDescriptions!: Table<GedcomX.SourceDescription>
-  agents!: Table<GedcomX.Agent>
-  events!: Table<GedcomX.Event>
-  documents!: Table<GedcomX.Document>
-  places!: Table<GedcomX.PlaceDescription>
+  persons!: Table<IPerson>
+  relationships!: Table<IRelationship>
+  sourceDescriptions!: Table<ISourceDescription>
+  agents!: Table<IAgent>
+  events!: Table<IEvent>
+  documents!: Table<IDocument>
+  places!: Table<IPlaceDescription>
   groups!: Table<IGroup>
 
   constructor() {
@@ -55,6 +64,18 @@ export class FamilyDB extends Dexie {
       places: '&id, lang',
       groups: '&id, lang'
     })
+
+    this.version(3).stores({
+      gedcomX: '&id',
+      persons: '&id, lang',
+      relationships: '&id, lang, type, person1.resource, person2.resource, [type+person1.resource], [type+person2.resource]',
+      sourceDescriptions: '&id, mediaType',
+      agents: '&id',
+      events: '&id, lang, date',
+      documents: '&id, lang, type',
+      places: '&id, lang',
+      groups: '&id, lang'
+    })
   }
 
   async load(data: IGedcomx) {
@@ -67,13 +88,13 @@ export class FamilyDB extends Dexie {
     if (data.id || data.lang || data.attribution || data.description) {
       promises.push(this.gedcomX.add(root));
     }
-    if (data.persons) promises.push(this.persons.bulkAdd(root.persons));
-    if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships));
-    if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions));
-    if (data.agents) promises.push(this.agents.bulkAdd(root.agents));
-    if (data.events) promises.push(this.events.bulkAdd(root.events));
-    if (data.documents) promises.push(this.documents.bulkAdd(root.documents));
-    if (data.places) promises.push(this.places.bulkAdd(root.places));
+    if (data.persons) promises.push(this.persons.bulkAdd(root.persons.map(p => p.toJSON())));
+    if (data.relationships) promises.push(this.relationships.bulkAdd(root.relationships.map(r => r.toJSON() as IRelationship)));
+    if (data.sourceDescriptions) promises.push(this.sourceDescriptions.bulkAdd(root.sourceDescriptions.map(s => s.toJSON() as ISourceDescription)));
+    if (data.agents) promises.push(this.agents.bulkAdd(root.agents.map(a => a.toJSON())));
+    if (data.events) promises.push(this.events.bulkAdd(root.events.map(e => e.toJSON())));
+    if (data.documents) promises.push(this.documents.bulkAdd(root.documents.map(d => d.toJSON() as IDocument)));
+    if (data.places) promises.push(this.places.bulkAdd(root.places.map(p => p.toJSON() as IPlaceDescription)));
     if (data.groups) promises.push(this.groups.bulkAdd(data.groups));
 
     console.log(`Found ${data.persons?.length ?? 0} people`);
@@ -104,13 +125,13 @@ export class FamilyDB extends Dexie {
 
       let addedIds = 0;
       data.forEach(d => {
-        if (!d.id) d.id = "missing-id-" + addedIds++;
+        if (!d.id) d.id = crypto.randomUUID();
       });
-      console.debug(`Added ${addedIds} missing ids.`);
+      console.info(`Added ${addedIds} missing ids.`);
     }
     forAll(generateIdIfMissing);
     if (!root.id) {
-      root.setId("missing-id-1");
+      root.setId(crypto.randomUUID());
     }
 
     return root;
@@ -139,7 +160,7 @@ export class FamilyDB extends Dexie {
     try {
       id = toId(id);
     } catch (e) {
-      return Promise.reject(new Error("Could not parse resource!"));
+      return Promise.reject(new Error("Could not parse resource: " + (e as Error).message));
     }
 
     switch (type) {
@@ -188,6 +209,14 @@ export class FamilyDB extends Dexie {
 
   async agentWithId(id: string | ResourceReference) {
     return this.elementWithId(id, "agent").then(a => a as Agent);
+  }
+
+  async createAgent() {
+    let agent = new Agent();
+    agent.setId(crypto.randomUUID());
+
+    this.agents.put(agent.toJSON());
+    return agent;
   }
 
   async getCoupleRelationsOf(person: ResourceReference | string): Promise<GedcomX.Relationship[]> {
@@ -283,9 +312,10 @@ export class FamilyDB extends Dexie {
       return person.display.familiesAsParent;
     }
 
-    let couples = await this.couples
+    let couples = (await this.couples
       .filter(r => r.person1.resource.substring(1) === person.id || r.person2.resource.substring(1) === person.id)
-      .toArray();
+      .toArray())
+      .map(c => new Relationship(c));
 
     let families: GedcomX.FamilyView[] = [];
     for (const couple of couples) {
@@ -310,13 +340,13 @@ export class FamilyDB extends Dexie {
       return person.display.familiesAsChild;
     }
 
-    let parentRelations = await this.getParentsOf(person.id)
+    let parentRelations = (await this.getParentsOf(person.id)
       .then(parents => parents.map(p => p.resource))
       .then(parents => {
         return this.couples
           .filter(r => parents.includes(r.person1.resource) && parents.includes(r.person2.resource))
           .toArray()
-      });
+      })).map(p => new Relationship(p));
 
     let families = [];
 

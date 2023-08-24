@@ -1,12 +1,49 @@
-import {Agent} from "../gedcomx/gedcomx-js-extensions";
-import {strings} from "../main";
-import {useLoaderData} from "react-router-dom";
-import {Article, Hr, P, ReactLink, ReactNavLink, Tag, Tags, Title, VanillaLink} from "./GeneralComponents";
-import {LayoutContext, Main, Sidebar} from "../App";
-import {useContext, useEffect, useState} from "react";
-import {db} from "../backend/db";
-import {Alias, Identifiers} from "./GedcomXComponents";
+import { Agent, Person } from "../gedcomx/gedcomx-js-extensions";
+import { filterLang, strings } from "../main";
+import { Link, useLoaderData } from "react-router-dom";
+import {
+  AddDataButton,
+  Article,
+  ButtonLike,
+  CreateNewButton,
+  DeleteDataButton,
+  EditDataButton,
+  Hr,
+  Input,
+  Li,
+  ReactLink,
+  ReactNavLink,
+  Search,
+  Tag,
+  Tags,
+  Title,
+  VanillaLink
+} from "./GeneralComponents";
+import { LayoutContext, Main, Sidebar } from "../Layout";
+import * as React from "react";
+import { useContext, useEffect, useState } from "react";
+import { db } from "../backend/db";
+import { Identifiers } from "./GedcomXComponents";
 import emojis from '../backend/emojies.json';
+import { writeStorage } from "@rehooks/local-storage";
+import { useLiveQuery } from "dexie-react-hooks";
+import { Attribution, ResourceReference } from "gedcomx-js";
+
+export const ActiveAgentKey = "activeAgent";
+
+function setActiveAgent(agent: Agent): void {
+  return writeStorage(ActiveAgentKey, agent?.id);
+}
+
+export function AgentSelector({agent}: { agent: Agent }) {
+  return <>
+    <Link to={`/agent/${agent?.id}`} className="px-4 bg-white rounded-full py-2">
+            <span
+              className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
+      {emojis.agent.agent}
+    </Link>
+  </>
+}
 
 export function AgentOverview() {
   const agents = useLoaderData() as Agent[];
@@ -25,7 +62,9 @@ function AgentList(props) {
   return <ul>
     {props.agents?.map(agent =>
       <li key={agent.id}><ReactNavLink
-        to={`/agent/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink></li>)}
+        to={`/agent/${agent.id}`}>{`${emojis.agent.agent} ${agent.name ?? strings.gedcomX.agent.agent}`}</ReactNavLink>
+      </li>)}
+    <li><CreateNewButton path={"/agent"} label={strings.gedcomX.agent.new}/></li>
   </ul>;
 }
 
@@ -34,77 +73,217 @@ export function AgentView() {
   const [others, setOthers] = useState([]);
   const layoutContext = useContext(LayoutContext);
 
+  const isActive = layoutContext.agent?.id === agent.id;
+
   useEffect(() => {
     db.agents.toArray().then(sds => sds.map(sd => new Agent(sd))).then(setOthers);
-    layoutContext.setHeaderChildren(<Title emoji={emojis.agent.agent}>{agent.name ?? strings.gedcomX.agent.agent}</Title>)
-    layoutContext.setRightTitle(strings.gedcomX.agent.agents);
+    layoutContext.setHeaderChildren(<Title
+      emoji={emojis.agent.agent}>{agent.name ?? strings.gedcomX.agent.agent}</Title>)
   }, [agent, layoutContext])
-
-  const hasData = agent.names?.length > 1 || agent.homepage || agent.openid || agent.accounts || agent.emails || agent.phones || agent.addresses;
 
   return <>
     <Main>
-      <Tags>
-        {agent.person && <Tag>
-          {strings.gedcomX.agent.person}: <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
-          {agent.person.resource}</ReactLink>
-        </Tag>}
-      </Tags>
       <Article>
-        {!hasData && <p>{strings.errors.noData}</p>}
-        {agent.names && <Alias aliases={agent.names}/>}
+        <div className="grid grid-cols-2 gap-4" id="agentTable">
+          <div>{emojis.name} {strings.gedcomX.person.names}</div>
+          <div>
+            <ul>
+              {agent.names?.map((n, i) => {
+                return <Li key={i}>
+                  <span>{n.value}</span>
+                  <EditDataButton path={`names/${i}`}>
+                    <NameForm name={n.value}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`names/${i}`}/>
+                </Li>
+              }) ?? <Li><span>{strings.errors.noData}</span></Li>}
+              <Li><AddDataButton dataType={strings.gedcomX.person.names} path="names">
+                <NameForm/>
+              </AddDataButton></Li>
+            </ul>
+          </div>
 
-        {agent.homepage && <>
-          <Title emoji={emojis.agent.homepage}>{strings.gedcomX.agent.homepage}</Title>
-          <P><VanillaLink href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink></P>
-        </>}
+          <div>{emojis.tree} {strings.gedcomX.agent.person}</div>
+          <div>
+            {agent.person ? <ReactLink to={`/persons/${agent.person.resource.substring(1)}`}>
+              {agent.person.resource}
+            </ReactLink> : <span>{strings.errors.noData}</span>}
+            <EditDataButton path="person">
+              <PersonForm person={agent.person}/>
+            </EditDataButton>
+            {agent.person && <DeleteDataButton path="person"/>}
+          </div>
 
-        {agent.openid && <>
-          <Title emoji={emojis.agent.openid}>OpenID</Title>
-          <P><VanillaLink href={agent.openid.resource}>{agent.openid.resource}</VanillaLink></P>
-        </>}
+          <div>{`${emojis.agent.homepage} ${strings.gedcomX.agent.homepage}`}</div>
+          <div>
+            {agent.homepage ?
+              <VanillaLink href={agent.homepage.resource}>{agent.homepage.resource}</VanillaLink>
+              : <span>{strings.errors.noData}</span>}
+            <EditDataButton path="homepage">
+              <HomepageForm homepage={agent.homepage?.resource}/>
+            </EditDataButton>
+            {agent.homepage && <DeleteDataButton path="homepage"/>}
+          </div>
 
-        {agent.accounts && <>
-          <Title emoji={emojis.agent.account}>{strings.gedcomX.agent.accounts}</Title>
-          <ul>
-            {agent.accounts.map((a, i) =>
-              <li key={i}>{strings.formatString(strings.gedcomX.agent.onlineAccount,
-                <span className="italic">{a.accountName}</span>,
-                <VanillaLink href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</VanillaLink>)}
-              </li>)}
-          </ul>
-        </>}
+          <div>{`${emojis.agent.openid} OpenID`}</div>
+          <div>
+            {agent.openid ?
+              <VanillaLink href={agent.openid?.resource}>{agent.openid?.resource}</VanillaLink>
+              : <span>{strings.errors.noData}</span>}
+            <EditDataButton path="openid">
+              <OpenIdForm openid={agent.openid?.resource}/>
+            </EditDataButton>
+            {agent.openid && <DeleteDataButton path="openid"/>}
+          </div>
 
-        {agent.emails && <>
-          <Title emoji={emojis.agent.email}>{strings.gedcomX.agent.emails}</Title>
-          <ul>
-            {agent.emails.map(e => <li key={e.resource}><VanillaLink
-              href={`mailto:${e.resource}`}>{e.resource}</VanillaLink></li>)}
-          </ul>
-        </>}
+          <div>{`${emojis.agent.account} ${strings.gedcomX.agent.accounts}`}</div>
+          <div>
+            <ul>
+              {agent.accounts?.map((a, i) =>
+                <Li key={i}>{strings.formatString(strings.gedcomX.agent.onlineAccount,
+                  <span className="italic">{a.accountName}</span>,
+                  <VanillaLink
+                    href={a.serviceHomepage.resource}>{a.serviceHomepage.resource}</VanillaLink>)}
+                  <EditDataButton path={`account/${i}`}>
+                    <AccountForm name={a.accountName} website={a.serviceHomepage.resource}/>
+                  </EditDataButton>
+                  <DeleteDataButton path={`account/${i}`}/>
+                </Li>) ?? <Li>{strings.errors.noData}</Li>}
+              <Li><AddDataButton dataType={strings.gedcomX.agent.accounts} path="account">
+                <AccountForm/>
+              </AddDataButton></Li>
+            </ul>
+          </div>
 
-        {agent.phones && <>
-          <Title emoji={emojis.agent.phones}>{strings.gedcomX.agent.phones}</Title>
-          <ul>
-            {agent.phones.map(p => <li key={p.resource}><VanillaLink
-              href={`tel:${p.resource}`}>{p.resource}</VanillaLink></li>)}
-          </ul>
-        </>}
+          <div>{`${emojis.agent.email} ${strings.gedcomX.agent.emails}`}</div>
+          <div>
+            <ul>
+              {agent.emails?.map((e, i) => <Li key={i}>
+                <VanillaLink href={`mailto:${e.resource}`}>{e.resource}</VanillaLink>
+                <EditDataButton path={`emails/${i}`}>
+                  <EmailForm email={e.resource}/>
+                </EditDataButton>
+                <DeleteDataButton path={`emails/${i}`}/>
+              </Li>) ?? <Li>{strings.errors.noData}</Li>}
+              <Li><AddDataButton dataType={strings.gedcomX.agent.emails} path="emails">
+                <EmailForm/>
+              </AddDataButton></Li>
+            </ul>
+          </div>
 
-        {agent.addresses && <>
-          <Title emoji={emojis.agent.address}>{strings.gedcomX.agent.addresses}</Title>
-          <ul>
-            {agent.addresses.map(a => <li key={a.value}>{a.value}</li>)}
-          </ul>
-        </>}
+          <div>{`${emojis.agent.phones} ${strings.gedcomX.agent.phones}`}</div>
+          <div>
+            <ul>
+              {agent.phones?.map((p, i) => <Li key={i}>
+                <VanillaLink href={`tel:${p.resource}`}>{p.resource}</VanillaLink>
+                <EditDataButton path={`phones/${i}`}>
+                  <PhoneForm phone={p.resource}/>
+                </EditDataButton>
+                <DeleteDataButton path={`phones/${i}`}/>
+              </Li>) ?? <Li>{strings.errors.noData}</Li>}
+              <Li><AddDataButton dataType={strings.gedcomX.agent.phones} path="phones">
+                <PhoneForm/>
+              </AddDataButton></Li>
+            </ul>
+          </div>
+
+          <div>{`${emojis.agent.address} ${strings.gedcomX.agent.addresses}`}</div>
+          <div>
+            <ul>
+              {agent.addresses?.map((a, i) => <Li key={a.value}>
+                <span>{a.value}</span>
+                <EditDataButton path={`addresses/${i}`}>
+                  <AddressForm address={a.value}/>
+                </EditDataButton>
+                <DeleteDataButton path={`addresses/${i}`}/>
+              </Li>) ?? <Li>{strings.errors.noData}</Li>}
+              <Li><AddDataButton dataType={strings.gedcomX.agent.addresses} path="addresses">
+                <AddressForm/>
+              </AddDataButton></Li>
+            </ul>
+          </div>
+        </div>
       </Article>
     </Main>
     <Sidebar>
       <AgentList agents={others}/>
-      {agent.identifiers && <>
+      {(agent.identifiers || layoutContext.edit) && <>
         <Hr/>
         <Identifiers identifiers={agent.identifiers}/>
       </>}
+      <Hr/>
+      <div className="text-center">
+        <ButtonLike primary={isActive}>
+          <button className="px-4 py-2 hover:cursor-pointer" onClick={() => setActiveAgent(agent)}>
+            {isActive ? strings.gedcomX.agent.selected : strings.gedcomX.agent.select}
+          </button>
+        </ButtonLike>
+        <DeleteDataButton path=""/>
+      </div>
     </Sidebar>
+  </>
+}
+
+function NameForm({name}: { name?: string }) {
+  return <Input type="text" name="value" label={strings.gedcomX.person.names} defaultValue={name}/>
+}
+
+function HomepageForm({homepage}: { homepage?: string }) {
+  return <Input type="url" name="resource" defaultValue={homepage} label={strings.gedcomX.agent.homepage}/>;
+}
+
+function OpenIdForm({openid}: { openid?: string }) {
+  return <Input type="url" name="resource" defaultValue={openid} label="OpenID"/>;
+}
+
+function AccountForm({name, website}: { name?: string, website?: string }) {
+  return <>
+    <Input name="accountName" type="text" label={strings.gedcomX.agent.accountName} defaultValue={name}/>
+    <Input name="serviceHomepage.resource" type="url" defaultValue={website} label={strings.gedcomX.agent.website}/>
+  </>
+}
+
+function EmailForm({email}: { email?: string }) {
+  return <Input type="email" name="resource" defaultValue={email} label={strings.gedcomX.agent.emails}/>;
+}
+
+function PhoneForm({phone}: { phone?: string }) {
+  return <Input type="tel" name="resource" defaultValue={phone} label={strings.gedcomX.agent.phones}/>;
+}
+
+function AddressForm({address}: { address?: string }) {
+  return <Input type="text" name="value" defaultValue={address} label={strings.gedcomX.agent.addresses}/>;
+}
+
+function PersonForm({person}: { person?: ResourceReference }) {
+  const persons = useLiveQuery(async () =>
+      db.persons.toArray().then(persons => persons.map(p => new Person(p))),
+    []);
+
+  return <Search name={"resource"} label={strings.gedcomX.agent.person} values={persons?.map(p => ({
+    display: p.fullName,
+    value: p.id
+  }))} defaultValue={person?.resource}/>
+}
+
+export function UpdateAttribution({attribution}: { attribution?: Attribution }) {
+  const agent = useContext(LayoutContext).agent;
+
+  if (!agent) {
+    return <></>;
+  }
+
+  if (attribution == null) {
+    attribution = new Attribution()
+      .setCreator(new ResourceReference().setResource("#" + agent.id))
+      .setCreated(Date.now());
+  }
+
+  attribution.setModified(Date.now())
+    .setContributor(new ResourceReference().setResource("#" + agent.id));
+
+  return <>
+    <Input type={"text"} name={"changeMessage"} label={strings.gedcomX.conclusion.attribution.changeMessage}/>
+    <textarea hidden readOnly name="attribution" value={JSON.stringify(attribution.toJSON())}/>
   </>
 }

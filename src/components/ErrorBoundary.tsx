@@ -1,6 +1,6 @@
 import {useRouteError} from "react-router-dom";
 import {Article, Details, Title} from "./GeneralComponents";
-import {LayoutContext, Main} from "../App";
+import {LayoutContext, Main} from "../Layout";
 import {strings} from "../main";
 import {useContext, useEffect} from "react";
 import emojis from '../backend/emojies.json';

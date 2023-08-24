@@ -1,38 +1,76 @@
 import * as gedcomX from "gedcomx-js";
-import {filterLang, strings} from "../main";
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "../backend/db";
-import {getDateFormatOptions, GDate} from "../gedcomx/gedcomx-js-extensions";
-import {Confidence as ConfidenceEnum, IdentifierTypes} from "../gedcomx/types";
-import {Link, useParams} from "react-router-dom";
+import { filterLang, strings } from "../main";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../backend/db";
+import { GDate, getDateFormatOptions } from "../gedcomx/gedcomx-js-extensions";
+import { baseUri, Confidence as ConfidenceEnum, DocumentTypes, IdentifierTypes } from "../gedcomx/types";
+import { Link, useParams } from "react-router-dom";
 import {
+  AddDataButton,
   Article,
-  ArticleCollection, Details,
+  ArticleCollection,
+  DeleteDataButton,
+  Details, EditButtons,
+  EditDataButton,
   Gallery,
   Hr,
+  Input,
   Media,
   P,
   ReactLink,
+  Search,
   Tag,
   Title
 } from "./GeneralComponents";
 import emojis from "../backend/emojies.json";
+import * as React from "react";
+import { useContext } from "react";
+import { LayoutContext } from "../Layout";
+import { UpdateAttribution } from "./Agents";
 
-export function Notes({noMargin, notes}: { notes: gedcomX.Note[], noMargin?: boolean }) {
-  if (!notes || notes.length === 0)
+export function Notes({noMargin, notes}: {
+  notes: gedcomX.Note[],
+  noMargin?: boolean
+}) {
+  const editing = useContext(LayoutContext)?.edit;
+
+  if (!editing && (!notes || notes.length === 0))
     return <></>;
 
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.note}>{strings.gedcomX.conclusion.notes}</Title>
-    {notes.map((note, i) =>
-      <Article emoji="" title={note.getSubject()} key={i}>
-        <P>{note.getText()}</P>
-        {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
-      </Article>)}
+    {notes.map((note, i) => <Article emoji="" title={note.getSubject()} key={i}>
+      <P>{note.getText()}</P>
+
+      {editing && <div className="mb-2 last:mb-0">
+        <EditDataButton path={`notes/${i}`} label={true}>
+          <NoteForm note={note}/>
+        </EditDataButton>
+        <DeleteDataButton path={`notes/${i}`} label={true}/>
+      </div>}
+
+      {note.getAttribution() && <Attribution attribution={note.getAttribution()}/>}
+    </Article>)}
+    <AddDataButton dataType={strings.gedcomX.conclusion.note} path={"notes"}>
+      <NoteForm/>
+    </AddDataButton>
   </ArticleCollection>
 }
 
-export function Attribution({attribution}: { attribution: gedcomX.Attribution }) {
+function NoteForm({note}: {
+  note?: gedcomX.Note
+}) {
+  return <>
+    <Input label={strings.gedcomX.conclusion.note} type="text" name="subject" defaultValue={note?.subject}/>
+    <textarea name="text" className="rounded-2xl rounded-br-none p-2 col-span-2" rows={3}
+              defaultValue={note?.text}/>
+    <UpdateAttribution attribution={note?.attribution}/>
+  </>;
+}
+
+export function Attribution({attribution}: {
+  attribution: gedcomX.Attribution
+}) {
   const creator = useLiveQuery(async () => {
     if (!attribution?.getCreator()) return undefined;
     return db.agentWithId(attribution.getCreator());
@@ -69,7 +107,7 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   let modifiedString = "";
   if (modified || contributorName || message) {
     modifiedString += strings.gedcomX.conclusion.attribution.modified + " ";
-    if (modified) modifiedString += new Date(modifiedString).toLocaleString(strings.getLanguage(), getDateFormatOptions(modified));
+    if (modified) modifiedString += new Date(modified).toLocaleString(strings.getLanguage(), getDateFormatOptions(modified));
     if (modified && contributorName) modifiedString += " ";
   }
 
@@ -77,13 +115,13 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
     <Details title={strings.gedcomX.conclusion.attribution.attribution}>
       {hasCreated && <P>
         {createdString} {creator && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-        <ReactLink to={`/agents/${creatorRef.resource.substring(1)}`}>
+        <ReactLink to={`/agent/${creatorRef.resource.substring(1)}`}>
           {creatorName}
         </ReactLink>)}
       </P>}
       {hasModified && <P>
         {modifiedString} {contributor && strings.formatString(strings.gedcomX.conclusion.attribution.byPerson,
-        <ReactLink to={`/agents/${contributorRef.resource.substring(1)}`}>
+        <ReactLink to={`/agent/${contributorRef.resource.substring(1)}`}>
           {contributorName}
         </ReactLink>)}
         {message && <>: <cite> "{message}"</cite></>}
@@ -92,7 +130,10 @@ export function Attribution({attribution}: { attribution: gedcomX.Attribution })
   </div>
 }
 
-export function SourceReference({reference}: { reference: gedcomX.SourceReference }) {
+export function SourceReference({reference, index}: {
+  reference: gedcomX.SourceReference,
+  index: number
+}) {
   const sourceTitle = useLiveQuery(() => {
     if (!reference || !reference.description)
       return undefined;
@@ -109,6 +150,7 @@ export function SourceReference({reference}: { reference: gedcomX.SourceReferenc
     <P><ReactLink to={`/sources/${reference.description.substring(1)}`}>
       {sourceTitle || reference.description}
     </ReactLink></P>
+    <EditButtons path={`sources/${index}`} form={<SourceReferenceForm reference={reference}/>}/>
     {reference.attribution && <Attribution attribution={reference.attribution}/>}
   </Article>
 }
@@ -117,16 +159,38 @@ export function SourceReferences({references, noMargin}: {
   references: gedcomX.SourceReference[],
   noMargin?: boolean
 }) {
-  if (!references || references.length === 0)
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing && (!references || references.length === 0))
     return <></>;
 
   return <ArticleCollection noMargin={noMargin}>
     <Title emoji={emojis.source.default}>{strings.gedcomX.sourceDescription.sourceDescriptions}</Title>
-    {references.map((reference, i) => <SourceReference reference={reference} key={i}/>)}
+    {references.map((reference, i) => <SourceReference reference={reference} index={i} key={i}/>)}
+    <AddDataButton dataType={strings.gedcomX.sourceDescription.sourceDescription} path={"sources"}>
+      <SourceReferenceForm/>
+    </AddDataButton>
   </ArticleCollection>
 }
 
-export function Coverage(props: { coverage: gedcomX.Coverage }) {
+function SourceReferenceForm({reference}: {
+  reference?: gedcomX.SourceReference
+}) {
+  const sources = useLiveQuery(async () => db.sourceDescriptions.toArray())
+
+  return <>
+    <Search name={"description"} label={strings.gedcomX.sourceDescription.sourceDescription}
+            values={sources?.map(s => ({
+              display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
+              value: "#" + s.id
+            }))} defaultValue={reference?.description}/>
+    <UpdateAttribution attribution={reference?.attribution}/>
+  </>
+}
+
+export function Coverage(props: {
+  coverage: gedcomX.Coverage
+}) {
   let date;
   if (props.coverage.temporal) date = new GDate(props.coverage.temporal.toJSON()).toString();
 
@@ -139,7 +203,9 @@ export function Coverage(props: { coverage: gedcomX.Coverage }) {
   </Article>
 }
 
-export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
+export function PlaceReference(props: {
+  reference: gedcomX.PlaceReference
+}) {
   let original = props.reference.original ?? props.reference.description ?? "?";
   if (props.reference.description) {
     return <Link to={"/places/" + props.reference.description.substring(1)}>{original}</Link>
@@ -147,7 +213,9 @@ export function PlaceReference(props: { reference: gedcomX.PlaceReference }) {
   return <span>{original}</span>
 }
 
-export function Confidence(props: { confidence: ConfidenceEnum | string }) {
+export function Confidence(props: {
+  confidence: ConfidenceEnum | string
+}) {
   let confidenceLevel;
   switch (props.confidence) {
     case ConfidenceEnum.Low:
@@ -171,7 +239,9 @@ export function Confidence(props: { confidence: ConfidenceEnum | string }) {
   </div>
 }
 
-export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
+export function Alias({aliases}: {
+  aliases: gedcomX.TextValue[]
+}) {
   if (aliases.length < 2) return <></>;
 
   return <P>
@@ -182,14 +252,18 @@ export function Alias({aliases}: { aliases: gedcomX.TextValue[] }) {
   </P>
 }
 
-export function SubjectMisc({subject}: { subject: gedcomX.Subject }) {
+export function SubjectMisc({subject}: {
+  subject: gedcomX.Subject
+}) {
   return <>
     {subject.isExtracted() && <Tag>{strings.gedcomX.document.extracted}</Tag>}
     <ConclusionMisc conclusion={subject}/>
   </>
 }
 
-export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
+export function SubjectSidebar({subject}: {
+  subject: gedcomX.Subject
+}) {
   return <>
     {subject.getIdentifiers() && <Hr/>}
     <Identifiers identifiers={subject.getIdentifiers()}/>
@@ -197,10 +271,18 @@ export function SubjectSidebar({subject}: { subject: gedcomX.Subject }) {
   </>
 }
 
-export function Evidence({evidenceReferences}) {
-  const params = useParams();
+function EvidenceForm({evidence}: { evidence?: gedcomX.EvidenceReference }) {
+  return <>
+    <Input name={"resource"} type="text" label={strings.gedcomX.subject.evidence} defaultValue={evidence?.resource}/>
+    <UpdateAttribution attribution={evidence?.attribution}/>
+  </>
+}
 
-  if (!evidenceReferences || evidenceReferences.length === 0)
+export function Evidence({evidenceReferences}: { evidenceReferences: gedcomX.EvidenceReference[] }) {
+  const params = useParams();
+  const editing = useContext(LayoutContext).edit;
+
+  if (!editing && (!evidenceReferences || evidenceReferences.length === 0))
     return <></>;
 
   let linkTarget = params["id"] ? "../" : "./";
@@ -210,70 +292,162 @@ export function Evidence({evidenceReferences}) {
     {evidenceReferences.map((evidence, i) =>
       <Article key={i}>
         <P><ReactLink to={linkTarget + evidence.resource.substring(1)}>{evidence.resource}</ReactLink></P>
+        <EditButtons path={`evidence/${i}`} form={<EvidenceForm evidence={evidence}/>}/>
         <Attribution attribution={evidence.attribution}/>
       </Article>)}
+    <AddDataButton dataType={strings.gedcomX.subject.evidence} path="evidence">
+      <EvidenceForm/>
+    </AddDataButton>
   </ArticleCollection>
 }
 
-export function SubjectArticles({subject, noMargin}: { subject: gedcomX.Subject, noMargin?: boolean }) {
+function MediaForm({media}: { media?: gedcomX.SourceReference }) {
+  const sources = useLiveQuery(async () => db.sourceDescriptions.toArray())
+
+  return <>
+    <Search name="resource" label={strings.gedcomX.sourceDescription.sourceDescription} values={sources?.map(s => ({
+      display: s.titles?.at(0).value ?? strings.gedcomX.sourceDescription.sourceDescription,
+      value: "#" + s.id
+    }))} defaultValue={media?.description}/>
+    <UpdateAttribution attribution={media?.attribution}/>
+  </>
+}
+
+export function SubjectArticles({subject, noMargin}: {
+  subject: gedcomX.Subject,
+  noMargin?: boolean
+}) {
   const media = useLiveQuery(async () => {
     let mediaRefs = subject.getMedia().map(media => media.getDescription());
     return await Promise.all(mediaRefs.map(id => db.sourceDescriptionWithId(id)))
   }, [subject])
+  const editing = useContext(LayoutContext).edit;
 
   return <>
-    {media && media.length > 0 && <Gallery noMargin={noMargin}>
-      {media.map((m, i) => {
+    {(editing || (media && media.length > 0)) && <Gallery noMargin={noMargin}>
+      {media?.map((m, i) => {
         let credit = m.getCitations()[0].getValue();
         return <div className="relative" key={i}>
-            <Media mimeType={m.mediaType} url={m.getAbout()}
-                   alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
-            <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
-              + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
-              © <a href={m.getAbout()}>{credit}</a>
-            </div>
+          {editing && <div className="absolute right-0 mr-4 mt-2">
+            <EditButtons path={`media/${i}`} form={<MediaForm media={subject.getMedia()?.at(i)}/>}/>
+          </div>}
+          <Media mimeType={m.mediaType} url={m.getAbout()}
+                 alt={m.getDescriptions().filter(filterLang)[0]?.getValue()}/>
+          <div className={"absolute bottom-0 py-1 px-4 w-full text-center backdrop-blur rounded-b-2xl"
+            + " bg-gray-200 bg-opacity-50 dark:bg-neutral-700 dark:bg-opacity-50"}>
+            © <a href={m.getAbout()}>{credit}</a>
           </div>
+        </div>
       })}
+      <div className="relative">
+        <AddDataButton dataType={strings.gedcomX.subject.media} path="media">
+          <MediaForm/>
+        </AddDataButton>
+      </div>
     </Gallery>}
     <Evidence evidenceReferences={subject.getEvidence()}/>
     <ConclusionArticles conclusion={subject} noMargin={noMargin}/>
   </>
 }
 
-export function ConclusionMisc({conclusion, bgColor}: { conclusion: gedcomX.Conclusion, bgColor?: string }) {
+export function ConclusionMisc({conclusion, bgColor}: {
+  conclusion: gedcomX.Conclusion,
+  bgColor?: string
+}) {
+  const layoutContext = useContext(LayoutContext);
+  const analysis = useLiveQuery(async ()=> db.documents.where({
+    type: DocumentTypes.Analysis
+  }).toArray().then(ds => ds.map(d => ({
+    value: "#" + d.id,
+    display: d.id
+  }))))
+
   return <>
-    {conclusion.analysis && <Tag bgColor={bgColor}>{strings.gedcomX.document.types.Analysis}: <ReactLink
-      to={`/documents/${conclusion.analysis.resource.substring(1)}`}>{conclusion.analysis.resource}</ReactLink></Tag>}
-    {conclusion.confidence && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
+    {(conclusion.analysis || layoutContext.edit) &&
+      <Tag bgColor={bgColor}>
+        {strings.gedcomX.document.types.Analysis}: <ReactLink
+        to={`/document/${conclusion.analysis?.resource.substring(1)}`}>
+        {conclusion.analysis?.resource}
+      </ReactLink>
+        {!conclusion.analysis && "-"}
+        <EditDataButton path="analysis">
+          <Search name="resource" label={strings.gedcomX.document.types.Analysis} values={analysis} defaultValue={conclusion.analysis?.resource}/>
+        </EditDataButton>
+      </Tag>}
+    {(conclusion.confidence || layoutContext.edit) && <Tag bgColor={bgColor}><Confidence confidence={conclusion.confidence}/></Tag>}
   </>
 }
 
-export function ConclusionArticles({conclusion, noMargin}: { conclusion: gedcomX.Conclusion, noMargin?: boolean }) {
+export function ConclusionArticles({conclusion, noMargin}: {
+  conclusion: gedcomX.Conclusion,
+  noMargin?: boolean
+}) {
   return <>
     <SourceReferences references={conclusion.getSources()} noMargin={noMargin}/>
     <Notes notes={conclusion.getNotes()} noMargin={noMargin}/>
   </>
 }
 
-export function ConclusionSidebar({conclusion}: { conclusion: gedcomX.Conclusion }) {
+export function ConclusionSidebar({conclusion}: {
+  conclusion: gedcomX.Conclusion
+}) {
   return <>
     {conclusion.getAttribution() && <Hr/>}
     <Attribution attribution={conclusion.getAttribution()}/>
   </>
 }
 
-export function Identifiers({identifiers}: { identifiers: gedcomX.Identifiers }) {
-  if (!identifiers) return <></>
+export function Identifiers({identifiers}: {
+  identifiers: gedcomX.Identifiers
+}) {
+  const editing = useContext(LayoutContext).edit;
 
-  // this is broken, lets fix it
-  let identifierMap = identifiers.identifiers["identifiers"][0];
+  if (!identifiers && !editing) return <></>
 
   return <>
     <ul>
-      {identifierMap[IdentifierTypes.Primary]?.map((id, i) => <li key={i}>{id}</li>)}
-      {identifierMap[IdentifierTypes.Authority]?.map((id, i) => <li key={i} className="italic"><ReactLink
-        to={id}>{id}</ReactLink></li>)}
-      {identifierMap[IdentifierTypes.Deprecated]?.map((id, i) => <li key={i} className="line-through">{id}</li>)}
+      {identifiers?.getValues(IdentifierTypes.Primary)?.map((id, i) => <li key={i}>
+        <span className="font-bold">{id}</span>
+        <EditDataButton path={`identifiers/Primary/${i}`}>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Primary/${i}`}/>
+      </li>)}
+
+      {identifiers?.getValues(IdentifierTypes.Authority)?.map((id, i) => <li key={i}>
+        <span className="italic">{id}</span>
+        <EditDataButton path={`identifiers/Authority/${i}`}>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Authority/${i}`}/>
+      </li>)}
+
+      {identifiers?.getValues(IdentifierTypes.Deprecated)?.map((id, i) => <li key={i}>
+        <span className="line-through">{id}</span>
+        <EditDataButton path={`identifiers/Deprecated/${i}`}>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/Deprecated/${i}`}/>
+      </li>)}
+
+      {identifiers?.getValues(undefined)?.map((id, i) => <li key={i}>
+        <span>{id}</span>
+        <EditDataButton path={`identifiers/${i}`}>
+          <Input label={strings.gedcomX.identifier.identifier} name="value" type="text" defaultValue={id}/>
+        </EditDataButton>
+        <DeleteDataButton path={`identifiers/${i}`}/>
+      </li>)}
+
+      <li className="mt-2 first:mt-0">
+        <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
+          <select name="type" className="bg-white rounded-full px-4 py-1">
+            <option>-</option>
+            {Object.entries(strings.gedcomX.identifier.types).map(([type, translation], i) =>
+              <option key={i} value={baseUri + type}>{translation}</option>)}
+          </select>
+          <input type={"text"} name="value" className="rounded-full px-4 py-1"/>
+        </AddDataButton>
+      </li>
     </ul>
   </>
 }

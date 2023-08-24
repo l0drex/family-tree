@@ -76,24 +76,32 @@
         "attribution": "Attribution",
         "created": "Created",
         "modified": "Modified",
-        "byPerson": "by {0}"
+        "byPerson": "by {0}",
+        "changeMessage": "Change message"
       }
     },
     "subject": {
       "evidence": "Evidence",
       "mediaImageAlt": "Image of {0}.",
-      "loadingMedia": "Loading media content…"
+      "loadingMedia": "Loading media content…",
+      "media": "Media"
     },
     "agent": {
       "agents": "Agents",
       "agent": "Agent",
       "homepage": "Homepage",
+      "website": "Website",
       "accounts": "Accounts",
       "onlineAccount": "{0} on {1}",
+      "accountName": "Account name",
       "person": "Person",
       "emails": "Emails",
       "phones": "Phones",
-      "addresses": "Addresses"
+      "addresses": "Addresses",
+      "select": "Set as editor",
+      "selected": "Current editor",
+      "new": "Create new agent",
+      "changeMessage": "Describe your changes (optional)"
     },
     "document": {
       "types": {
@@ -357,19 +365,54 @@
     },
     "date": {
       "approximate": "circa {0}",
+      "date": "Date",
       "rangeStart": "since {0}",
       "rangeEndDate": "until {0}",
-      "recurring": "{0} times {1}"
+      "recurring": "{0} times {1}",
+      "form": {
+        "original": "Original notation",
+        "mode": {
+          "label": "Mode",
+          "single": "Simple",
+          "range": "Range",
+          "recurring": "Recurring"
+        },
+        "approximate": "Approximate",
+        "date": "Date",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "repetitions": "Repetitions"
+      }
     },
-    "place": "in {0}",
+    "place": {
+      "format": "in {0}",
+      "place": "place",
+      "description": "Description"
+    },
     "facts": "Facts",
+    "fact": {
+      "type": "Type",
+      "value": "Value"
+    },
     "factQualifier": {
       "Age": "Age",
-      "ageFormatter": "with {0} years old",
       "Cause": "Cause",
       "Religion": "Religion",
       "Transport": "Transport",
       "NonConsensual": "Non-Consensual"
+    },
+    "identifier": {
+      "identifier": "Identifier",
+      "types": {
+        "Primary": "Primary",
+        "Authority": "Authority",
+        "Deprecated": "Deprecated"
+      }
+    },
+    "qualifier": {
+      "qualifier": "qualifier",
+      "name": "name",
+      "value": "Value"
     }
   },
   "searchField": {
@@ -410,5 +453,13 @@
   },
   "ctrl": "Ctrl",
   "linkContent": "here",
-  "externalContentButton": "Show external content"
+  "externalContentButton": "Show external content",
+  "enterFileName": "How should the file be named?",
+  "importFile": "Import from JSON file",
+  "exportFile": "Export as JSON file",
+  "addData": "Add {0}",
+  "save": "Save",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "delete": "Delete"
 }
