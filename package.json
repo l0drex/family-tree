@@ -21,7 +21,7 @@
   "repository": "https://github.com/l0drex/family-tree",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.22.9",
+    "@babel/core": "^7.23.0",
     "@babel/plugin-syntax-flow": "^7.22.5",
     "@babel/plugin-transform-react-jsx": "^7.22.5",
     "@react-spring/web": "^9.7.3",
