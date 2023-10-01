@@ -54,7 +54,7 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2",
     "util": "^0.12.5",
-    "web-vitals": "^3.4.0",
+    "web-vitals": "^3.5.0",
     "webcola": "^3.4.0"
   },
   "scripts": {
