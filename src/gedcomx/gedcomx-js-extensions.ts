@@ -13,6 +13,7 @@ import emojis from '../backend/emojies.json';
 import { IConclusion, INameForm, INote, ISourceCitation, ITextValue } from "./interfaces";
 import GedcomXDate, { Range, Recurring, Simple } from "gedcomx-date";
 import { DateTime } from "luxon";
+import { sortPersonFacts } from "../routes/utils";
 
 // like filterLang, but without entries that don't include a language
 function filterPureLang(data: INote | ITextValue | ISourceCitation | IConclusion | INameForm) {
@@ -146,35 +147,7 @@ export class Person extends GedcomX.Person {
   }
 
   getFacts(): Fact[] {
-    return super.getFacts().sort((a, b) => {
-      // place birth at top, generation right below
-      if (a.getType() === PersonFactTypes.Birth) {
-        return -1;
-      } else if (b.getType() === PersonFactTypes.Birth) {
-        return 1;
-      }
-
-      if (a.getDate() && !b.getDate()) {
-        return 1;
-      } else if (!a.getDate() && b.getDate()) {
-        return -1;
-      }
-      if (a.getDate() && b.getDate()) {
-        // todo sort by non-simple dates via start date
-        try {
-          let aDate = new GDate(a.date).toDateObject();
-          let bDate = new GDate(b.date).toDateObject();
-          if (aDate && bDate) {
-            return aDate.valueOf() - bDate.valueOf();
-          }
-        } catch (e) {
-          if (!(e instanceof TypeError))
-            throw e;
-        }
-      }
-
-      return 0;
-    }) as Fact[];
+    return super.getFacts().sort(sortPersonFacts) as Fact[];
   }
 
   getFactsByType(type: string): Fact[] {

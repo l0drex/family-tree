@@ -21,6 +21,7 @@ import DateForm, { PlaceForm, QualifierForm } from "./GeneralForms";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../backend/db";
 import { UpdateAttribution } from "./Agents";
+import { sortPersonFacts } from "../routes/utils";
 
 
 function FactForm({types, fact}: { types: object, fact?: Fact }) {
@@ -38,6 +39,7 @@ function FactForm({types, fact}: { types: object, fact?: Fact }) {
 
 export default function FactComponent() {
   const facts = useLoaderData() as Fact[];
+  facts.sort(sortPersonFacts);
   const params = useParams();
   const layoutContext = useContext(LayoutContext);
   const placeDescription = useLiveQuery(async () =>

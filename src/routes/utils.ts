@@ -116,3 +116,33 @@ export async function updateDB(table: Table, id: string, key: string, newValue: 
   console.debug(`Performing DB update to ${id}`, changes);
   return table.update(id, changes)
 }
+
+export function sortPersonFacts(a: Fact, b: Fact) {
+  // place birth at top, generation right below
+  if (a.getType() === PersonFactTypes.Birth) {
+    return -1;
+  } else if (b.getType() === PersonFactTypes.Birth) {
+    return 1;
+  }
+
+  if (a.getDate() && !b.getDate()) {
+    return 1;
+  } else if (!a.getDate() && b.getDate()) {
+    return -1;
+  }
+  if (a.getDate() && b.getDate()) {
+    // todo sort by non-simple dates via start date
+    try {
+      let aDate = new GDate(a.date).toDateObject();
+      let bDate = new GDate(b.date).toDateObject();
+      if (aDate && bDate) {
+        return aDate.valueOf() - bDate.valueOf();
+      }
+    } catch (e) {
+      if (!(e instanceof TypeError))
+        throw e;
+    }
+  }
+
+  return 0;
+}
