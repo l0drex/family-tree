@@ -20,8 +20,8 @@ test("finds person", async () => {
   await expect(db.personWithId("husband")).resolves.toBeInstanceOf(GedcomX.Person);
   await expect(db.personWithId("grandmother2")).resolves.toBeInstanceOf(GedcomX.Person);
 
-  await expect(db.personWithId(undefined)).rejects.toThrow("Could not parse resource!");
-  await expect(db.personWithId("")).rejects.toThrow("Could not parse resource!");
+  await expect(db.personWithId(undefined)).rejects.toThrow("Could not parse resource: Resource is undefined!");
+  await expect(db.personWithId("")).rejects.toThrow("Could not parse resource: Resource is empty!");
 })
 
 test("finds children", async () => {
