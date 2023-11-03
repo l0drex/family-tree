@@ -1,4 +1,5 @@
 import { formToFormalDate } from "./general";
+import { updateObject } from "./utils";
 
 test("it can update dates", () => {
   let formData = new FormData();
@@ -28,4 +29,13 @@ test("it can update dates", () => {
 
   formData.set("count", "7")
   expect(formToFormalDate(formData).getFormal()).toBe("R7/A+2020-01-22T08:22+02:00/+2020-02-13")
+})
+
+test("Constructing functional dict works", () => {
+  let formData = new FormData();
+  let received = updateObject(formData);
+
+  received["testxyz"] = "xyz";
+  console.assert(received.get("testxyz") === "xyz", "get not working");
+  console.assert(received.has("testxyz") === true, "has not working");
 })

@@ -1,6 +1,7 @@
-import { Base } from "gedcomx-js";
 import { Table } from "dexie";
 import { strings } from "../main";
+import { Fact, GDate } from "../gedcomx/gedcomx-js-extensions";
+import { PersonFactTypes } from "../gedcomx/types";
 
 export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]> {
   return async () => table.toArray().then(data =>
@@ -9,13 +10,29 @@ export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]>
       : Promise.reject(new Error(strings.errors.noData)));
 }
 
+export interface FunctionalDict {
+  get(key: string): any;
+  has(key: string): boolean;
+}
+
 /**
  * Sets the values of the given object to the values of the given form data.
  * @param formData where keys match the keys in the data object (not all have to be present)
  * @param data to be updated
  */
-export function updateObject(formData: FormData, data: object = {}): object {
+export function updateObject(formData: FormData, data: FunctionalDict = null): FunctionalDict {
   let changeMessage = undefined;
+
+  if (data == null) {
+    data = {
+      get(key: string) {
+        return this[key];
+      },
+      has(key: string) {
+        return this[key] != null;
+      }
+    };
+  }
 
   formData.forEach((value, key) => {
     if (key === "attribution") {

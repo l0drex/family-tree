@@ -1,5 +1,5 @@
 import { Table } from "dexie";
-import { pushArray, updateArray, updateDB, updateObject } from "./utils";
+import { FunctionalDict, pushArray, updateArray, updateDB, updateObject } from "./utils";
 import { Params, redirect, RouteObject } from "react-router-dom";
 import * as GedcomX from "gedcomx-js";
 import { PlaceReference } from "gedcomx-js";
@@ -252,54 +252,57 @@ export function getMediaRoutes(table: Table<ISubject>): RouteObject {
   }
 }
 
-export function formToFormalDate(formData: object) {
+export function formToFormalDate(formData: FormData | FunctionalDict) {
   let date = new GedcomX.Date()
-    .setOriginal(formData["original"] as string);
+    .setOriginal(formData.get("original") as string);
 
   let formal = "";
-  if (formData["approximate"]) {
+  if (formData.has("approximate")) {
     formal = "A";
   }
 
   function formToFormalSimple(prefix: string): string {
     let string = "";
 
-    if (!formData[prefix + "-date"]) {
+    if (!formData.get(prefix + "-date")) {
+      console.debug(`no ${prefix} date`)
       return string;
     }
-    string += `+${formData[prefix + "-date"]}`;
+    string += `+${formData.get(prefix + "-date")}`;
 
-    if (!formData[prefix + "-time"]) {
+    if (!formData.get(prefix + "-time")) {
       return string;
     }
-    string += `T${formData[prefix + "-time"]}`;
+    string += `T${formData.get(prefix + "-time")}`;
 
-    if (!formData[prefix + "-tz"]) {
+    if (!formData.get(prefix + "-tz")) {
       return string;
     }
-    string += formData[prefix + "-tz-sign"] + formData[prefix + "-tz"];
+    string += formData.get(prefix + "-tz-sign") as string + formData.get(prefix + "-tz");
 
     return string;
   }
 
-  switch (formData["mode"]) {
+  switch (formData.get("mode")) {
     case "single":
       formal += formToFormalSimple("start");
       break;
     case "recurring":
-      formal = `R${Number(formData["count"]) > 1 ? formData["count"] : ""}/` + formal;
+      formal = `R${Number(formData.get("count")) > 1 ? formData.get("count") : ""}/` + formal;
     // intentionally no break
     // noinspection FallThroughInSwitchStatementJS
     case "range":
       formal += `${formToFormalSimple("start")}/${formToFormalSimple("end")}`;
       break;
+    default:
+      throw new TypeError("Unsupported mode " + formData.get("mode"));
   }
 
   // validate that it is a valid string
   try {
     GedcomXDate(formal);
   } catch (e) {
-    console.error(formal)
+    console.error("Formal:", formal)
     throw e;
   }
 
@@ -434,7 +437,7 @@ export function getAnalysisRoute(
     const parent = await table.get(params.id);
     const conclusion = accessor(parent, params);
 
-    conclusion.analysis = updateObject(await request.formData()) as IResourceReference;
+    conclusion.analysis = updateObject(await request.formData()) as object as IResourceReference;
     if (conclusion.analysis.resource == null) {
       conclusion.analysis = null;
     }
