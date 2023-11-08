@@ -63,8 +63,8 @@ dependencies:
     specifier: ^3.2.4
     version: 3.2.4
   dexie-react-hooks:
-    specifier: ^1.1.6
-    version: 1.1.6(@types/react@18.2.24)(dexie@3.2.4)(react@18.2.0)
+    specifier: ^1.1.7
+    version: 1.1.7(@types/react@18.2.24)(dexie@3.2.4)(react@18.2.0)
   gedcomx-date:
     specifier: ^0.3.2
     version: 0.3.2
@@ -5618,8 +5618,8 @@ packages:
       - supports-color
     dev: false
 
-  /dexie-react-hooks@1.1.6(@types/react@18.2.24)(dexie@3.2.4)(react@18.2.0):
-    resolution: {integrity: sha512-xSblWtmPwhafWNWMECsW7zMMmBu8goH3QqTxEfwBNoNG1mgsM0oFclippev7ss9HhKICqBwTjgqpscci5Ed4mA==}
+  /dexie-react-hooks@1.1.7(@types/react@18.2.24)(dexie@3.2.4)(react@18.2.0):
+    resolution: {integrity: sha512-Lwv5W0Hk+uOW3kGnsU9GZoR1er1B7WQ5DSdonoNG+focTNeJbHW6vi6nBoX534VKI3/uwHebYzSw1fwY6a7mTw==}
     peerDependencies:
       '@types/react': '>=16'
       dexie: ^3.2 || ^4.0.1-alpha

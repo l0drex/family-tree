@@ -40,7 +40,7 @@
     "@visx/xychart": "^3.3.0",
     "d3": "7.6.1",
     "dexie": "^3.2.4",
-    "dexie-react-hooks": "^1.1.6",
+    "dexie-react-hooks": "^1.1.7",
     "gedcomx-date": "^0.3.2",
     "gedcomx-js": "^2.8.0",
     "leaflet": "^1.9.4",
