@@ -1,10 +1,9 @@
 import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
-import { formToFormalDate, getFactRoute, getSubjectRoutes } from "./general";
+import { getFactRoute, getSubjectRoutes } from "./general";
 import { pushArray, updateDB, updateObject } from "./utils";
 import * as GedcomX from "gedcomx-js";
-import { IName } from "../gedcomx/interfaces";
 
 export const personRoutes: RouteObject = {
   path: "person", children: [{
@@ -64,10 +63,16 @@ export const personRoutes: RouteObject = {
               return redirect("../../..")
             }, children: [{
               path: ":partId", action: async ({params, request}) => {
+                const person = await db.personWithId(params.id);
+                const name: GedcomX.Name = person.getNames()[params.nameId];
+
                 if (request.method === "DELETE") {
-                  const person = await db.personWithId(params.id);
-                  let name: GedcomX.Name = person.getNames()[params.nameId];
                   name.nameForms.splice(Number(params.partId), 1);
+                  await updateDB(db.persons, params.id, "names", person.names);
+                  return redirect("../../../..")
+                } else if (request.method === "POST") {
+                  const formData = updateObject(await request.formData())
+                  name.nameForms[params.partId] = new GedcomX.NameForm(formData)
                   await updateDB(db.persons, params.id, "names", person.names);
                   return redirect("../../../..")
                 }

@@ -10,7 +10,7 @@ import {
   Article,
   ArticleTag,
   DateTimeInput, DeleteDataButton,
-  Details,
+  Details, EditDataButton,
   Input, Select,
   Tag,
   Tags,
@@ -57,6 +57,9 @@ function Names({names}: { names: Name[] }) {
           <details className="mb-2 last:mb-0 pb-2 last:pb-0" key={j}>
             <summary>
               {`${nf.getFullText(true)} ${nf.lang ? `(${nf.lang})` : ""}`}
+              <EditDataButton path={`names/${i}/part/${j}`}>
+                <Input type="text" name="fullText" label={strings.gedcomX.person.names} defaultValue={nf.getFullText(true)}/>
+              </EditDataButton>
               {j > 0 && <DeleteDataButton path={`names/${i}/part/${j}`}/>}
             </summary>
 
