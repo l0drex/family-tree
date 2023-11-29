@@ -1,10 +1,10 @@
-import { baseUri } from "../gedcomx/types";
+import { baseUri, NameTypes } from "../gedcomx/types";
 import { filterLang, strings } from "../main";
 import { db } from "../backend/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Fact, GDate, Person } from "../gedcomx/gedcomx-js-extensions";
 import { SubjectArticles, SubjectMisc, SubjectSidebar } from "./GedcomXComponents";
-import { Sidebar } from "../Layout";
+import { LayoutContext, Sidebar } from "../Layout";
 import {
   AddDataButton,
   Article,
@@ -18,7 +18,7 @@ import {
 } from "./GeneralComponents";
 import { Name } from "gedcomx-js";
 import emojis from '../backend/emojies.json';
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FactForm } from "./FactComponent";
 import * as GedcomX from "gedcomx-js";
@@ -48,6 +48,8 @@ function InfoPanel({person}: { person: Person }) {
 }
 
 function Names({names}: { names: Name[] }) {
+  const editing = useContext(LayoutContext).edit;
+
   if (!names || names.length === 0) return <></>
 
   return <section>
@@ -94,13 +96,18 @@ function Names({names}: { names: Name[] }) {
         <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}/form`}>
           <NameFormForm/>
         </AddDataButton>
-        {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
-          {n.type && <ArticleTag>{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</ArticleTag>}
+        {(n.type || n.date || editing) && <section className="mt-2 flex flex-row flex-wrap gap-2">
+          {(n.type || editing) && <ArticleTag>
+            {strings.gedcomX.person.nameTypes[n.type?.substring(baseUri.length)] ?? "- "}
+            <EditDataButton path={`names/${i}/type`}>
+              <SelectNameType/>
+            </EditDataButton>
+          </ArticleTag>}
           {n.date && <ArticleTag>{new GDate(n.date.toJSON()).toString()}</ArticleTag>}
         </section>}
-        <div className="mt-4 text-right">
+        {editing && <div className="mt-4 text-right">
           <DeleteDataButton path={`names/${i}`} label/>
-        </div>
+        </div>}
       </Article>
     })}
     <AddDataButton dataType={strings.gedcomX.person.names} path="names">
@@ -109,7 +116,7 @@ function Names({names}: { names: Name[] }) {
   </section>
 }
 
-function NameForm() {
+function SelectNameType({type}: {type?: NameTypes | string}) {
   const nameTypes = strings.gedcomX.person.nameTypes;
   const options = Object.keys(nameTypes)
     .map(t => ({
@@ -121,8 +128,12 @@ function NameForm() {
     text: "-"
   })
 
+  return <Select name={"type"} label={strings.gedcomX.fact.type} options={options}/>
+}
+
+function NameForm() {
   return <>
-    <Select name={"type"} label={strings.gedcomX.fact.type} options={options}/>
+    <SelectNameType/>
     <NameFormForm/>
   </>
 }
