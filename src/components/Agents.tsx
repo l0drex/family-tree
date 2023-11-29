@@ -37,7 +37,7 @@ function setActiveAgent(agent: Agent): void {
 
 export function AgentSelector({agent}: { agent: Agent }) {
   return <>
-    <Link to={`/agent/${agent?.id}`} className="px-4 bg-white rounded-full py-2">
+    <Link to={`/agent/${agent?.id}`} className="px-4 bg-white dark:bg-white dark:bg-opacity-10 rounded-full py-2">
             <span
               className="mr-2 hidden lg:inline">{agent?.names?.filter(filterLang).at(0)?.value ?? strings.gedcomX.agent.agent}</span>
       {emojis.agent.agent}

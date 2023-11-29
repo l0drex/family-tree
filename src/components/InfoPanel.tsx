@@ -11,7 +11,7 @@ import {
   ArticleTag,
   DateTimeInput,
   Details,
-  Input,
+  Input, Select,
   Tag,
   Tags,
   Title
@@ -94,13 +94,18 @@ function Names({names}: { names: Name[] }) {
 
 function NameForm(name) {
   const nameTypes = strings.gedcomX.person.nameTypes;
+  const options = Object.keys(nameTypes)
+    .map(t => ({
+      value: baseUri + t,
+      text: nameTypes[t]
+    }))
+  options.push({
+    value: "-",
+    text: "-"
+  })
 
   return <>
-    <label>{strings.gedcomX.fact.type}</label>
-    <select name="type" className="bg-white rounded-full px-4 py-1">
-      <option>-</option>
-      {Object.keys(nameTypes).map(t => <option value={baseUri + t} key={t}>{nameTypes[t]}</option>)}
-    </select>
+    <Select name={"type"} label={strings.gedcomX.fact.type} options={options}/>
     <NameFormForm/>
   </>
 }

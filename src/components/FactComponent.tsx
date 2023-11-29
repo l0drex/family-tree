@@ -7,7 +7,7 @@ import {
   EditDataButton, Hr,
   Input,
   ReactLink,
-  ReactNavLink,
+  ReactNavLink, Select,
   Tag,
   Tags,
   Title
@@ -25,14 +25,15 @@ import { sortPersonFacts } from "../routes/utils";
 
 
 export function FactForm({types, fact}: { types: object, fact?: Fact }) {
+  const options = Object.keys(types)
+    .sort((a, b) => (types[a] as string).localeCompare(types[b]))
+    .map(type => ({
+      value: baseUri + type,
+      text: `${emojies.fact[type] ?? emojies.fact.default} ${types[type]}`
+    }));
+
   return <>
-    <label htmlFor="type">{strings.gedcomX.fact.type}</label>
-    <select id="type" name="type" defaultValue={fact?.type} className="bg-white rounded-full px-4">
-      {Object.keys(types)
-        .sort((a, b) => (types[a] as string).localeCompare(types[b]))
-        .map(type =>
-          <option key={type} value={baseUri + type}>{emojies.fact[type]} {types[type]}</option>)}
-    </select>
+    <Select name="type" label={strings.gedcomX.fact.type} options={options} defaultValue={fact?.type}/>
     <Input type="text" name="value" label={strings.gedcomX.fact.value} defaultValue={fact?.value}/>
   </>
 }

@@ -152,7 +152,7 @@ export function Layout() {
       <FileButtons edit={edit} setEdit={setEdit}/>
       <AgentSelector agent={agent}/>
       <span className={`lg:hidden`}>
-        <button onClick={() => toggleSidebar(!sidebarExtended)} className="px-4 py-2 bg-white rounded-full ml-4">
+        <button onClick={() => toggleSidebar(!sidebarExtended)} className="px-4 py-2 bg-white dark:bg-opacity-10 rounded-full ml-4">
           {sidebarExtended ? emojis.right : emojis.left}
         </button>
       </span>

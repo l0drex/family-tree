@@ -18,7 +18,7 @@ import {
   Media,
   P,
   ReactLink,
-  Search,
+  Search, Select,
   Tag,
   Title
 } from "./GeneralComponents";
@@ -361,6 +361,16 @@ export function ConclusionMisc({conclusion, bgColor}: {
     display: d.id
   }))))
 
+  const options = Object.keys(strings.gedcomX.conclusion.confidenceLevel)
+    .map(k => ({
+      value: baseUri + k,
+      text: strings.gedcomX.conclusion.confidenceLevel[k]
+    }));
+  options.push({
+      value: "-",
+      text: "-"
+    });
+
   return <>
     {(conclusion.analysis || layoutContext.edit) &&
       <Tag bgColor={bgColor}>
@@ -370,7 +380,8 @@ export function ConclusionMisc({conclusion, bgColor}: {
       </ReactLink>
         {!conclusion.analysis && "-"}
         <EditDataButton path="analysis">
-          <Search name="resource" label={strings.gedcomX.document.types.Analysis} values={analysis} defaultValue={conclusion.analysis?.resource}/>
+          <Search name="resource" label={strings.gedcomX.document.types.Analysis} values={analysis}
+                  defaultValue={conclusion.analysis?.resource}/>
         </EditDataButton>
       </Tag>}
     {(conclusion.confidence || layoutContext.edit) && <Tag bgColor={bgColor}>
@@ -378,11 +389,8 @@ export function ConclusionMisc({conclusion, bgColor}: {
       ? <Confidence confidence={conclusion.confidence}/>
       : "- "}
       <EditDataButton path="confidence">
-        <label>{strings.gedcomX.conclusion.confidence}</label>
-        <select name="confidence" className="bg-white rounded-full px-4" defaultValue={conclusion.confidence}>
-          {Object.keys(strings.gedcomX.conclusion.confidenceLevel).map(k => <option value={baseUri + k} key={k}>{strings.gedcomX.conclusion.confidenceLevel[k]}</option>)}
-          <option>-</option>
-        </select>
+        <Select name={"confidence"} label={strings.gedcomX.conclusion.confidence} options={options}
+                defaultValue={conclusion.confidence}/>
       </EditDataButton>
     </Tag>}
   </>
@@ -413,6 +421,16 @@ export function Identifiers({identifiers}: {
   const editing = useContext(LayoutContext).edit;
 
   if (!identifiers && !editing) return <></>
+
+  const options = Object.entries(strings.gedcomX.identifier.types)
+    .map(([type, translation], i) => ({
+      value: baseUri + type,
+      text: translation
+      }));
+  options.push({
+    text: "-",
+    value: "-"
+  })
 
   return <>
     <ul>
@@ -450,12 +468,9 @@ export function Identifiers({identifiers}: {
 
       <li className="mt-2 first:mt-0">
         <AddDataButton dataType={strings.gedcomX.identifier.identifier} path={"identifiers"}>
-          <select name="type" className="bg-white rounded-full px-4 py-1">
-            <option>-</option>
-            {Object.entries(strings.gedcomX.identifier.types).map(([type, translation], i) =>
-              <option key={i} value={baseUri + type}>{translation}</option>)}
-          </select>
-          <input type={"text"} name="value" className="rounded-full px-4 py-1"/>
+          {/* TODO more sensible labels */}
+          <Select name={"type"} label={strings.gedcomX.identifier.identifier} options={options} />
+          <Input type={"text"} name="value" className="rounded-full px-4 py-1" label={strings.gedcomX.identifier.identifier}/>
         </AddDataButton>
       </li>
     </ul>

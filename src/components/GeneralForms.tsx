@@ -1,5 +1,5 @@
 import { GDate, getOffset, simpleToJsDate } from "../gedcomx/gedcomx-js-extensions";
-import { DateTimeInput, Input, Search } from "./GeneralComponents";
+import { DateTimeInput, Input, Search, Select } from "./GeneralComponents";
 import { useState } from "react";
 import { strings } from "../main";
 import GedcomXDate, { DateType, Range, Recurring } from "gedcomx-date";
@@ -35,15 +35,17 @@ export default function DateForm({date}: { date?: GDate }) {
       break;
   }
 
+  const options = ["single", "range", "recurring"]
+    .map(k => ({
+      value: k,
+      text: strings.gedcomX.date.form[k]
+    }))
+
   return <>
     <Input label={strings.gedcomX.date.form.original} name={"original"} type={"text"} defaultValue={date?.original}/>
-    <label htmlFor="mode">{strings.gedcomX.date.form.mode.label}</label>
-    <select id="mode" name={"mode"} onChange={e => setType(e.target.value as DateType)}
-            className={"bg-white rounded-full px-4"} value={type}>
-      <option value="single">{strings.gedcomX.date.form.mode.single}</option>
-      <option value="range">{strings.gedcomX.date.form.mode.range}</option>
-      <option value="recurring">{strings.gedcomX.date.form.mode.recurring}</option>
-    </select>
+
+    <Select name={"mode"} label={strings.gedcomX.date.form.mode.label} options={options} defaultValue={type}
+            onChange={e => setType(e.target.value as DateType)}/>
     <Input label={strings.gedcomX.date.form.approximate} name={"approximate"} type="checkbox"
            defaultChecked={parsedDate?.isApproximate()}/>
     <DateTimeInput namePrefix={"start"} label={type === "single"
@@ -71,12 +73,14 @@ export function PlaceForm({place}: { place: PlaceReference }) {
 }
 
 export function QualifierForm({qualifier, types}: { qualifier?: GedcomX.Qualifier, types: { [key: string]: string } }) {
-  return <>
-    <label htmlFor="qualifier-form">{strings.gedcomX.qualifier.name}</label>
-    <select id="qualifier-form" name="name" className={"bg-white rounded-full px-4"} defaultValue={qualifier?.getName()}>
-      {Object.keys(types).map((t, i) => <option key={i} value={baseUri + t}>{types[t]}</option>)}
-    </select>
+  const options = Object.keys(types)
+    .map((t, i) => ({
+      value: baseUri + t,
+      text: types[t]
+    }))
 
+  return <>
+    <Select name={"name"} label={strings.gedcomX.qualifier.name} options={options} defaultValue={qualifier?.getName()}/>
     <Input type="text" name="value" label={strings.gedcomX.qualifier.value} defaultValue={qualifier?.getValue()} />
   </>
 }

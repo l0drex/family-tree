@@ -1,6 +1,15 @@
 import { Form, Link, NavLink } from "react-router-dom";
 import * as React from "react";
-import { ReactElement, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import {
+  DetailedHTMLProps,
+  ReactElement,
+  ReactNode,
+  SelectHTMLAttributes,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { strings } from "../main";
 import emojis from "../backend/emojies.json";
 import { LayoutContext } from "../Layout";
@@ -16,7 +25,7 @@ export function Article({noMargin, emoji, title, onClick, children}: {
   return (
     <article
       className={`bg-white bg-opacity-50 dark:bg-opacity-10 rounded-2xl p-4 w-full mx-auto max-w-3xl ${noMargin ? "" : `${title ? "mt-6" : "mt-4"} first:mt-0`}`
-    + (onClick ? " hover:bg-opacity-100 hover:cursor-pointer transition-colors" : "")} onClick={onClick}>
+    + (onClick ? " hover:bg-opacity-100 hover:cursor-pointer dark:hover:bg-opacity-20 transition-colors" : "")} onClick={onClick}>
       {title && <Title emoji={emoji}>{title}</Title>}
       {children}
     </article>
@@ -244,7 +253,7 @@ export function DataButton({path, children, buttonLabel}: {
   return <>
     <button onClick={() => {
       dialog.current?.showModal();
-    }} className="ml-2 first:ml-0 px-4 py-1 bg-white rounded-2xl">
+    }} className="ml-2 first:ml-0 px-4 py-1 bg-white dark:bg-opacity-20 rounded-2xl">
       {buttonLabel}
     </button>
     <dialog ref={dialog} className="p-4 rounded-2xl">
@@ -252,7 +261,7 @@ export function DataButton({path, children, buttonLabel}: {
         <div className="grid grid-cols-2 gap-2 odd:text-right event:text-left">
           {children}
         </div>
-        <div className="w-full flex flex-row justify-end mt-8">
+        <div className="w-full flex flex-row justify-end mt-8 dark:text-white">
           <ButtonLike>
             <button type="submit" className="px-4 py-2">{`${emojis.save} ${strings.save}`}</button>
           </ButtonLike>
@@ -302,7 +311,7 @@ export function DeleteDataButton({path, label}: {
     return <></>
 
   return <Form method="delete" action={path} className="inline">
-    <button type="submit" className="ml-2 px-4 py-1 bg-white rounded-2xl">
+    <button type="submit" className="ml-2 px-4 py-1 bg-white dark:bg-opacity-20 rounded-2xl">
       {label ? `${strings.delete} ` : ""}
       {emojis.delete}
     </button>
@@ -329,8 +338,10 @@ export function CreateNewButton({path, label}: {
   if (!editing)
     return <></>
 
+  // TODO merge this with add new?
+
   return <Form method="post" action={path} className="mx-auto mt-4 w-fit">
-    <button type="submit" className="bg-white rounded-full px-4 py-2">
+    <button type="submit" className="bg-white dark:bg-opacity-20 rounded-full px-4 py-2">
       {`${emojis.new} ${label}`}
     </button>
   </Form>
@@ -344,8 +355,21 @@ export function Input({label, integer, ...props}: {
   const id = crypto.randomUUID();
 
   return <>
-    <label htmlFor={id}>{label}</label>
-    <input id={id} className="rounded-full px-4" min={integer ? 0 : undefined} step={integer ? 1 : undefined} {...props} />
+    <label htmlFor={id} className="dark:text-white">{label}</label>
+    <input id={id} className="rounded-full px-4 dark:text-black" min={integer ? 0 : undefined} step={integer ? 1 : undefined} {...props} />
+  </>
+}
+
+export function Select<T>({name, label, options, ...props}: {
+  name: string,
+  label: string,
+  options: {value?: string, text: string}[],
+} & DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement>) {
+  return <>
+    <label htmlFor={name} className="dark:text-white">{label}</label>
+    <select name={name} className="bg-white rounded-full px-4" {...props}>
+      {options.map(o => <option key={o.value ?? o.text} value={o.value ?? o.text}>{o.text}</option>)}
+    </select>
   </>
 }
 
