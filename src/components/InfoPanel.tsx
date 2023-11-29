@@ -9,7 +9,7 @@ import {
   AddDataButton,
   Article,
   ArticleTag,
-  DateTimeInput,
+  DateTimeInput, DeleteDataButton,
   Details,
   Input, Select,
   Tag,
@@ -84,6 +84,9 @@ function Names({names}: { names: Name[] }) {
           {n.type && <ArticleTag>{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</ArticleTag>}
           {n.date && <ArticleTag>{new GDate(n.date.toJSON()).toString()}</ArticleTag>}
         </section>}
+        <div className="mt-4 text-right">
+          <DeleteDataButton path={`names/${i}`} label/>
+        </div>
       </Article>
     })}
     <AddDataButton dataType={strings.gedcomX.person.names} path="names">

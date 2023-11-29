@@ -42,15 +42,21 @@ export const personRoutes: RouteObject = {
           return redirect("../");
         }, children: [{
           path: ":nameId", action: async ({params, request}) => {
-            const formData = updateObject(await request.formData());
-            const nameForm = new GedcomX.NameForm(formData);
-            console.debug(nameForm)
-
             const person = await db.personWithId(params.id);
-            pushArray(person.getNames()[params.nameId].getNameForms(), nameForm);
-            await updateDB(db.persons, params.id, "names", person.names);
 
-            return redirect("../..")
+            if (request.method === "DELETE") {
+              person.names.splice(Number(params.nameId), 1);
+              await updateDB(db.persons, params.id, "names", person.names);
+              return redirect("../..");
+            } else if (request.method === "POST") {
+              const formData = updateObject(await request.formData());
+              const nameForm = new GedcomX.NameForm(formData);
+
+              pushArray(person.getNames()[params.nameId].getNameForms(), nameForm);
+              await updateDB(db.persons, params.id, "names", person.names);
+
+              return redirect("../..")
+            }
           }
         }]
       },
