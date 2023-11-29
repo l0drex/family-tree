@@ -42,22 +42,38 @@ export const personRoutes: RouteObject = {
           return redirect("../");
         }, children: [{
           path: ":nameId", action: async ({params, request}) => {
-            const person = await db.personWithId(params.id);
+            if (request.method !== "DELETE") {
+              return;
+            }
 
-            if (request.method === "DELETE") {
-              person.names.splice(Number(params.nameId), 1);
-              await updateDB(db.persons, params.id, "names", person.names);
-              return redirect("../..");
-            } else if (request.method === "POST") {
+            const person = await db.personWithId(params.id);
+            person.names.splice(Number(params.nameId), 1);
+            await updateDB(db.persons, params.id, "names", person.names);
+            return redirect("../..");
+          },
+          children: [{
+            path: "part", action: async ({params, request}) => {
+              const person = await db.personWithId(params.id);
+
               const formData = updateObject(await request.formData());
               const nameForm = new GedcomX.NameForm(formData);
 
               pushArray(person.getNames()[params.nameId].getNameForms(), nameForm);
               await updateDB(db.persons, params.id, "names", person.names);
 
-              return redirect("../..")
-            }
-          }
+              return redirect("../../..")
+            }, children: [{
+              path: ":partId", action: async ({params, request}) => {
+                if (request.method === "DELETE") {
+                  const person = await db.personWithId(params.id);
+                  let name: GedcomX.Name = person.getNames()[params.nameId];
+                  name.nameForms.splice(Number(params.partId), 1);
+                  await updateDB(db.persons, params.id, "names", person.names);
+                  return redirect("../../../..")
+                }
+              }
+            }]
+          }]
         }]
       },
       getFactRoute(db.persons),

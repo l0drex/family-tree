@@ -57,6 +57,7 @@ function Names({names}: { names: Name[] }) {
           <details className="mb-2 last:mb-0 pb-2 last:pb-0" key={j}>
             <summary>
               {`${nf.getFullText(true)} ${nf.lang ? `(${nf.lang})` : ""}`}
+              {j > 0 && <DeleteDataButton path={`names/${i}/part/${j}`}/>}
             </summary>
 
             <div className="grid grid-cols-2 mt-2">
@@ -77,7 +78,7 @@ function Names({names}: { names: Name[] }) {
               })}
             </div>
           </details>)}
-        <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}`}>
+        <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}/part`}>
           <NameFormForm/>
         </AddDataButton>
         {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
