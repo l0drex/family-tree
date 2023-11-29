@@ -51,7 +51,7 @@ export const personRoutes: RouteObject = {
             return redirect("../..");
           },
           children: [{
-            path: "part", action: async ({params, request}) => {
+            path: "form", action: async ({params, request}) => {
               const person = await db.personWithId(params.id);
 
               const formData = updateObject(await request.formData());
@@ -62,21 +62,49 @@ export const personRoutes: RouteObject = {
 
               return redirect("../../..")
             }, children: [{
-              path: ":partId", action: async ({params, request}) => {
+              path: ":formId", action: async ({params, request}) => {
                 const person = await db.personWithId(params.id);
                 const name: GedcomX.Name = person.getNames()[params.nameId];
 
                 if (request.method === "DELETE") {
-                  name.nameForms.splice(Number(params.partId), 1);
+                  name.nameForms.splice(Number(params.formId), 1);
                   await updateDB(db.persons, params.id, "names", person.names);
                   return redirect("../../../..")
                 } else if (request.method === "POST") {
                   const formData = updateObject(await request.formData())
-                  name.nameForms[params.partId] = new GedcomX.NameForm(formData)
+                  name.nameForms[params.formId] = new GedcomX.NameForm(formData)
                   await updateDB(db.persons, params.id, "names", person.names);
                   return redirect("../../../..")
                 }
-              }
+              }, children: [{
+                path: "part", action: async ({params, request}) => {
+                  const person = await db.personWithId(params.id);
+                  const name: GedcomX.Name = person.getNames()[params.nameId];
+                  const nameForm: GedcomX.NameForm = name.getNameForms()[params.formId];
+
+                  if (request.method === "POST") {
+                    const data = updateObject(await request.formData());
+                    const part = new GedcomX.NamePart(data);
+                    console.debug(part);
+
+                    nameForm.addPart(part);
+                    await updateDB(db.persons, params.id, "names", person.names);
+                    return redirect("../../../../..");
+                  }
+                }, children: [{
+                  path: ":partId", action: async ({params, request}) => {
+                    const person = await db.personWithId(params.id);
+                    const name: GedcomX.Name = person.getNames()[params.nameId];
+                    const nameForm: GedcomX.NameForm = name.getNameForms()[params.formId];
+
+                    if (request.method === "DELETE") {
+                      nameForm.parts.splice(Number(params.partId));
+                      await updateDB(db.persons, params.id, "names", person.names);
+                      return redirect("../../../../../..");
+                    }
+                  }
+                }]
+              }]
             }]
           }]
         }]

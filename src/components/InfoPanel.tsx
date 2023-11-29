@@ -21,6 +21,7 @@ import emojis from '../backend/emojies.json';
 import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { FactForm } from "./FactComponent";
+import * as GedcomX from "gedcomx-js";
 
 function InfoPanel({person}: { person: Person }) {
   if (!person) {
@@ -57,10 +58,10 @@ function Names({names}: { names: Name[] }) {
           <details className="mb-2 last:mb-0 pb-2 last:pb-0" key={j}>
             <summary>
               {`${nf.getFullText(true)} ${nf.lang ? `(${nf.lang})` : ""}`}
-              <EditDataButton path={`names/${i}/part/${j}`}>
-                <Input type="text" name="fullText" label={strings.gedcomX.person.names} defaultValue={nf.getFullText(true)}/>
+              <EditDataButton path={`names/${i}/form/${j}`}>
+                <NameFormForm nameForm={nf}/>
               </EditDataButton>
-              {j > 0 && <DeleteDataButton path={`names/${i}/part/${j}`}/>}
+              {j > 0 && <DeleteDataButton path={`names/${i}/form/${j}`}/>}
             </summary>
 
             <div className="grid grid-cols-2 mt-2">
@@ -76,12 +77,21 @@ function Names({names}: { names: Name[] }) {
                   <div className="col-span-2 mb-2 last:mb-0 flex gap-2">
                     {p.qualifiers?.length && p.qualifiers?.map(q =>
                       <ArticleTag>{(strings.gedcomX.person.namePartQualifier[q.name.substring(baseUri.length)] ?? q.name) + (q.value ? `: ${q.value}` : "")}</ArticleTag>)}
+                    <EditDataButton path={`names/${i}/form/${j}/part/${k}`}>
+                      <NamePartForm namePart={p}/>
+                    </EditDataButton>
+                    <DeleteDataButton path={`names/${i}/form/${j}/part/${k}`} />
                   </div>
                 </Fragment>;
               })}
+              <div>
+                <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}/form/${j}/part`}>
+                  <NamePartForm/>
+                </AddDataButton>
+              </div>
             </div>
           </details>)}
-        <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}/part`}>
+        <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}/form`}>
           <NameFormForm/>
         </AddDataButton>
         {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
@@ -99,7 +109,7 @@ function Names({names}: { names: Name[] }) {
   </section>
 }
 
-function NameForm(name) {
+function NameForm() {
   const nameTypes = strings.gedcomX.person.nameTypes;
   const options = Object.keys(nameTypes)
     .map(t => ({
@@ -117,9 +127,22 @@ function NameForm(name) {
   </>
 }
 
-function NameFormForm(nameForm) {
+function NameFormForm({nameForm}: {nameForm?: GedcomX.NameForm}) {
   return <>
-    <Input type="text" label={strings.gedcomX.person.names} name="fullText"/>
+    <Input type="text" label={strings.gedcomX.person.names} name="fullText"
+           defaultValue={nameForm?.getFullText(true)}/>
+  </>
+}
+
+function NamePartForm({namePart}: { namePart?: GedcomX.NamePart }) {
+  return <>
+    {/* TODO localize labels here and around (a lot of them are just "label") */}
+    <Select name="type" label={"type"} options={Object.keys(strings.gedcomX.person.namePartTypes)
+      .map(k => ({
+        value: baseUri + k,
+        text: strings.gedcomX.person.namePartTypes[k]
+      }))} defaultValue={namePart?.getType()} />
+    <Input type="text" name="value" label={strings.gedcomX.person.names} defaultValue={namePart?.getValue()}/>
   </>
 }
 
