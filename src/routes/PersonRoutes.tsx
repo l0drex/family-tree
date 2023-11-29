@@ -107,20 +107,30 @@ export const personRoutes: RouteObject = {
               }]
             }]
           }, {
-            path: "type", action: async ({params, request}) => {
-              if (request.method === "POST") {
-                const person = await db.personWithId(params.id);
-                const name: GedcomX.Name = person.getNames()[params.nameId];
-                const data = updateObject(await request.formData());
-                if (data.has("type") && data.get("type") !== "-") {
-                  name.type = data.get("type");
-                } else {
-                  delete name.type;
+            path: ":attribute", action: async ({params, request}) => {
+              const person = await db.personWithId(params.id);
+              const name: GedcomX.Name = person.getNames()[params.nameId];
+              const data = updateObject(await request.formData());
+
+              switch (params.attribute){
+                case "type": {
+                  if (data.has("type") && data.get("type") !== "-") {
+                    name.type = data.get("type");
+                  } else {
+                    delete name.type;
+                  }
+                  break;
                 }
-                await updateDB(db.persons, params.id, "names", person.names);
-                return redirect("../../..");
+                case "date": {
+                  // TODO
+                  break;
+                }
               }
-          }
+
+              await updateDB(db.persons, params.id, "names", person.names);
+              return redirect("../../..");
+            }
+
           }]
         }]
       },
