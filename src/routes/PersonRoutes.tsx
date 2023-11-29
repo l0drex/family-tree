@@ -1,7 +1,10 @@
 import { redirect, RouteObject } from "react-router-dom";
 import Persons from "../components/Persons";
 import { db } from "../backend/db";
-import { getFactRoute, getSubjectRoutes } from "./general";
+import { formToFormalDate, getFactRoute, getSubjectRoutes } from "./general";
+import { pushArray, updateDB, updateObject } from "./utils";
+import * as GedcomX from "gedcomx-js";
+import { IName } from "../gedcomx/interfaces";
 
 export const personRoutes: RouteObject = {
   path: "person", children: [{
@@ -23,6 +26,34 @@ export const personRoutes: RouteObject = {
   }, {
     path: ":id", children: [
       {index: true, Component: Persons, loader: async ({params}) => db.personWithId(params.id)},
+      {
+        path: "names", action: async ({params, request}) => {
+          const formData = updateObject(await request.formData());
+          if (formData.get("type") === "-") {
+            formData.delete("type");
+          }
+          const name = new GedcomX.Name(formData)
+            .addNameForm(new GedcomX.NameForm(formData));
+
+          const person = await db.personWithId(params.id);
+          pushArray<GedcomX.Name>(person.names, name);
+          await updateDB(db.persons, params.id, "names", person.names);
+
+          return redirect("../");
+        }, children: [{
+          path: ":nameId", action: async ({params, request}) => {
+            const formData = updateObject(await request.formData());
+            const nameForm = new GedcomX.NameForm(formData);
+            console.debug(nameForm)
+
+            const person = await db.personWithId(params.id);
+            pushArray(person.getNames()[params.nameId].getNameForms(), nameForm);
+            await updateDB(db.persons, params.id, "names", person.names);
+
+            return redirect("../..")
+          }
+        }]
+      },
       getFactRoute(db.persons),
       ...getSubjectRoutes(db.persons)
     ]

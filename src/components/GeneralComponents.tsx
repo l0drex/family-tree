@@ -266,6 +266,14 @@ export function DataButton({path, children, buttonLabel}: {
   </>
 }
 
+
+/**
+ * Button with a form and a plus emoji.
+ * @param dataType string for the button label
+ * @param path form submit path
+ * @param children form content
+ * @constructor
+ */
 export function AddDataButton({dataType, path, children}: {
   dataType: string,
   path: string,

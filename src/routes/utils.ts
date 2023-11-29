@@ -13,6 +13,7 @@ export function getAll<T>(table: Table<T>, Constructor: any): () => Promise<T[]>
 export interface FunctionalDict {
   get(key: string): any;
   has(key: string): boolean;
+  delete(key: string): void;
 }
 
 /**
@@ -30,6 +31,9 @@ export function updateObject(formData: FormData, data: FunctionalDict = null): F
       },
       has(key: string) {
         return this[key] != null;
+      },
+      delete(key: string) {
+        delete this[key];
       }
     };
   }

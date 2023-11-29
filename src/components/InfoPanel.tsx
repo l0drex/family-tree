@@ -3,17 +3,19 @@ import { filterLang, strings } from "../main";
 import { db } from "../backend/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Fact, GDate, Person } from "../gedcomx/gedcomx-js-extensions";
-import {
-  Attribution,
-  ConclusionMisc,
-  Notes,
-  SourceReferences,
-  SubjectArticles,
-  SubjectMisc,
-  SubjectSidebar
-} from "./GedcomXComponents";
+import { SubjectArticles, SubjectMisc, SubjectSidebar } from "./GedcomXComponents";
 import { Sidebar } from "../Layout";
-import { Article, ArticleTag, Details, PopupButton, Tag, Tags, Title } from "./GeneralComponents";
+import {
+  AddDataButton,
+  Article,
+  ArticleTag,
+  DateTimeInput,
+  Details,
+  Input,
+  Tag,
+  Tags,
+  Title
+} from "./GeneralComponents";
 import { Name } from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 import React, { Fragment } from "react";
@@ -57,7 +59,7 @@ function Names({names}: { names: Name[] }) {
             </summary>
 
             <div className="grid grid-cols-2 mt-2">
-              {nf.parts.map((p, k) => {
+              {nf.parts?.map((p, k) => {
                 let type = strings.gedcomX.person.namePartTypes[p.type?.substring(baseUri.length)];
                 if (type != null) {
                   type += ":";
@@ -74,13 +76,38 @@ function Names({names}: { names: Name[] }) {
               })}
             </div>
           </details>)}
+        <AddDataButton dataType={strings.gedcomX.person.names} path={`names/${i}`}>
+          <NameFormForm/>
+        </AddDataButton>
         {(n.type || n.date) && <section className="mt-2 flex flex-row flex-wrap gap-2">
           {n.type && <ArticleTag>{strings.gedcomX.person.nameTypes[n.type.substring(baseUri.length)]}</ArticleTag>}
           {n.date && <ArticleTag>{new GDate(n.date.toJSON()).toString()}</ArticleTag>}
         </section>}
       </Article>
     })}
+    <AddDataButton dataType={strings.gedcomX.person.names} path="names">
+      <NameForm/>
+    </AddDataButton>
   </section>
+}
+
+function NameForm(name) {
+  const nameTypes = strings.gedcomX.person.nameTypes;
+
+  return <>
+    <label>{strings.gedcomX.fact.type}</label>
+    <select name="type" className="bg-white rounded-full px-4 py-1">
+      <option>-</option>
+      {Object.keys(nameTypes).map(t => <option value={baseUri + t} key={t}>{nameTypes[t]}</option>)}
+    </select>
+    <NameFormForm/>
+  </>
+}
+
+function NameFormForm(nameForm) {
+  return <>
+    <Input type="text" label={strings.gedcomX.person.names} name="fullText"/>
+  </>
 }
 
 function Facts({facts}: { facts: Fact[] }) {
