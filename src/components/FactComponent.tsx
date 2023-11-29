@@ -3,7 +3,7 @@ import { filterLang, strings } from "../main";
 import { ConclusionArticles, ConclusionMisc, ConclusionSidebar, } from "./GedcomXComponents";
 import {
   AddDataButton,
-  Article, ButtonLike, DeleteDataButton,
+  Article, DeleteDataButton,
   EditDataButton, Hr,
   Input,
   ReactLink,
@@ -104,12 +104,12 @@ export default function FactComponent() {
     </Main>
     <Sidebar>
       <nav>
-        <ReactNavLink to={`../`}>{emojies.left} {type === "person"
+        <ReactNavLink to={`../..`}>{emojies.left} {type === "person"
           ? strings.gedcomX.person.persons
           : strings.gedcomX.relationship.relationships}
         </ReactNavLink>
         <div className="mb-2"/>
-        {facts.map((f, i) => <ReactNavLink key={i} to={`../facts/${i}`}>{f.emoji} {f.localType}</ReactNavLink>)}
+        {facts.map((f, i) => <ReactNavLink key={i} to={`../${i}`}>{f.emoji} {f.localType}</ReactNavLink>)}
       </nav>
       <ConclusionSidebar conclusion={fact}/>
       <Hr/>
