@@ -52,7 +52,7 @@ export function EventView() {
         <SubjectMisc subject={event}/>
       </Tags>
       <Article>
-        <P>{event.getDate()?.toString()} {event.place && strings.formatString(strings.gedcomX.place.format, <ReactLink to={`/places/${event.place.description.substring(1)}`}>{event.place.description}</ReactLink>)}</P>
+        <P>{event.getDate()?.toString()} {event.place && strings.formatString(strings.gedcomX.place.format, <ReactLink to={`/place/${event.place.description.substring(1)}`}>{event.place.description}</ReactLink>)}</P>
         {event.roles && <ul>
           {event.roles.map((r, i) =>
             <li key={i}>
