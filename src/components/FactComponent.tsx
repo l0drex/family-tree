@@ -3,8 +3,8 @@ import { filterLang, strings } from "../main";
 import { ConclusionArticles, ConclusionMisc, ConclusionSidebar, } from "./GedcomXComponents";
 import {
   AddDataButton,
-  Article,
-  EditDataButton,
+  Article, ButtonLike, DeleteDataButton,
+  EditDataButton, Hr,
   Input,
   ReactLink,
   ReactNavLink,
@@ -24,10 +24,10 @@ import { UpdateAttribution } from "./Agents";
 import { sortPersonFacts } from "../routes/utils";
 
 
-function FactForm({types, fact}: { types: object, fact?: Fact }) {
+export function FactForm({types, fact}: { types: object, fact?: Fact }) {
   return <>
     <label htmlFor="type">{strings.gedcomX.fact.type}</label>
-    <select id="type" name="type" defaultValue={fact.type} className="bg-white rounded-full px-4">
+    <select id="type" name="type" defaultValue={fact?.type} className="bg-white rounded-full px-4">
       {Object.keys(types)
         .sort((a, b) => (types[a] as string).localeCompare(types[b]))
         .map(type =>
@@ -111,6 +111,13 @@ export default function FactComponent() {
         {facts.map((f, i) => <ReactNavLink key={i} to={`../facts/${i}`}>{f.emoji} {f.localType}</ReactNavLink>)}
       </nav>
       <ConclusionSidebar conclusion={fact}/>
+      <Hr/>
+      <div className="text-center">
+        <DeleteDataButton path="" label />
+        <AddDataButton dataType={strings.gedcomX.facts} path={"../"}>
+          <FactForm types={strings.gedcomX.person.factTypes} />
+        </AddDataButton>
+      </div>
     </Sidebar>
   </>;
 }

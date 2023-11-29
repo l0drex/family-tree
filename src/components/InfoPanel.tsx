@@ -20,6 +20,7 @@ import { Name } from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 import React, { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
+import { FactForm } from "./FactComponent";
 
 function InfoPanel({person}: { person: Person }) {
   if (!person) {
@@ -124,6 +125,9 @@ function Facts({facts}: { facts: Fact[] }) {
           <FactContent fact={f}/>
         </Article>
       })}
+    <AddDataButton dataType={strings.gedcomX.facts} path={"facts"}>
+      <FactForm types={strings.gedcomX.person.factTypes} />
+    </AddDataButton>
   </section>
 }
 

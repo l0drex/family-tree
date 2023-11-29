@@ -327,17 +327,28 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
   }
 
   async function updateFact({params, request}: { params: Params, request: Request }) {
-    if (request.method !== "POST")
-      return;
-
     const instance = await getFactInstance(params);
+
+    if (request.method === "DELETE") {
+      instance.getFacts().splice(Number(params.index), 1);
+      await updateFacts(params, instance);
+      return redirect("");
+    } else if (request.method !== "POST")
+      return;
 
     const formData = await request.formData();
     let fact = new GedcomX.Fact(updateObject(formData));
 
-    updateArray(instance.getFacts(), Number(params.index), fact);
-    await updateFacts(params, instance);
-    return redirect("");
+    if ("index" in params) {
+      updateArray(instance.getFacts(), Number(params.index), fact);
+      await updateFacts(params, instance);
+      return redirect("");
+    } else {
+      // create new fact
+      pushArray(instance.getFacts(), fact);
+      await updateFacts(params, instance);
+      return redirect(`/person/${params.id}/facts/${instance.facts.length - 1}`);
+    }
   }
 
   async function updateDate({params, request}: { params: Params, request: Request }) {
@@ -402,25 +413,27 @@ export function getFactRoute(table: Table<IPerson | IRelationship>): RouteObject
   }
 
   return {
-    path: "facts/:index", children: [{
+    path: "facts", action: updateFact, children: [{
+      path: ":index", children: [{
       index: true, Component: FactComponent,
       loader: async ({params}) => {
         let datum = await table.get(params.id);
         return datum.facts.map(f => new Fact(f));
       }, action: updateFact
-    }, {
-      path: "date", action: updateDate
-    }, {
-      path: "place", action: updatePlace
-    }, {
-      path: "qualifier/:qIndex?", action: updateQualifier
-    }, ...getConclusionRoutes(
-      table,
-      (d: IPerson | IRelationship, params) => d.facts[Number(params.index)],
-      (parent: IPerson | IRelationship, data, params) => {
-        parent.facts[Number(params.index)] = data as unknown as IFact;
-        return updateDB(table, params.id, "facts", parent.facts.map(f => new GedcomX.Fact(f)))
-      })]
+      }, {
+        path: "date", action: updateDate
+      }, {
+        path: "place", action: updatePlace
+      }, {
+        path: "qualifier/:qIndex?", action: updateQualifier
+      }, ...getConclusionRoutes(
+        table,
+        (d: IPerson | IRelationship, params) => d.facts[Number(params.index)],
+        (parent: IPerson | IRelationship, data, params) => {
+          parent.facts[Number(params.index)] = data as unknown as IFact;
+          return updateDB(table, params.id, "facts", parent.facts.map(f => new GedcomX.Fact(f)))
+        })]
+    }]
   }
 }
 
