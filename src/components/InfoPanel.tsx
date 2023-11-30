@@ -11,7 +11,7 @@ import {
   ArticleTag,
   DateTimeInput, DeleteDataButton,
   Details, EditDataButton,
-  Input, Select,
+  Input, Search, Select,
   Tag,
   Tags,
   Title
@@ -253,6 +253,21 @@ function Relationships({person}: { person: Person }) {
       Promise.all(children.map(r => db.personWithId(r))));
   }, [person])
 
+  const persons = useLiveQuery(() => db.persons.toArray()
+    .then(p => p
+      .filter(p => p.id != person.id)
+      .map(p => new Person(p))
+      .map(p => ({
+        display: p.fullName,
+        value: p.id
+      })))) ?? []
+
+  const types = Object.keys(strings.gedcomX.relationship.types)
+    .map(t => ({
+      value: t,
+      text: strings.gedcomX.relationship.types[t]
+    }))
+
   return <Details title={strings.gedcomX.relationship.relationships}>
     <RelationshipType others={partner} emoji={emojis.relationship.partner}
                       title={strings.gedcomX.relationship.partner}/>
@@ -268,6 +283,12 @@ function Relationships({person}: { person: Person }) {
                       title={strings.gedcomX.relationship.enslavedBy}/>
     <RelationshipType others={slaves} emoji={emojis.relationship.slaves}
                       title={strings.gedcomX.relationship.slaves}/>
+
+    <AddDataButton dataType={strings.gedcomX.relationship.relationships} path={"/relationships"}>
+      <Select name={"type"} label={"Type"} options={types}/>
+      <input hidden name="person1" value={person?.id}/>
+      <Search name={"person2"} label={strings.gedcomX.person.persons} values={persons}/>
+    </AddDataButton>
   </Details>
 }
 
