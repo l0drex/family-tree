@@ -14,6 +14,7 @@ import { EventOverview, EventView } from "./components/Events";
 import { Layout } from "./Layout";
 import { agentRoutes } from "./routes/AgentRoutes";
 import { personRoutes } from "./routes/PersonRoutes";
+import { relationshipRoutes } from "./routes/RelationshipRoutes";
 import { getAll } from "./routes/utils";
 import { getConclusionRoutes, getIdentifierRoute, getNotesRoute, getSubjectRoutes } from "./routes/general";
 
@@ -21,7 +22,7 @@ const router = createBrowserRouter([{
   path: "*", Component: Layout, children: [{
     path: "*", errorElement: <ErrorBoundary/>, children: [{
       index: true, Component: Home
-    }, personRoutes, {
+    }, personRoutes, relationshipRoutes, {
       path: "stats", Component: Statistics
     }, {
       path: "sourceDescription", children: [{

@@ -1,4 +1,4 @@
-import { baseUri, NameTypes } from "../gedcomx/types";
+import { baseUri, NameTypes, RelationshipTypes } from "../gedcomx/types";
 import { filterLang, strings } from "../main";
 import { db } from "../backend/db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -264,38 +264,52 @@ function Relationships({person}: { person: Person }) {
 
   const types = Object.keys(strings.gedcomX.relationship.types)
     .map(t => ({
-      value: t,
+      value: baseUri + t,
       text: strings.gedcomX.relationship.types[t]
     }))
+    
+  const type = RelationshipTypes.Godparent;
+  const person1 = undefined;
+  const person2 = person;
 
   return <Details title={strings.gedcomX.relationship.relationships}>
-    <RelationshipType others={partner} emoji={emojis.relationship.partner}
-                      title={strings.gedcomX.relationship.partner}/>
-    <RelationshipType others={parents} emoji={emojis.relationship.parent}
-                      title={strings.gedcomX.relationship.parents}/>
-    <RelationshipType others={children} emoji={emojis.relationship.child}
-                      title={strings.gedcomX.relationship.children}/>
-    <RelationshipType others={godparents} emoji={emojis.relationship.godparent}
-                      title={strings.gedcomX.relationship.godparents}/>
-    <RelationshipType others={godchildren} emoji={emojis.relationship.godchild}
-                      title={strings.gedcomX.relationship.godchildren}/>
-    <RelationshipType others={enslavedBy} emoji={emojis.relationship.enslaver}
-                      title={strings.gedcomX.relationship.enslavedBy}/>
-    <RelationshipType others={slaves} emoji={emojis.relationship.slaves}
-                      title={strings.gedcomX.relationship.slaves}/>
+    <RelationshipGroup others={partner} emoji={emojis.relationship.partner}
+                      title={strings.gedcomX.relationship.partner} 
+                      type={RelationshipTypes.Couple} person1={person}/>
+    <RelationshipGroup others={parents} emoji={emojis.relationship.parent}
+                      title={strings.gedcomX.relationship.parents}
+                      type={RelationshipTypes.ParentChild} person2={person}/>
+    <RelationshipGroup others={children} emoji={emojis.relationship.child}
+                      title={strings.gedcomX.relationship.children}
+                      type={RelationshipTypes.ParentChild} person1={person}/>
+    <RelationshipGroup others={godparents} emoji={emojis.relationship.godparent}
+                      title={strings.gedcomX.relationship.godparents}
+                      type={RelationshipTypes.Godparent} person1={person}/>
+    <RelationshipGroup others={godchildren} emoji={emojis.relationship.godchild}
+                      title={strings.gedcomX.relationship.godchildren}
+                      type={RelationshipTypes.Godparent} person2={person}/>
+    <RelationshipGroup others={enslavedBy} emoji={emojis.relationship.enslaver}
+                      title={strings.gedcomX.relationship.enslavedBy}
+                      type={RelationshipTypes.EnslavedBy} person1={person}/>
+    <RelationshipGroup others={slaves} emoji={emojis.relationship.slaves}
+                      title={strings.gedcomX.relationship.slaves}
+                      type={RelationshipTypes.EnslavedBy} person2={person}/>
 
-    <AddDataButton dataType={strings.gedcomX.relationship.relationships} path={"/relationships"}>
-      <Select name={"type"} label={"Type"} options={types}/>
-      <input hidden name="person1" value={person?.id}/>
-      <Search name={"person2"} label={strings.gedcomX.person.persons} values={persons}/>
+    <AddDataButton dataType={strings.gedcomX.relationship.relationships} path={"/relationship"}>
+      <Select name="type" label={"Type"} options={types}/>
+      <Search type="text" label="Person 1" name="person1.resource" values={persons}/>
+      <Search type="text" label="Person 2" name="person2.resource" values={persons}/>
     </AddDataButton>
   </Details>
 }
 
-function RelationshipType({others, emoji, title}: {
+function RelationshipGroup({others, type, emoji, title, person1, person2}: {
   others: Person[],
+  type: RelationshipTypes,
   emoji: string,
-  title: string
+  title: string,
+  person1?: Person,
+  person2?: Person
 }) {
 
   if (!others?.length)
@@ -306,7 +320,39 @@ function RelationshipType({others, emoji, title}: {
     {others?.map((r, i) => <div key={i} className="mb-4 last:mb-0">
       <Article>{others?.at(i)?.fullName}</Article>
     </div>)}
+    <AddDataButton dataType={strings.gedcomX.relationship.relationships} 
+    path="/relationship">
+      <RelationshipForm type={type} person1={person1} person2={person2}/>
+    </AddDataButton>
   </section>
+}
+
+function RelationshipForm({type, person1, person2}: {
+  type: RelationshipTypes,
+  person1?: Person,
+  person2?: Person
+}) {
+  const persons = useLiveQuery(() => db.persons.toArray()
+    .then(p => p
+      .filter(p => p.id != (person1?.id ?? person2?.id))
+      .map(p => new Person(p))
+      .map(p => ({
+        display: p.fullName,
+        value: "#" + p.id
+      })))) ?? []
+  /*
+  TODO filter persons:
+   - no already connected persons of the same type
+   - don't allow connections that would break the app:
+     partners must not be relatives and vice versa
+  */
+
+  return <>
+    <input hidden readOnly name="type" value={type}/>
+    {person1 && <input hidden readOnly name="person1.resource" value={"#" + person1.id} />}
+    {person2 && <input hidden readOnly name="person2.resource" value={"#" + person2.id} />}
+    <Search name={person1 ? "person2.resource" : "person1.resource"} label={strings.gedcomX.person.persons} values={persons}/>
+  </>;
 }
 
 export default InfoPanel;

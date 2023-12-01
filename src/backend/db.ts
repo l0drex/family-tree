@@ -301,7 +301,7 @@ export class FamilyDB extends Dexie {
 
     return this.relationships.where({
       "type": RelationshipTypes.EnslavedBy,
-      "person1.resource": person.resource
+      "person2.resource": person.resource
     }).toArray()
       .then(rs =>
         rs.map(r => new GedcomX.ResourceReference(r.person2)));
