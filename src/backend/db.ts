@@ -155,7 +155,7 @@ export class FamilyDB extends Dexie {
   }
 
   async elementWithId(id: string | ResourceReference, type: RootType) {
-    // todo find a way to use generics here
+    // TODO find a way to use generics here
 
     try {
       id = toId(id);

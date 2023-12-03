@@ -1,5 +1,6 @@
 import { redirect, RouteObject } from "react-router-dom";
 import { updateObject, pushArray, updateDB } from "./utils";
+import { Relationship } from "../gedcomx/gedcomx-js-extensions";
 import * as GedcomX from "gedcomx-js";
 import { db } from "../backend/db";
 import { IRelationship } from "../gedcomx/interfaces";
@@ -21,5 +22,16 @@ export const relationshipRoutes: RouteObject = {
     
     // TODO return to original person, maybe through browser history?
     return redirect(`/person/${relation.person1.resource.substring(1)}`);
-  }
+  }, children: [{
+    path: ":relId", action: async ({params, request}) => {
+      if (request.method !== "DELETE") {
+        return;
+      }
+      
+      const relation = await db.elementWithId(params.relId, "relationship") as Relationship;
+      db.relationships.delete(params.relId);
+      
+      return redirect(`/person/${relation.person1.resource.substring(1)}`);
+    }
+  }]
 }

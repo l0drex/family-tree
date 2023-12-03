@@ -259,7 +259,7 @@ function Relationships({person}: { person: Person }) {
       .map(p => new Person(p))
       .map(p => ({
         display: p.fullName,
-        value: p.id
+        value: "#" + p.id
       })))) ?? []
 
   const types = Object.keys(strings.gedcomX.relationship.types)
@@ -311,14 +311,33 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
   person1?: Person,
   person2?: Person
 }) {
+  // TODO improve this, not very efficient
+  const query = {
+    type: type.toString()
+  };
+  if (person1)
+    query["person1.resource"] = "#" + person1.id;
+  else if (person2)
+    query["person2.resource"] = "#" + person2.id;
+  else
+    throw "No person defined";
+  
+  const rels = useLiveQuery(async () => db.relationships.where(query).toArray());
+  if (rels) {
+    console.debug(query, rels);
+  }
 
   if (!others?.length)
     return <></>
 
   return <section className="mb-4 last:mb-0 mt-2">
     <Title emoji={emoji}>{title}</Title>
-    {others?.map((r, i) => <div key={i} className="mb-4 last:mb-0">
-      <Article>{others?.at(i)?.fullName}</Article>
+    {rels?.map((r, i) => <div key={i} className="mb-4 last:mb-0">
+      <Article>
+        {others[i]?.fullName ?? ""}
+        <DeleteDataButton path={
+        `/relationship/${r.id}`} />
+      </Article>
     </div>)}
     <AddDataButton dataType={strings.gedcomX.relationship.relationships} 
     path="/relationship">
