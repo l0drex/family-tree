@@ -323,9 +323,6 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
     throw "No person defined";
   
   const rels = useLiveQuery(async () => db.relationships.where(query).toArray());
-  if (rels) {
-    console.debug(query, rels);
-  }
 
   if (!others?.length)
     return <></>
@@ -334,12 +331,12 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
     <Title emoji={emoji}>{title}</Title>
     {rels?.map((r, i) => <div key={i} className="mb-4 last:mb-0">
       <Article>
-        {others[i]?.fullName ?? ""}
+        {others[i]?.fullName ?? "???"}
         <DeleteDataButton path={
         `/relationship/${r.id}`} />
       </Article>
     </div>)}
-    <AddDataButton dataType={strings.gedcomX.relationship.relationships} 
+    <AddDataButton dataType={title} 
     path="/relationship">
       <RelationshipForm type={type} person1={person1} person2={person2}/>
     </AddDataButton>
