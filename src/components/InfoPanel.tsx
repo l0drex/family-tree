@@ -19,7 +19,7 @@ import {
 import { Name } from "gedcomx-js";
 import emojis from '../backend/emojies.json';
 import React, { Fragment, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FactForm } from "./FactComponent";
 import * as GedcomX from "gedcomx-js";
 
@@ -331,7 +331,7 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
     <Title emoji={emoji}>{title}</Title>
     {rels?.map((r, i) => <div key={i} className="mb-4 last:mb-0">
       <Article>
-        {others[i]?.fullName ?? "???"}
+        <Link to={`/person/${others[i].id ?? ""}`}>{others[i]?.fullName ?? "???"}</Link>
         <DeleteDataButton path={
         `/relationship/${r.id}`} />
       </Article>
