@@ -297,19 +297,32 @@
     },
     "relationship": {
       "relationships": "Relationships",
-      "children": "Children",
-      "parents": "Parents",
-      "partner": "Partner",
-      "godparents": "Godparents",
-      "godchildren": "Godchildren",
-      "enslavedBy": "Enslaved by",
-      "slaves": "Slaves",
       "types": {
-        "AncestorDescendant": "Ancestor - Descendant",
-        "Couple": "Couple",
-        "EnslavedBy": "Enslaved by",
-        "Godparent": "Godparent",
-        "ParentChild": "Parent - Child"
+        "AncestorDescendant": {
+          "general": "Ancestor - Descendant",
+          "0": "Ancestor",
+          "1": "Descendant"
+        },
+        "Couple": {
+          "general": "Couple",
+          "0": "Partner",
+          "1": "Partner"
+        },
+        "EnslavedBy": {
+          "general": "Enslaved by",
+          "0": "Enslaved by",
+          "1": "Slaves"
+        },
+        "Godparent": {
+          "general": "Godparent",
+          "0": "Godparents",
+          "1": "Godchildren"
+        },
+        "ParentChild": {
+          "general": "Parent - Child",
+          "0": "Parents",
+          "1": "Children"
+        }
       },
       "factTypes": {
         "Couple": {

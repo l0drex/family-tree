@@ -148,13 +148,10 @@
   "place": "🌍",
   "relationship": {
     "default": "👪",
-    "parent": "👪",
-    "child": "🍼",
-    "partner": "❤️️",
-    "godparent": "⛅",
-    "godchild": "⛅",
-    "enslaver": "\uD83D\uDD17",
-    "slaves": "\uD83D\uDD17"
+    "Couple": ["❤️️", "❤️️"],
+    "ParentChild": ["👪", "🍼"],
+    "Godparent": ["⛅", "⛅"],
+    "EnslavedBy": ["\uD83D\uDD17", "\uD83D\uDD17"]
   },
   "right": "➡️",
   "search": "🔍",

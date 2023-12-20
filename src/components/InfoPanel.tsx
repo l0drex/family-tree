@@ -2,7 +2,7 @@ import { baseUri, NameTypes, RelationshipTypes } from "../gedcomx/types";
 import { filterLang, strings } from "../main";
 import { db } from "../backend/db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { Fact, GDate, Person } from "../gedcomx/gedcomx-js-extensions";
+import { Fact, GDate, Person, Relationship } from "../gedcomx/gedcomx-js-extensions";
 import { SubjectArticles, SubjectMisc, SubjectSidebar } from "./GedcomXComponents";
 import { LayoutContext, Sidebar } from "../Layout";
 import {
@@ -204,55 +204,6 @@ function FactContent({fact}: {
 }
 
 function Relationships({person}: { person: Person }) {
-  const parents = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getParentsOf(person.id).then(parents =>
-      Promise.all(parents.map(r => db.personWithId(r))));
-  }, [person])
-
-  const children = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getChildrenOf(person.id).then(children =>
-      Promise.all(children.map(r => db.personWithId(r))));
-  }, [person])
-
-  const partner = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getPartnerOf(person.id).then(partner =>
-      Promise.all(partner.map(r => db.personWithId(r))));
-  }, [person])
-
-  const godparents = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getGodparentsOf(person.id).then(parents =>
-      Promise.all(parents.map(r => db.personWithId(r))));
-  }, [person])
-
-  const godchildren = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getGodchildrenOf(person.id).then(children =>
-      Promise.all(children.map(r => db.personWithId(r))));
-  }, [person])
-
-  const enslavedBy = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getEnslavers(person.id).then(children =>
-      Promise.all(children.map(r => db.personWithId(r))));
-  }, [person])
-
-  const slaves = useLiveQuery(async () => {
-    if (!person) return;
-
-    return db.getSlaves(person.id).then(children =>
-      Promise.all(children.map(r => db.personWithId(r))));
-  }, [person])
-
   const persons = useLiveQuery(() => db.persons.toArray()
     .then(p => p
       .filter(p => p.id != person.id)
@@ -265,35 +216,17 @@ function Relationships({person}: { person: Person }) {
   const types = Object.keys(strings.gedcomX.relationship.types)
     .map(t => ({
       value: baseUri + t,
-      text: strings.gedcomX.relationship.types[t]
+      text: strings.gedcomX.relationship.types[t]["general"]
     }))
-    
-  const type = RelationshipTypes.Godparent;
-  const person1 = undefined;
-  const person2 = person;
 
   return <Details title={strings.gedcomX.relationship.relationships}>
-    <RelationshipGroup others={partner} emoji={emojis.relationship.partner}
-                      title={strings.gedcomX.relationship.partner} 
-                      type={RelationshipTypes.Couple} person1={person}/>
-    <RelationshipGroup others={parents} emoji={emojis.relationship.parent}
-                      title={strings.gedcomX.relationship.parents}
-                      type={RelationshipTypes.ParentChild} person2={person}/>
-    <RelationshipGroup others={children} emoji={emojis.relationship.child}
-                      title={strings.gedcomX.relationship.children}
-                      type={RelationshipTypes.ParentChild} person1={person}/>
-    <RelationshipGroup others={godparents} emoji={emojis.relationship.godparent}
-                      title={strings.gedcomX.relationship.godparents}
-                      type={RelationshipTypes.Godparent} person1={person}/>
-    <RelationshipGroup others={godchildren} emoji={emojis.relationship.godchild}
-                      title={strings.gedcomX.relationship.godchildren}
-                      type={RelationshipTypes.Godparent} person2={person}/>
-    <RelationshipGroup others={enslavedBy} emoji={emojis.relationship.enslaver}
-                      title={strings.gedcomX.relationship.enslavedBy}
-                      type={RelationshipTypes.EnslavedBy} person1={person}/>
-    <RelationshipGroup others={slaves} emoji={emojis.relationship.slaves}
-                      title={strings.gedcomX.relationship.slaves}
-                      type={RelationshipTypes.EnslavedBy} person2={person}/>
+    <RelationshipGroup type={RelationshipTypes.Couple} person1={person}/>
+    <RelationshipGroup type={RelationshipTypes.ParentChild} person2={person}/>
+    <RelationshipGroup type={RelationshipTypes.ParentChild} person1={person}/>
+    <RelationshipGroup type={RelationshipTypes.Godparent} person1={person}/>
+    <RelationshipGroup type={RelationshipTypes.Godparent} person2={person}/>
+    <RelationshipGroup type={RelationshipTypes.EnslavedBy} person1={person}/>
+    <RelationshipGroup type={RelationshipTypes.EnslavedBy} person2={person}/>
 
     <AddDataButton dataType={strings.gedcomX.relationship.relationships} path={"/relationship"}>
       <Select name="type" label={"Type"} options={types}/>
@@ -303,11 +236,8 @@ function Relationships({person}: { person: Person }) {
   </Details>
 }
 
-function RelationshipGroup({others, type, emoji, title, person1, person2}: {
-  others: Person[],
+function RelationshipGroup({type, person1, person2}: {
   type: RelationshipTypes,
-  emoji: string,
-  title: string,
   person1?: Person,
   person2?: Person
 }) {
@@ -321,11 +251,21 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
     query["person2.resource"] = "#" + person2.id;
   else
     throw "No person defined";
-  
-  const rels = useLiveQuery(async () => db.relationships.where(query).toArray());
+
+  const rels = useLiveQuery(async () => db.relationships.where(query).toArray()
+    .then(rels => rels.map(r => new Relationship(r))));
+  const others = useLiveQuery(async () => rels && Promise.all(
+    rels.map(r => db.personWithId(r.getOtherPerson(person1 ?? person2)))),
+    [rels]);
 
   if (!others?.length)
     return <></>
+
+  const personIndex = person1 == null ? 0 : 1;
+  const typeString = type.substring(baseUri.length);
+  const emoji: string = emojis.relationship[typeString][personIndex];
+  const title: string = strings.gedcomX.relationship.types[typeString][personIndex.toString()];
+  console.assert(typeof title === "string")
 
   return <section className="mb-4 last:mb-0 mt-2">
     <Title emoji={emoji}>{title}</Title>
@@ -336,7 +276,7 @@ function RelationshipGroup({others, type, emoji, title, person1, person2}: {
         `/relationship/${r.id}`} />
       </Article>
     </div>)}
-    <AddDataButton dataType={title} 
+    <AddDataButton dataType={title}
     path="/relationship">
       <RelationshipForm type={type} person1={person1} person2={person2}/>
     </AddDataButton>

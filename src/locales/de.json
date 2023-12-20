@@ -298,19 +298,32 @@
     },
     "relationship": {
       "relationships": "Verbundene Personen",
-      "children": "Kinder",
-      "parents": "Eltern",
-      "partner": "Partner",
-      "godparents": "Paten",
-      "godchildren": "Patenkinder",
-      "enslavedBy": "Versklavt von",
-      "slaves": "Sklaven",
       "types": {
-        "AncestorDescendant": "Vorfahre - Nachfahre",
-        "Couple": "Paar",
-        "EnslavedBy": "Versklavt von",
-        "Godparent": "Pate",
-        "ParentChild": "Eltern - Kind"
+        "AncestorDescendant": {
+          "general": "Vorfahre - Nachfahre",
+          "0": "Vorfahre",
+          "1": "Nachfahre"
+        },
+        "Couple": {
+          "general": "Paar",
+          "0": "Partner",
+          "1": "Partner"
+        },
+        "EnslavedBy": {
+          "general": "Versklavt von",
+          "0": "Versklavt von",
+          "1": "Sklaven"
+        },
+        "Godparent": {
+          "general": "Pate",
+          "0": "Paten",
+          "1": "Patenkinder"
+        },
+        "ParentChild": {
+          "general": "Eltern - Kind",
+          "0": "Eltern",
+          "1": "Kinder"
+        }
       },
       "factTypes": {
         "Couple": {
