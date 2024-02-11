@@ -20,7 +20,6 @@
   },
   "repository": "https://github.com/l0drex/family-tree",
   "private": true,
-  "packageManager": "pnpm",
   "dependencies": {
     "@babel/core": "^7.23.9",
     "@babel/plugin-syntax-flow": "^7.23.3",
