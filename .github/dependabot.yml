@@ -12,3 +12,10 @@ updates:
     labels:
       - "update"
     target-branch: "beta"
+ - package-ecosystem: "github-actions"
+   directory: "/"
+   schedule:
+     interval: "monthly"
+   labels:
+     - "update"
+
