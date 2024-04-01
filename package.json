@@ -31,7 +31,7 @@
     "@visx/grid": "^3.5.0",
     "@visx/group": "^3.3.0",
     "@visx/network": "^3.3.0",
-    "@visx/react-spring": "^3.8.0",
+    "@visx/react-spring": "^3.10.1",
     "@visx/scale": "^3.5.0",
     "@visx/shape": "^3.5.0",
     "@visx/stats": "^3.5.0",

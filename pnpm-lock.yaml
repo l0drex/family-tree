@@ -36,8 +36,8 @@ dependencies:
     specifier: ^3.3.0
     version: 3.3.0(react@18.2.0)
   '@visx/react-spring':
-    specifier: ^3.8.0
-    version: 3.8.0(@react-spring/web@9.7.3)(react@18.2.0)
+    specifier: ^3.10.1
+    version: 3.10.1(@react-spring/web@9.7.3)(react@18.2.0)
   '@visx/scale':
     specifier: ^3.5.0
     version: 3.5.0
@@ -3318,6 +3318,22 @@ packages:
       - react-dom
     dev: false
 
+  /@visx/axis@3.10.1(react@18.2.0):
+    resolution: {integrity: sha512-HBEDLcpZoJ16hFbkYu3S6mN5mbwlFmUWY5yN967X06RdIL4LmAG3gnZ7u4F9buA3LQo+trJXW78moN005odD4Q==}
+    peerDependencies:
+      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
+    dependencies:
+      '@types/react': 18.2.61
+      '@visx/group': 3.3.0(react@18.2.0)
+      '@visx/point': 3.3.0
+      '@visx/scale': 3.5.0
+      '@visx/shape': 3.5.0(react@18.2.0)
+      '@visx/text': 3.3.0(react@18.2.0)
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /@visx/axis@3.8.0(react@18.2.0):
     resolution: {integrity: sha512-CFIxPnRlIWIz8N+5n4DTSOQQ2Yb0D35YPylEkmk/c7J4haLCEhyI44JaOg6OYOk6ofCOsu9Fqe6dFAOP+MP1IQ==}
     peerDependencies:
@@ -3559,6 +3575,23 @@ packages:
 
   /@visx/point@3.3.0:
     resolution: {integrity: sha512-03eBBIJarkmX79WbeEGTUZwmS5/MUuabbiM9KfkGS9pETBTWkp1DZtEHZdp5z34x5TDQVLSi0rk1Plg3/8RtDg==}
+    dev: false
+
+  /@visx/react-spring@3.10.1(@react-spring/web@9.7.3)(react@18.2.0):
+    resolution: {integrity: sha512-OB64l98nGF0pBFXUmAgzQVJNhQvLXTw3RpyP11LpljJh4NRtpcnuHAYCruVQJjRrN7MIrqPdhhG0xvibLib2rg==}
+    peerDependencies:
+      '@react-spring/web': ^9.4.5
+      react: ^16.3.0-0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@react-spring/web': 9.7.3(react-dom@18.2.0)(react@18.2.0)
+      '@types/react': 18.2.61
+      '@visx/axis': 3.10.1(react@18.2.0)
+      '@visx/grid': 3.5.0(react@18.2.0)
+      '@visx/scale': 3.5.0
+      '@visx/text': 3.3.0(react@18.2.0)
+      classnames: 2.5.1
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /@visx/react-spring@3.8.0(@react-spring/web@9.7.3)(react@18.2.0):
